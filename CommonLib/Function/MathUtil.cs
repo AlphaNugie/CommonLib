@@ -12,6 +12,18 @@ namespace CommonLib.Function
     public static class MathUtil
     {
         /// <summary>
+        /// 计算输入值的半正矢，假如输入为角度，自动转换为弧度
+        /// </summary>
+        /// <param name="input">输入角度或弧度</param>
+        /// <param name="input_as_degree">是否为角度</param>
+        /// <returns></returns>
+        public static double Haversine(double input, bool input_as_degree)
+        {
+            input = input_as_degree ? input * Math.PI / 180 : input;
+            return Math.Pow(Math.Sin(input / 2), 2); //半正矢公式为(1-cosθ)/2=sin(θ/2)^2
+        }
+
+        /// <summary>
         /// 判断是否在两个数值之间（或等于）
         /// </summary>
         /// <param name="input">待判断的数字</param>

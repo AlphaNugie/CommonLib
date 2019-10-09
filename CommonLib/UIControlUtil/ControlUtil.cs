@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -77,6 +78,22 @@ namespace CommonLib.UIControlUtil
             }
             IAsyncResult result2 = control.BeginInvoke(handler);
             control.EndInvoke(result2);
+        }
+
+        /// <summary>
+        /// 获取控件中Button控件的数量
+        /// </summary>
+        /// <param name="control"></param>
+        /// <returns></returns>
+        public static int GetButtonCount(this Control control)
+        {
+            IEnumerable<Control> childs = control.Controls.Cast<Control>();
+            childs = childs.Where(child => child is Button/* && child.Visible*/);
+            return childs.Count();
+            //Type type = control.GetType();
+            //IEnumerable<FieldInfo> infos = type.GetFields();
+            //infos = infos.Where(fieldInfo => fieldInfo.DeclaringType.Name.Equals("Button"));
+            //return type.GetFields().Where(fieldInfo => fieldInfo.DeclaringType.Name.Equals("Button")).Count();
         }
     }
 }

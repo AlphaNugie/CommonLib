@@ -24,6 +24,29 @@ namespace CommonLib.Function
         }
 
         /// <summary>
+        /// 计算输入值的半正矢，默认输入为角度
+        /// </summary>
+        /// <param name="input">输入角度</param>
+        /// <returns></returns>
+        public static double Haversine(double input) { return Haversine(input, true); }
+
+        /// <summary>
+        /// [不准确]根据两个坐标的经纬度与地球半径计算坐标间的距离（米）
+        /// </summary>
+        /// <param name="lat1">纬度1</param>
+        /// <param name="lon1">经度1</param>
+        /// <param name="lat2">纬度1</param>
+        /// <param name="lon2">经度2</param>
+        /// <param name="earth_radius">地球半径，米</param>
+        /// <returns></returns>
+        public static double GetCoordinateDistance(double lat1, double lon1, double lat2, double lon2, int earth_radius)
+        {
+            double h = Haversine(lat2 - lat1) + Math.Cos(lat1) * Math.Cos(lat2) * Haversine(lon2 - lon1);
+            //return Math.Acos(1 - 2 * h) * earth_radius; //根据反余弦计算
+            return Math.Asin(Math.Sqrt(h)) * 2 * earth_radius; //根据反正弦计算
+        }
+
+        /// <summary>
         /// 判断是否在两个数值之间（或等于）
         /// </summary>
         /// <param name="input">待判断的数字</param>

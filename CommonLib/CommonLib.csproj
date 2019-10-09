@@ -35,6 +35,10 @@
       <HintPath>Dll\ChnCharInfo.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
+    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="Oracle.DataAccess">
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>True</Private>
@@ -75,6 +79,7 @@
     <Compile Include="DataUtil\BaseModel.cs" />
     <Compile Include="DataUtil\BatisLike.cs" />
     <Compile Include="DataUtil\DataProvider.cs" />
+    <Compile Include="DataUtil\MySqlProvider.cs" />
     <Compile Include="DataUtil\SqliteProvider.cs" />
     <Compile Include="Enums\DatabaseTypes.cs" />
     <Compile Include="Enums\EnumExtension.cs" />

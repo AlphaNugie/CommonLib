@@ -26,12 +26,12 @@ namespace CommonLib.DataUtil
         /// </summary>
         protected BatisLike batisLike;
 
+        #region 公共属性
         /// <summary>
         /// 类型名称
         /// </summary>
         public string TypeName { get; protected set; }
 
-        #region 公共属性
         /// <summary>
         /// 最新错误代码
         /// </summary>

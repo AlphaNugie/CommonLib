@@ -24,6 +24,11 @@ namespace CommonLib.Enums
         /// <summary>
         /// SQLite文件数据库
         /// </summary>
-        Sqlite = 3
+        Sqlite = 3,
+
+        /// <summary>
+        /// MySQL数据库
+        /// </summary>
+        MySql = 4
     }
 }

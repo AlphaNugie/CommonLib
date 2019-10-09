@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Oracle.DataAccess.Client;
 using CommonLib.Clients;
 using CommonLib.Enums;
+using MySql.Data.MySqlClient;
 
 namespace CommonLib.DataUtil
 {
@@ -32,6 +33,14 @@ Initial Catalog = ProjectRandom;
 User ID = {1};
 Password = {2};
 database = {3}";
+        //Persist Security Info=True则代表连接方法在数据库连接成功后保存密码信息，=False则不保存
+        private static string _connStr_MySql = @"
+Data Source = {0};
+port = {1};
+Initial Catalog = {2};
+Persist Security Info = True;
+user id = {3};
+password = {4};";
 
         /// <summary>
         /// Oracle连接字符串模板
@@ -44,6 +53,11 @@ database = {3}";
         public static string ConnStrModel_SqlServer { get { return _connStr_SqlServer; } set { _connStr_SqlServer = value; } }
 
         /// <summary>
+        /// MySql连接字符串模板
+        /// </summary>
+        public static string ConnStrModel_MySql { get { return _connStr_MySql; } set { _connStr_MySql = value; } }
+
+        /// <summary>
         /// 默认构造器
         /// </summary>
         public DataProvider() { }
@@ -54,7 +68,7 @@ database = {3}";
         /// <param name="database">数据库类型</param>
         /// <param name="hostAddress">数据库主机地址</param>
         /// <param name="hostPort">数据库主机端口</param>
-        /// <param name="serviceName">数据库服务名称</param>
+        /// <param name="serviceName">Oracle:数据库服务名称;MySQL:数据库名称</param>
         /// <param name="userName">用户名</param>
         /// <param name="password">密码</param>
         /// <returns>返回Oracle或SqlServer的连接字符串</returns>
@@ -64,6 +78,8 @@ database = {3}";
                 return string.Format(ConnStrModel_Oracle, hostAddress, hostPort, serviceName, userName, password);
             else if (database == DatabaseTypes.SqlServer)
                 return string.Format(ConnStrModel_SqlServer, hostAddress, userName, password, serviceName);
+            else if (database == DatabaseTypes.MySql)
+                return string.Format(ConnStrModel_MySql, hostAddress, hostPort, serviceName, userName, password);
 
             return string.Empty;
         }
@@ -76,12 +92,14 @@ database = {3}";
         /// <returns>假如能够连接，返回true，否则返回false</returns>
         public static bool IsConnOpen(DatabaseTypes type, string connStr)
         {
-            dynamic connection;
+            dynamic connection = null;
             ConnectionState state = ConnectionState.Closed;
             if (type == DatabaseTypes.Oracle)
                 connection = new OracleConnection(connStr);
-            else
+            else if (type == DatabaseTypes.SqlServer)
                 connection = new SqlConnection(connStr);
+            else if (type == DatabaseTypes.MySql)
+                connection = new MySqlConnection(connStr);
             try
             {
                 connection.Open();
@@ -105,22 +123,29 @@ database = {3}";
         /// <returns></returns>
         public DataSet MultiQuery(DatabaseTypes database, string connStr, IEnumerable<string> sqlStrings)
         {
-            //假如字符数组为空或数据库类型不正确，返回空
-            if (sqlStrings == null || sqlStrings.Count() == 0 || (database != DatabaseTypes.Oracle && database != DatabaseTypes.SqlServer))
+            //假如字符数组为空，返回空
+            if (sqlStrings == null || sqlStrings.Count() == 0)
                 return null;
 
-            //动态类，根据数据库类型初始化
+            //动态类，根据数据库类型初始化；假如数据库类型不正确，返回空
             dynamic connection, adapter;
             if (database == DatabaseTypes.Oracle)
             {
                 connection = new OracleConnection(connStr);
                 adapter = new OracleDataAdapter(string.Empty, connection);
             }
-            else
+            else if (database == DatabaseTypes.SqlServer)
             {
                 connection = new SqlConnection(connStr);
                 adapter = new SqlDataAdapter(string.Empty, connection);
             }
+            else if (database == DatabaseTypes.MySql)
+            {
+                connection = new MySqlConnection(connStr);
+                adapter = new MySqlDataAdapter(string.Empty, connection);
+            }
+            else
+                return null;
             DataSet dataSet = new DataSet();
             string _string = string.Empty;
             try
@@ -196,7 +221,7 @@ database = {3}";
         /// <returns>返回影响的记录行数</returns>
         public int ExecuteSql(DatabaseTypes database, string connStr, string sqlString)
         {
-            if (string.IsNullOrWhiteSpace(sqlString) || (database != DatabaseTypes.Oracle && database != DatabaseTypes.SqlServer))
+            if (string.IsNullOrWhiteSpace(sqlString))
                 return 0;
 
             dynamic connection, command;
@@ -206,11 +231,18 @@ database = {3}";
                 connection = new OracleConnection(connStr);
                 command = new OracleCommand(sqlString, connection);
             }
-            else
+            else if (database == DatabaseTypes.SqlServer)
             {
                 connection = new SqlConnection(connStr);
                 command = new SqlCommand(sqlString, connection);
             }
+            else if (database == DatabaseTypes.MySql)
+            {
+                connection = new MySqlConnection(connStr);
+                command = new MySqlCommand(sqlString, connection);
+            }
+            else
+                return 0;
             int result = 0;
             try {
                 connection.Open();
@@ -241,26 +273,29 @@ database = {3}";
         /// <returns>假如所有语句执行成功，返回true，否则返回false</returns>
         public bool ExecuteSqlTrans(DatabaseTypes database, string connStr, IEnumerable<string> sqlStrings, IsolationLevel level)
         {
-            //假如数组为空或数据库类型不正确，返回false
-            if (sqlStrings == null || sqlStrings.Count() == 0 || (database != DatabaseTypes.Oracle && database != DatabaseTypes.SqlServer))
+            //假如数组为空，返回false
+            if (sqlStrings == null || sqlStrings.Count() == 0)
                 return false;
 
+            //假如数据库类型不正确，返回false
             dynamic connection, command, transaction;
             if (database == DatabaseTypes.Oracle)
             {
                 connection = new OracleConnection(connStr);
                 command = new OracleCommand(string.Empty, connection);
             }
-            else
+            else if (database == DatabaseTypes.SqlServer)
             {
                 connection = new SqlConnection(connStr);
                 command = new SqlCommand(string.Empty, connection);
             }
-            //connection.Open();
-            //transaction = connection.BeginTransaction(level); //connection必须先Open
-            //command.Transaction = transaction;
-            //bool result = false;
-            //string sql = string.Empty;
+            else if (database == DatabaseTypes.MySql)
+            {
+                connection = new MySqlConnection(connStr);
+                command = new MySqlCommand(string.Empty, connection);
+            }
+            else
+                return false;
 
             bool result = false;
             try { connection.Open(); }
@@ -348,8 +383,8 @@ database = {3}";
         /// <returns>返回影响的行数（？）</returns>
         public int RunProcedure(DatabaseTypes database, string connStr, string procedureName, IDataParameter[] parameters)
         {
-            if (database != DatabaseTypes.Oracle && database != DatabaseTypes.SqlServer)
-                return 0;
+            //if (database != DatabaseTypes.Oracle && database != DatabaseTypes.SqlServer)
+            //    return 0;
 
             dynamic connection, command;
             if (database == DatabaseTypes.Oracle)
@@ -357,11 +392,18 @@ database = {3}";
                 connection = new OracleConnection(connStr);
                 command = this.BuildOracleCommand(connection, procedureName, parameters);
             }
-            else
+            else if (database == DatabaseTypes.SqlServer)
             {
                 connection = new SqlConnection(connStr);
                 command = this.BuildSqlServerCommand(connection, procedureName, parameters);
             }
+            else if (database == DatabaseTypes.MySql)
+            {
+                connection = new MySqlConnection(connStr);
+                command = this.BuildMySqlCommand(connection, procedureName, parameters);
+            }
+            else
+                return 0;
             int result = 0;
             try
             {
@@ -400,7 +442,6 @@ database = {3}";
             command.BindByName = bindByName; //根据名称绑定参数
             command.Parameters.Clear();
             command.Parameters.AddRange(parameters);
-
             return command;
         }
 
@@ -429,7 +470,22 @@ database = {3}";
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.Clear();
             command.Parameters.AddRange(parameters);
+            return command;
+        }
 
+        /// <summary>
+        /// 为存储过程构建MySQLCommand对象
+        /// </summary>
+        /// <param name="connection">数据库连接</param>
+        /// <param name="procedureName">存储过程名</param>
+        /// <param name="parameters">输入参数</param>    
+        /// <returns>返回SqlCommand对象</returns>
+        private MySqlCommand BuildMySqlCommand(MySqlConnection connection, string procedureName, IDataParameter[] parameters)
+        {
+            MySqlCommand command = new MySqlCommand(procedureName, connection);
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.Clear();
+            command.Parameters.AddRange(parameters);
             return command;
         }
     }

@@ -127,6 +127,44 @@ namespace CommonLib.Function
         //    return pointer;
         //}
 
+        ///// <summary>
+        ///// 获取本地IP
+        ///// </summary>
+        ///// <returns></returns>
+        //public static string GetLocalIp()
+        //{
+        //    return GetLocalIp(out string hostName);
+        //}
+
+        ///// <summary>
+        ///// 获取本地IP
+        ///// </summary>
+        ///// <param name="hostName">主机名称</param>
+        ///// <returns></returns>
+        //public static string GetLocalIp(out string hostName)
+        //{
+        //    IPHostEntry ipHostEntry = Dns.GetHostEntry(Environment.MachineName);
+        //    hostName = ipHostEntry.HostName.ToString();
+        //    //string ip = string.Empty;
+
+        //    IPAddress first_ip = ipHostEntry.AddressList.Where(p => p.AddressFamily == AddressFamily.InterNetwork).FirstOrDefault(); //找出第一个IPV4地址
+        //    string ip = first_ip == null ? string.Empty : first_ip.ToString();
+        //    //if (ips.Length > 0)
+        //    //    ip = ipHostEntry.AddressList[0].ToString();
+        //    ipHostEntry = Dns.GetHostEntry(ip);
+        //    hostName = ipHostEntry.HostName.ToString();
+        //    return ip;
+        //}
+
+        /// <summary>
+        /// 获取IPV4的地址
+        /// </summary>
+        /// <returns></returns>
+        public static string GetIPAddressV4()
+        {
+            return GetIpAddressByAddressFamily(AddressFamily.InterNetwork, out string hostName);
+        }
+
         /// <summary>
         /// 获取IPV4的地址
         /// </summary>
@@ -148,22 +186,30 @@ namespace CommonLib.Function
         }
 
         /// <summary>
-        /// 根据地址类型获取IP地址
+        /// 根据地址类型获取第一个IP地址
         /// </summary>
-        /// <param name="family">地址类型(IPV4或IPV6)</param>
+        /// <param name="family">地址类型(IPV4，IPV6或其它)</param>
         /// <param name="hostName">主机名称</param>
         /// <returns></returns>
         public static string GetIpAddressByAddressFamily(AddressFamily family, out string hostName)
         {
-            string ipAddress = string.Empty;
-            hostName = Dns.GetHostName();
-            IPHostEntry entry = Dns.GetHostEntry(hostName);
-            IPAddress[] addressList = entry.AddressList;
-            foreach (IPAddress address in addressList)
-                if (address.AddressFamily == family)
-                    ipAddress = address.ToString();
+            IPHostEntry ipHostEntry = Dns.GetHostEntry(Environment.MachineName);
+            hostName = ipHostEntry.HostName.ToString();
+            IPAddress first_ip = ipHostEntry.AddressList.Where(p => p.AddressFamily == family).FirstOrDefault(); //找出第一个IPV4地址
+            string ip = first_ip == null ? string.Empty : first_ip.ToString();
+            ipHostEntry = Dns.GetHostEntry(ip);
+            hostName = ipHostEntry.HostName.ToString();
+            return ip;
 
-            return ipAddress;
+            //string ipAddress = string.Empty;
+            //hostName = Dns.GetHostName();
+            //IPHostEntry entry = Dns.GetHostEntry(hostName);
+            //IPAddress[] addressList = entry.AddressList;
+            //foreach (IPAddress address in addressList)
+            //    if (address.AddressFamily == family)
+            //        ipAddress = address.ToString();
+
+            //return ipAddress;
         }
 
         /// <summary>

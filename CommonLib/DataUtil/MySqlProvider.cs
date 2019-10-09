@@ -1,45 +1,45 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+using System.Collections;
+using System.Collections.Specialized;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Oracle.DataAccess.Client;
-using CommonLib.Clients;
+using MySql.Data.MySqlClient;
+using System.Configuration;
+using System.Data.Common;
+using System.Collections.Generic;
 using CommonLib.Enums;
 
 namespace CommonLib.DataUtil
 {
-    /// <summary>
-    /// Oracle数据库基础操作类
-    /// </summary>
-    public class OracleProvider
+    /// <summary>  
+    /// 数据访问抽象基础类  
+    /// </summary>  
+    public class MySqlProvider
     {
         private readonly DataProvider dataProvider = new DataProvider();
 
         /// <summary>
-        /// 数据库连接字符串，形如“Data Source=ORCL1;User Id=test;Password=123;”，其中ORCL1可由具体的(DESCRIPTION...)代替
+        /// 数据库连接字符串，形如“Data Source=localhost; port=3306; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”
+        /// port, Charset, Persist Security Info可选，Persist Security Info=True则代表连接方法在数据库连接成功后保存密码信息
         /// </summary>
         public string ConnStr { get; private set; }
 
         /// <summary>
-        /// 以默认配置初始化OracleProvider
+        /// 以默认配置初始化MySqlProvider
         /// </summary>
-        public OracleProvider() : this(ConfigurationManager.AppSettings["OracleClient"]) { }
+        public MySqlProvider() : this(ConfigurationManager.AppSettings["MySqlClient"]) { }
 
         /// <summary>
-        /// 用Oracle配置项名称初始化OracleProvider
+        /// 用MySql配置项名称初始化MySqlProvider
         /// </summary>
         /// <param name="configurationName">项目在App.config文件中appSettings节点下的关键字名称</param>
         /// <param name="_">充数的参数，防止签名一致</param>
-        public OracleProvider(string configurationName, object _) : this(ConfigurationManager.AppSettings[configurationName]) { }
+        public MySqlProvider(string configurationName, object _) : this(ConfigurationManager.AppSettings[configurationName]) { }
 
         /// <summary>
         /// 构造器
         /// </summary>
-        /// <param name="connStr">连接字符串，形如“Data Source=ORCL1;User Id=test;Password=123;”，其中ORCL1可由具体的(DESCRIPTION...)代替</param>
-        public OracleProvider(string connStr)
+        /// <param name="connStr">连接字符串，形如“Data Source=localhost; port=3306; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”</param>
+        public MySqlProvider(string connStr)
         {
             this.ConnStr = connStr;
         }
@@ -51,7 +51,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回结果集</returns>
         public DataSet MultiQuery(string[] sqlStrings)
         {
-            return this.dataProvider.MultiQuery(DatabaseTypes.Oracle, this.ConnStr, sqlStrings);
+            return this.dataProvider.MultiQuery(DatabaseTypes.MySql, this.ConnStr, sqlStrings);
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回数据集</returns>
         public DataSet MultiQuery(string sqlStrings)
         {
-            return this.dataProvider.MultiQuery(DatabaseTypes.Oracle, this.ConnStr, sqlStrings);
+            return this.dataProvider.MultiQuery(DatabaseTypes.MySql, this.ConnStr, sqlStrings);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回数据表</returns>
         public DataTable Query(string sqlString)
         {
-            return this.dataProvider.Query(DatabaseTypes.Oracle, this.ConnStr, sqlString);
+            return this.dataProvider.Query(DatabaseTypes.MySql, this.ConnStr, sqlString);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回影响的记录行数</returns>
         public int ExecuteSql(string sqlString)
         {
-            return this.dataProvider.ExecuteSql(DatabaseTypes.Oracle, this.ConnStr, sqlString);
+            return this.dataProvider.ExecuteSql(DatabaseTypes.MySql, this.ConnStr, sqlString);
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace CommonLib.DataUtil
         /// <returns>假如执行成功，返回true</returns>
         public bool ExecuteSqlTrans(IEnumerable<string> sqlStrings, IsolationLevel level)
         {
-            return this.dataProvider.ExecuteSqlTrans(DatabaseTypes.Oracle, this.ConnStr, sqlStrings, level);
+            return this.dataProvider.ExecuteSqlTrans(DatabaseTypes.MySql, this.ConnStr, sqlStrings, level);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace CommonLib.DataUtil
         /// <returns>假如执行成功，返回true</returns>
         public bool ExecuteSqlTrans(IEnumerable<string> sqlStrings)
         {
-            return this.dataProvider.ExecuteSqlTrans(DatabaseTypes.Oracle, this.ConnStr, sqlStrings);
+            return this.dataProvider.ExecuteSqlTrans(DatabaseTypes.MySql, this.ConnStr, sqlStrings);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace CommonLib.DataUtil
         /// <returns>假如执行成功，返回true</returns>
         public bool ExecuteSqlTrans(string sqlStrings)
         {
-            return this.dataProvider.ExecuteSqlTrans(DatabaseTypes.Oracle, this.ConnStr, sqlStrings);
+            return this.dataProvider.ExecuteSqlTrans(DatabaseTypes.MySql, this.ConnStr, sqlStrings);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public int RunProcedure(string procedureName, IDataParameter[] parameters)
         {
-            return this.dataProvider.RunProcedure(DatabaseTypes.Oracle, this.ConnStr, procedureName, parameters);
+            return this.dataProvider.RunProcedure(DatabaseTypes.MySql, this.ConnStr, procedureName, parameters);
         }
     }
 }

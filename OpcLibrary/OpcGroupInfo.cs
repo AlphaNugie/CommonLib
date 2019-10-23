@@ -90,6 +90,7 @@ namespace OpcLibrary
             this.OpcGroup = groups.Add(name);
         }
 
+        #region 功能
         /// <summary>
         /// 设置OPC组属性
         /// </summary>
@@ -274,6 +275,7 @@ namespace OpcLibrary
             }
             return true;
         }
+        #endregion
 
         #region IDisposable Support
         private bool disposedValue = false; // 要检测冗余调用

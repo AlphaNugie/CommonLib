@@ -19,7 +19,7 @@ namespace OpcLibrary
         private const string DEFAULT_GROUP_NAME = "OPCDOTNETGROUP"; //默认OPC组的名称
         #endregion
 
-        #region 公共属性
+        #region 属性
         /// <summary>
         /// OPC重连线程
         /// </summary>
@@ -180,6 +180,7 @@ namespace OpcLibrary
         /// </summary>
         public OpcUtilHelper() : this(1000, false) { }
 
+        #region 功能
         /// <summary>
         /// 更新OPC服务信息，包括启动时间、版本与状态
         /// </summary>
@@ -549,5 +550,6 @@ namespace OpcLibrary
         {
             return SetItem(itemName, clientHandle, out message) && WriteItemValue(value, out message);
         }
+        #endregion
     }
 }

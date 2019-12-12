@@ -33,12 +33,12 @@ namespace CommonLib.Clients
         /// <summary>
         /// TcpClient重连成功次数改变事件
         /// </summary>
-        public event ReconnTimerChangedHandler ReconnTimerChanged;
+        public event ReconnTimerChangedEventHandler ReconnTimerChanged;
 
         /// <summary>
         /// 数据接收事件
         /// </summary>
-        public event DataReceivedHandler DataReceived;
+        public event Events.DataReceivedEventHandler DataReceived;
 
         ///// <summary>
         ///// 数据接收事件事件的事件数据类

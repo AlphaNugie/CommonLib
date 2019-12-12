@@ -25,6 +25,20 @@ namespace CommonLib.Function.Modbus
             string command = string.Format("{0} {1} {2} {3} {4} {5}", meterAddress.ToString("X2"), ((byte)functionCode).ToString("X2"), (address / 256).ToString("X2"), (address % 256).ToString("X2"), (quantity / 256).ToString("X2"), (quantity % 256).ToString("X2"));
             return command + " " + HexHelper.GetCRC16_String(command);
         }
+
+        /// <summary>
+        /// 获取MODBUS返回信息的正则表达式
+        /// </summary>
+        /// <param name="meterAddress">表地址</param>
+        /// <param name="functionCode">功能码</param>
+        /// <param name="quantity">地址连续量</param>
+        /// <returns>返回MODBUS返回消息的正则表达式</returns>
+        public static string GetReceiveRegexPattern(byte meterAddress, FunctionCode functionCode, ushort quantity)
+        {
+            //返回信息格式：[表地址16进制]<空格>[功能码16进制]<空格>[字节数量(quantity*2)16进制](<空格>[16进制][16进制])X重复次数：quantity*2+2
+            string pattern = string.Format(@"{0}\s{1}\s{2}(\s[0-9a-fA-F]<2>)<{3}>", meterAddress.ToString("X2"), ((byte)functionCode).ToString("X2"), (quantity * 2).ToString("X2"), quantity * 2 + 2).Replace('<', '{').Replace('>', '}');
+            return pattern;
+        }
     }
 
     /// <summary>

@@ -169,7 +169,7 @@ namespace OpcLibrary
         public OpcUtilHelper(int updateRate, bool reconn_enabled)
         {
             this.ReconnEnabled = reconn_enabled;
-            this.OpcServer = new OPCServer();
+            //this.OpcServer = new OPCServer();
             this.OpcUpdateRate = updateRate;
             this.ListGroupInfo = new List<OpcGroupInfo>();
             this.ItemId = string.Empty;
@@ -230,6 +230,7 @@ namespace OpcLibrary
             message = string.Empty;
             try
             {
+                this.OpcServer = new OPCServer();
                 this.OpcServer.Connect(remoteServerName, remoteServerIP);
                 this.OpcServerName = remoteServerName;
                 this.OpcServerIp = remoteServerIP;
@@ -262,7 +263,10 @@ namespace OpcLibrary
         public void DisconnectRemoteServer()
         {
             if (this.Thread_Reconn != null)
+            {
                 this.Thread_Reconn.Abort();
+                this.Thread_Reconn = null;
+            }
             if (!this.OpcConnected)
                 return;
 

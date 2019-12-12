@@ -123,12 +123,9 @@ namespace OpcLibrary
         /// <returns></returns>
         private Array GetValues(IEnumerable<int> serverHandles)
         {
-            bool flag = serverHandles == null || serverHandles.Count() == 0;
+            bool flag = serverHandles == null || serverHandles.Count() == 0; //特殊条件
+            //假如给定的服务端句柄范围为空则选择所有OPC项的值，否则选择服务端在范围内的OPC项以及第一个OPC项的值
             return this.ListItemInfo == null ? new object[0] : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => (object)p.item.Value).ToArray();
-            //if (serverHandles == null || serverHandles.Count() == 0)
-            //    return this.ListItemInfo == null ? new object[0] : this.ListItemInfo.Select(p => (object)p.Value).ToArray();
-            //else
-            //    return this.ListItemInfo == null ? new object[0] : this.ListItemInfo.Where(item => serverHandles.Contains(item.ServerHandle)).Select(p => (object)p.Value).ToArray();
         }
 
         /// <summary>
@@ -138,12 +135,9 @@ namespace OpcLibrary
         /// <returns></returns>
         private Array GetServerHandles(IEnumerable<int> serverHandles)
         {
-            bool flag = serverHandles == null || serverHandles.Count() == 0;
+            bool flag = serverHandles == null || serverHandles.Count() == 0; //特殊条件
+            //假如给定的服务端句柄范围为空则选择所有OPC项的句柄，否则选择服务端在范围内的OPC项以及第一个OPC项的服务端句柄
             return this.ListItemInfo == null ? new int[0] : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle).ToArray();
-            //if (serverHandles == null || serverHandles.Count() == 0)
-            //    return this.ListItemInfo == null ? new int[0] : this.ListItemInfo.Select(item => item.ServerHandle).ToArray();
-            //else
-            //    return this.ListItemInfo == null ? new int[0] : this.ListItemInfo.Where(item => serverHandles.Contains(item.ServerHandle)).Select(p => p.ServerHandle).ToArray();
         }
 
         /// <summary>
@@ -202,13 +196,12 @@ namespace OpcLibrary
         }
 
         /// <summary>
-        /// 为OPC组OPC项List内给定数量的、与给定服务端句柄对应的OPC项读取数据
+        /// 为OPC组OPC项List内与给定服务端句柄对应的OPC项读取数据
         /// </summary>
         /// <param name="serverHandles">服务端句柄Array</param>
-        /// <param name="itemCount">读取的OPC项数量</param>
         /// <param name="message">返回信息</param>
         /// <returns></returns>
-        public bool ReadValues(Array serverHandles, /*int itemCount, */out string message)
+        public bool ReadValues(Array serverHandles, out string message)
         {
             message = string.Empty;
             object qualities, timeStamps;
@@ -251,10 +244,9 @@ namespace OpcLibrary
         }
 
         /// <summary>
-        /// 为OPC组OPC项List内给定数量的、与给定服务端句柄对应的OPC项写入数据
+        /// 为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据
         /// </summary>
         /// <param name="serverHandles">服务端句柄Array</param>
-        /// <param name="itemCount">写入的OPC项数量</param>
         /// <param name="message">返回信息</param>
         /// <returns></returns>
         public bool WriteValues(Array serverHandles, out string message)

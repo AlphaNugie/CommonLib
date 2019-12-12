@@ -19,8 +19,9 @@ namespace CommonLib.UIControlUtil
         /// </summary>
         /// <typeparam name="T">欲转换为的泛型类</typeparam>
         /// <param name="row">DataGridViewRow对象</param>
+        /// <param name="throwing">是否抛出异常</param>
         /// <returns></returns>
-        public static T ConvertDataGridViewRow2Obect<T>(DataGridViewRow row)
+        public static T ConvertDataGridViewRow2Obect<T>(DataGridViewRow row, bool throwing)
         {
             T obj = Activator.CreateInstance<T>();
             string columnName;
@@ -28,14 +29,33 @@ namespace CommonLib.UIControlUtil
             //object value;
             foreach (DataGridViewCell cell in row.Cells)
             {
-                columnName = cell.OwningColumn.Name;
-                propName = columnName.Substring(columnName.LastIndexOf('_') + 1);
-                PropertyInfo property = obj.GetType().GetProperty(propName);
-                if (property != null)
-                    property.SetValue(obj, Functions.ConvertType(property.PropertyType, cell.Value));
+                try
+                {
+                    columnName = cell.OwningColumn.Name;
+                    propName = columnName.Substring(columnName.LastIndexOf('_') + 1);
+                    PropertyInfo property = obj.GetType().GetProperty(propName);
+                    if (property != null)
+                        property.SetValue(obj, Functions.ConvertType(property.PropertyType, cell.Value));
+                }
+                catch (Exception e)
+                {
+                    if (throwing)
+                        throw e;
+                }
             }
 
             return obj;
+        }
+
+        /// <summary>
+        /// 将DataGridViewRow对象转换为实体类对象，列名应为 "XXX_[PropertyName]" 的形式
+        /// </summary>
+        /// <typeparam name="T">欲转换为的泛型类</typeparam>
+        /// <param name="row">DataGridViewRow对象</param>
+        /// <returns></returns>
+        public static T ConvertDataGridViewRow2Obect<T>(DataGridViewRow row)
+        {
+            return ConvertDataGridViewRow2Obect<T>(row, true);
         }
     }
 

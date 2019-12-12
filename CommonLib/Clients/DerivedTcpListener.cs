@@ -18,7 +18,7 @@ namespace CommonLib.Clients
         /// <summary>
         /// 数据接收事件
         /// </summary>
-        public event DataReceivedHandler DataReceived;
+        public event DataReceivedEventHandler DataReceived;
         #endregion
 
         #region 私有成员

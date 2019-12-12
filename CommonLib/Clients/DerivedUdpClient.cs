@@ -33,12 +33,12 @@ namespace CommonLib.Clients
         /// <summary>
         /// UDP重连成功次数改变事件
         /// </summary>
-        public event ReconnTimerChangedHandler ReconnTimerChanged;
+        public event ReconnTimerChangedEventHandler ReconnTimerChanged;
 
         /// <summary>
         /// 数据接收事件
         /// </summary>
-        public event DataReceivedHandler DataReceived;
+        public event Events.DataReceivedEventHandler DataReceived;
         #endregion
         #region 私有成员变量
         /// <summary>

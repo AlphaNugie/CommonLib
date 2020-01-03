@@ -53,6 +53,7 @@ namespace CommonLib.Clients
         private bool logging = false;
         private int receiveBufferSize = 2048;
         private bool autoReceive = true;
+        private IPEndPoint remote_endpoint, local_endpoint;
         #endregion
         #region 成员属性
         /// <summary>
@@ -80,9 +81,22 @@ namespace CommonLib.Clients
         public int ServerPort { get; set; }
 
         /// <summary>
-        /// 建立TCP连接时指定的本地端口
+        /// 本地IP终结点，未初始化则为空
         /// </summary>
-        public IPEndPoint LocalEndPoint { get; set; }
+        public IPEndPoint LocalEndPoint
+        {
+            get { return this.local_endpoint; }
+            set { this.local_endpoint = value; }
+        }
+
+        /// <summary>
+        /// 远程IP终结点，未连接则为空
+        /// </summary>
+        public IPEndPoint RemoteEndPoint
+        {
+            get { return this.remote_endpoint; }
+            set { this.remote_endpoint = value; }
+        }
 
         /// <summary>
         /// 重新连接时是否保持同一个端口
@@ -145,7 +159,7 @@ namespace CommonLib.Clients
         public bool IsConnected { get; private set; }
 
         /// <summary>
-        /// Tcp Socket的
+        /// Tcp Socket的真实连接状态
         /// </summary>
         public bool IsConnected_Socket { get; private set; }
 
@@ -170,13 +184,15 @@ namespace CommonLib.Clients
         /// </summary>
         public void SetName()
         {
-            if (!this.BaseClient.Connected)
-                return;
+            //if (!this.BaseClient.Connected)
+            //    return;
 
-            IPEndPoint iepR = (IPEndPoint)this.BaseClient.Client.RemoteEndPoint;
-            IPEndPoint iepL = (IPEndPoint)this.BaseClient.Client.LocalEndPoint;
-            this.Name = iepL.Port + "->" + iepR.ToString();
-            this.LocalEndPoint = iepL;
+            //IPEndPoint iepR = (IPEndPoint)this.BaseClient.Client.RemoteEndPoint;
+            //IPEndPoint iepL = (IPEndPoint)this.BaseClient.Client.LocalEndPoint;
+            //this.Name = iepL.Port + "->" + iepR.ToString();
+            //this.LocalEndPoint = iepL;
+            try { this.Name = this.BaseClient.Client.GetName(out this.remote_endpoint, out this.local_endpoint); }
+            catch (Exception) { this.Name = "未定义"; }
         }
 
         /// <summary>

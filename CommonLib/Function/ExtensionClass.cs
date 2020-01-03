@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,17 +14,31 @@ namespace CommonLib.Function
     /// </summary>
     public static class ExtensionClass
     {
-        ///// <summary>
-        ///// 判断是否在两个数值之间（或等于）
-        ///// </summary>
-        ///// <param name="input">待判断的数字</param>
-        ///// <param name="number1">数值1</param>
-        ///// <param name="number2">数值2</param>
-        ///// <returns>假如在数值之间，返回true，否则返回false</returns>
-        //public static bool Between(this double input, double number1, double number2)
-        //{
-        //    return (input >= number1 && input <= number2) || (input >= number2 && input <= number1);
-        //}
+        /// <summary>
+        /// 获取Socket连接名称，格式：(本地终结点不为空)本地IP:端口->服务端IP:端口(远程终结点不为空)
+        /// </summary>
+        /// <param name="socket">套接字接口对象</param>
+        /// <param name="remote">远程IP终结点</param>
+        /// <param name="local">本地IP终结点</param>
+        /// <returns></returns>
+        public static string GetName(this Socket socket, out IPEndPoint remote, out IPEndPoint local)
+        {
+            remote = socket.RemoteEndPoint == null ? null : (IPEndPoint)socket.RemoteEndPoint;
+            local = socket.LocalEndPoint == null ? null : (IPEndPoint)socket.LocalEndPoint;
+            string name = (local == null ? string.Empty : local.ToString()) + (remote == null ? string.Empty : ("->" + remote.ToString()));
+            return name;
+        }
+
+        /// <summary>
+        /// 获取Socket连接名称，格式：(本地终结点不为空)本地IP:端口->服务端IP:端口(远程终结点不为空)
+        /// </summary>
+        /// <param name="socket">套接字接口对象</param>
+        /// <returns></returns>
+        public static string GetName(this Socket socket)
+        {
+            //IPEndPoint remote, local;
+            return GetName(socket, out _, out _);
+        }
 
         /// <summary>
         /// 泛型类的扩展方法，使用双缓存（适用于DataGridView / ListView等

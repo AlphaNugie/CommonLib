@@ -47,6 +47,7 @@ namespace CommonLib.Clients
         private UdpClient baseClient = null;
         private bool logging = false;
         private bool autoReceive = true;
+        private IPEndPoint remote_endpoint, local_endpoint;
         #endregion
         #region 成员属性
         /// <summary>
@@ -69,14 +70,22 @@ namespace CommonLib.Clients
         public int ServerPort { get; set; }
 
         /// <summary>
-        /// 建立TCP连接时指定的本地端口
+        /// 本地IP终结点，未初始化则为空
         /// </summary>
-        public IPEndPoint LocalEndPoint { get; set; }
+        public IPEndPoint LocalEndPoint
+        {
+            get { return this.local_endpoint; }
+            set { this.local_endpoint = value; }
+        }
 
         /// <summary>
-        /// 远程IP 端口
+        /// 远程IP终结点，未连接则为空
         /// </summary>
-        public IPEndPoint RemoteEndPoint { get; set; }
+        public IPEndPoint RemoteEndPoint
+        {
+            get { return this.remote_endpoint; }
+            set { this.remote_endpoint = value; }
+        }
 
         /// <summary>
         /// 重新连接时是否保持同一个端口
@@ -146,18 +155,17 @@ namespace CommonLib.Clients
         /// </summary>
         public void SetName()
         {
-            //if (!this.BaseClient.Connected)
-            //    return;
-
-            try
-            {
-                IPEndPoint iepR = (IPEndPoint)this.BaseClient.Client.RemoteEndPoint;
-                IPEndPoint iepL = (IPEndPoint)this.BaseClient.Client.LocalEndPoint;
-                this.Name = iepL.Port + "->" + iepR.ToString();
-                this.LocalEndPoint = iepL;
-                this.RemoteEndPoint = iepR;
-            }
-            catch (Exception) { }
+            //try
+            //{
+            //    IPEndPoint iepR = this.BaseClient.Client.RemoteEndPoint == null ? null : (IPEndPoint)this.BaseClient.Client.RemoteEndPoint;
+            //    IPEndPoint iepL = this.BaseClient.Client.LocalEndPoint == null ? null : (IPEndPoint)this.BaseClient.Client.LocalEndPoint;
+            //    this.Name = (iepL == null ? string.Empty : iepL.ToString()) + (iepR == null ? string.Empty : ("->" + iepR.ToString()));
+            //    this.RemoteEndPoint = iepR;
+            //    this.LocalEndPoint = iepL;
+            //}
+            //catch (Exception) { }
+            try { this.Name = this.BaseClient.Client.GetName(out this.remote_endpoint, out this.local_endpoint); }
+            catch (Exception) { this.Name = "未定义"; }
         }
 
         /// <summary>
@@ -177,6 +185,7 @@ namespace CommonLib.Clients
             //if (!string.IsNullOrWhiteSpace(local_ip) && local_port > 0)
                 //this.BaseClient = new UdpClient(new IPEndPoint(IPAddress.Parse(local_ip), local_port));
             this.BaseClient = !string.IsNullOrWhiteSpace(local_ip) && local_port > 0 ? new UdpClient(new IPEndPoint(IPAddress.Parse(local_ip), local_port)) : new UdpClient();
+            this.SetName();
             if (this.AutoReceive)
                 this.BaseClient.BeginReceive(new AsyncCallback(ReceiveCallBack), this);
         }
@@ -360,9 +369,9 @@ namespace CommonLib.Clients
 
             try
             {
-                IPEndPoint point = this.RemoteEndPoint;
-                byte[] recdata = this.BaseClient.EndReceive(ar, ref point);
-                this.RemoteEndPoint = point;
+                //IPEndPoint point = this.RemoteEndPoint;
+                byte[] recdata = this.BaseClient.EndReceive(ar, ref this.remote_endpoint);
+                //this.RemoteEndPoint = point;
 
                 if (recdata.Length > 0)
                 {
@@ -393,9 +402,9 @@ namespace CommonLib.Clients
                 return;
             try
             {
-                IPEndPoint point = this.RemoteEndPoint;
-                byte[] data = this.BaseClient.Receive(ref point);
-                this.RemoteEndPoint = point;
+                //IPEndPoint point = this.RemoteEndPoint;
+                byte[] data = this.BaseClient.Receive(ref this.remote_endpoint);
+                //this.RemoteEndPoint = point;
                 //this.NetStream.Read(this.Buffer, 0, available);
                 Events.DataReceivedEventArgs args = new Events.DataReceivedEventArgs(data);
                 asc = args.ReceivedInfo_String;

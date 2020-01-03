@@ -192,7 +192,7 @@ namespace CommonLib.Clients
             //this.Name = iepL.Port + "->" + iepR.ToString();
             //this.LocalEndPoint = iepL;
             try { this.Name = this.BaseClient.Client.GetName(out this.remote_endpoint, out this.local_endpoint); }
-            catch (Exception) { this.Name = "未定义"; }
+            catch (Exception) { this.Name = string.Empty; }
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace CommonLib.Clients
             this.ReceiveBufferSize = 2048;
             this.Buffer = new byte[this.ReceiveBufferSize];
             this.LastErrorMessage = string.Empty;
-            this.Name = "未定义";
+            this.Name = string.Empty;
             this.ReceiveRestTime = 0;
         }
 

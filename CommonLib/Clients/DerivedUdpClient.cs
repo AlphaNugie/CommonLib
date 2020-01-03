@@ -125,6 +125,11 @@ namespace CommonLib.Clients
         public string Name { get; private set; }
 
         /// <summary>
+        /// 是否已启动监听
+        /// </summary>
+        public bool IsStartListening { get; set; }
+
+        /// <summary>
         /// 是否已连接
         /// </summary>
         public bool IsConnected { get; private set; }
@@ -165,7 +170,7 @@ namespace CommonLib.Clients
             //}
             //catch (Exception) { }
             try { this.Name = this.BaseClient.Client.GetName(out this.remote_endpoint, out this.local_endpoint); }
-            catch (Exception) { this.Name = "未定义"; }
+            catch (Exception e) { this.Name = string.Empty; }
         }
 
         /// <summary>
@@ -180,11 +185,12 @@ namespace CommonLib.Clients
             this.AutoReceive = auto_receive;
             this.HoldLocalPort = hold_port;
             this.LastErrorMessage = string.Empty;
-            this.Name = "未定义";
+            this.Name = string.Empty;
             this.ReceiveRestTime = 0;
             //if (!string.IsNullOrWhiteSpace(local_ip) && local_port > 0)
                 //this.BaseClient = new UdpClient(new IPEndPoint(IPAddress.Parse(local_ip), local_port));
             this.BaseClient = !string.IsNullOrWhiteSpace(local_ip) && local_port > 0 ? new UdpClient(new IPEndPoint(IPAddress.Parse(local_ip), local_port)) : new UdpClient();
+            this.IsStartListening = true;
             this.SetName();
             if (this.AutoReceive)
                 this.BaseClient.BeginReceive(new AsyncCallback(ReceiveCallBack), this);
@@ -445,6 +451,7 @@ namespace CommonLib.Clients
                     //this.NetStream.Close();
                     //this.NetStream.Dispose();
                     this.BaseClient.Close();
+                    this.IsStartListening = false;
                     this.ServerIp = null;
                     this.ServerPort = 0;
                     this.IsConnected = false;
@@ -544,43 +551,5 @@ namespace CommonLib.Clients
                 throw; //如果不需要抛出异常，注释此行
             }
         }
-
-        ///// <summary>
-        ///// 从TCP服务端接收信息并转换为字符串
-        ///// </summary>
-        ///// <returns>返回从TCP服务器接收到的信息</returns>
-        //public string ReceiveInfo()
-        //{
-        //    //假如未连接，返回空字符串
-        //    if (!this.IsConnected || !this.IsSocketConnected())
-        //        return string.Empty;
-
-        //    try
-        //    {
-        //        //接收信息并转换为字符串
-        //        byte[] buffer = new byte[ReceiveBufferSize];
-        //        NetStream.Flush(); //不知道有没有用
-        //        NetStream.Read(buffer, 0, buffer.Length);
-        //        string info = System.Text.Encoding.ASCII.GetString(buffer).Trim('\0'); //去除字符串头尾的空白字符
-        //        if (info == null || info.Length == 0)
-        //            return string.Empty;
-
-        //        //（根据正文开始、正文结束字符）从字符串中截取正式信息
-        //        //信息开始处字符的索引，假如有正文开始字符，索引为该字符索引+1，否则为0
-        //        int startIndex = info.Contains(Base.STX) ? info.IndexOf(Base.STX) : 0;
-        //        //信息中包含的字符数量
-        //        int length = info.Contains(Base.ETX) ? info.IndexOf(Base.ETX) - startIndex : info.Length - startIndex;
-        //        info = info.Substring(startIndex, length);
-        //        return info;
-        //    }
-        //    //假如出现异常，将错误信息记入日志并返回空字符串
-        //    catch (Exception e)
-        //    {
-        //        LastErrorMessage = "信息接收失败：" + e.Message;
-        //        FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
-        //        return string.Empty;
-        //        throw; //如果不需要抛出异常，注释此行
-        //    }
-        //}
     }
 }

@@ -23,8 +23,9 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static string GetName(this Socket socket, out IPEndPoint remote, out IPEndPoint local)
         {
-            remote = socket.RemoteEndPoint == null ? null : (IPEndPoint)socket.RemoteEndPoint;
-            local = socket.LocalEndPoint == null ? null : (IPEndPoint)socket.LocalEndPoint;
+            remote = local = null;
+            try { remote = (IPEndPoint)socket.RemoteEndPoint; } catch (Exception) { }
+            try { local = (IPEndPoint)socket.LocalEndPoint; } catch (Exception) { }
             string name = (local == null ? string.Empty : local.ToString()) + (remote == null ? string.Empty : ("->" + remote.ToString()));
             return name;
         }

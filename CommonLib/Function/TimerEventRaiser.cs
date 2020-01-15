@@ -7,8 +7,6 @@ using System.Timers;
 
 namespace CommonLib.Function
 {
-
-
     /// <summary>
     /// 计时事件触发器
     /// </summary>
@@ -43,12 +41,13 @@ namespace CommonLib.Function
         #region 私有成员
         private const uint DEFAULT_INTERVAL = 1000, DEFAULT_RAISE_THRESHOLD = 5000;
         private readonly Timer timer = new Timer();
-        private uint interval = DEFAULT_INTERVAL, counter, raised_counter, raise_threshold = DEFAULT_RAISE_THRESHOLD, raise_interval = DEFAULT_RAISE_THRESHOLD;
+        private uint interval = DEFAULT_INTERVAL, /*counter, raise_threshold = DEFAULT_RAISE_THRESHOLD, */raised_counter, raise_interval = DEFAULT_RAISE_THRESHOLD;
+        private ulong counter, raise_threshold = DEFAULT_RAISE_THRESHOLD;
         #endregion
 
         #region 属性
         /// <summary>
-        /// 计时间隔，两次计时累加间的时间长度，默认1000毫秒
+        /// 计时间隔，两次计时累加间的时间长度，单位毫秒，默认1000
         /// </summary>
         public uint Interval
         {
@@ -61,25 +60,26 @@ namespace CommonLib.Function
         }
 
         /// <summary>
-        /// 触发间隔，两次触发事件间允许的最短时间长度，默认5000毫秒
+        /// 触发间隔，两次触发事件间允许的最短时间长度，单位毫秒，默认5000
         /// </summary>
         public uint RaiseInterval
         {
             //未曾触发事件时触发间隔以触发阈值为准
-            get { return this.raised_counter == 0 ? this.raise_threshold : this.raise_interval; }
+            //get { return this.raised_counter == 0 ? this.raise_threshold : this.raise_interval; }
+            get { return this.raise_interval; }
             set { this.raise_interval = value > 0 ? value : DEFAULT_RAISE_THRESHOLD; }
         }
 
         /// <summary>
         /// 计时器，计时间隔的累加，大于触发间隔后不再累加
         /// </summary>
-        public uint Counter
+        public ulong Counter
         {
             get { return this.counter; }
-            set
+            private set
             {
-                //计时长度大于触发间隔后不再累加
-                if (value <= this.RaiseInterval)
+                ////计时长度大于触发间隔后不再累加
+                //if (value <= this.RaiseInterval)
                     this.counter = value;
             }
         }
@@ -90,15 +90,16 @@ namespace CommonLib.Function
         public uint RaisedTimes
         {
             get { return this.raised_counter; }
-            set { this.raised_counter = value; }
+            private set { this.raised_counter = value; }
         }
 
         /// <summary>
-        /// 计时阈值，计时达到此值触发事件，默认5000毫秒
+        /// 计时阈值，计时达到此值触发事件，单位毫秒，默认5000
         /// </summary>
-        public uint RaiseThreshold
+        public ulong RaiseThreshold
         {
-            get { return this.raise_threshold; }
+            //get { return this.raise_threshold; }
+            get { return this.raise_threshold + this.raised_counter * this.raise_interval; }
             set { this.raise_threshold = value > 0 ? value : DEFAULT_RAISE_THRESHOLD; }
         }
         #endregion
@@ -117,7 +118,7 @@ namespace CommonLib.Function
         /// <summary>
         /// 以默认的计时间隔初始化
         /// </summary>
-        public TimerEventRaiser() : this(0) { }
+        public TimerEventRaiser() : this(DEFAULT_INTERVAL) { }
         #endregion
 
         #region 方法
@@ -154,7 +155,7 @@ namespace CommonLib.Function
         {
             if (this.ThresholdReached != null)
                 this.ThresholdReached.BeginInvoke(this, new ThresholdReachedEventArgs(this.counter, ++this.RaisedTimes), null, null);
-            this.counter = 0;
+            //this.counter = 0;
         }
 
         /// <summary>
@@ -185,7 +186,8 @@ namespace CommonLib.Function
         public void TimerElapsed(object sender, ElapsedEventArgs e)
         {
             this.Counter += this.Interval;
-            if (this.counter >= this.RaiseThreshold && this.counter >= this.RaiseInterval)
+            //if (this.counter >= this.RaiseThreshold && this.counter >= this.RaiseInterval)
+            if (this.counter >= this.RaiseThreshold)
                 this.Raise();
         }
     }
@@ -198,7 +200,7 @@ namespace CommonLib.Function
         /// <summary>
         /// 触发时的计时器大小
         /// </summary>
-        public uint Counter { get; set; }
+        public ulong Counter { get; set; }
 
         /// <summary>
         /// 触发的次数
@@ -210,7 +212,7 @@ namespace CommonLib.Function
         /// </summary>
         /// <param name="counter">触发时的计时器大小</param>
         /// <param name="raised_times">触发次数</param>
-        public ThresholdReachedEventArgs(uint counter, uint raised_times)
+        public ThresholdReachedEventArgs(ulong counter, uint raised_times)
         {
             this.Counter = counter;
             this.RaisedTimes = raised_times;

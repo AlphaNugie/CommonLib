@@ -371,7 +371,7 @@ namespace OpcLibrary
             message = string.Empty;
             if (groups == null || groups.Count() == 0)
             {
-                message = "未提供任何OPC组信息，无法创建OPC组";
+                //message = "未提供任何OPC组信息，无法创建OPC组";
                 return false;
             }
             try

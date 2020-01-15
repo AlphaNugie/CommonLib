@@ -107,6 +107,7 @@
     <Compile Include="Function\MathUtil.cs" />
     <Compile Include="Function\Modbus\ModbusHelper.cs" />
     <Compile Include="Function\OperateIniFile.cs" />
+    <Compile Include="Function\TimerEventRaiser.cs" />
     <Compile Include="Function\TraceRoute.cs" />
     <Compile Include="UIControlUtil\ControlUtil.cs" />
     <Compile Include="UIControlUtil\DataGridViewUtil.cs" />

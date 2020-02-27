@@ -37,10 +37,7 @@ namespace CommonLib.Function
             PingOptions pingerOptions = new PingOptions(ttl, true);
             int timeout = 10000;
             byte[] buffer = Encoding.ASCII.GetBytes(Data);
-            PingReply reply = default(PingReply);
-
-            reply = pinger.Send(hostNameOrAddress, timeout, buffer, pingerOptions);
-
+            PingReply reply = pinger.Send(hostNameOrAddress, timeout, buffer, pingerOptions);
             List<IPAddress> result = new List<IPAddress>();
             if (reply.Status == IPStatus.Success)
             {

@@ -164,16 +164,17 @@ namespace CommonLib.Clients
                 }
                 catch (Exception) { this.LastErrorMessage = this.TcpClient.LastErrorMessage; throw; }
             }
+            //TODO 编写其它连接方式的连接方法
             else
             {
-                try
-                {
-                    result = BaseUdpClient.Connect(serverIp, port);
-                    ServerIp = BaseUdpClient.ServerIp;
-                    ServerPort = BaseUdpClient.ServerPort;
-                    IsConnected = BaseUdpClient.IsConnected;
-                }
-                catch (Exception) { LastErrorMessage = BaseUdpClient.LastErrorMessage; throw; }
+                //try
+                //{
+                //    result = BaseUdpClient.Connect(serverIp, port);
+                //    ServerIp = BaseUdpClient.ServerIp;
+                //    ServerPort = BaseUdpClient.ServerPort;
+                //    IsConnected = BaseUdpClient.IsConnected;
+                //}
+                //catch (Exception) { LastErrorMessage = BaseUdpClient.LastErrorMessage; throw; }
             }
 
             ConnType = connType;
@@ -198,7 +199,7 @@ namespace CommonLib.Clients
             }
 
             LastErrorMessage = string.Empty;
-            int result;
+            int result = 1;
             if (ConnType == ConnTypes.TCP)
             {
                 try
@@ -210,16 +211,17 @@ namespace CommonLib.Clients
                 }
                 catch (Exception) { LastErrorMessage = this.TcpClient.LastErrorMessage; throw; }
             }
+            //TODO 编写其它连接方式的断开方法
             else
             {
-                try
-                {
-                    result = BaseUdpClient.Close();
-                    ServerIp = BaseUdpClient.ServerIp;
-                    ServerPort = BaseUdpClient.ServerPort;
-                    IsConnected = BaseUdpClient.IsConnected;
-                }
-                catch (Exception) { LastErrorMessage = BaseUdpClient.LastErrorMessage; throw; }
+                //try
+                //{
+                //    result = BaseUdpClient.Close();
+                //    ServerIp = BaseUdpClient.ServerIp;
+                //    ServerPort = BaseUdpClient.ServerPort;
+                //    IsConnected = BaseUdpClient.IsConnected;
+                //}
+                //catch (Exception) { LastErrorMessage = BaseUdpClient.LastErrorMessage; throw; }
             }
 
             ConnType = result == 1 ? ConnTypes.UNCONNECTED : ConnType;
@@ -232,19 +234,21 @@ namespace CommonLib.Clients
         /// <param name="command">指令字符串</param>
         public void SendCommand(string command, ConnTypes connType)
         {
+
+            //TODO 完善其它连接方式的发送方法
             try
             {
                 if (connType == ConnTypes.TCP)
                     this.TcpClient.SendString(command);
-                else if (connType == ConnTypes.UDP)
-                    BaseUdpClient.SendCommand(command);
+                //else if (connType == ConnTypes.UDP)
+                //    BaseUdpClient.SendCommand(command);
             }
             catch (Exception)
             {
                 if (connType == ConnTypes.TCP)
                     LastErrorMessage = this.TcpClient.LastErrorMessage;
-                else if (connType == ConnTypes.UDP)
-                    LastErrorMessage = BaseUdpClient.LastErrorMessage;
+                //else if (connType == ConnTypes.UDP)
+                //    LastErrorMessage = BaseUdpClient.LastErrorMessage;
 
                 throw; //假如不需要抛出异常，注释掉
             }
@@ -265,6 +269,7 @@ namespace CommonLib.Clients
         /// <returns>返回接收的信息字符串</returns>
         public string ReceiveInfo(ConnTypes connType)
         {
+            //TODO 完善其它连接方式的接收方法
             string info = string.Empty;
             try
             {
@@ -274,7 +279,7 @@ namespace CommonLib.Clients
                         info = this.TcpClient.ReceiveInfo();
                         break;
                     case ConnTypes.UDP:
-                        info = BaseUdpClient.ReceiveInfo();
+                        //info = BaseUdpClient.ReceiveInfo();
                         break;
                 }
             }
@@ -286,7 +291,7 @@ namespace CommonLib.Clients
                         LastErrorMessage = this.TcpClient.LastErrorMessage;
                         break;
                     case ConnTypes.UDP:
-                        LastErrorMessage = BaseUdpClient.LastErrorMessage;
+                        //LastErrorMessage = BaseUdpClient.LastErrorMessage;
                         break;
                 }
 

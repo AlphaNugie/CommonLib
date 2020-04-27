@@ -160,15 +160,6 @@ namespace CommonLib.Clients
         /// </summary>
         public void SetName()
         {
-            //try
-            //{
-            //    IPEndPoint iepR = this.BaseClient.Client.RemoteEndPoint == null ? null : (IPEndPoint)this.BaseClient.Client.RemoteEndPoint;
-            //    IPEndPoint iepL = this.BaseClient.Client.LocalEndPoint == null ? null : (IPEndPoint)this.BaseClient.Client.LocalEndPoint;
-            //    this.Name = (iepL == null ? string.Empty : iepL.ToString()) + (iepR == null ? string.Empty : ("->" + iepR.ToString()));
-            //    this.RemoteEndPoint = iepR;
-            //    this.LocalEndPoint = iepL;
-            //}
-            //catch (Exception) { }
             try { this.Name = this.BaseClient.Client.GetName(out this.remote_endpoint, out this.local_endpoint); }
             catch (Exception e) { this.Name = string.Empty; }
         }
@@ -192,8 +183,12 @@ namespace CommonLib.Clients
             this.BaseClient = !string.IsNullOrWhiteSpace(local_ip) && local_port > 0 ? new UdpClient(new IPEndPoint(IPAddress.Parse(local_ip), local_port)) : new UdpClient();
             this.IsStartListening = true;
             this.SetName();
-            if (this.AutoReceive)
-                this.BaseClient.BeginReceive(new AsyncCallback(ReceiveCallBack), this);
+            try
+            {
+                if (this.AutoReceive)
+                    this.BaseClient.BeginReceive(new AsyncCallback(ReceiveCallBack), this);
+            }
+            catch (Exception) { }
         }
 
         /// <summary>
@@ -306,8 +301,7 @@ namespace CommonLib.Clients
                 else
                     this.Auto_TcpReconnect.Set();
                 //if (this.AutoReceive)
-                //    this.BaseClient.BeginReceive(new AsyncCallback(ReceiveCallBack), this);
-                    //this.NetStream.BeginRead(this.Buffer, 0, this.Buffer.Length, new AsyncCallback(TcpCallBack), this);
+                    this.BaseClient.BeginReceive(new AsyncCallback(ReceiveCallBack), this);
             }
             return result;
         }
@@ -403,15 +397,11 @@ namespace CommonLib.Clients
         public void Read(out string asc, out string hex)
         {
             asc = hex = string.Empty;
-            int available = 0;
-            if (this.BaseClient == null || (available = this.BaseClient.Available) == 0)
+            if (this.BaseClient == null || this.BaseClient.Available == 0)
                 return;
             try
             {
-                //IPEndPoint point = this.RemoteEndPoint;
                 byte[] data = this.BaseClient.Receive(ref this.remote_endpoint);
-                //this.RemoteEndPoint = point;
-                //this.NetStream.Read(this.Buffer, 0, available);
                 Events.DataReceivedEventArgs args = new Events.DataReceivedEventArgs(data);
                 asc = args.ReceivedInfo_String;
                 hex = args.ReceivedInfo_HexString;
@@ -493,18 +483,32 @@ namespace CommonLib.Clients
         /// TCP客户端以byte数组或16进制格式字符串发送数据
         /// </summary>
         /// <param name="data_origin">待发送数据，byte数组或16进制格式字符串</param>
+        /// <param name="ip">远程IP</param>
+        /// <param name="port">远程端口</param>
         /// <param name="errorMessage">返回的错误信息，假如未报错则为空</param>
         /// <returns>返回发送结果</returns>
-        public bool SendData(object data_origin, out string errorMessage)
+        public bool SendData(object data_origin, string ip, int port, out string errorMessage)
+        {
+            return this.SendData(data_origin, new IPEndPoint(IPAddress.Parse(ip), port), out errorMessage);
+        }
+
+        /// <summary>
+        /// TCP客户端以byte数组或16进制格式字符串发送数据
+        /// </summary>
+        /// <param name="data_origin">待发送数据，byte数组或16进制格式字符串</param>
+        /// <param name="endPoint">远程IP终结点</param>
+        /// <param name="errorMessage">返回的错误信息，假如未报错则为空</param>
+        /// <returns>返回发送结果</returns>
+        public bool SendData(object data_origin, IPEndPoint endPoint, out string errorMessage)
         {
             errorMessage = string.Empty;
-            if (!this.IsConnected || !this.IsSocketConnected())
-            {
-                errorMessage = string.Format("TCP服务端{0}未连接", this.Name);
-                if (logging)
-                    FileClient.WriteFailureInfo(errorMessage);
-                return false;
-            }
+            //if (!this.IsConnected || !this.IsSocketConnected())
+            //{
+            //    errorMessage = string.Format("TCP服务端{0}未连接", this.Name);
+            //    if (logging)
+            //        FileClient.WriteFailureInfo(errorMessage);
+            //    return false;
+            //}
             byte[] data;
             string typeName = data_origin.GetType().Name;
             if (typeName == "Byte[]")
@@ -517,15 +521,61 @@ namespace CommonLib.Clients
                 FileClient.WriteFailureInfo(errorMessage);
                 return false;
             }
-            try { this.BaseClient.Send(data, data.Length, this.RemoteEndPoint); }
+            try { this.BaseClient.Send(data, data.Length, endPoint); }
             catch (Exception ex)
             {
                 errorMessage = string.Format("向TCP服务端{0}发送数据失败 {1}", this.Name, ex.Message);
                 FileClient.WriteExceptionInfo(ex, errorMessage, false);
-                //MessageBox.Show(selClient.Name + ":" + ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// TCP客户端以byte数组或16进制格式字符串发送数据
+        /// </summary>
+        /// <param name="data_origin">待发送数据，byte数组或16进制格式字符串</param>
+        /// <param name="errorMessage">返回的错误信息，假如未报错则为空</param>
+        /// <returns>返回发送结果</returns>
+        public bool SendData(object data_origin, out string errorMessage)
+        {
+            return this.SendData(data_origin, this.RemoteEndPoint, out errorMessage);
+        }
+
+        /// <summary>
+        /// 发送字符串
+        /// </summary>
+        /// <param name="content">字符串</param>
+        /// <param name="ip">远程IP</param>
+        /// <param name="port">远程端口</param>
+        public void SendString(string content, string ip, int port)
+        {
+            this.SendString(content, new IPEndPoint(IPAddress.Parse(ip), port));
+        }
+
+        /// <summary>
+        /// 发送字符串
+        /// </summary>
+        /// <param name="content">字符串</param>
+        /// <param name="endPoint">远程IP终结点</param>
+        public void SendString(string content, IPEndPoint endPoint)
+        {
+            ////假如未连接，退出方法
+            //if (/*!this.IsConnected || */!this.IsSocketConnected() || string.IsNullOrEmpty(content))
+            //    return;
+
+            try
+            {
+                //转换为byte类型数组并发送指令
+                byte[] bytes = System.Text.Encoding.ASCII.GetBytes(content);//将字符串转换为byte数组
+                this.BaseClient.Send(bytes, bytes.Length, endPoint);
+            }
+            catch (Exception e)
+            {
+                this.LastErrorMessage = "字符串发送失败：" + e.Message;
+                FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
+                throw; //如果不需要抛出异常，注释此行
+            }
         }
 
         /// <summary>
@@ -534,22 +584,7 @@ namespace CommonLib.Clients
         /// <param name="content">字符串</param>
         public void SendString(string content)
         {
-            //假如未连接，退出方法
-            if (!this.IsConnected || !this.IsSocketConnected() || string.IsNullOrEmpty(content))
-                return;
-
-            try
-            {
-                //转换为byte类型数组并发送指令
-                byte[] bytes = System.Text.Encoding.ASCII.GetBytes(content);//将字符串转换为byte数组
-                this.BaseClient.Send(bytes, bytes.Length, this.RemoteEndPoint);
-            }
-            catch (Exception e)
-            {
-                this.LastErrorMessage = "字符串发送失败：" + e.Message;
-                FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
-                throw; //如果不需要抛出异常，注释此行
-            }
+            this.SendString(content, this.RemoteEndPoint);
         }
     }
 }

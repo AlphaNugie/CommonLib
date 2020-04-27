@@ -9,8 +9,9 @@ namespace CommonLib.Function
     /// <summary>
     /// 16进制操作相关操作类
     /// </summary>
-    public class HexHelper
+    public static class HexHelper
     {
+        #region 获取倒写的16进制BCD码
         /// <summary>
         /// 获取倒写的16进制BCD码，可根据最小长度补0、添加偏移量
         /// </summary>
@@ -61,7 +62,9 @@ namespace CommonLib.Function
         {
             return HexHelper.GetReverseHexString(hexString, 0, shift);
         }
+        #endregion
 
+        #region byte转16进制
         /// <summary>
         /// 将byte数组转换为带空格的字符串
         /// </summary>
@@ -94,7 +97,9 @@ namespace CommonLib.Function
         {
             return bytes.Select(b => b.ToString("X2")).ToArray();
         }
+        #endregion
 
+        #region 16进制转byte
         /// <summary>
         /// 将16进制格式字符串数组转换为byte数组
         /// </summary>
@@ -142,10 +147,36 @@ namespace CommonLib.Function
 
             return bytes;
         }
+        #endregion
 
-        #region 电表模256验证
+        #region 模256校验码与验证（普通电表）
         /// <summary>
-        /// 验证电表命令中的校验码
+        /// 根据16进制格式字符串计算各字节的模256（当输入字符串为空时为0）
+        /// </summary>
+        /// <param name="hexString">16进制格式字符串，如"FE FE ..."</param>
+        /// <returns>返回模256</returns>
+        public static byte GetModel256(string hexString)
+        {
+            return HexHelper.GetModel256(HexHelper.HexString2Bytes(hexString));
+        }
+
+        /// <summary>
+        /// 计算各字节和的模256（当没有输入时为0）
+        /// </summary>
+        /// <param name="bytes">byte数组</param>
+        /// <returns>返回模256</returns>
+        public static byte GetModel256(IEnumerable<byte> bytes)
+        {
+            int sum = 0;
+            foreach (byte b in bytes)
+                if (b != 254) //当不是FE时
+                    sum += b;
+
+            return (byte)(sum % 256);
+        }
+
+        /// <summary>
+        /// 验证16进制字符串中的模256校验码
         /// </summary>
         /// <param name="hexString">待验证的16进制字符串</param>
         /// <returns></returns>
@@ -155,7 +186,7 @@ namespace CommonLib.Function
         }
 
         /// <summary>
-        /// 验证电表命令中的校验码
+        /// 验证各字节中的模256校验码
         /// </summary>
         /// <param name="bytes">待验证的byte数组</param>
         /// <returns></returns>
@@ -172,31 +203,7 @@ namespace CommonLib.Function
         }
         #endregion
 
-        /// <summary>
-        /// 根据16进制格式字符串计算各字节的模256
-        /// </summary>
-        /// <param name="hexString">16进制格式字符串，如"FE FE ..."</param>
-        /// <returns>返回模256</returns>
-        public static byte GetModel256(string hexString)
-        {
-            return HexHelper.GetModel256(HexHelper.HexString2Bytes(hexString));
-        }
-
-        /// <summary>
-        /// 计算各字节和的模256
-        /// </summary>
-        /// <param name="bytes">byte数组</param>
-        /// <returns>返回模256</returns>
-        public static byte GetModel256(IEnumerable<byte> bytes)
-        {
-            int sum = 0;
-            foreach (byte b in bytes)
-                if (b != 254) //当不是FE时
-                    sum += b;
-
-            return (byte)(sum % 256);
-        }
-
+        #region CRC16校验码与验证（MODBUS电表）
         /// <summary>
         /// CRC16校验码生成
         /// </summary>
@@ -266,7 +273,6 @@ namespace CommonLib.Function
             return GetCRC16_String(HexHelper.HexString2Bytes(hexString));
         }
 
-        #region MODBUS校验码验证
         /// <summary>
         /// 验证CRC16校验码
         /// </summary>
@@ -274,7 +280,7 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static bool ValidateCommandCRC16(string hexString)
         {
-            return ValidateCommandModel256(HexHelper.HexString2Bytes(hexString));
+            return ValidateCommandCRC16(HexHelper.HexString2Bytes(hexString));
         }
 
         /// <summary>
@@ -294,5 +300,102 @@ namespace CommonLib.Function
             return model.SequenceEqual(validate); //校验码比对
         }
         #endregion
+
+        #region CRC32校验码与验证（GNSS）
+        private const ulong CRC32_POLYNOMIAL = 0XEDB88320L; //CRC32多项式
+
+        /// <summary>
+        /// 计算单个值、单个字符(char)的CRC32校验值
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        public static ulong GetCRC32Value(int c)
+        {
+            ulong ulCRC = (ulong)c;
+            for (int j = 8; j > 0; j--)
+            {
+                if (ulCRC % 2 == 1)
+                    ulCRC = (ulCRC >> 1) ^ CRC32_POLYNOMIAL;
+                else
+                    ulCRC >>= 1;
+            }
+            return ulCRC;
+        }
+
+        /// <summary>
+        /// 根据输入字符串获取CRC32校验值（字符串为空时为0）
+        /// </summary>
+        /// <param name="input">待获取校验值的字符串</param>
+        /// <returns></returns>
+        public static ulong CalculateBlockCRC32(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return 0;
+
+            ulong ulTemp1, ulTemp2, ulCRC = 0;
+            int index = 0;
+            while (index != input.Length)
+            {
+                ulTemp1 = (ulCRC >> 8) & 0x00FFFFFFL;
+                ulTemp2 = GetCRC32Value(((int)ulCRC ^ input[index]) & 0xff);
+                ulCRC = ulTemp1 ^ ulTemp2;
+                index++;
+            }
+            return ulCRC;
+        }
+
+        /// <summary>
+        /// LOG信息是否通过CRC32校验
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static bool IsGnssCRC32Verified(string message)
+        {
+            string[] temps = message.Split(new char[] { '#', '*' }, StringSplitOptions.RemoveEmptyEntries);
+            //待检验的校验和（16进制）
+            string to_be_checked = temps[1].ToUpper(), crc = CalculateBlockCRC32(temps[0]).ToString("X2");
+            return to_be_checked.Equals(crc);
+        }
+        #endregion
+
+        #region 字符串校验和（GNSS)
+        /// <summary>
+        /// 计算字符串的异或校验和（字符串为空时返回0）
+        /// </summary>
+        /// <param name="input">输入字符串</param>
+        /// <returns>假如字符串为null或空字符串，返回-1</returns>
+        public static int GetStringChecksum(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return 0;
+            int result = input[0];
+            for (int i = 1; i < input.Length; i++)
+                result ^= input[i]; //每一个字符按位异或
+            return result;
+        }
+
+        /// <summary>
+        /// GNSS消息是否通过异或校验
+        /// </summary>
+        /// <param name="message">符合GNSS格式的消息字符串</param>
+        /// <returns></returns>
+        public static bool IsGnssChecksumVerified(string message)
+        {
+            string[] temps = message.Split(new char[] { '$', '*' }, StringSplitOptions.RemoveEmptyEntries);
+            //待检验的校验和（16进制）
+            int to_be_checked = Convert.ToInt32(temps[1], 16), checksum = GetStringChecksum(temps[0]);
+            return to_be_checked == checksum;
+        }
+        #endregion
+
+        /// <summary>
+        /// 获取字符串中每一位字符的累加校验和（字符串为空时为0）
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static int GetStringSum(string input)
+        {
+            return string.IsNullOrEmpty(input) ? 0 : input.ToCharArray().Sum<char>(c => (int)c);
+        }
     }
 }

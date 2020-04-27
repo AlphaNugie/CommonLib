@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommonLib.Events;
 using CommonLib.Function;
+using static CommonLib.Function.TimerEventRaiser;
 
 namespace CommonLib.Clients
 {
@@ -50,10 +51,11 @@ namespace CommonLib.Clients
         /// TcpClient对象
         /// </summary>
         private TcpClient baseClient = null;
-        private bool logging = false;
-        private int receiveBufferSize = 2048;
+        private readonly bool logging = false;
+        private int receiveBufferSize = 32768;
         private bool autoReceive = true;
         private IPEndPoint remote_endpoint, local_endpoint;
+        private readonly TimerEventRaiser raiser = new TimerEventRaiser(1000);
         #endregion
         #region 成员属性
         /// <summary>
@@ -164,6 +166,11 @@ namespace CommonLib.Clients
         public bool IsConnected_Socket { get; private set; }
 
         /// <summary>
+        /// 在无返回数据时是否重新连接
+        /// </summary>
+        public bool ReconnectWhenReceiveNone { get; set; }
+
+        /// <summary>
         /// 重新连接成功的次数
         /// </summary>
         public int ReconnTimer { get; private set; }
@@ -184,43 +191,66 @@ namespace CommonLib.Clients
         /// </summary>
         public void SetName()
         {
-            //if (!this.BaseClient.Connected)
-            //    return;
-
-            //IPEndPoint iepR = (IPEndPoint)this.BaseClient.Client.RemoteEndPoint;
-            //IPEndPoint iepL = (IPEndPoint)this.BaseClient.Client.LocalEndPoint;
-            //this.Name = iepL.Port + "->" + iepR.ToString();
-            //this.LocalEndPoint = iepL;
             try { this.Name = this.BaseClient.Client.GetName(out this.remote_endpoint, out this.local_endpoint); }
             catch (Exception) { this.Name = string.Empty; }
         }
 
         /// <summary>
-        /// 构造器，初始化一个未连接DerivedTcpClient对象，决定本地端口和是否接收数据
+        /// 构造器，初始化一个未连接DerivedTcpClient对象，决定是否自动接收数据、无返回数据时是否重新连接以及是否维持相同本地端口
         /// </summary>
         /// <param name="autoReceive">是否自动接收</param>
+        /// <param name="reconn_noreceive">无返回数据时是否重新连接</param>
         /// <param name="holdPort">重新连接时是否维持相同本地端口</param>
-        public DerivedTcpClient(bool autoReceive, bool holdPort)
+        public DerivedTcpClient(bool autoReceive, bool reconn_noreceive, bool holdPort)
         {
             this.AutoReceive = autoReceive;
+            this.ReconnectWhenReceiveNone = reconn_noreceive;
             this.HoldLocalPort = holdPort;
-            this.ReceiveBufferSize = 2048;
+            this.ReceiveBufferSize = 32768;
             this.Buffer = new byte[this.ReceiveBufferSize];
             this.LastErrorMessage = string.Empty;
             this.Name = string.Empty;
             this.ReceiveRestTime = 0;
+
+            this.raiser.RaiseThreshold = 10000;
+            this.raiser.RaiseInterval = 5000;
+            this.raiser.ThresholdReached += new ThresholdReachedEventHandler(this.Raiser_ThresholdReached);
+        }
+
+        private void Raiser_ThresholdReached(object sender, ThresholdReachedEventArgs e)
+        {
+            if (!this.ReconnectWhenReceiveNone)
+                return;
+
+            this.Reconnect();
+        }
+
+        /// <summary>
+        /// 构造器，初始化一个未连接DerivedTcpClient对象，决定是否自动接收数据以及是否维持相同本地端口
+        /// </summary>
+        /// <param name="autoReceive">是否自动接收</param>
+        /// <param name="holdPort">重新连接时是否维持相同本地端口</param>
+        public DerivedTcpClient(bool autoReceive, bool holdPort) : this(autoReceive, false, holdPort)
+        {
+            //this.AutoReceive = autoReceive;
+            //this.HoldLocalPort = holdPort;
+            //this.ReceiveBufferSize = 2048;
+            //this.Buffer = new byte[this.ReceiveBufferSize];
+            //this.LastErrorMessage = string.Empty;
+            //this.Name = string.Empty;
+            //this.ReceiveRestTime = 0;
         }
 
         /// <summary>
         /// 构造器，初始化一个未连接DerivedTcpClient对象，不维持本地端口
         /// </summary>
         /// <param name="autoReceive">是否自动接收</param>
-        public DerivedTcpClient(bool autoReceive) : this(autoReceive, false) { }
+        public DerivedTcpClient(bool autoReceive) : this(autoReceive, false, false) { }
 
         /// <summary>
         /// 默认构造器，初始化一个未连接DerivedTcpClient对象，不维持本地端口
         /// </summary>
-        public DerivedTcpClient() : this(true, false) { }
+        public DerivedTcpClient() : this(true, false, false) { }
 
         /// <summary>
         /// 构造器，初始化一个DerivedTcpClient对象并连接，不维持本地端口
@@ -280,6 +310,7 @@ namespace CommonLib.Clients
 
                 this.BaseClient.ReceiveBufferSize = this.ReceiveBufferSize; //接收缓冲区的大小
                 this.NetStream = this.BaseClient.GetStream(); //发送与接收数据的数据流对象
+                this.raiser.Run();
             }
             catch (Exception e)
             {
@@ -313,6 +344,38 @@ namespace CommonLib.Clients
         }
 
         /// <summary>
+        /// 重新连接方法
+        /// </summary>
+        internal void Reconnect()
+        {
+            string temp = string.Format("TCP主机地址：{0}，端口号：{1}", this.ServerIp, this.ServerPort); //TCP连接的主机地址与端口
+            this.LastErrorMessage = "TCP连接意外断开，正在尝试重连。" + temp;
+            //FileClient.WriteFailureInfo(LastErrorMessage);
+            try
+            {
+                this.BaseClient.Close();
+                this.BaseClient = this.HoldLocalPort ? new TcpClient(this.LocalEndPoint) : new TcpClient();
+                this.BaseClient.Connect(this.ServerIp, this.ServerPort);
+                this.SetName();
+
+                //重连次数+1，同时调用事件委托
+                this.ReconnTimer++;
+                if (this.ReconnTimerChanged != null)
+                    this.ReconnTimerChanged.BeginInvoke(this.Name, this.ReconnTimer, null, null);
+
+                this.NetStream = BaseClient.GetStream();
+                if (this.AutoReceive)
+                    this.NetStream.BeginRead(this.Buffer, 0, this.Buffer.Length, new AsyncCallback(TcpCallBack), this);
+                //FileClient.WriteFailureInfo("TCP重新连接成功。" + temp);
+            }
+            //假如出现异常，将错误信息写入日志并进入下一次循环
+            catch (Exception e)
+            {
+                this.LastErrorMessage = string.Format("TCP重新连接失败：{0}。", e.Message) + temp;
+            }
+        }
+
+        /// <summary>
         /// TCP重新连接方法
         /// </summary>
         private void TcpAutoReconnect()
@@ -332,43 +395,45 @@ namespace CommonLib.Clients
                     //if (this.Disconnected != null)
                     //    this.Disconnected.BeginInvoke(this.Name, new EventArgs(), null, null);
 
-                    string temp = string.Format("TCP主机地址：{0}，端口号：{1}", this.ServerIp, this.ServerPort); //TCP连接的主机地址与端口
-                    this.LastErrorMessage = "TCP连接意外断开，正在尝试重连。" + temp;
-                    FileClient.WriteFailureInfo(LastErrorMessage);
-                    try
-                    {
-                        //将这部分注释掉，防止出现访问被释放的资源异常
-                        //NetStream.Close();
-                        //NetStream.Dispose();
-                        //Client.Close();
-                        //this.BaseClient = new TcpClient(this.ServerIp, this.ServerPort);
-                        this.BaseClient.Close();
-                        this.BaseClient = this.HoldLocalPort ? new TcpClient(this.LocalEndPoint) : new TcpClient();
-                        this.BaseClient.Connect(this.ServerIp, this.ServerPort);
-                        this.SetName();
+                    this.Reconnect();
+                    #region 原重连部分
+                    //string temp = string.Format("TCP主机地址：{0}，端口号：{1}", this.ServerIp, this.ServerPort); //TCP连接的主机地址与端口
+                    //this.LastErrorMessage = "TCP连接意外断开，正在尝试重连。" + temp;
+                    //FileClient.WriteFailureInfo(LastErrorMessage);
+                    //try
+                    //{
+                    //    //将这部分注释掉，防止出现访问被释放的资源异常
+                    //    //NetStream.Close();
+                    //    //NetStream.Dispose();
+                    //    //Client.Close();
+                    //    //this.BaseClient = new TcpClient(this.ServerIp, this.ServerPort);
+                    //    this.BaseClient.Close();
+                    //    this.BaseClient = this.HoldLocalPort ? new TcpClient(this.LocalEndPoint) : new TcpClient();
+                    //    this.BaseClient.Connect(this.ServerIp, this.ServerPort);
+                    //    this.SetName();
 
-                        //重连次数+1，同时调用事件委托
-                        this.ReconnTimer++;
-                        if (this.ReconnTimerChanged != null)
-                            this.ReconnTimerChanged.BeginInvoke(this.Name, this.ReconnTimer, null, null);
-                        if (this.Connected != null)
-                            this.Connected.BeginInvoke(this.Name, new EventArgs(), null, null);
+                    //    //重连次数+1，同时调用事件委托
+                    //    this.ReconnTimer++;
+                    //    if (this.ReconnTimerChanged != null)
+                    //        this.ReconnTimerChanged.BeginInvoke(this.Name, this.ReconnTimer, null, null);
+                    //    if (this.Connected != null)
+                    //        this.Connected.BeginInvoke(this.Name, new EventArgs(), null, null);
 
-                        this.NetStream = BaseClient.GetStream();
-                        if (this.AutoReceive)
-                            this.NetStream.BeginRead(this.Buffer, 0, this.Buffer.Length, new AsyncCallback(TcpCallBack), this);
-                        this.IsSocketConnected();
-                        FileClient.WriteFailureInfo("TCP重新连接成功。" + temp);
-                    }
-                    //假如出现异常，将错误信息写入日志并进入下一次循环
-                    catch (Exception e)
-                    {
-                        this.LastErrorMessage = string.Format("TCP重新连接失败：{0}。", e.Message) + temp;
-                        FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
-                        continue;
-                        //TODO: 是否抛出异常？
-                        //throw; //假如不需要抛出异常，注释此句
-                    }
+                    //    this.NetStream = BaseClient.GetStream();
+                    //    if (this.AutoReceive)
+                    //        this.NetStream.BeginRead(this.Buffer, 0, this.Buffer.Length, new AsyncCallback(TcpCallBack), this);
+                    //    this.IsSocketConnected();
+                    //    FileClient.WriteFailureInfo("TCP重新连接成功。" + temp);
+                    //}
+                    ////假如出现异常，将错误信息写入日志并进入下一次循环
+                    //catch (Exception e)
+                    //{
+                    //    this.LastErrorMessage = string.Format("TCP重新连接失败：{0}。", e.Message) + temp;
+                    //    FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
+                    //    //TODO: 是否抛出异常？
+                    //    //throw; //假如不需要抛出异常，注释此句
+                    //}
+                    #endregion
                 }
             }
         }
@@ -393,6 +458,7 @@ namespace CommonLib.Clients
                 {
                     if (this.DataReceived != null)
                         this.DataReceived.BeginInvoke(client.Name, new Events.DataReceivedEventArgs(recdata), null, null); //异步输出数据
+                    this.raiser.Click();
                     if (this.ReceiveRestTime > 0)
                         Thread.Sleep(this.ReceiveRestTime);
                     if (this.AutoReceive)
@@ -463,6 +529,7 @@ namespace CommonLib.Clients
                         this.Disconnected.BeginInvoke(this.Name, new EventArgs(), null, null);
 
                     this.BaseClient = null;
+                    this.raiser.Stop();
                 }
             }
             catch (Exception e)

@@ -5,10 +5,11 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Oracle.DataAccess.Client;
 using CommonLib.Clients;
 using CommonLib.Enums;
 using MySql.Data.MySqlClient;
+using System.Data.Common;
+using Oracle.ManagedDataAccess.Client;
 
 namespace CommonLib.DataUtil
 {

@@ -7,8 +7,8 @@
   <ItemGroup>
     <Reference Include="Interop.OPCAutomation">
       <HintPath>..\..\..\OPC\DLL\Interop.OPCAutomation.dll</HintPath>
-      <Private>true</Private>
       <EmbedInteropTypes>true</EmbedInteropTypes>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 

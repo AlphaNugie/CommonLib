@@ -42,7 +42,7 @@ namespace CommonLib.Events
             if (data != null && data.Length > 0)
             {
                 this.ReceivedInfo_HexString = HexHelper.ByteArray2HexString(data);
-                this.ReceivedInfo_String = Encoding.ASCII.GetString(data);
+                this.ReceivedInfo_String = Encoding.Default.GetString(data);
             }
             else
             {

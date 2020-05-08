@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpcLibrary", "OpcLibrary\Op
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLibExample", "CommonLibExample\CommonLibExample.csproj", "{901FEA80-94CB-4861-B1C7-3EDE7770D30F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtobufNetWrapper", "ProtobufNetWrapper\ProtobufNetWrapper.csproj", "{DBE8379C-5A91-49AF-B391-2F4DC8072F16}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtobufNetLibrary", "ProtobufNetWrapper\ProtobufNetLibrary.csproj", "{DBE8379C-5A91-49AF-B391-2F4DC8072F16}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

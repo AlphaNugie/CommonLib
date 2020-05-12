@@ -2,30 +2,28 @@
 using System.Collections;
 using System.Collections.Specialized;
 using System.Data;
-using MySql.Data.MySqlClient;
 using System.Configuration;
 using System.Data.Common;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace CommonLib.DataUtil
 {
     /// <summary>
-    /// MySql数据库基础操作类
+    /// SQL Server数据库基础操作类
     /// </summary>
-    public class MySqlProvider : DataProvider<MySqlConnection, MySqlDataAdapter, MySqlCommand, MySqlTransaction>
+    public class SqlProvider : DataProvider<SqlConnection, SqlDataAdapter, SqlCommand, SqlTransaction>
     {
         #region static
         /// <summary>
-        /// MySql连接字符串模板
-        /// Persist Security Info=True则代表连接方法在数据库连接成功后保存密码信息，=False则不保存
+        /// SQL Server连接字符串模板
+        /// Data Source处格式形如[SQL Server服务器ip]\[SQL Server实例名],[端口号] 或 [SQL Server服务器ip],[端口号]\[SQL Server实例名]
         /// </summary>
         public const string ConnStrModel = @"
-Data Source = {0};
-port = {1};
+Data Source = {0},{1};
 Initial Catalog = {2};
-Persist Security Info = True;
-user id = {3};
-password = {4};";
+User ID = {3};
+Password = {4};";
 
         /// <summary>
         /// 获取连接字符串
@@ -50,23 +48,11 @@ password = {4};";
         //public static bool IsConnOpen(string connStr)
         //{
         //    return IsConnOpen(connStr);
-        //    //using (var connection = new MySqlConnection(connStr))
-        //    //{
-        //    //    ConnectionState state = ConnectionState.Closed;
-        //    //    try
-        //    //    {
-        //    //        connection.Open();
-        //    //        state = connection.State;
-        //    //    }
-        //    //    catch (Exception) { state = ConnectionState.Closed; }
-        //    //    return state == ConnectionState.Open;
-        //    //}
         //}
         #endregion
 
         /// <summary>
-        /// 数据库连接字符串，形如“Data Source=localhost; port=3306; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”
-        /// port, Charset, Persist Security Info可选，Persist Security Info=True则代表连接方法在数据库连接成功后保存密码信息
+        /// 数据库连接字符串，形如“Data Source=localhost,1433; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”
         /// </summary>
         public new string ConnStr { get; private set; }
 
@@ -74,35 +60,30 @@ password = {4};";
         /// <summary>
         /// 以默认配置初始化MySqlProvider
         /// </summary>
-        public MySqlProvider() : this(ConfigurationManager.AppSettings["MySqlClient"]) { }
+        public SqlProvider() : this(ConfigurationManager.AppSettings["SqlClient"]) { }
 
         /// <summary>
         /// 用App.config配置项名称初始化
         /// </summary>
         /// <param name="configurationName">App.config文件中configuration/appSettings节点下的关键字名称</param>
         /// <param name="_">充数的参数，防止签名一致</param>
-        public MySqlProvider(string configurationName, object _) : base(configurationName, _) { }
-        //public MySqlProvider(string configurationName, object _) : this(ConfigurationManager.AppSettings[configurationName]) { }
+        public SqlProvider(string configurationName, object _) : base(configurationName, _) { }
 
         /// <summary>
         /// 构造器
         /// </summary>
-        /// <param name="connStr">连接字符串，形如“Data Source=localhost; port=3306; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”</param>
-        public MySqlProvider(string connStr) : base(connStr) { }
-        //{
-        //    this.ConnStr = connStr;
-        //}
+        /// <param name="connStr">连接字符串，形如“Data Source=localhost,1433; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”</param>
+        public SqlProvider(string connStr) : base(connStr) { }
 
         /// <summary>
         /// 根据给定的数据库相关信息初始化
         /// </summary>
         /// <param name="hostAddress">数据库地址</param>
-        /// <param name="hostAddress">数据库地址</param>
         /// <param name="hostPort">端口号</param>
         /// <param name="serviceName">数据库服务名</param>
         /// <param name="userName">用户名称</param>
         /// <param name="password">用户密码</param>
-        public MySqlProvider(string hostAddress, int hostPort, string serviceName, string userName, string password) : base(ConnStrModel, hostAddress, hostPort, serviceName, userName, password) { }
+        public SqlProvider(string hostAddress, int hostPort, string serviceName, string userName, string password) : base(ConnStrModel, hostAddress, hostPort, serviceName, userName, password) { }
         #endregion
 
         #region without connstr as parameter
@@ -113,7 +94,7 @@ password = {4};";
         ///// <returns>返回结果集</returns>
         //public DataSet MultiQuery(string[] sqlStrings)
         //{
-        //    return this.MultiQuery(this.ConnStr, sqlStrings);
+        //    return this.MultiQuery<SqlConnection, SqlDataAdapter>(this.ConnStr, sqlStrings);
         //}
 
         ///// <summary>
@@ -123,7 +104,7 @@ password = {4};";
         ///// <returns>返回数据集</returns>
         //public DataSet MultiQuery(string sqlStrings)
         //{
-        //    return this.MultiQuery(this.ConnStr, sqlStrings);
+        //    return this.MultiQuery<SqlConnection, SqlDataAdapter>(this.ConnStr, sqlStrings);
         //}
 
         ///// <summary>
@@ -133,7 +114,7 @@ password = {4};";
         ///// <returns>返回数据表</returns>
         //public DataTable Query(string sqlString)
         //{
-        //    return this.Query(this.ConnStr, sqlString);
+        //    return this.Query<SqlConnection, SqlDataAdapter>(this.ConnStr, sqlString);
         //}
 
         ///// <summary>
@@ -143,7 +124,7 @@ password = {4};";
         ///// <returns>返回影响的记录行数</returns>
         //public int ExecuteSql(string sqlString)
         //{
-        //    return this.ExecuteSql(this.ConnStr, sqlString);
+        //    return this.ExecuteSql<SqlConnection, SqlCommand>(this.ConnStr, sqlString);
         //}
 
         ///// <summary>
@@ -154,7 +135,7 @@ password = {4};";
         ///// <returns>假如执行成功，返回true</returns>
         //public bool ExecuteSqlTrans(IEnumerable<string> sqlStrings, IsolationLevel level)
         //{
-        //    return this.ExecuteSqlTrans(this.ConnStr, sqlStrings, level);
+        //    return this.ExecuteSqlTrans<SqlConnection, SqlCommand, SqlTransaction>(this.ConnStr, sqlStrings, level);
         //}
 
         ///// <summary>
@@ -164,7 +145,7 @@ password = {4};";
         ///// <returns>假如执行成功，返回true</returns>
         //public bool ExecuteSqlTrans(IEnumerable<string> sqlStrings)
         //{
-        //    return this.ExecuteSqlTrans(this.ConnStr, sqlStrings);
+        //    return this.ExecuteSqlTrans<SqlConnection, SqlCommand, SqlTransaction>(this.ConnStr, sqlStrings);
         //}
 
         ///// <summary>
@@ -174,7 +155,7 @@ password = {4};";
         ///// <returns>假如执行成功，返回true</returns>
         //public bool ExecuteSqlTrans(string sqlStrings)
         //{
-        //    return this.ExecuteSqlTrans(this.ConnStr, sqlStrings);
+        //    return this.ExecuteSqlTrans<SqlConnection, SqlCommand, SqlTransaction>(this.ConnStr, sqlStrings);
         //}
 
         ///// <summary>
@@ -185,7 +166,7 @@ password = {4};";
         ///// <returns></returns>
         //public int RunProcedure(string procedureName, IDataParameter[] parameters)
         //{
-        //    return this.RunProcedure(this.ConnStr, procedureName, parameters);
+        //    return this.RunProcedure<SqlConnection, SqlCommand>(this.ConnStr, procedureName, parameters);
         //}
         #endregion
     }

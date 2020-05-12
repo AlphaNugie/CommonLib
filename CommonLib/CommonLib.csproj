@@ -78,8 +78,10 @@
     <Compile Include="DataUtil\BaseModel.cs" />
     <Compile Include="DataUtil\BatisLike.cs" />
     <Compile Include="DataUtil\DataProvider.cs" />
+    <Compile Include="DataUtil\DataProviderOld.cs" />
     <Compile Include="DataUtil\MySqlProvider.cs" />
     <Compile Include="DataUtil\SqliteProvider.cs" />
+    <Compile Include="DataUtil\SqlProvider.cs" />
     <Compile Include="Enums\DatabaseTypes.cs" />
     <Compile Include="Enums\EnumExtension.cs" />
     <Compile Include="Events\DataReceivedEventArgs.cs" />
@@ -117,7 +119,9 @@
     <Compile Include="UIControlUtil\WPF\WindowStateInfo.cs" />
     <Compile Include="UIControlUtil\WPF\WindowUtil.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include=".editorconfig" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

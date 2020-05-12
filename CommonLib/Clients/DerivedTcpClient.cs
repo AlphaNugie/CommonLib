@@ -479,7 +479,7 @@ namespace CommonLib.Clients
         public void Read(out string asc, out string hex)
         {
             asc = hex = string.Empty;
-            int available = 0;
+            int available;
             if (this.BaseClient == null || (available = this.BaseClient.Available) == 0)
                 return;
             try

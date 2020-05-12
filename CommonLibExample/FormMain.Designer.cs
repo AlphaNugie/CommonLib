@@ -29,23 +29,37 @@
         private void InitializeComponent()
         {
             this.button_TimerEventRaiser = new System.Windows.Forms.Button();
+            this.button_DatabaseTest = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button_TimerEventRaiser
             // 
+            this.button_TimerEventRaiser.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_TimerEventRaiser.Location = new System.Drawing.Point(28, 28);
             this.button_TimerEventRaiser.Name = "button_TimerEventRaiser";
-            this.button_TimerEventRaiser.Size = new System.Drawing.Size(176, 34);
+            this.button_TimerEventRaiser.Size = new System.Drawing.Size(176, 40);
             this.button_TimerEventRaiser.TabIndex = 0;
             this.button_TimerEventRaiser.Text = "TimerEventRaiser";
             this.button_TimerEventRaiser.UseVisualStyleBackColor = true;
             this.button_TimerEventRaiser.Click += new System.EventHandler(this.button_TimerEventRaiser_Click);
+            // 
+            // button_DatabaseTest
+            // 
+            this.button_DatabaseTest.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_DatabaseTest.Location = new System.Drawing.Point(225, 28);
+            this.button_DatabaseTest.Name = "button_DatabaseTest";
+            this.button_DatabaseTest.Size = new System.Drawing.Size(170, 40);
+            this.button_DatabaseTest.TabIndex = 1;
+            this.button_DatabaseTest.Text = "数据库";
+            this.button_DatabaseTest.UseVisualStyleBackColor = true;
+            this.button_DatabaseTest.Click += new System.EventHandler(this.button_DatabaseTest_Click);
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.button_DatabaseTest);
             this.Controls.Add(this.button_TimerEventRaiser);
             this.Font = new System.Drawing.Font("等线", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Name = "FormMain";
@@ -57,6 +71,7 @@
         #endregion
 
         private System.Windows.Forms.Button button_TimerEventRaiser;
+        private System.Windows.Forms.Button button_DatabaseTest;
     }
 }
 

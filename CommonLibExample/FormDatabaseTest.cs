@@ -10,21 +10,16 @@ using System.Windows.Forms;
 
 namespace CommonLibExample
 {
-    public partial class FormMain : Form
+    public partial class FormDatabaseTest : Form
     {
-        public FormMain()
+        public FormDatabaseTest()
         {
             InitializeComponent();
         }
 
-        private void button_TimerEventRaiser_Click(object sender, EventArgs e)
+        private void button_OracleTest_Click(object sender, EventArgs e)
         {
-            new FormTimerEventRaiser().Show();
-        }
-
-        private void button_DatabaseTest_Click(object sender, EventArgs e)
-        {
-            new FormDatabaseTest().Show();
+            new FormOracleTest().Show();
         }
     }
 }

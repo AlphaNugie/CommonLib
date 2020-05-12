@@ -38,6 +38,10 @@
     <Reference Include="OpcLibrary">
       <HintPath>..\OpcLibrary\bin\Debug\netstandard2.0\OpcLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="Oracle.ManagedDataAccess, Version=4.121.2.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Softwares\Oracle Developer Tools for VS2013\odp.net\managed\common\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -54,11 +58,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FormDatabaseTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormDatabaseTest.Designer.cs">
+      <DependentUpon>FormDatabaseTest.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormMain.Designer.cs">
       <DependentUpon>FormMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormOracleTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormOracleTest.Designer.cs">
+      <DependentUpon>FormOracleTest.cs</DependentUpon>
     </Compile>
     <Compile Include="FormTimerEventRaiser.cs">
       <SubType>Form</SubType>
@@ -68,8 +84,14 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FormDatabaseTest.resx">
+      <DependentUpon>FormDatabaseTest.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormOracleTest.resx">
+      <DependentUpon>FormOracleTest.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormTimerEventRaiser.resx">
       <DependentUpon>FormTimerEventRaiser.cs</DependentUpon>

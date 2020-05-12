@@ -13,7 +13,7 @@ namespace ProtobufNetLibrary
     /// </summary>
     public static class ProtobufNetWrapper
     {
-        private static readonly MemoryStream stream = new MemoryStream(0); //用于二进制数据读取与写入的流
+        //private static readonly MemoryStream stream = new MemoryStream(0); //用于二进制数据读取与写入的流
         private const int HEADER_SIZE = 8;
 
         /// <summary>
@@ -71,14 +71,17 @@ namespace ProtobufNetLibrary
         /// <returns></returns>
         public static byte[] SerializeToBytes<T>(T instance, int header)
         {
-            stream.SetLength(0);
-            if (instance != null)
-                Serializer.Serialize(stream, instance);
-            byte[] buffer = stream.ToArray();
-            byte[] bytes = new byte[buffer.Length + HEADER_SIZE];
-            WriteValueToByteArray(bytes, 0, header);
-            Array.Copy(buffer, 0, bytes, HEADER_SIZE, buffer.Length);
-            return bytes;
+            //stream.SetLength(0);
+            using (MemoryStream stream = new MemoryStream())
+            {
+                if (instance != null)
+                    Serializer.Serialize(stream, instance);
+                byte[] buffer = stream.ToArray();
+                byte[] bytes = new byte[buffer.Length + HEADER_SIZE];
+                WriteValueToByteArray(bytes, 0, header);
+                Array.Copy(buffer, 0, bytes, HEADER_SIZE, buffer.Length);
+                return bytes;
+            }
         }
 
         /// <summary>
@@ -129,10 +132,13 @@ namespace ProtobufNetLibrary
                 return default;
             if (length > 0)
                 bytes = bytes.Skip(length).ToArray();
-            stream.SetLength(0);
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Seek(0, SeekOrigin.Begin);
-            return Serializer.Deserialize<T>(stream);
+            using (MemoryStream stream = new MemoryStream())
+            {
+                //stream.SetLength(0);
+                stream.Write(bytes, 0, bytes.Length);
+                stream.Seek(0, SeekOrigin.Begin);
+                return Serializer.Deserialize<T>(stream);
+            }
         }
 
         /// <summary>
@@ -203,7 +209,7 @@ namespace ProtobufNetLibrary
                 return default;
             header = header ?? string.Empty;
             str = str.StartsWith(header, StringComparison.Ordinal) ? str.Substring(header.Length) : str;
-            return DeserializeFromBytes<T>(Convert.FromBase64String(str), 0);
+            return DeserializeFromBytes<T>(Convert.FromBase64String(str));
         }
     }
 }

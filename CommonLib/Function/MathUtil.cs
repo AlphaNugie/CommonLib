@@ -114,5 +114,37 @@ namespace CommonLib.Function
 
             return Math.Sqrt(Variance(numbers));
         }
+
+        /// <summary>
+        /// 获取数据集中所有不为0的数中最小的数，假如数据集为空或不存在非0的数据，则返回0
+        /// </summary>
+        /// <param name="set">待从中寻找符合条件的数据的源数据集</param>
+        /// <returns></returns>
+        public static double MinExceptZero(this IEnumerable<double> set)
+        {
+            if (set == null)
+                return 0;
+            set = set.Where(d => d != 0);
+            double min = 0;
+            try { min = set.Count() == 0 ? 0 : set.Min(); }
+            catch (Exception) { }
+            return min;
+        }
+
+        /// <summary>
+        /// 获取数据集中所有不为0的数中最大的数，假如数据集为空或不存在非0的数据，则返回0
+        /// </summary>
+        /// <param name="set">待从中寻找符合条件的数据的源数据集</param>
+        /// <returns></returns>
+        public static double MaxExceptZero(this IEnumerable<double> set)
+        {
+            if (set == null)
+                return 0;
+            set = set.Where(d => d != 0);
+            double max = 0;
+            try { max = set.Count() == 0 ? 0 : set.Max(); }
+            catch (Exception) { }
+            return max;
+        }
     }
 }

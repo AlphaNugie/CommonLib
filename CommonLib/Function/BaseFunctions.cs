@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Text.RegularExpressions;
-using Microsoft.International.Converters.PinYinConverter;
+//using Microsoft.International.Converters.PinYinConverter;
 using CommonLib.Enums;
 using Microsoft.Win32;
 using System.Net;
@@ -372,30 +372,30 @@ namespace CommonLib.Function
             localDateTime = string.Format("{0:yyyy年M月d日 H时m分s秒}", dateTimeNow); //本地格式的日期时间，精确到秒
         }
 
-        /// <summary>
-        /// 将汉字转换为拼音首字母（引用微软官方类库）
-        /// </summary>
-        /// <param name="str">待转换的字符串</param>
-        /// <returns>返回汉字的拼音首字母，字母或数字原样返回</returns>
-        public static string ConvertToPinYin(string str)
-        {
-            string PYstr = string.Empty;
-            foreach (char item in str.ToCharArray())
-            {
-                //假如为汉字，提取大写拼音首字母
-                if (ChineseChar.IsValidChar(item))
-                {
-                    ChineseChar cc = new ChineseChar(item);
-                    //PYstr += string.Join("", cc.Pinyins.ToArray());
-                    PYstr += cc.Pinyins[0].Substring(0, 1).ToUpper();
-                    //PYstr += cc.Pinyins[0].Substring(0, cc.Pinyins[0].Length - 1).Substring(0, 1).ToLower();
-                }
-                //假如不是汉字，原样返回
-                else
-                    PYstr += item.ToString();
-            }
-            return PYstr;
-        }
+        ///// <summary>
+        ///// 将汉字转换为拼音首字母（引用微软官方类库）
+        ///// </summary>
+        ///// <param name="str">待转换的字符串</param>
+        ///// <returns>返回汉字的拼音首字母，字母或数字原样返回</returns>
+        //public static string ConvertToPinYin(string str)
+        //{
+        //    string PYstr = string.Empty;
+        //    foreach (char item in str.ToCharArray())
+        //    {
+        //        //假如为汉字，提取大写拼音首字母
+        //        if (ChineseChar.IsValidChar(item))
+        //        {
+        //            ChineseChar cc = new ChineseChar(item);
+        //            //PYstr += string.Join("", cc.Pinyins.ToArray());
+        //            PYstr += cc.Pinyins[0].Substring(0, 1).ToUpper();
+        //            //PYstr += cc.Pinyins[0].Substring(0, cc.Pinyins[0].Length - 1).Substring(0, 1).ToLower();
+        //        }
+        //        //假如不是汉字，原样返回
+        //        else
+        //            PYstr += item.ToString();
+        //    }
+        //    return PYstr;
+        //}
 
         /// <summary>
         /// 合并字符串数组

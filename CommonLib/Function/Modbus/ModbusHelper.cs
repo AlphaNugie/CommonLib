@@ -1,4 +1,4 @@
-﻿using CommonLib.Enums;
+﻿using CommonLib.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace CommonLib.Function.Modbus
     /// <summary>
     /// MODBUS功能类
     /// </summary>
-    public class ModbusHelper
+    public static class ModbusHelper
     {
         /// <summary>
         /// 获取MODBUS读命令

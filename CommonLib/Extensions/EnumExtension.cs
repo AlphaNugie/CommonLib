@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CommonLib.Enums
+namespace CommonLib.Extensions
 {
     /// <summary>
     /// 枚举扩展类
@@ -52,7 +52,7 @@ namespace CommonLib.Enums
     /// <summary>
     /// 枚举注释的自定义属性类
     /// </summary>
-    public class EnumDescriptionAttribute : Attribute
+    public sealed class EnumDescriptionAttribute : Attribute
     {
         /// <summary>
         /// 构造器
@@ -72,7 +72,7 @@ namespace CommonLib.Enums
     /// <summary>
     /// 枚举别名的自定义属性类
     /// </summary>
-    public class EnumAliasAttribute : Attribute
+    public sealed class EnumAliasAttribute : Attribute
     {
         /// <summary>
         /// 构造器

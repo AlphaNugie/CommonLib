@@ -31,27 +31,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ChnCharInfo, Version=1.0.0.0, Culture=neutral, PublicKeyToken=18f031bd02e5e291, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\DLL\ChnCharInfo.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\DLL\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Oracle.ManagedDataAccess, Version=4.121.2.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Softwares\Oracle Developer Tools for VS2013\odp.net\managed\common\Oracle.ManagedDataAccess.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.106.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\DLL\System.Data.SQLite.dll</HintPath>
-    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -74,16 +58,12 @@
     <Compile Include="Clients\Object\PlyFileClient.cs" />
     <Compile Include="Clients\SampleAnalyzer.cs" />
     <Compile Include="DataUtil\AccessProvider.cs" />
-    <Compile Include="DataUtil\BaseDataService.cs" />
     <Compile Include="DataUtil\BaseModel.cs" />
     <Compile Include="DataUtil\BatisLike.cs" />
     <Compile Include="DataUtil\DataProvider.cs" />
-    <Compile Include="DataUtil\DataProviderOld.cs" />
-    <Compile Include="DataUtil\MySqlProvider.cs" />
-    <Compile Include="DataUtil\SqliteProvider.cs" />
     <Compile Include="DataUtil\SqlProvider.cs" />
     <Compile Include="Enums\DatabaseTypes.cs" />
-    <Compile Include="Enums\EnumExtension.cs" />
+    <Compile Include="Extensions\EnumExtension.cs" />
     <Compile Include="Events\DataReceivedEventArgs.cs" />
     <Compile Include="Events\DataSendEventArgs.cs" />
     <Compile Include="Events\EventHandlers.cs" />
@@ -93,7 +73,6 @@
     <Compile Include="Clients\ConnClient.cs" />
     <Compile Include="Clients\DerivedTcpClient.cs" />
     <Compile Include="Clients\FileClient.cs" />
-    <Compile Include="DataUtil\OracleProvider.cs" />
     <Compile Include="Enums\ConnType.cs" />
     <Compile Include="Enums\HotKeys.cs" />
     <Compile Include="Enums\RoutineStatus.cs" />

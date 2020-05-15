@@ -120,5 +120,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommonLib.DataUtil.OracleProviderLib\CommonLib.DataUtil.OracleProviderLib.csproj">
+      <Project>{f5c04513-a6e1-4835-9533-d5fdcdb90ff8}</Project>
+      <Name>CommonLib.DataUtil.OracleProviderLib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

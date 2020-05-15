@@ -124,14 +124,14 @@ namespace ProtobufNetLibrary
         /// </summary>
         /// <typeparam name="T">目标实体类类型</typeparam>
         /// <param name="bytes">待反序列化的byte数组</param>
-        /// <param name="length">byte数组的跳过长度</param>
+        /// <param name="skip_length">byte数组的跳过长度</param>
         /// <returns></returns>
-        public static T DeserializeFromBytes<T>(byte[] bytes, int length)
+        private static T DeserializeFromBytes<T>(byte[] bytes, int skip_length)
         {
             if (bytes == null)
                 return default;
-            if (length > 0)
-                bytes = bytes.Skip(length).ToArray();
+            if (skip_length > 0)
+                bytes = bytes.Skip(skip_length).ToArray();
             using (MemoryStream stream = new MemoryStream())
             {
                 //stream.SetLength(0);
@@ -146,10 +146,10 @@ namespace ProtobufNetLibrary
         /// </summary>
         /// <typeparam name="T">目标实体类类型</typeparam>
         /// <param name="bytes">待反序列化的byte数组</param>
-        /// <param name="length">byte数组的跳过长度</param>
+        /// <param name="skip_length">byte数组的跳过长度</param>
         /// <param name="target">待转换的目标实体类对象</param>
         /// <returns></returns>
-        public static bool TryDeserializeFromBytes<T>(byte[] bytes, int length, out T target)
+        private static bool TryDeserializeFromBytes<T>(byte[] bytes, int skip_length, out T target)
         {
             #region Original
             //target = default;
@@ -168,7 +168,7 @@ namespace ProtobufNetLibrary
             //}
             //catch (Exception) { target = default; }
             #endregion
-            try { target = DeserializeFromBytes<T>(bytes, length); }
+            try { target = DeserializeFromBytes<T>(bytes, skip_length); }
             catch (Exception) { target = default; }
             return target != null;
         }

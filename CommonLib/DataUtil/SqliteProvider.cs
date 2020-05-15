@@ -43,10 +43,10 @@ namespace CommonLib.DataUtil
         //}
         #endregion
 
-        /// <summary>
-        /// 连接字符串，格式形如“[路径\]xxx.db”
-        /// </summary>
-        public new string ConnStr { get; private set; }
+        ///// <summary>
+        ///// 连接字符串，格式形如“[路径\]xxx.db”
+        ///// </summary>
+        //public new string ConnStr { get; private set; }
 
         #region 构造器
         /// <summary>

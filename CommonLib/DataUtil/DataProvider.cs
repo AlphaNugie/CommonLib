@@ -62,7 +62,7 @@ namespace CommonLib.DataUtil
 
         /// <summary>
         /// 数据库连接字符串
-        /// Oracle形如“Data Source=ORCL1;User Id=test;Password=123;”，其中ORCL1可由具体的(DESCRIPTION...)代替
+        /// MySql形如“Data Source=localhost; port=3306; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”port, Charset, Persist Security Info可选，Persist Security Info=True代表连接方法在数据库连接成功后保存密码信息
         /// </summary>
         public string ConnStr { get; protected set; }
 

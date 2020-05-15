@@ -17,7 +17,7 @@ namespace CommonLib.DataUtil
         #region static
         /// <summary>
         /// MySql连接字符串模板
-        /// Persist Security Info=True则代表连接方法在数据库连接成功后保存密码信息，=False则不保存
+        /// 形如“Data Source=localhost; port=3306; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”，port, Charset, Persist Security Info可选，Persist Security Info=True则代表连接方法在数据库连接成功后保存密码信息，=False则不保存
         /// </summary>
         public const string ConnStrModel = @"
 Data Source = {0};
@@ -64,11 +64,10 @@ password = {4};";
         //}
         #endregion
 
-        /// <summary>
-        /// 数据库连接字符串，形如“Data Source=localhost; port=3306; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”
-        /// port, Charset, Persist Security Info可选，Persist Security Info=True则代表连接方法在数据库连接成功后保存密码信息
-        /// </summary>
-        public new string ConnStr { get; private set; }
+        ///// <summary>
+        ///// 数据库连接字符串，形如“Data Source=localhost; port=3306; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”，port, Charset, Persist Security Info可选，Persist Security Info=True则代表连接方法在数据库连接成功后保存密码信息
+        ///// </summary>
+        //public new string ConnStr { get; private set; }
 
         #region 构造器
         /// <summary>
@@ -96,7 +95,6 @@ password = {4};";
         /// <summary>
         /// 根据给定的数据库相关信息初始化
         /// </summary>
-        /// <param name="hostAddress">数据库地址</param>
         /// <param name="hostAddress">数据库地址</param>
         /// <param name="hostPort">端口号</param>
         /// <param name="serviceName">数据库服务名</param>

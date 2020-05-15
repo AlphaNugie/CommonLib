@@ -18,6 +18,7 @@ namespace CommonLib.DataUtil
         #region static
         /// <summary>
         /// Oracle连接字符串模板
+        /// 形如“Data Source=ORCL1;User Id=test;Password=123;”，其中ORCL1可由具体的(DESCRIPTION...)代替
         /// </summary>
         public const string ConnStrModel = @"Data Source =
   (DESCRIPTION =

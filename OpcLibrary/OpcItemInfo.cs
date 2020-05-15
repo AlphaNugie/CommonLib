@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CommonLib.Function;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace OpcLibrary
@@ -36,6 +38,30 @@ namespace OpcLibrary
         /// 读取或待写入的值
         /// </summary>
         public string Value { get; set; }
+
+        /// <summary>
+        /// 数据源字段名称
+        /// </summary>
+        public string FieldName { get; set; }
+
+        private PropertyInfo prop = null;
+        /// <summary>
+        /// 根据数据源字段名称获取的属性，假如OpcGroupInfo.DataSource属性为空，或找到该字段，则属性为空
+        /// </summary>
+        internal PropertyInfo Property
+        {
+            get { return this.prop; }
+            set
+            {
+                this.prop = value;
+                this.ConvertTypeMethod = this.prop == null ? null : Converter.ConvertTypeMethod.MakeGenericMethod(this.prop.PropertyType);
+            }
+        }
+
+        /// <summary>
+        /// 转换类型的静态泛型方法（类型参数为字段类型），假如属性为空则为空
+        /// </summary>
+        internal MethodInfo ConvertTypeMethod { get; set; }
         #endregion
 
         /// <summary>
@@ -43,11 +69,49 @@ namespace OpcLibrary
         /// </summary>
         /// <param name="itemId">OPC项ID</param>
         /// <param name="clientHandle">客户端句柄</param>
-        public OpcItemInfo(string itemId, int clientHandle)
+        public OpcItemInfo(string itemId, int clientHandle) : this(itemId, clientHandle, null) { }
+
+        /// <summary>
+        /// 构造器
+        /// </summary>
+        /// <param name="itemId">OPC项ID</param>
+        /// <param name="clientHandle">客户端句柄</param>
+        /// <param name="fieldName">数据源中字段名称</param>
+        public OpcItemInfo(string itemId, int clientHandle, string fieldName)
         {
             this.ItemId = itemId;
             this.ClientHandle = clientHandle;
             this.Value = string.Empty;
+            this.FieldName = fieldName;
+        }
+
+        /// <summary>
+        /// 获取经过转换方法转换后的数据源字段值，假如转换方法为空则返回空
+        /// </summary>
+        /// <returns></returns>
+        public object GetPropertyValue()
+        {
+            return this.ConvertTypeMethod?.Invoke(null, new object[] { this.Value });
+        }
+
+        /// <summary>
+        /// 假如属性或给定的数据源不为空，则为数据源设置经过转换方法转换后的数据源字段值
+        /// </summary>
+        /// <param name="dataSource"></param>
+        public void SetPropertyValue(object dataSource)
+        {
+            if (this.Property != null && dataSource != null)
+                this.Property.SetValue(dataSource, this.GetPropertyValue());
+        }
+
+        /// <summary>
+        /// 假如属性或给定的数据源不为空，则从数据源向Item赋值
+        /// </summary>
+        /// <param name="dataSource"></param>
+        public void SetItemValue(object dataSource)
+        {
+            if (this.Property != null && dataSource != null)
+                this.Value = this.Property.GetValue(dataSource).ToString();
         }
     }
 }

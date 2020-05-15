@@ -384,19 +384,29 @@ namespace OpcLibrary
                     string name = groupInfo.GroupName; //OPC组名称
                     List<OpcItemInfo> itemInfos = groupInfo.ListItemInfo; //OPC项信息集合
                     try { this.OpcServer.OPCGroups.Remove(name); } catch (Exception) { } //试着移除已存在组
-                    //初始化OPC组信息并设置OPC组属性、添加OPC项
-                    OpcGroupInfo group = new OpcGroupInfo(this.OpcServer.OPCGroups, name);
-                    group.SetGroupProperty(this.GroupUpdateRate, this.IsGroupActive, this.IsGroupSubscribed);
-                    //TODO 假如OPC组信息中已设置OPC项信息，则根据这些OPC项信息添加OPC项，否则创建组之后调用SetTags方法
-                    group.SetItems(itemInfos, out message);
+                    #region 新添加组方法
+                    groupInfo.SetOpcGroup(this.OpcServer.OPCGroups, name); //重新添加OPC组
+                    groupInfo.SetGroupProperty(this.GroupUpdateRate, this.IsGroupActive, this.IsGroupSubscribed);
+                    //TODO 假如OPC组信息中已设置OPC项信息，则根据这些OPC项信息添加OPC项，否则创建组之后调用SetItems方法
+                    groupInfo.SetItems(itemInfos, out message);
+                    if (!this.ListGroupInfo.Contains(groupInfo))
+                        this.ListGroupInfo.Add(groupInfo);
+                    #endregion
+                    #region 旧添加组方法
+                    ////初始化OPC组信息并设置OPC组属性、添加OPC项
+                    //OpcGroupInfo group = new OpcGroupInfo(this.OpcServer.OPCGroups, name);
+                    //group.SetGroupProperty(this.GroupUpdateRate, this.IsGroupActive, this.IsGroupSubscribed);
+                    ////假如OPC组信息中已设置OPC项信息，则根据这些OPC项信息添加OPC项，否则创建组之后调用SetItems方法
+                    //group.SetItems(itemInfos, out message);
 
-                    //假如List中已存在，则移除
-                    if (this.ListGroupInfo.Contains(groupInfo))
-                    {
-                        this.ListGroupInfo.Remove(groupInfo);
-                        groupInfo.Dispose();
-                    }
-                    this.ListGroupInfo.Add(group);
+                    ////假如List中已存在，则移除
+                    //if (this.ListGroupInfo.Contains(groupInfo))
+                    //{
+                    //    this.ListGroupInfo.Remove(groupInfo);
+                    //    groupInfo.Dispose();
+                    //}
+                    //this.ListGroupInfo.Add(group);
+                    #endregion
                 }
             }
             catch (Exception ex)

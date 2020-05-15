@@ -29,6 +29,16 @@ namespace OpcLibrary
         public string GroupName { get; set; }
 
         /// <summary>
+        /// 组的类型，读或写，仅在决定从数据源读值或向数据源写值时起作用
+        /// </summary>
+        public GroupType GroupType { get; set; }
+
+        /// <summary>
+        /// 数据源，需要在连接前设置（否则无效），从OPC读取向数据源写入或从数据源读取向OPC写入，写入时假如数据源不为空则优先从数据源取值
+        /// </summary>
+        public object DataSource { get; set; }
+
+        /// <summary>
         /// OPC组所拥有的OPC项数量
         /// </summary>
         public int ItemCount { get { return this.OpcGroup == null ? 0 : this.OpcGroup.OPCItems.Count; } }
@@ -80,17 +90,41 @@ namespace OpcLibrary
         /// </summary>
         /// <param name="groups">待创建的OPC组所属于的组集合，为null则无法创建</param>
         /// <param name="name">OPC组名称</param>
-        public OpcGroupInfo(OPCGroups groups, string name)
+        public OpcGroupInfo(OPCGroups groups, string name) : this(groups, name, null) { }
+
+        /// <summary>
+        /// 构造器
+        /// </summary>
+        /// <param name="groups">待创建的OPC组所属于的组集合，为null则无法创建</param>
+        /// <param name="name">OPC组名称</param>
+        /// <param name="data_source">数据源</param>
+        public OpcGroupInfo(OPCGroups groups, string name, object data_source)
         {
             this.GroupName = name;
             this.ListItemInfo = new List<OpcItemInfo>();
+            this.DataSource = data_source;
+            this.GroupType = GroupType.READ;
+            this.SetOpcGroup(groups, name);
+            //if (groups == null)
+            //    return;
+
+            //this.OpcGroup = groups.Add(name);
+        }
+
+        #region 功能
+        /// <summary>
+        /// 设置OPC组
+        /// </summary>
+        /// <param name="groups"></param>
+        /// <param name="name"></param>
+        public void SetOpcGroup(OPCGroups groups, string name)
+        {
             if (groups == null)
                 return;
 
             this.OpcGroup = groups.Add(name);
         }
 
-        #region 功能
         /// <summary>
         /// 设置OPC组属性
         /// </summary>
@@ -124,8 +158,9 @@ namespace OpcLibrary
         private Array GetValues(IEnumerable<int> serverHandles)
         {
             bool flag = serverHandles == null || serverHandles.Count() == 0; //特殊条件
+            this.ListItemInfo.ForEach(item => item.SetItemValue(this.DataSource)); //根据数据源为item赋值（假如数据源不为空或字段名称正确）
             //假如给定的服务端句柄范围为空则选择所有OPC项的值，否则选择服务端在范围内的OPC项以及第一个OPC项的值
-            return this.ListItemInfo == null ? new object[0] : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => (object)p.item.Value).ToArray();
+            return this.ListItemInfo == null ? Array.Empty<object>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => (object)p.item.Value).ToArray();
         }
 
         /// <summary>
@@ -166,12 +201,17 @@ namespace OpcLibrary
                 this.OpcGroup.OPCItems.AddItems(itemList.Count - 1, ref this.item_ids, ref this.client_handles, out this.server_handles, out this.errors);
                 //添加OPC项后根据ID找到OPC项信息对象并设置服务端句柄，向OPC项信息List中添加
                 if (this.item_ids.Length > 1)
+                {
+                    Type type = this.DataSource?.GetType();
                     for (int i = 1; i < this.item_ids.Length; i++)
                     {
                         OpcItemInfo itemInfo = itemList.Find(p => p.ItemId.Equals(this.item_ids.GetValue(i)));
                         itemInfo.ServerHandle = int.Parse(this.server_handles.GetValue(i).ToString());
+                        if (type != null && !string.IsNullOrWhiteSpace(itemInfo.FieldName))
+                            itemInfo.Property = type.GetProperty(itemInfo.FieldName);
                         this.ListItemInfo.Add(itemInfo);
                     }
+                }
                 //假如添加后的数量对不上，则至少有一个OPC项未添加成功
                 if (this.ListItemInfo.Count < itemList.Count)
                     message = "至少有1个OPC项未添加成功";
@@ -218,7 +258,12 @@ namespace OpcLibrary
                     {
                         OpcItemInfo itemInfo = this.ListItemInfo.Find(item => item.ServerHandle.Equals(handles.GetValue(i)));
                         if (itemInfo != null)
+                        {
                             itemInfo.Value = values.GetValue(i).ToString();
+                            itemInfo.SetPropertyValue(this.DataSource);
+                            //if (itemInfo.Property != null/* && this.GroupType == GroupType.READ*/)
+                            //    itemInfo.Property.SetValue(this.DataSource, itemInfo.GetPropertyValue());
+                        }
                     }
                 if (values.Length < itemCount)
                     message = "至少有1个OPC项的值未找到";
@@ -315,5 +360,21 @@ namespace OpcLibrary
             GC.SuppressFinalize(this);
         }
         #endregion
+    }
+
+    /// <summary>
+    /// 组类型，读或写
+    /// </summary>
+    public enum GroupType
+    {
+        /// <summary>
+        /// 读
+        /// </summary>
+        READ = 1,
+
+        /// <summary>
+        /// 写
+        /// </summary>
+        WRITE = 2
     }
 }

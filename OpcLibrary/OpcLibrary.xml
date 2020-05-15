@@ -1,0 +1,478 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OpcLibrary</name>
+    </assembly>
+    <members>
+        <member name="T:OpcLibrary.OpcGroupInfo">
+            <summary>
+            OPC组信息实体类，每个OPC组信息实体对应单独的OPCGroup基本信息、标签ID Array、服务端句柄Array、客户端句柄Array以及OPC项信息List（供添加OPC项或添加OPC项后保存信息）
+            可根据这些信息为OPC服务添加OPC组（OpcUtilHelper中的CreateGroups方法）
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcGroupInfo.OpcGroup">
+            <summary>
+            OPCGroup对象
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcGroupInfo.GroupName">
+            <summary>
+            OPC组名称
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcGroupInfo.GroupType">
+            <summary>
+            组的类型，读或写，仅在决定从数据源读值或向数据源写值时起作用
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcGroupInfo.DataSource">
+            <summary>
+            数据源，需要在连接前设置（否则无效），从OPC读取向数据源写入或从数据源读取向OPC写入，写入时假如数据源不为空则优先从数据源取值
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcGroupInfo.ItemCount">
+            <summary>
+            OPC组所拥有的OPC项数量
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcGroupInfo.ItemIds">
+            <summary>
+            OPC项ID Array，添加OPC项时变化
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcGroupInfo.ServerHandles">
+            <summary>
+            OPC项服务端句柄 Array，添加、移除OPC项时变化
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcGroupInfo.ClientHandles">
+            <summary>
+            OPC项客户端句柄 Array，添加OPC项时变化
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcGroupInfo.Errors">
+            <summary>
+            错误信息Array，添加、移除OPC项，读取、写入值时变化
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcGroupInfo.ListItemInfo">
+            <summary>
+            OPC项信息List，包含OPC项ID、客户端句柄、服务端句柄、值等信息，添加OPC组前设置此属性可在添加OPC组（OpcUtilHelper.CreateGroups方法）时直接添加OPC项
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.#ctor(OPCAutomation.OPCGroups,System.String)">
+            <summary>
+            构造器
+            </summary>
+            <param name="groups">待创建的OPC组所属于的组集合，为null则无法创建</param>
+            <param name="name">OPC组名称</param>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.#ctor(OPCAutomation.OPCGroups,System.String,System.Object)">
+            <summary>
+            构造器
+            </summary>
+            <param name="groups">待创建的OPC组所属于的组集合，为null则无法创建</param>
+            <param name="name">OPC组名称</param>
+            <param name="data_source">数据源</param>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.SetOpcGroup(OPCAutomation.OPCGroups,System.String)">
+            <summary>
+            设置OPC组
+            </summary>
+            <param name="groups"></param>
+            <param name="name"></param>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.SetGroupProperty(System.Int32,System.Boolean,System.Boolean)">
+            <summary>
+            设置OPC组属性
+            </summary>
+            <param name="updateRate">OPC组更新速度</param>
+            <param name="isGroupActive">OPC组激活状态</param>
+            <param name="isGroupSubscribed">OPC组订阅状态</param>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.GetValues">
+            <summary>
+            获取所有OPC项的值并转换为Array
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.GetValues(System.Collections.Generic.IEnumerable{System.Int32})">
+            <summary>
+            获取在给定服务端句柄中存在对应OPC项的值并转换为Array，假如给定的服务端句柄为空，则给出所有值
+            </summary>
+            <param name="serverHandles">给定的服务端句柄数组，假如给定的服务端句柄为空，则给出所有值</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.GetServerHandles(System.Collections.Generic.IEnumerable{System.Int32})">
+            <summary>
+            获取在给定服务端句柄中存在对应OPC项的服务端句柄并转换为Array，假如给定的服务端句柄为空，则给出所有服务端句柄
+            </summary>
+            <param name="serverHandles">给定的服务端句柄数组，假如给定的服务端句柄为空，则给出所有服务端句柄</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.SetItems(System.Collections.Generic.IEnumerable{OpcLibrary.OpcItemInfo},System.String@)">
+            <summary>
+            根据给定的OPC项集合信息添加OPC项
+            </summary>
+            <param name="items">给出添加OPC项时所需信息的集合</param>
+            <param name="message">返回信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.ReadValues(System.String@)">
+            <summary>
+            为OPC组的所有OPC项读取数据
+            </summary>
+            <param name="message">返回信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.ReadValues(System.Array,System.String@)">
+            <summary>
+            为OPC组OPC项List内与给定服务端句柄对应的OPC项读取数据
+            </summary>
+            <param name="serverHandles">服务端句柄Array</param>
+            <param name="message">返回信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.WriteValues(System.String@)">
+            <summary>
+            为OPC组的所有OPC项写入数据
+            </summary>
+            <param name="message">返回信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.WriteValues(System.Array,System.String@)">
+            <summary>
+            为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据
+            </summary>
+            <param name="serverHandles">服务端句柄Array</param>
+            <param name="message">返回信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.Dispose(System.Boolean)">
+            <summary>
+            释放资源
+            </summary>
+            <param name="disposing">为true时释放所有资源，否则仅释放非托管资源</param>
+        </member>
+        <member name="T:OpcLibrary.GroupType">
+            <summary>
+            组类型，读或写
+            </summary>
+        </member>
+        <member name="F:OpcLibrary.GroupType.READ">
+            <summary>
+            读
+            </summary>
+        </member>
+        <member name="F:OpcLibrary.GroupType.WRITE">
+            <summary>
+            写
+            </summary>
+        </member>
+        <member name="T:OpcLibrary.OpcItemInfo">
+            <summary>
+            OPC项信息实体类，每个OPC项信息实体对应单独的OPC项ID、服务端句柄、客户端句柄以及值（供读取或写入）
+            可根据这些信息为OPC组添加OPC项（OpcGroupInfo中的SetItems方法）
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcItemInfo.ItemId">
+            <summary>
+            OPC项ID（名称）
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcItemInfo.ServerHandle">
+            <summary>
+            OPC服务端句柄
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcItemInfo.ClientHandle">
+            <summary>
+            OPC客户端句柄
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcItemInfo.Value">
+            <summary>
+            读取或待写入的值
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcItemInfo.FieldName">
+            <summary>
+            数据源字段名称
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcItemInfo.Property">
+            <summary>
+            根据数据源字段名称获取的属性，假如OpcGroupInfo.DataSource属性为空，或找到该字段，则属性为空
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcItemInfo.ConvertTypeMethod">
+            <summary>
+            转换类型的静态泛型方法（类型参数为字段类型），假如属性为空则为空
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcItemInfo.#ctor(System.String,System.Int32)">
+            <summary>
+            构造器
+            </summary>
+            <param name="itemId">OPC项ID</param>
+            <param name="clientHandle">客户端句柄</param>
+        </member>
+        <member name="M:OpcLibrary.OpcItemInfo.#ctor(System.String,System.Int32,System.String)">
+            <summary>
+            构造器
+            </summary>
+            <param name="itemId">OPC项ID</param>
+            <param name="clientHandle">客户端句柄</param>
+            <param name="fieldName">数据源中字段名称</param>
+        </member>
+        <member name="M:OpcLibrary.OpcItemInfo.GetPropertyValue">
+            <summary>
+            获取经过转换方法转换后的数据源字段值，假如转换方法为空则返回空
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcItemInfo.SetPropertyValue(System.Object)">
+            <summary>
+            假如属性或给定的数据源不为空，则为数据源设置经过转换方法转换后的数据源字段值
+            </summary>
+            <param name="dataSource"></param>
+        </member>
+        <member name="M:OpcLibrary.OpcItemInfo.SetItemValue(System.Object)">
+            <summary>
+            假如属性或给定的数据源不为空，则从数据源向Item赋值
+            </summary>
+            <param name="dataSource"></param>
+        </member>
+        <member name="T:OpcLibrary.OpcUtilHelper">
+            <summary>
+            OPC功能包装类
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.Thread_Reconn">
+            <summary>
+            OPC重连线程
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.ReconnEnabled">
+            <summary>
+            是否重连
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.OpcServer">
+            <summary>
+            OPC服务
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.OpcServerIp">
+            <summary>
+            OPC服务IP
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.OpcServerName">
+            <summary>
+            OPC服务名称
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.DefaultGroupInfo">
+            <summary>
+            默认OPC组信息
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.ListGroupInfo">
+            <summary>
+            OPC组信息List，包含OPC组名称，OPC项信息等信息，OPCServer连接前设置此属性可在连接时（ConnectRemoteServer方法）直接添加组
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.OpcUpdateRate">
+            <summary>
+            OPC读取速率（毫秒）
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.ItemId">
+            <summary>
+            标签名称_默认
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.OpcConnected">
+            <summary>
+            OPC服务连接状态
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.ItemHandleClient">
+            <summary>
+            客户端句柄_默认
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.ItemHandleServer">
+            <summary>
+            服务端句柄_默认
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.IsGroupsActive">
+            <summary>
+            OPC组集合活动状态
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.GroupsDeadband">
+            <summary>
+            OPC组集合不敏感区
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.IsGroupActive">
+            <summary>
+            OPC组激活状态
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.IsGroupSubscribed">
+            <summary>
+            OPC组订阅状态
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.GroupUpdateRate">
+            <summary>
+            OPC组更新速度
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.ServerStartTime">
+            <summary>
+            OPC服务启动时间
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.ServerVersion">
+            <summary>
+            OPC服务版本
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.ServerState">
+            <summary>
+            OPC服务状态
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.#ctor(System.Int32,System.Boolean)">
+            <summary>
+            构造器
+            </summary>
+            <param name="updateRate">OPC读取速率（毫秒）</param>
+            <param name="reconn_enabled">是否重连</param>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.#ctor">
+            <summary>
+            构造器，OPC读取速率1000毫秒，默认不重连
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.UpdateServerInfo">
+            <summary>
+            更新OPC服务信息，包括启动时间、版本与状态
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.ServerEnum(System.String,System.String@)">
+            <summary>
+            OPC服务枚举
+            </summary>
+            <param name="ipAddress">IP地址</param>
+            <param name="message">返回信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.ConnectRemoteServer(System.String,System.String,System.String@)">
+            <summary>
+            连接OPC服务器，连接成功后刷新OPC服务信息并创建默认组，同时根据ListGroupInfo属性（OPC组信息List）创建OPC组
+            </summary>
+            <param name="remoteServerIP">OPCServerIP</param>
+            <param name="remoteServerName">OPCServer名称</param>
+            <param name="message">返回的错误消息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.DisconnectRemoteServer">
+            <summary>
+            与OPC服务断开
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.Reconn_Recursive">
+            <summary>
+            循环连接OPC，用于重连OPC线程
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.Reconn(System.String@)">
+            <summary>
+            重新连接OPC，返回连接信息
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.ReconnDetail(System.String@)">
+            <summary>
+            重新连接OPC
+            </summary>
+            <param name="info">返回信息</param>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.CreateDefaultGroup(System.String@)">
+            <summary>
+            创建默认OPC组
+            </summary>
+            <param name="message">返回信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.CreateGroups(System.Collections.Generic.IEnumerable{OpcLibrary.OpcGroupInfo},System.String@)">
+            <summary>
+            根据若干个OPC组信息创建OPC组
+            </summary>
+            <param name="groups"></param>
+            <param name="message"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.CreateGroups(System.Collections.Generic.IEnumerable{System.String},System.String@)">
+            <summary>
+            创建给定名字的OPC组，不添加OPC项
+            </summary>
+            <param name="groupNames">待创建的OPC组名称</param>
+            <param name="message">返回的错误信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.SetGroupsProperty(System.Boolean,System.Single)">
+            <summary>
+            设置组集合属性
+            </summary>
+            <param name="isGroupsActive">OPC组集合活动状态</param>
+            <param name="deadband">OPC组集合不敏感区</param>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.SetItem(System.String,System.Int32,System.String@)">
+            <summary>
+            设置默认的OPC项，假如已添加，则移除后再重新添加（同一时刻默认标签只有一个）
+            </summary>
+            <param name="itemId">标签ID</param>
+            <param name="clientHandle">标签的客户端句柄</param>
+            <param name="message">返回的错误信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.ReadItemValue(System.String@,System.String@)">
+            <summary>
+            从默认的OPC项读取值
+            </summary>
+            <param name="value">待读取的值</param>
+            <param name="message">返回的错误信息</param>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.WriteItemValue(System.String,System.String@)">
+            <summary>
+            向默认的OPC项写入值
+            </summary>
+            <param name="value">待写入的值</param>
+            <param name="message">返回的错误信息</param>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.ReadOpc(System.String,System.Int32,System.String@,System.String@)">
+            <summary>
+            从对应指定客户端句柄的指定OPC项读取值（先根据OPC项ID与客户端句柄添加OPC项，然后再读取）
+            </summary>
+            <param name="itemName">标签ID</param>
+            <param name="clientHandle">客户端句柄</param>
+            <param name="value">待写入值</param>
+            <param name="message">返回的错误信息</param>
+        </member>
+        <member name="M:OpcLibrary.OpcUtilHelper.WriteOpc(System.String,System.Int32,System.String,System.String@)">
+            <summary>
+            向对应指定客户端句柄的指定OPC项写入值（先根据OPC项ID与客户端句柄添加OPC项，然后再写入）
+            </summary>
+            <param name="itemName">标签ID</param>
+            <param name="clientHandle">客户端句柄</param>
+            <param name="value">待写入值</param>
+            <param name="message">返回的错误信息</param>
+        </member>
+    </members>
+</doc>

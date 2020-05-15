@@ -17,7 +17,7 @@ namespace CommonLib.DataUtil
         #region static
         /// <summary>
         /// SQL Server连接字符串模板
-        /// Data Source处格式形如[SQL Server服务器ip]\[SQL Server实例名],[端口号] 或 [SQL Server服务器ip],[端口号]\[SQL Server实例名]
+        /// 形如“Data Source=localhost,1433; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”，Data Source处格式形如[SQL Server服务器ip]\[SQL Server实例名],[端口号] 或 [SQL Server服务器ip],[端口号]\[SQL Server实例名]
         /// </summary>
         public const string ConnStrModel = @"
 Data Source = {0},{1};
@@ -51,10 +51,10 @@ Password = {4};";
         //}
         #endregion
 
-        /// <summary>
-        /// 数据库连接字符串，形如“Data Source=localhost,1433; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”
-        /// </summary>
-        public new string ConnStr { get; private set; }
+        ///// <summary>
+        ///// 数据库连接字符串，形如“Data Source=localhost,1433; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”
+        ///// </summary>
+        //public new string ConnStr { get; private set; }
 
         #region 构造器
         /// <summary>

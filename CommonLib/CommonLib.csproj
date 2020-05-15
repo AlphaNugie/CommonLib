@@ -101,10 +101,10 @@
     <Compile Include="Clients\EncryptionClient.cs" />
     <Compile Include="Function\Converter.cs" />
     <Compile Include="Function\CurveFitting.cs" />
-    <Compile Include="Function\ExtensionClass.cs" />
+    <Compile Include="Extensions\ExtensionClass.cs" />
     <Compile Include="Function\HexHelper.cs" />
     <Compile Include="Function\IniFileHelper.cs" />
-    <Compile Include="Function\MathUtil.cs" />
+    <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Function\Modbus\ModbusHelper.cs" />
     <Compile Include="Function\OperateIniFile.cs" />
     <Compile Include="Function\TimerEventRaiser.cs" />
@@ -122,6 +122,7 @@
   <ItemGroup>
     <None Include=".editorconfig" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

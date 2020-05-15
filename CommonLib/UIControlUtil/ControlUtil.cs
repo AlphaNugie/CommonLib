@@ -21,9 +21,9 @@ namespace CommonLib.UIControlUtil
     /// <param name="handler"></param>
     public delegate void InvokeMethodDelegate(Control control, TaskDelegate handler);
 
-    public static class ControlUtil
-    {
-    }
+    //public static class ControlUtil
+    //{
+    //}
 
     /// <summary>
     /// 控件扩展基础类

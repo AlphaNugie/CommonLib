@@ -4,7 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>D:\CommonLib\CommonLib\OpcLibrary\OpcLibrary.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
+    <Reference Include="CommonLib">
+      <HintPath>..\CommonLib\bin\Debug\CommonLib.dll</HintPath>
+    </Reference>
     <Reference Include="Interop.OPCAutomation">
       <HintPath>..\..\..\OPC\DLL\Interop.OPCAutomation.dll</HintPath>
       <EmbedInteropTypes>true</EmbedInteropTypes>

@@ -7,13 +7,23 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CommonLib.Function
+namespace CommonLib.Extensions
 {
     /// <summary>
     /// 类功能扩展类
     /// </summary>
     public static class ExtensionClass
     {
+        /// <summary>
+        /// 反转字符串
+        /// </summary>
+        /// <param name="input">待反转的源字符串</param>
+        /// <returns></returns>
+        public static string Reverse(this string input)
+        {
+            return new string(input.ToCharArray().Reverse().ToArray());
+        }
+
         /// <summary>
         /// 获取Socket连接名称，格式：(本地终结点不为空)本地IP:端口->服务端IP:端口(远程终结点不为空)
         /// </summary>

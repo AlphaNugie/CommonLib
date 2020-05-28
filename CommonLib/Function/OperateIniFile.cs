@@ -9,23 +9,17 @@ namespace CommonLib.Function
     /// <summary>
     /// INI配置文件操作类
     /// </summary>
-    public class OperateIniFile
+    public static class OperateIniFile
     {
         #region API函数声明
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]//返回0表示失败，非0为成功
+        private static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
 
-        [DllImport("kernel32")]//返回0表示失败，非0为成功
-        private static extern long WritePrivateProfileString(string section, string key,
-            string val, string filePath);
-
-        [DllImport("kernel32")]//返回取得字符串缓冲区的长度
-        private static extern long GetPrivateProfileString(string section, string key,
-            string def, StringBuilder retVal, int size, string filePath);
-
-
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]//返回取得字符串缓冲区的长度
+        private static extern long GetPrivateProfileString(string section, string key, string def, StringBuilder retVal, int size, string filePath);
         #endregion
 
         #region 读Ini文件
-
         /// <summary>
         /// 读取INI文件内容
         /// </summary>
@@ -51,7 +45,6 @@ namespace CommonLib.Function
         #endregion
 
         #region 写Ini文件
-
         /// <summary>
         /// 写INI配置文件
         /// </summary>
@@ -79,7 +72,6 @@ namespace CommonLib.Function
                 return false;
             }
         }
-
         #endregion
 
     }

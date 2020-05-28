@@ -12,6 +12,7 @@ namespace OpcLibrary
     /// </summary>
     public class OpcGroupInfo : IDisposable
     {
+        private readonly Random random = new Random();
         #region 私有变量
         private Array item_ids, server_handles, client_handles, errors;
         private readonly OpcItemInfo opc_pack_basic = new OpcItemInfo(string.Empty, 0);
@@ -145,7 +146,7 @@ namespace OpcLibrary
         /// 获取所有OPC项的值并转换为Array
         /// </summary>
         /// <returns></returns>
-        private Array GetValues()
+        public Array GetValues()
         {
             return this.GetValues(null);
         }
@@ -155,7 +156,7 @@ namespace OpcLibrary
         /// </summary>
         /// <param name="serverHandles">给定的服务端句柄数组，假如给定的服务端句柄为空，则给出所有值</param>
         /// <returns></returns>
-        private Array GetValues(IEnumerable<int> serverHandles)
+        public Array GetValues(IEnumerable<int> serverHandles)
         {
             bool flag = serverHandles == null || serverHandles.Count() == 0; //特殊条件
             this.ListItemInfo.ForEach(item => item.SetItemValue(this.DataSource)); //根据数据源为item赋值（假如数据源不为空或字段名称正确）
@@ -171,8 +172,14 @@ namespace OpcLibrary
         private Array GetServerHandles(IEnumerable<int> serverHandles)
         {
             bool flag = serverHandles == null || serverHandles.Count() == 0; //特殊条件
-            //假如给定的服务端句柄范围为空则选择所有OPC项的句柄，否则选择服务端在范围内的OPC项以及第一个OPC项的服务端句柄
-            return this.ListItemInfo == null ? new int[0] : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle).ToArray();
+            IEnumerable<int> handles = this.ListItemInfo == null ? Array.Empty<int>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle);
+            //假如有不止一个为0的服务端句柄（列表中首个元素必为0），则抛出
+            if (handles.Count(h => h == 0) > 1)
+                throw new InvalidCastException("给出的服务端句柄中包含无效数字0");
+            //假如给定的服务端句柄范围为空则选择所有OPC项的值，否则选择服务端在范围内的OPC项以及第一个OPC项的值
+            return this.ListItemInfo == null ? Array.Empty<int>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle).ToArray();
+            ////首先要包括第一个OPC项的服务端句柄，之后假如给定的服务端句柄范围为空则选择所有OPC项的句柄，否则选择服务端句柄在范围内且不为0的OPC项
+            //return this.ListItemInfo == null ? Array.Empty<int>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => p.index == 0 || (p.item.ServerHandle != 0 && (flag || serverHandles.Contains(p.item.ServerHandle)))).Select(p => p.item.ServerHandle).ToArray();
         }
 
         /// <summary>
@@ -244,14 +251,13 @@ namespace OpcLibrary
         public bool ReadValues(Array serverHandles, out string message)
         {
             message = string.Empty;
-            object qualities, timeStamps;
             Array values;
             try
             {
                 IEnumerable<int> temp = serverHandles == null || serverHandles.Length == 0 ? null : serverHandles.Cast<int>();
                 Array handles = this.GetServerHandles(temp);
                 int itemCount = handles.Length - 1;
-                this.OpcGroup.SyncRead((short)OPCDataSource.OPCDevice, itemCount, ref handles, out values, out this.errors, out qualities, out timeStamps);
+                this.OpcGroup.SyncRead((short)OPCDataSource.OPCDevice, itemCount, ref handles, out values, out this.errors, out object qualities, out object timeStamps);
                 //假如至少读取到1个值，根据服务端句柄找到OPC项信息并更新值
                 if (values.Length > 0)
                     for (int i = 1; i <= values.Length; i++)
@@ -278,23 +284,62 @@ namespace OpcLibrary
         }
 
         /// <summary>
-        /// 为OPC组的所有OPC项写入数据
+        /// 为OPC组的所有OPC项写入数据，默认使用同步写入
         /// </summary>
         /// <param name="message">返回信息</param>
         /// <returns></returns>
         public bool WriteValues(out string message)
         {
             //return this.WriteValues(this.server_handles, out message);
-            return this.WriteValues(null, out message);
+            return this.WriteValues(null, false, out message);
         }
 
         /// <summary>
-        /// 为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据
+        /// 为OPC组的所有OPC项写入数据，指定是否使用异步写入
+        /// </summary>
+        /// <param name="using_async">是否使用异步写入</param>
+        /// <param name="message">返回信息</param>
+        /// <returns></returns>
+        public bool WriteValues(bool using_async, out string message)
+        {
+            //return this.WriteValues(this.server_handles, out message);
+            return this.WriteValues(null, using_async, out message);
+        }
+
+        /// <summary>
+        /// 为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据，默认使用同步写入
         /// </summary>
         /// <param name="serverHandles">服务端句柄Array</param>
         /// <param name="message">返回信息</param>
         /// <returns></returns>
         public bool WriteValues(Array serverHandles, out string message)
+        {
+            return this.WriteValues(serverHandles, false, out message);
+            //message = string.Empty;
+            //try
+            //{
+            //    IEnumerable<int> temp = serverHandles == null || serverHandles.Length == 0 ? null : serverHandles.Cast<int>();
+            //    Array handles = this.GetServerHandles(temp), values = this.GetValues(temp);
+            //    int itemCount = handles.Length - 1;
+            //    this.OpcGroup.SyncWrite(itemCount, ref handles, ref values, out this.errors);
+            //    GC.Collect();
+            //}
+            //catch (Exception ex)
+            //{
+            //    message = string.Format("向名称为{0}的OPC组写入值失败：{1}", this.OpcGroup.Name, ex.Message);
+            //    return false;
+            //}
+            //return true;
+        }
+
+        /// <summary>
+        /// 为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据，指定是否使用异步写入
+        /// </summary>
+        /// <param name="serverHandles">服务端句柄Array</param>
+        /// <param name="using_async">是否使用异步写入</param>
+        /// <param name="message">返回信息</param>
+        /// <returns></returns>
+        public bool WriteValues(Array serverHandles, bool using_async, out string message)
         {
             message = string.Empty;
             try
@@ -302,7 +347,10 @@ namespace OpcLibrary
                 IEnumerable<int> temp = serverHandles == null || serverHandles.Length == 0 ? null : serverHandles.Cast<int>();
                 Array handles = this.GetServerHandles(temp), values = this.GetValues(temp);
                 int itemCount = handles.Length - 1;
-                this.OpcGroup.SyncWrite(itemCount, ref handles, ref values, out this.errors);
+                if (!using_async)
+                    this.OpcGroup.SyncWrite(itemCount, ref handles, ref values, out this.errors);
+                else
+                    this.OpcGroup.AsyncWrite(itemCount, ref handles, ref values, out this.errors, random.Next(1, 1000), out int cancelId);
                 GC.Collect();
             }
             catch (Exception ex)
@@ -351,7 +399,9 @@ namespace OpcLibrary
         //   Dispose(false);
         // }
 
-        // 添加此代码以正确实现可处置模式。
+        /// <summary>
+        /// 释放资源
+        /// </summary>
         public void Dispose()
         {
             // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。

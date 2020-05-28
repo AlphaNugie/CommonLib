@@ -36,7 +36,7 @@ namespace CommonLib.UIControlUtil
                     propName = columnName.Substring(columnName.LastIndexOf('_') + 1);
                     PropertyInfo property = obj.GetType().GetProperty(propName);
                     if (property != null)
-                        property.SetValue(obj, Functions.ConvertType(property.PropertyType, cell.Value));
+                        property.SetValue(obj, Converter.Convert(property.PropertyType, cell.Value));
                 }
                 catch (Exception e)
                 {

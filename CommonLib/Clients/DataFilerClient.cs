@@ -10,7 +10,7 @@ namespace CommonLib.Clients
     /// <summary>
     /// 滤波功能对象
     /// </summary>
-    public class DataFilerClient
+    public class DataFilterClient
     {
         private byte wing = 3;
 
@@ -52,7 +52,7 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="wing">邻域翼展（半径），假如邻域长度为7，则半径应为3</param>
         /// <param name="type">滤波类型</param>
-        public DataFilerClient(byte wing, FilterType type) : this(wing, type, 0) { }
+        public DataFilterClient(byte wing, FilterType type) : this(wing, type, 0) { }
 
         /// <summary>
         /// 构造器
@@ -60,7 +60,7 @@ namespace CommonLib.Clients
         /// <param name="wing">邻域翼展（半径），假如邻域长度为7，则半径应为3</param>
         /// <param name="type">滤波类型</param>
         /// <param name="sigma">高斯分布标准差</param>
-        public DataFilerClient(byte wing, FilterType type, double sigma)
+        public DataFilterClient(byte wing, FilterType type, double sigma)
         {
             this.Wing = wing;
             this.Type = type;
@@ -81,7 +81,7 @@ namespace CommonLib.Clients
                 this.LastErrorMessage = "样本数小于邻域大小";
 
             if (!string.IsNullOrWhiteSpace(this.LastErrorMessage))
-                throw new ArgumentException(this.LastErrorMessage, "samples");
+                throw new ArgumentException(this.LastErrorMessage, nameof(samples));
             
             List<double> result = new List<double>(); //储存结果的List
             var count = samples.Count();

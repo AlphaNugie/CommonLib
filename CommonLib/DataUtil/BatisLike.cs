@@ -10,6 +10,7 @@ using System.Xml;
 using CommonLib.Clients;
 using CommonLib.Enums;
 using CommonLib.Function;
+using CommonLib.Helpers;
 
 namespace CommonLib.DataUtil
 {
@@ -49,20 +50,12 @@ namespace CommonLib.DataUtil
     /// </summary>
     public class BatisLike
     {
-        /// <summary>
-        /// Mapper文件的目录
-        /// </summary>
-        private static string mapperPath = Base.StartupPath + Base.DirSeparator + ConfigurationManager.AppSettings["SqlMapperFolder"];
         private string mapperName = string.Empty;
 
         /// <summary>
         /// Mapper文件的目录
         /// </summary>
-        public static string MapperPath
-        {
-            get { return mapperPath; }
-            set { mapperPath = value; }
-        }
+        public static string MapperPath { get; set; } = FileSystemHelper.StartupPath + FileSystemHelper.DirSeparator + ConfigurationManager.AppSettings["SqlMapperFolder"];
 
         /// <summary>
         /// Mapper文件名称
@@ -362,7 +355,7 @@ namespace CommonLib.DataUtil
             }
             catch (Exception e)
             {
-                FileClient.WriteExceptionInfo(e, string.Format("从XML文件中获取SQL语句出错，key: ", key), true);
+                FileClient.WriteExceptionInfo(e, string.Format("从XML文件中获取SQL语句出错，key: {0}", key), true);
                 throw;
             }
 
@@ -392,7 +385,7 @@ namespace CommonLib.DataUtil
             }
             catch (Exception e)
             {
-                FileClient.WriteExceptionInfo(e, string.Format("从XML文件中获取实体类属性字段对应关系出错，key: ", key), true);
+                FileClient.WriteExceptionInfo(e, string.Format("从XML文件中获取实体类属性字段对应关系出错，key: {0}", key), true);
                 throw;
             }
 
@@ -406,7 +399,7 @@ namespace CommonLib.DataUtil
         /// <returns>Mapping节点下的sqlMap</returns>
         private XmlNode ReadMapping(string key)
         {
-            string fileName = BatisLike.MapperPath + Base.DirSeparator + this.MapperName + ".xml";
+            string fileName = MapperPath + FileSystemHelper.DirSeparator + this.MapperName + ".xml";
             XmlDocument Xdoc = new XmlDocument();
             Xdoc.Load(fileName);
             XmlNodeList list = Xdoc.SelectNodes("SqlMapping/SqlMaps");

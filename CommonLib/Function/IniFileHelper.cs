@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonLib.Helpers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -11,6 +12,8 @@ namespace CommonLib.Function
     /// </summary>
     public class IniFileHelper
     {
+        private const string V = "kernel32";
+
         /// <summary>
         /// INI文件路径
         /// </summary>
@@ -40,8 +43,8 @@ namespace CommonLib.Function
         public IniFileHelper(string filePath, int length)
         {
             this.FilePath = filePath;
-            if (!this.FilePath.Contains(Base.VolumeSeparator))
-                this.FilePath = AppDomain.CurrentDomain.BaseDirectory + Base.DirSeparator + this.FilePath;
+            if (!this.FilePath.Contains(FileSystemHelper.VolumeSeparator))
+                this.FilePath = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.DirSeparator + this.FilePath;
             this.DefaultLength = length;
         }
 
@@ -126,7 +129,7 @@ namespace CommonLib.Function
         /// <param name="val">待写入的值</param>
         /// <param name="filePath">INI配置文件路径</param>
         /// <returns></returns>
-        [DllImport("kernel32")]//返回0表示失败，非0为成功
+        [DllImport(V, CharSet = CharSet.Unicode, ThrowOnUnmappableChar = true)]//返回0表示失败，非0为成功
         private static extern long WritePrivateProfileString(string section, string key,
             string val, string filePath);
 
@@ -140,7 +143,7 @@ namespace CommonLib.Function
         /// <param name="size">配置项内容最大尺寸</param>
         /// <param name="filePath">INI配置文件路径</param>
         /// <returns></returns>
-        [DllImport("kernel32")]//返回取得字符串缓冲区的长度
+        [DllImport(V, CharSet = CharSet.Unicode)]//返回取得字符串缓冲区的长度
         private static extern long GetPrivateProfileString(string section, string key,
             string def, StringBuilder retVal, int size, string filePath);
         #endregion

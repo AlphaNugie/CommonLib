@@ -7,29 +7,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CommonLib.Clients;
+using CommonLib.Helpers;
 
 namespace CommonLib.DataUtil
 {
     /// <summary>
     /// SQLite数据库基础操作类
     /// </summary>
-    public class SqliteProvider : DataProvider<SQLiteConnection, SQLiteDataAdapter, SQLiteCommand, SQLiteTransaction>
+    public class SqliteProvider : DataProvider<SQLiteConnection, SQLiteDataAdapter, SQLiteCommand, SQLiteTransaction, SQLiteParameter>
     {
         #region static
         /// <summary>
         /// SQLite连接字符串模板，格式形如“[路径\]xxx.db”
         /// </summary>
-        public const string ConnStrModel = @"Data Source={0}{1}";
+        //public const string ConnStrModel = @"Data Source={0}{1}";
+        public const string ConnStrModel = @"Data Source={0}";
 
         /// <summary>
         /// 获取连接字符串
         /// </summary>
-        /// <param name="fileDir">数据库文件路径</param>
+        /// <param name="fileDir">数据库文件路径，假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
         /// <param name="fileName">数据库文件名称，包括后缀</param>
         /// <returns>返回连接字符串</returns>
         public static string GetConnStr(string fileDir, string fileName)
         {
-            return string.Format(ConnStrModel, string.IsNullOrWhiteSpace(fileDir) ? string.Empty : fileDir + "\\", fileName);
+            FileSystemHelper.UpdateFilePath(ref fileDir, fileName, out string filePath);
+            return string.Format(ConnStrModel, filePath);
+            //return string.Format(ConnStrModel, string.IsNullOrWhiteSpace(fileDir) ? AppDomain.CurrentDomain.BaseDirectory : fileDir + "\\", fileName);
         }
 
         ///// <summary>

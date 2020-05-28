@@ -39,31 +39,31 @@ namespace CommonLib.Function
         //    return System.Convert.ChangeType(source, type);
         //}
 
-        ///// <summary>
-        ///// 泛型类型转换
-        ///// </summary>
-        ///// <param name="type"></param>
-        ///// <param name="source">要转换的值</param>
-        ///// <returns>返回转换后的实体类对象</returns>
-        //public static object ConvertType(Type type, object source)
-        //{
-        //    //假如原数据为空（或数据库空值），返回类型的新实例
-        //    if (source == null || source.GetType().Name.Equals("DBNull"))
-        //    {
-        //        //假如是值类型，生成新实例，否则返回null
-        //        if (type.IsValueType)
-        //            return Activator.CreateInstance(type);
-        //        else
-        //            return null;
-        //    }
+        /// <summary>
+        /// 泛型类型转换
+        /// </summary>
+        /// <param name="type">要转换的基础类型</param>
+        /// <param name="source">要转换的值</param>
+        /// <returns>返回转换后的实体类对象</returns>
+        public static object Convert(Type type,  object source)
+        {
+            //假如原数据为空（或数据库空值），返回类型的新实例
+            if (source == null || source.GetType().Name.Equals("DBNull"))
+            {
+                //假如是值类型，生成新实例，否则返回null
+                if (type.IsValueType)
+                    return Activator.CreateInstance(type);
+                else
+                    return null;
+            }
 
-        //    //泛型Nullable判断，取其中的类型
-        //    if (type.IsGenericType)
-        //        type = type.GetGenericArguments()[0];
+            //泛型Nullable判断，取其中的类型
+            if (type.IsGenericType)
+                type = type.GetGenericArguments()[0];
 
-        //    //反射获取TryParse方法
-        //    return System.Convert.ChangeType(source, type);
-        //}
+            //反射获取TryParse方法
+            return System.Convert.ChangeType(source, type);
+        }
 
         //private static readonly MethodInfo convert_type_method = typeof(Converter).GetMethod("ConvertType", new Type[] { typeof(object) });
         /// <summary>
@@ -72,7 +72,7 @@ namespace CommonLib.Function
         public static MethodInfo ConvertTypeMethod { get; } = typeof(Converter).GetMethod("ConvertType", new Type[] { typeof(object) });
 
         /// <summary>
-        /// 泛型类型转换
+        /// 泛型类型转换，为空时的默认值为基础类型默认值
         /// </summary>
         /// <typeparam name="T">要转换的基础类型</typeparam>
         /// <param name="source">要转换的值</param>
@@ -96,9 +96,9 @@ namespace CommonLib.Function
             object value;
             if (source == null || source.GetType().Name.Equals("DBNull"))
             {
-                //假如是值类型，生成新实例，否则返回null
-                value = def;
-                return (T)(object)value;
+                return def;
+                //value = def;
+                //return (T)value;
             }
 
             //泛型Nullable判断，取其中的类型
@@ -107,7 +107,7 @@ namespace CommonLib.Function
 
             //反射获取TryParse方法
             value = System.Convert.ChangeType(source, type);
-            return (T)(object)value;
+            return (T)value;
         }
 
         ///// <summary>

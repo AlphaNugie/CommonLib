@@ -5,14 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 using CommonLib.Function;
 using System.IO;
+using CommonLib.Helpers;
 
-namespace CommonLib.Clients.Object
+namespace CommonLib.Clients
 {
     /// <summary>
     /// 日志文件写入类
     /// </summary>
     public class LogClient : FileClient
     {
+        #region static
+        #endregion
+
         #region 私有成员
         private string logDir { get; set; }
         private string subDir { get; set; }
@@ -61,7 +65,41 @@ namespace CommonLib.Clients.Object
         /// 是否在文件名中添加时间
         /// </summary>
         public bool AddDate { get; set; }
+
+        /// <summary>
+        /// 记录是否添加时间
+        /// </summary>
+        public bool LogWithTime { get; set; } = true;
         #endregion
+
+        ///// <summary>
+        ///// 构造器
+        ///// </summary>
+        ///// <param name="logDir">日志目录（假如不带盘符则为程序根目录下路径）</param>
+        ///// <param name="subDir">日志目录下的子目录（假如为空或空字符串，则不创建）</param>
+        ///// <param name="fileName">文件名</param>
+        ///// <param name="usingSplitter">添加日志时是否添加分隔符与日期时间记录</param>
+        ///// <param name="addDate">文件名中是否添加日期</param>
+        ///// <param name="logWithTime">记录是否添加时间</param>
+        //public LogClient(string logDir, string subDir, string fileName, bool usingSplitter, bool addDate, bool logWithTime) : base(logDir + (string.IsNullOrWhiteSpace(subDir) ? string.Empty : FileSystemHelper.DirSeparator + subDir), fileName, false)
+        //{
+        //    this.LogDir = logDir;
+        //    this.SubDir = subDir;
+        //    //this.LogDirFull = this.LogDir + (string.IsNullOrWhiteSpace(this.LogDir) ? string.Empty : Base.DirSeparator + this.SubDir);
+        //    this.UsingSplitter = usingSplitter;
+        //    this.AddDate = addDate;
+        //    this.LogWithTime = logWithTime;
+        //}
+
+        ///// <summary>
+        ///// 构造器
+        ///// </summary>
+        ///// <param name="logDir">日志目录（假如不带盘符则为程序根目录下路径）</param>
+        ///// <param name="subDir">日志目录下的子目录（假如为空或空字符串，则不创建）</param>
+        ///// <param name="fileName">文件名</param>
+        ///// <param name="usingSplitter">添加日志时是否添加分隔符与日期时间记录</param>
+        ///// <param name="addDate">文件名中是否添加日期</param>
+        //public LogClient(string logDir, string subDir, string fileName, bool usingSplitter, bool addDate) : this(logDir, subDir, fileName, usingSplitter, addDate, true) { }
 
         /// <summary>
         /// 构造器
@@ -71,7 +109,7 @@ namespace CommonLib.Clients.Object
         /// <param name="fileName">文件名</param>
         /// <param name="usingSplitter">添加日志时是否添加分隔符与日期时间记录</param>
         /// <param name="addDate">文件名中是否添加日期</param>
-        public LogClient(string logDir, string subDir, string fileName, bool usingSplitter, bool addDate) : base(logDir + (string.IsNullOrWhiteSpace(subDir) ? string.Empty : Base.DirSeparator + subDir), fileName, false)
+        public LogClient(string logDir, string subDir, string fileName, bool usingSplitter, bool addDate) : base(logDir + (string.IsNullOrWhiteSpace(subDir) ? string.Empty : FileSystemHelper.DirSeparator + subDir), fileName, false)
         {
             this.LogDir = logDir;
             this.SubDir = subDir;
@@ -96,9 +134,9 @@ namespace CommonLib.Clients.Object
         private void UpdateLogDirFull(string logDir, string subDir)
         {
             //日志存储路径，保存在程序启动目录下特定皮带秤文件夹中，移除LogFolder首部以及尾部的"\"，假如有的话
-            if (!logDir.Contains(Base.VolumeSeparator) && !string.IsNullOrWhiteSpace(logDir))
-                logDir = AppDomain.CurrentDomain.BaseDirectory + Base.DirSeparator + Functions.TrimFilePath(logDir);
-            this.LogDirFull = logDir + (string.IsNullOrWhiteSpace(logDir) ? string.Empty : Base.DirSeparator + subDir);
+            if (!logDir.Contains(FileSystemHelper.VolumeSeparator) && !string.IsNullOrWhiteSpace(logDir))
+                logDir = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.DirSeparator + FileSystemHelper.TrimFilePath(logDir);
+            this.LogDirFull = logDir + (string.IsNullOrWhiteSpace(logDir) ? string.Empty : FileSystemHelper.DirSeparator + subDir);
             this.Path = this.LogDirFull;
         }
 
@@ -112,33 +150,42 @@ namespace CommonLib.Clients.Object
             try
             {
                 string localDateTime = string.Format("{0:yyyy年M月d日 H时m分s秒}", DateTime.Now); //本地格式的日期时间，精确到秒
-                //if (!this.dateAdded)
+
+                ////假如添加日志分隔符或添加空格（每一行文本级别不为0）
+                //if (this.UsingSplitter || level != 0)
                 //{
-                //    this.FileName = Functions.AddDateToFileName(this.FileName);
-                //    this.dateAdded = true;
+                //    var list = new List<string>();
+                //    //是否需要添加分隔符和时间记录
+                //    if (this.UsingSplitter)
+                //    {
+                //        list.Add(Base.NewLine + TEXT_SPLIT + Base.NewLine);
+                //        list.Add(localDateTime + "：" + Base.NewLine); //待写入的文本中添加日期时间
+                //    }
+                //    //添加原有文本行
+                //    foreach (var line in lines)
+                //    {
+                //        string prefix = new string(' ', level * 4); //根据每一行的级别添加空格
+                //        list.Add(prefix + line);
+                //    }
+
+                //    lines = list.ToArray();
                 //}
 
-                //假如添加日志分隔符或添加空格（每一行文本级别不为0）
-                if (this.UsingSplitter || level != 0)
+                var list = new List<string>();
+                //是否需要添加分隔符和时间记录
+                if (this.UsingSplitter)
                 {
-                    var list = new List<string>();
-                    //是否需要添加分隔符和时间记录
-                    if (this.UsingSplitter)
-                    {
-                        list.Add(Base.NewLine + Base.TextSplit + Base.NewLine);
-                        list.Add(localDateTime + "：" + Base.NewLine); //待写入的文本中添加日期时间
-                    }
-                    //添加原有文本行
-                    foreach (var line in lines)
-                    {
-                        string prefix = new string(' ', level * 4); //根据每一行的级别添加空格
-                        list.Add(prefix + line);
-                    }
-
-                    lines = list.ToArray();
+                    list.Add(Base.NewLine + TEXT_SPLIT + Base.NewLine);
+                    list.Add(localDateTime + "：" + Base.NewLine); //待写入的文本中添加日期时间
+                }
+                //添加原有文本行
+                foreach (var line in lines)
+                {
+                    string prefix = level == 0 ? string.Empty : new string(' ', level * 4); //根据每一行的级别添加空格
+                    list.Add((this.LogWithTime ? Functions.AddTimeToMessage(prefix) : prefix) + line);
                 }
 
-                this.WriteLinesToFile(lines);
+                this.WriteLinesToFile(list);
             }
             catch (IOException) { }
         }

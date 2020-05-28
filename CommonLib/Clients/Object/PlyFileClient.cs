@@ -1,4 +1,5 @@
 ﻿using CommonLib.Function;
+using CommonLib.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -110,9 +111,9 @@ end_header
         /// </summary>
         private void SetFullFilePath()
         {
-            if (!this.Path.Contains(Base.VolumeSeparator))
-                this.Path = Base.StartupPath + Functions.TrimFilePath(this.Path);
-            this.FullFilePath = this.Path + Base.DirSeparator + this.FileName + ".ply";
+            if (!this.Path.Contains(FileSystemHelper.VolumeSeparator))
+                this.Path = FileSystemHelper.StartupPath + FileSystemHelper.TrimFilePath(this.Path);
+            this.FullFilePath = this.Path + FileSystemHelper.DirSeparator + this.FileName + ".ply";
         }
 
         /// <summary>

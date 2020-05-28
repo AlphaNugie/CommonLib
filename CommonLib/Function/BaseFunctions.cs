@@ -17,6 +17,7 @@ using Microsoft.Win32;
 using System.Net;
 using CommonLib.UIControlUtil.WPF;
 using System.Runtime.InteropServices;
+using CommonLib.Helpers;
 
 namespace CommonLib.Function
 {
@@ -30,80 +31,80 @@ namespace CommonLib.Function
         /// </summary>
         public static WindowStateInfo FullScreenInfo = WindowStateInfo.GetFullScreenInfo();
 
-        /// <summary>
-        /// 可执行文件的启动目录(而不是当前DLL的目录)
-        /// </summary>
-        public static string StartupPath = AppDomain.CurrentDomain.BaseDirectory;
+        ///// <summary>
+        ///// 可执行文件的启动目录(而不是当前DLL的目录)
+        ///// </summary>
+        //public static string StartupPath = AppDomain.CurrentDomain.BaseDirectory;
 
         /// <summary>
         /// 特殊字符，代表正文开始
         /// </summary>
-        public static char STX = (char)2;
+        public const char STX = (char)2;
 
         /// <summary>
         /// 特殊字符，代表正文结束
         /// </summary>
-        public static char ETX = (char)3;
+        public const char ETX = (char)3;
 
-        /// <summary>
-        /// 储存日志文件的文件夹（或次级路径，如xx\xx等）
-        /// </summary>
-        public static string LogDir = "Logs";
+        ///// <summary>
+        ///// 储存日志文件的文件夹（或次级路径，如xx\xx等）
+        ///// </summary>
+        //public static string LogDir = "Logs";
 
-        /// <summary>
-        /// 错误日志目录
-        /// </summary>
-        public static string FailureLogDir = Base.LogDir + Base.DirSeparator + "Failure Logs";
+        ///// <summary>
+        ///// 错误日志目录
+        ///// </summary>
+        //public static string FailureLogDir = Base.LogDir + Base.DirSeparator + "Failure Logs";
 
-        /// <summary>
-        /// 存放数据文件的目录(一般为XML文件)
-        /// </summary>
-        public static string DataDir = "Data";
+        ///// <summary>
+        ///// 存放数据文件的目录(一般为XML文件)
+        ///// </summary>
+        //public static string DataDir = "Data";
 
-        /// <summary>
-        /// 默认文本文件类型后缀
-        /// </summary>
-        public static string TextFileSuffix = ".txt";
+        ///// <summary>
+        ///// 默认文本文件类型后缀
+        ///// </summary>
+        //public static string TextFileSuffix = ".txt";
 
-        /// <summary>
-        /// 默认日志文件类型后缀
-        /// </summary>
-        public static string LogFileSuffix = ".log";
+        ///// <summary>
+        ///// 默认日志文件类型后缀
+        ///// </summary>
+        //public static string LogFileSuffix = ".log";
 
-        /// <summary>
-        /// 文本分隔字符串
-        /// </summary>
-        public static string TextSplit = "***********************************************************************";
+        ///// <summary>
+        ///// 文本分隔字符串
+        ///// </summary>
+        //public static string TextSplit = "***********************************************************************";
 
-        /// <summary>
-        /// 盘符与路径的分隔符
-        /// </summary>
-        public static string VolumeSeparator = Path.VolumeSeparatorChar.ToString() + Path.DirectorySeparatorChar.ToString();
+        ///// <summary>
+        ///// 盘符与路径的分隔符
+        ///// </summary>
+        //public static string VolumeSeparator = Path.VolumeSeparatorChar.ToString() + Path.DirectorySeparatorChar.ToString();
 
-        /// <summary>
-        /// 当前环境（平台）中的目录分隔符（字符）
-        /// </summary>
-        public static char DirSeparatorChar = Path.DirectorySeparatorChar;
+        ///// <summary>
+        ///// 当前环境（平台）中的目录分隔符（字符）
+        ///// </summary>
+        //public static char DirSeparatorChar = Path.DirectorySeparatorChar;
 
-        /// <summary>
-        /// 当前环境（平台）中的目录分隔符（字符串）
-        /// </summary>
-        public static string DirSeparator = Path.DirectorySeparatorChar.ToString();
+        ///// <summary>
+        ///// 当前环境（平台）中的目录分隔符（字符串）
+        ///// </summary>
+        //public static string DirSeparator = Path.DirectorySeparatorChar.ToString();
 
         /// <summary>
         /// 当前环境（平台）中的回车换行符
         /// </summary>
-        public static string NewLine = Environment.NewLine;
+        public static string NewLine { get { return Environment.NewLine; } }
 
         /// <summary>
         /// 代表必填项的红色*号（HTML格式）
         /// </summary>
-        public static string Mark_Needed = "<color=red>*</color>";
+        public const string MARK_NEEDED = "<color=red>*</color>";
 
         /// <summary>
         /// 代替密码明文的字符
         /// </summary>
-        public static char PasswordChar = '●';
+        public const char PASSWORD_CHAR = '●';
     }
 
     /// <summary>
@@ -237,26 +238,7 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static string AddTimeToMessage(object obj)
         {
-            return string.Format("{0} ---- {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), (string)obj);
-        }
-
-        /// <summary>
-        /// 将日期添加到文件名中
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public static string AddDateToFileName(string fileName)
-        {
-            if (string.IsNullOrWhiteSpace(fileName))
-                return string.Empty;
-
-            string date = DateTime.Now.ToString("yyyyMMdd");
-            string[] parts = fileName.Split('.').Where(p => !string.IsNullOrWhiteSpace(p)).ToArray();
-            if (parts.Length == 1)
-                parts[0] += " " + date;
-            else
-                parts[parts.Length - 2] += " " + date;
-            return string.Join(".", parts);
+            return string.Format("{0} ==> {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), (string)obj);
         }
 
         /// <summary>
@@ -279,45 +261,45 @@ namespace CommonLib.Function
             //    return false;
         }
 
-        /// <summary>
-        /// 泛型类型转换
-        /// </summary>
-        /// <typeparam name="T">要转换的基础类型</typeparam>
-        /// <param name="source">要转换的值</param>
-        /// <returns>返回转换后的实体类对象</returns>
-        public static object ConvertType(Type type, object source)
-        {
-            //假如原数据为空（或数据库空值），返回类型的新实例
-            if (source == null || source.GetType().Name.Equals("DBNull"))
-            {
-                //假如是值类型，生成新实例，否则返回null
-                if (type.IsValueType)
-                    return Activator.CreateInstance(type);
-                else
-                    return null;
-            }
+        ///// <summary>
+        ///// 泛型类型转换
+        ///// </summary>
+        ///// <param name="type">要转换的基础类型</param>
+        ///// <param name="source">要转换的值</param>
+        ///// <returns>返回转换后的实体类对象</returns>
+        //public static object Convert(Type type, object source)
+        //{
+        //    //假如原数据为空（或数据库空值），返回类型的新实例
+        //    if (source == null || source.GetType().Name.Equals("DBNull"))
+        //    {
+        //        //假如是值类型，生成新实例，否则返回null
+        //        if (type.IsValueType)
+        //            return Activator.CreateInstance(type);
+        //        else
+        //            return null;
+        //    }
 
-            //泛型Nullable判断，取其中的类型
-            if (type.IsGenericType)
-                type = type.GetGenericArguments()[0];
+        //    //泛型Nullable判断，取其中的类型
+        //    if (type.IsGenericType)
+        //        type = type.GetGenericArguments()[0];
 
-            //反射获取TryParse方法
-            return Convert.ChangeType(source, type);
-        }
+        //    //反射获取TryParse方法
+        //    return System.Convert.ChangeType(source, type);
+        //}
 
-        /// <summary>
-        /// 更新并返回TcpClient的连接状态
-        /// </summary>
-        /// <returns>假如处于连接状态，返回true，否则返回false</returns>
-        public static bool IsSocketConnected(TcpClient client)
-        {
-            //假如TcpClient对象为空
-            if (client == null || client.Client == null)
-                return false;
+        ///// <summary>
+        ///// 更新并返回TcpClient的连接状态
+        ///// </summary>
+        ///// <returns>假如处于连接状态，返回true，否则返回false</returns>
+        //public static bool IsSocketConnected(TcpClient client)
+        //{
+        //    //假如TcpClient对象为空
+        //    if (client == null || client.Client == null)
+        //        return false;
 
-            Socket socket = client.Client;
-            return (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected;
-        }
+        //    Socket socket = client.Client;
+        //    return (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected;
+        //}
 
         /// <summary>
         /// 将可枚举的集合转换为DataTable
@@ -345,19 +327,6 @@ namespace CommonLib.Function
                 }
             }
             return dt;
-        }
-
-        /// <summary>
-        /// 去除路径名称首部以及尾部的路径分隔符（反斜杠“\”）
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        public static string TrimFilePath(string filePath)
-        {
-            if (string.IsNullOrWhiteSpace(filePath))
-                throw new ArgumentException("路径名称为空！");
-
-            return filePath.Trim(new char[] { Base.DirSeparatorChar });
         }
 
         /// <summary>

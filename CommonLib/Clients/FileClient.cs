@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using CommonLib.Function;
+using CommonLib.Helpers;
 
 namespace CommonLib.Clients
 {
@@ -16,6 +17,253 @@ namespace CommonLib.Clients
     /// </summary>
     public class FileClient
     {
+        #region static
+        /// <summary>
+        /// 储存日志文件的文件夹（或次级路径，如xx\xx等）
+        /// </summary>
+        public static string DefaultLogDir { get; set; } = "Logs";
+
+        /// <summary>
+        /// 错误日志目录
+        /// </summary>
+        public static string FailureLogDir { get { return DefaultLogDir + FileSystemHelper.DirSeparator + "Failure Logs"; } }
+
+        /// <summary>
+        /// 存放数据文件的目录(一般为XML文件)
+        /// </summary>
+        public static string DefaultDataDir { get; set; } = "Data";
+
+        /// <summary>
+        /// 默认文本文件类型后缀
+        /// </summary>
+        public const string TEXT_FILE_SUFFIX = ".txt";
+
+        /// <summary>
+        /// 默认日志文件类型后缀
+        /// </summary>
+        public const string LOG_FILE_SUFFIX = ".log";
+
+        /// <summary>
+        /// 文本分隔字符串
+        /// </summary>
+        public const string TEXT_SPLIT = "***********************************************************************";
+        #endregion
+
+        #region 私有成员
+        private string path = string.Empty;
+        private string fileName = string.Empty;
+        //private string fileName_WithDate = string.Empty;
+        private string filePath = string.Empty;
+        //private string filePath_WithDate = string.Empty;
+        #endregion
+
+        #region 属性
+        /// <summary>
+        /// 文件路径（不包含文件名）
+        /// </summary>
+        public string Path
+        {
+            get { return this.path; }
+            set
+            {
+                this.path = value;
+                this.UpdateFilePath(this.path, this.FileName);
+            }
+        }
+
+        /// <summary>
+        /// 文件名
+        /// </summary>
+        public string FileName
+        {
+            get { return this.fileName; }
+            set
+            {
+                this.fileName = value;
+                this.UpdateFilePath(this.Path, this.fileName);
+            }
+        }
+
+        /// <summary>
+        /// 文件名
+        /// </summary>
+        public string FileName_WithDate { get; set; }
+
+        /// <summary>
+        /// 文件完整路径（包含文件名）
+        /// </summary>
+        public string FilePath
+        {
+            get { return this.filePath; }
+            set
+            {
+                this.filePath = value;
+                this.Extension = System.IO.Path.GetExtension(this.filePath).ToLower(); //文件扩展名，小写
+            }
+        }
+
+        /// <summary>
+        /// 文件完整路径（包含文件名）
+        /// </summary>
+        public string FilePath_WithDate { get; set; }
+
+        /// <summary>
+        /// 文件扩展名
+        /// </summary>
+        public string Extension { get; set; }
+
+        /// <summary>
+        /// 每次写入是否对上一次覆盖
+        /// </summary>
+        public bool Overriding { get; set; }
+
+        /// <summary>
+        /// 上一个错误信息
+        /// </summary>
+        public string LastErrorMessage { get; set; }
+        #endregion
+
+        /// <summary>
+        /// 构造器
+        /// </summary>
+        /// <param name="path">文件路径</param>
+        /// <param name="fileName">文件名（包含后缀）</param>
+        /// <param name="overriding">是否覆盖</param>
+        public FileClient(string path, string fileName, bool overriding)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(path))
+                    throw new ArgumentException("待写入文件的路径为空！", "string path");
+                if (string.IsNullOrWhiteSpace(fileName))
+                    throw new ArgumentException("待写入文件的名称为空！", "string fileName");
+
+                this.Path = path;
+                this.FileName = fileName;
+                //this.FilePath = Functions.TrimFilePath(this.Path) + Base.DirSeparator + this.FileName; //包含文件名的路径
+                //this.Extension = System.IO.Path.GetExtension(this.FilePath).ToLower(); //文件扩展名，小写
+                this.Overriding = overriding;
+            }
+            catch (Exception e)
+            {
+                this.LastErrorMessage = string.Format("文件{0}写入操作类初始化失败: {1}", fileName, e.Message);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 构造器，默认不覆盖
+        /// </summary>
+        /// <param name="path">文件路径</param>
+        /// <param name="fileName">文件名（包含后缀）</param>
+        public FileClient(string path, string fileName) : this(path, fileName, false) { }
+
+        /// <summary>
+        /// 更新文件完整路径
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="fileName">文件名称</param>
+        private void UpdateFilePath(string path, string fileName)
+        {
+            ////假如路径中不包含卷分隔符，添加根目录
+            //if (!path.Contains(FileSystemHelper.VolumeSeparator))
+            //    path = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.TrimFilePath(path);
+            //this.path = path;
+            //this.FileName_WithDate = FileSystemHelper.AddDateToFileName(fileName); //带日期的文件名称
+            //this.FilePath = FileSystemHelper.TrimFilePath(path) + FileSystemHelper.DirSeparator + fileName; //包含文件名的路径
+            //this.FilePath_WithDate = FileSystemHelper.TrimFilePath(path) + FileSystemHelper.DirSeparator + this.FileName_WithDate; //带日期的路径
+            FileSystemHelper.UpdateFilePath(ref path, fileName, out string fileNameDate, out string filePath, out string filePathDate);
+            this.path = path;
+            this.FileName_WithDate = fileNameDate; //带日期的文件名称
+            this.FilePath = filePath; //包含文件名的路径
+            this.FilePath_WithDate = filePathDate; //带日期的路径
+        }
+
+        /// <summary>
+        /// 将文本写入文件
+        /// </summary>
+        /// <param name="lines">要添加进文件的字符串集合</param>
+        /// <param name="fileNameWithDate">文件名是否带日期</param>
+        public void WriteLinesToFile(IEnumerable<string> lines, bool fileNameWithDate)
+        {
+            try
+            {
+                if (lines == null || lines.Count() == 0)
+                    return;
+
+                //检测目录是否存在，不存在则创建
+                if (!Directory.Exists(this.Path))
+                    Directory.CreateDirectory(this.Path);
+
+                //this.UpdateFilePath(this.Path, this.FileName);
+                //this.FileName_WithDate = FileSystemHelper.AddDateToFileName(this.FileName); //带日期的文件名称
+                string filePath = fileNameWithDate ? this.FilePath_WithDate : this.FilePath;
+                //假如文件存在，添加文本，否则创建文件并写入(编码方式为UTF-8)
+                if (File.Exists(filePath) && !this.Overriding)
+                    File.AppendAllLines(filePath, lines, Encoding.UTF8);
+                else
+                    File.WriteAllLines(filePath, lines, Encoding.UTF8);
+            }
+            catch (IOException) { }
+        }
+
+        ///// <summary>
+        ///// 将文本写入文件
+        ///// </summary>
+        ///// <param name="lines">要添加进文件的字符串集合</param>
+        ///// <param name="withDate">文件名是否带日期</param>
+        //public void WriteLinesToFile(IEnumerable<string> lines, bool withDate)
+        //{
+        //    try
+        //    {
+        //        if (lines == null || lines.Count() == 0)
+        //            return;
+
+        //        //检测目录是否存在，不存在则创建
+        //        if (!Directory.Exists(this.Path))
+        //            Directory.CreateDirectory(this.Path);
+
+        //        //this.UpdateFilePath(this.Path, this.FileName);
+        //        this.FileName_WithDate = FileSystemHelper.AddDateToFileName(this.FileName); //带日期的文件名称
+        //        string filePath = withDate ? this.FilePath_WithDate : this.FilePath;
+        //        //假如文件存在，添加文本，否则创建文件并写入(编码方式为UTF-8)
+        //        if (File.Exists(filePath) && !this.Overriding)
+        //            File.AppendAllLines(filePath, lines, Encoding.UTF8);
+        //        else
+        //            File.WriteAllLines(filePath, lines, Encoding.UTF8);
+        //    }
+        //    catch (IOException) { }
+        //}
+
+        /// <summary>
+        /// 将文本写入文件，文件名默认带日期
+        /// </summary>
+        /// <param name="lines">要添加进文件的字符串集合</param>
+        public void WriteLinesToFile(IEnumerable<string> lines)
+        {
+            this.WriteLinesToFile(lines, true);
+        }
+
+        /// <summary>
+        /// 将文本写入文件
+        /// </summary>
+        /// <param name="line">待写入文本</param>
+        /// <param name="withDate">文件名是否带日期</param>
+        public void WriteLineToFile(string line, bool withDate)
+        {
+            this.WriteLinesToFile(new string[] { line }, withDate);
+        }
+
+        /// <summary>
+        /// 将文本写入文件，文件名默认带日期
+        /// </summary>
+        /// <param name="line">要添加进文件的字符串</param>
+        public void WriteLineToFile(string line)
+        {
+            this.WriteLineToFile(line, true);
+        }
+
+        #region old static methods
         /// <summary>
         /// 将文本写入文件
         /// </summary>
@@ -38,14 +286,14 @@ namespace CommonLib.Clients
                 if (lines == null || lines.Count() == 0)
                     return;
 
-                string filePath = Functions.TrimFilePath(path) + Base.DirSeparator + fileName; //包含文件名的路径
+                string filePath = FileSystemHelper.TrimFilePath(path) + FileSystemHelper.DirSeparator + fileName; //包含文件名的路径
 
                 //假如文件名不以.txt、.log或.xml结尾，则添加默认的文本文件后缀
-                string fileExtension = Path.GetExtension(filePath).ToLower(); //文件扩展名，小写
+                string fileExtension = System.IO.Path.GetExtension(filePath).ToLower(); //文件扩展名，小写
                 if (!string.IsNullOrWhiteSpace(extension))
                     filePath += "." + extension;
                 else if (string.IsNullOrWhiteSpace(fileExtension))
-                    filePath += Base.TextFileSuffix;
+                    filePath += TEXT_FILE_SUFFIX;
 
                 //检测目录是否存在，不存在则创建
                 if (!Directory.Exists(path))
@@ -59,7 +307,7 @@ namespace CommonLib.Clients
             }
             catch (IOException) { }
         }
-        
+
         /// <summary>
         /// 将文本写入文件，默认不覆盖
         /// </summary>
@@ -69,7 +317,7 @@ namespace CommonLib.Clients
         /// <param name="extension">文件扩展名</param>
         public static void WriteLinesToFile(IEnumerable<string> lines, string path, string fileName, string extension)
         {
-            FileClient.WriteLinesToFile(lines, path, fileName, extension, false);
+            WriteLinesToFile(lines, path, fileName, extension, false);
         }
 
         /// <summary>
@@ -80,7 +328,7 @@ namespace CommonLib.Clients
         /// <param name="fileName">文件名（可包含文件类型后缀）</param>
         public static void WriteLinesToFile(IEnumerable<string> lines, string path, string fileName)
         {
-            FileClient.WriteLinesToFile(lines, path, fileName, string.Empty);
+            WriteLinesToFile(lines, path, fileName, string.Empty);
         }
 
         /// <summary>
@@ -91,7 +339,7 @@ namespace CommonLib.Clients
         /// <param name="fileName">文件名（可包含文件类型后缀）</param>
         public static void WriteLinesToFile(string line, string path, string fileName)
         {
-            FileClient.WriteLinesToFile(new string[] { line }, path, fileName);
+            WriteLinesToFile(new string[] { line }, path, fileName);
         }
 
         /// <summary>
@@ -107,15 +355,14 @@ namespace CommonLib.Clients
             try
             {
                 //日志存储路径，保存在程序启动目录下特定皮带秤文件夹中，移除LogFolder首部以及尾部的"\"，假如有的话
-                string path = AppDomain.CurrentDomain.BaseDirectory + Base.DirSeparator + Functions.TrimFilePath(Base.LogDir);
-                path += string.IsNullOrWhiteSpace(subDir) ? string.Empty : (Base.DirSeparator + subDir);
+                string path = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.DirSeparator + FileSystemHelper.TrimFilePath(DefaultLogDir);
+                path += string.IsNullOrWhiteSpace(subDir) ? string.Empty : (FileSystemHelper.DirSeparator + subDir);
 
-                string fullDate,      //yyyyMMdd 日期字符串
-                       localDateTime; //某年某月某日 几时几分几秒 日期字符串
-                Functions.GetDateTimeString(out fullDate, out localDateTime);
+                //某年某月某日 几时几分几秒 日期字符串
+                Functions.GetDateTimeString(out string fullDate, out string localDateTime);
                 localDateTime = string.IsNullOrWhiteSpace(localDateTime) ? (new DateTime()).ToString() : localDateTime;
                 fileName += string.IsNullOrWhiteSpace(fullDate) ? string.Empty : " " + fullDate; //文件名中添加当前日期
-                fileName += Base.LogFileSuffix; //添加日志文件类型后缀
+                fileName += LOG_FILE_SUFFIX; //添加日志文件类型后缀
 
                 //假如添加日志分隔符或添加空格（每一行文本级别不为0）
                 if (usingSplitter || level != 0)
@@ -124,7 +371,7 @@ namespace CommonLib.Clients
                     //是否需要添加分隔符和时间记录
                     if (usingSplitter)
                     {
-                        list.Add(Base.NewLine + Base.TextSplit + Base.NewLine);
+                        list.Add(Base.NewLine + TEXT_SPLIT + Base.NewLine);
                         list.Add(localDateTime + "：" + Base.NewLine); //待写入的文本中添加日期时间
                     }
                     //添加原有文本行
@@ -151,7 +398,7 @@ namespace CommonLib.Clients
         /// <param name="level">当前行在文本中的级别，0最高，每增加1级添加4个空格</param>
         public static void WriteLogsToFile(IEnumerable<string> lines, string subDir, string fileName, int level)
         {
-            FileClient.WriteLogsToFile(lines, subDir, fileName, true, level);
+            WriteLogsToFile(lines, subDir, fileName, true, level);
         }
 
         /// <summary>
@@ -163,7 +410,7 @@ namespace CommonLib.Clients
         /// <param name="usingSplitter">添加日志时是否添加分隔符与日期时间记录</param>
         public static void WriteLogsToFile(IEnumerable<string> lines, string subDir, string fileName, bool usingSplitter)
         {
-            FileClient.WriteLogsToFile(lines, subDir, fileName, usingSplitter, 0);
+            WriteLogsToFile(lines, subDir, fileName, usingSplitter, 0);
         }
 
         /// <summary>
@@ -174,7 +421,7 @@ namespace CommonLib.Clients
         /// <param name="fileName">文件名（不带文件后缀）</param>
         public static void WriteLogsToFile(IEnumerable<string> lines, string subDir, string fileName)
         {
-            FileClient.WriteLogsToFile(lines, subDir, fileName, true, 0);
+            WriteLogsToFile(lines, subDir, fileName, true, 0);
         }
 
         /// <summary>
@@ -184,7 +431,7 @@ namespace CommonLib.Clients
         /// <param name="fileName">文件名（不带文件后缀）</param>
         public static void WriteLogsToFile(IEnumerable<string> lines, string fileName)
         {
-            FileClient.WriteLogsToFile(lines, string.Empty, fileName);
+            WriteLogsToFile(lines, string.Empty, fileName);
         }
 
         /// <summary>
@@ -194,7 +441,7 @@ namespace CommonLib.Clients
         public static void WriteFailureInfo(IEnumerable<string> lines)
         {
             string failureLogName = "FailureInfo"; //错误日志文件名称
-            FileClient.WriteFailureInfo(lines, failureLogName);
+            WriteFailureInfo(lines, failureLogName);
         }
 
         /// <summary>
@@ -203,7 +450,7 @@ namespace CommonLib.Clients
         /// <param name="line">要添加进日志的字符串</param>
         public static void WriteFailureInfo(string line)
         {
-            FileClient.WriteFailureInfo(new string[] { line });
+            WriteFailureInfo(new string[] { line });
         }
 
         /// <summary>
@@ -215,7 +462,7 @@ namespace CommonLib.Clients
         {
             //string subDir = "Failure Logs"; //错误日志所在子目录
             //FileClient.WriteLogsToFile(lines, subDir, fileName);
-            FileClient.WriteFailureInfo(lines, string.Empty, fileName);
+            WriteFailureInfo(lines, string.Empty, fileName);
         }
 
         /// <summary>
@@ -226,7 +473,7 @@ namespace CommonLib.Clients
         /// <param name="fileName">错误日志文件名称（不带文件类型后缀）</param>
         public static void WriteFailureInfo(string line, string subFolder, string fileName)
         {
-            FileClient.WriteFailureInfo(new string[] { line }, subFolder, fileName);
+            WriteFailureInfo(new string[] { line }, subFolder, fileName);
         }
 
         /// <summary>
@@ -239,8 +486,8 @@ namespace CommonLib.Clients
         {
             string subDir = "Failure Logs"; //错误日志所在子目录
             if (!string.IsNullOrWhiteSpace(subFolder))
-                subDir += Path.DirectorySeparatorChar + subFolder;
-            FileClient.WriteLogsToFile(lines, subDir, fileName);
+                subDir += System.IO.Path.DirectorySeparatorChar + subFolder;
+            WriteLogsToFile(lines, subDir, fileName);
         }
 
         /// <summary>
@@ -251,7 +498,7 @@ namespace CommonLib.Clients
         /// <param name="usingExcepMsg">错误说明信息中是否添加异常信息(string Exception.Message)</param>
         public static void WriteExceptionInfo(Exception e, string info, bool usingExcepMsg)
         {
-            FileClient.WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info, usingExcepMsg));
+            WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info, usingExcepMsg));
         }
 
         /// <summary>
@@ -262,7 +509,7 @@ namespace CommonLib.Clients
         /// <param name="extraInfos">额外包含的信息字符串数组</param>
         public static void WriteExceptionInfo(Exception e, string info, string[] extraInfos)
         {
-            FileClient.WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info, extraInfos));
+            WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info, extraInfos));
         }
 
         /// <summary>
@@ -273,7 +520,7 @@ namespace CommonLib.Clients
         /// <param name="extraInfo">额外包含的信息字符串</param>
         public static void WriteExceptionInfo(Exception e, string info, string extraInfo)
         {
-            FileClient.WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info, extraInfo));
+            WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info, extraInfo));
         }
 
         /// <summary>
@@ -283,7 +530,7 @@ namespace CommonLib.Clients
         /// <param name="info">异常说明信息</param>
         public static void WriteExceptionInfo(Exception e, string info)
         {
-            FileClient.WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info));
+            WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info));
         }
 
         /// <summary>
@@ -292,7 +539,7 @@ namespace CommonLib.Clients
         /// <param name="e">异常对象</param>
         public static void WriteExceptionInfo(Exception e)
         {
-            FileClient.WriteFailureInfo(FailureInfo.GetFailureInfoArray(e));
+            WriteFailureInfo(FailureInfo.GetFailureInfoArray(e));
         }
 
         /// <summary>
@@ -309,9 +556,9 @@ namespace CommonLib.Clients
                 throw new ArgumentException("待写入XML文件的名称为空！", "string fileName");
 
             //XML文件路径，保存在程序启动目录下，移除DataFolder首部以及尾部的“\”，根据子目录细分文件夹（假如有的话）
-            string path = AppDomain.CurrentDomain.BaseDirectory + Base.DirSeparator + Functions.TrimFilePath(Base.DataDir);
-            path += string.IsNullOrWhiteSpace(subDir) ? string.Empty : (Base.DirSeparator + subDir);
-            string filePath = string.Format(@"{0}{1}{2}.xml", path, Base.DirSeparator, fileName); //包含文件名的路径
+            string path = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.DirSeparator + FileSystemHelper.TrimFilePath(DefaultDataDir);
+            path += string.IsNullOrWhiteSpace(subDir) ? string.Empty : (FileSystemHelper.DirSeparator + subDir);
+            string filePath = string.Format(@"{0}{1}{2}.xml", path, FileSystemHelper.DirSeparator, fileName); //包含文件名的路径
 
             //检测目录是否存在，不存在则创建
             if (!Directory.Exists(path))
@@ -338,5 +585,6 @@ namespace CommonLib.Clients
             else
                 dataTable.WriteXml(filePath, XmlWriteMode.IgnoreSchema);
         }
+        #endregion
     }
 }

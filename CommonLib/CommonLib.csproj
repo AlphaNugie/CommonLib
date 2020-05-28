@@ -52,8 +52,8 @@
     <Compile Include="Clients\DerivedUdpClient.cs" />
     <Compile Include="Clients\GaussianCalculator.cs" />
     <Compile Include="Clients\Object\FailureLogClient.cs" />
-    <Compile Include="Clients\Object\FileClient.cs" />
-    <Compile Include="Clients\Object\LogClient.cs" />
+    <Compile Include="Clients\FileClient.cs" />
+    <Compile Include="Clients\LogClient.cs" />
     <Compile Include="Clients\Object\PlyDotObject.cs" />
     <Compile Include="Clients\Object\PlyFileClient.cs" />
     <Compile Include="Clients\SampleAnalyzer.cs" />
@@ -72,7 +72,6 @@
     <Compile Include="Function\BaseFunctions.cs" />
     <Compile Include="Clients\ConnClient.cs" />
     <Compile Include="Clients\DerivedTcpClient.cs" />
-    <Compile Include="Clients\FileClient.cs" />
     <Compile Include="Enums\ConnType.cs" />
     <Compile Include="Enums\HotKeys.cs" />
     <Compile Include="Enums\RoutineStatus.cs" />
@@ -88,6 +87,7 @@
     <Compile Include="Function\OperateIniFile.cs" />
     <Compile Include="Function\TimerEventRaiser.cs" />
     <Compile Include="Function\TraceRoute.cs" />
+    <Compile Include="Helpers\FileSystemHelper.cs" />
     <Compile Include="UIControlUtil\ControlUtil.cs" />
     <Compile Include="UIControlUtil\DataGridViewUtil.cs" />
     <Compile Include="Function\FailureInfo.cs" />

@@ -1,5 +1,6 @@
 ﻿using CommonLib.DataUtil;
 using CommonLib.Function;
+using CommonLib.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +18,17 @@ namespace CommonLibExample
         [STAThread]
         static void Main()
         {
-            TempClass c = new TempClass() { Id = 1 };
-            Type type = typeof(Converter);
-            var method = type.GetMethod("ConvertType", new Type[] { typeof(object) });
-            PropertyInfo prop1 = c.GetType().GetProperty("Id"), prop2 = c.GetType().GetProperty("Value");
-            MethodInfo genericMethod1 = method.MakeGenericMethod(prop1.PropertyType), genericMethod2 = method.MakeGenericMethod(prop2.PropertyType);
-            string source = "44", source2 = "33.23";
-            prop1.SetValue(c, genericMethod1.Invoke(null, new object[] { source }));
-            prop2.SetValue(c, genericMethod2.Invoke(null, new object[] { source2 }));
+            string path = @"Log", name = "test.txt";
+            FileSystemHelper.UpdateFilePath(ref path, name, out string fileNameDate, out string filePath, out string filePathDate);
+            //TempClass c = new TempClass() { Id = 1 };
+            //Type type = typeof(Converter);
+            //var method = type.GetMethod("ConvertType", new Type[] { typeof(object) });
+            //PropertyInfo prop1 = c.GetType().GetProperty("Id"), prop2 = c.GetType().GetProperty("Value");
+            //MethodInfo genericMethod1 = method.MakeGenericMethod(prop1.PropertyType), genericMethod2 = method.MakeGenericMethod(prop2.PropertyType);
+            //string source = "44", source2 = "33.23";
+            //prop1.SetValue(c, genericMethod1.Invoke(null, new object[] { source }));
+            //prop2.SetValue(c, genericMethod2.Invoke(null, new object[] { source2 }));
+
             //double target = (double)"1.23".ConvertType(typeof(double));
             //Type type = target.GetType();
             //float target3 = Converter.ConvertType<float>("1.23");

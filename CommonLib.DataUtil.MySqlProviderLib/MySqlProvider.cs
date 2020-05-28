@@ -12,7 +12,7 @@ namespace CommonLib.DataUtil
     /// <summary>
     /// MySql数据库基础操作类
     /// </summary>
-    public class MySqlProvider : DataProvider<MySqlConnection, MySqlDataAdapter, MySqlCommand, MySqlTransaction>
+    public class MySqlProvider : DataProvider<MySqlConnection, MySqlDataAdapter, MySqlCommand, MySqlTransaction, MySqlParameter>
     {
         #region static
         /// <summary>

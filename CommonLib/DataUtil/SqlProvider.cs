@@ -12,7 +12,7 @@ namespace CommonLib.DataUtil
     /// <summary>
     /// SQL Server数据库基础操作类
     /// </summary>
-    public class SqlProvider : DataProvider<SqlConnection, SqlDataAdapter, SqlCommand, SqlTransaction>
+    public class SqlProvider : DataProvider<SqlConnection, SqlDataAdapter, SqlCommand, SqlTransaction, SqlParameter>
     {
         #region static
         /// <summary>

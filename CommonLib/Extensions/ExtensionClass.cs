@@ -25,6 +25,34 @@ namespace CommonLib.Extensions
         }
 
         /// <summary>
+        /// 更新并返回TcpClient的连接状态
+        /// </summary>
+        /// <returns>假如处于连接状态，返回true，否则返回false</returns>
+        public static bool IsSocketConnected(this TcpClient client)
+        {
+            //假如TcpClient对象为空
+            if (client == null || client.Client == null)
+                return false;
+
+            Socket socket = client.Client;
+            return (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected;
+        }
+
+        /// <summary>
+        /// 更新并返回UdpClient的连接状态
+        /// </summary>
+        /// <returns>假如处于连接状态，返回true，否则返回false</returns>
+        public static bool IsSocketConnected(this UdpClient client)
+        {
+            //假如TcpClient对象为空
+            if (client == null || client.Client == null)
+                return false;
+
+            Socket socket = client.Client;
+            return (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected;
+        }
+
+        /// <summary>
         /// 获取Socket连接名称，格式：(本地终结点不为空)本地IP:端口->服务端IP:端口(远程终结点不为空)
         /// </summary>
         /// <param name="socket">套接字接口对象</param>

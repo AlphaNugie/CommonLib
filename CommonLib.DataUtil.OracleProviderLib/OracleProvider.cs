@@ -13,7 +13,7 @@ namespace CommonLib.DataUtil
     /// <summary>
     /// Oracle数据库基础操作类
     /// </summary>
-    public class OracleProvider : DataProvider<OracleConnection, OracleDataAdapter, OracleCommand, OracleTransaction>
+    public class OracleProvider : DataProvider<OracleConnection, OracleDataAdapter, OracleCommand, OracleTransaction, OracleParameter>
     {
         #region static
         /// <summary>
@@ -92,5 +92,23 @@ namespace CommonLib.DataUtil
         /// <param name="password">用户密码</param>
         public OracleProvider(string hostAddress, string serviceName, string userName, string password) : base(ConnStrModel, hostAddress, DefaultPort, serviceName, userName, password) { }
         #endregion
+
+        /// <summary>
+        /// 执行存储过程，返回数据集，假如参数中不包含输出的指针参数，则以给定参数名称添加一个
+        /// </summary>
+        /// <param name="procedureName">存储过程名</param>
+        /// <param name="parameters">输入参数</param>
+        /// <param name="cursorName">输出指针的参数名称</param>
+        /// <returns>返回执行完毕返回的数据集</returns>
+        public DataSet RunProcedureQuery(string procedureName, IEnumerable<OracleParameter> parameters, string cursorName)
+        {
+            if (!parameters.Any(param => param.OracleDbType == OracleDbType.RefCursor && param.Direction == ParameterDirection.Output))
+            {
+                List<OracleParameter> list = parameters.ToList();
+                list.Add(new OracleParameter(cursorName, OracleDbType.RefCursor, ParameterDirection.Output));
+                parameters = list;
+            }
+            return base.RunProcedureQuery(procedureName, parameters);
+        }
     }
 }

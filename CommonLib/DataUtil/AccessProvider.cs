@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommonLib.Clients;
 using CommonLib.Function;
+using CommonLib.Helpers;
 
 namespace CommonLib.DataUtil
 {
@@ -39,7 +40,7 @@ namespace CommonLib.DataUtil
         public AccessProvider()
         {
             this.DbName = "AccessDatabase.mdb"; //数据库名称
-            this.DbFilePath = AppDomain.CurrentDomain.BaseDirectory + Base.DirSeparator + this.DbName; //带文件名的文件路径
+            this.DbFilePath = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.DirSeparator + this.DbName; //带文件名的文件路径
             this.ConnStr = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + this.DbFilePath; //拼接Access连接字符串
         }
 

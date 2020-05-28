@@ -135,16 +135,33 @@
         </member>
         <member name="M:OpcLibrary.OpcGroupInfo.WriteValues(System.String@)">
             <summary>
-            为OPC组的所有OPC项写入数据
+            为OPC组的所有OPC项写入数据，默认使用同步写入
             </summary>
+            <param name="message">返回信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.WriteValues(System.Boolean,System.String@)">
+            <summary>
+            为OPC组的所有OPC项写入数据，指定是否使用异步写入
+            </summary>
+            <param name="using_async">是否使用异步写入</param>
             <param name="message">返回信息</param>
             <returns></returns>
         </member>
         <member name="M:OpcLibrary.OpcGroupInfo.WriteValues(System.Array,System.String@)">
             <summary>
-            为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据
+            为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据，默认使用同步写入
             </summary>
             <param name="serverHandles">服务端句柄Array</param>
+            <param name="message">返回信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.WriteValues(System.Array,System.Boolean,System.String@)">
+            <summary>
+            为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据，指定是否使用异步写入
+            </summary>
+            <param name="serverHandles">服务端句柄Array</param>
+            <param name="using_async">是否使用异步写入</param>
             <param name="message">返回信息</param>
             <returns></returns>
         </member>
@@ -153,6 +170,11 @@
             释放资源
             </summary>
             <param name="disposing">为true时释放所有资源，否则仅释放非托管资源</param>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.Dispose">
+            <summary>
+            释放资源
+            </summary>
         </member>
         <member name="T:OpcLibrary.GroupType">
             <summary>

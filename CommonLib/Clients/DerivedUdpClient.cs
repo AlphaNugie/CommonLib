@@ -472,12 +472,14 @@ namespace CommonLib.Clients
         /// <returns>假如处于连接状态，返回true，否则返回false</returns>
         public bool IsSocketConnected()
         {
-            //假如TcpClient对象为空
-            if (this.BaseClient == null || this.BaseClient.Client == null)
-                return false;
+            ////假如TcpClient对象为空
+            //if (this.BaseClient == null || this.BaseClient.Client == null)
+            //    return false;
 
-            Socket socket = BaseClient.Client;
-            return (this.IsConnected_Socket = (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected);
+            //Socket socket = BaseClient.Client;
+            //return (this.IsConnected_Socket = (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected);
+
+            return this.IsConnected_Socket = (this.BaseClient != null && this.BaseClient.IsSocketConnected());
         }
 
         /// <summary>

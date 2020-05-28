@@ -17,11 +17,13 @@ namespace CommonLib.DataUtil
     /// <typeparam name="Adapter">用于更新DataSet、更新数据源的类型</typeparam>
     /// <typeparam name="Command">数据库命令类</typeparam>
     /// <typeparam name="Transaction">事务类</typeparam>
-    public class DataProvider<Connection, Adapter, Command, Transaction>
+    /// <typeparam name="Parameter">Command类的参数</typeparam>
+    public class DataProvider<Connection, Adapter, Command, Transaction, Parameter>
         where Connection : DbConnection, IDisposable
         where Adapter : DbDataAdapter, IDisposable
         where Command : DbCommand, IDisposable
         where Transaction : DbTransaction, IDisposable
+        where Parameter : IDataParameter
     {
         #region static
         /// <summary>
@@ -302,7 +304,7 @@ namespace CommonLib.DataUtil
         /// <param name="procedureName">存储过程名</param>
         /// <param name="parameters">输入参数</param>
         /// <returns>返回影响的行数（？）</returns>
-        public int RunProcedure(string connStr, string procedureName, IDataParameter[] parameters)
+        public int RunProcedure(string connStr, string procedureName, IEnumerable<Parameter> parameters)
         {
             using (var connection = (Connection)Activator.CreateInstance(typeof(Connection), connStr))
             {
@@ -322,6 +324,40 @@ namespace CommonLib.DataUtil
                     }
 
                     return result;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 执行存储过程，返回数据集
+        /// </summary>
+        /// <param name="connStr">数据库连接字符串</param>
+        /// <param name="procedureName">存储过程名</param>
+        /// <param name="parameters">输入参数</param>
+        /// <returns>返回执行完毕返回的数据集</returns>
+        public DataSet RunProcedureQuery(string connStr, string procedureName, IEnumerable<Parameter> parameters)
+        {
+            using (var connection = (Connection)Activator.CreateInstance(typeof(Connection), connStr))
+            {
+                using (var command = BuildCommand(connection, procedureName, parameters))
+                {
+                    using (var adapter = (Adapter)Activator.CreateInstance(typeof(Adapter), command))
+                    {
+                        DataSet dataSet = new DataSet();
+                        try
+                        {
+                            connection.Open();
+                            adapter.Fill(dataSet);
+                        }
+                        catch (Exception e)
+                        {
+                            dataSet.Dispose();
+                            this.ErrorMessage = string.Format("存储过程{0}执行失败: {1}", procedureName, e.Message);
+                            throw; //假如不需要抛出异常，将此行注释
+                        }
+
+                        return dataSet;
+                    }
                 }
             }
         }
@@ -414,11 +450,46 @@ namespace CommonLib.DataUtil
         /// <param name="procedureName">存储过程名称</param>
         /// <param name="parameters">存储过程参数</param>
         /// <returns></returns>
-        public int RunProcedure(string procedureName, IDataParameter[] parameters)
+        public int RunProcedure(string procedureName, IEnumerable<Parameter> parameters)
         {
             return this.RunProcedure(this.ConnStr, procedureName, parameters);
         }
+
+        /// <summary>
+        /// 执行存储过程，返回数据集
+        /// </summary>
+        /// <param name="procedureName">存储过程名</param>
+        /// <param name="parameters">输入参数</param>
+        /// <returns>返回执行完毕返回的数据集</returns>
+        public DataSet RunProcedureQuery(string procedureName, IEnumerable<Parameter> parameters)
+        {
+            return this.RunProcedureQuery(this.ConnStr, procedureName, parameters);
+        }
         #endregion
+
+        ///// <summary>
+        ///// 为存储过程构建Command对象
+        ///// </summary>
+        ///// <param name="connection">数据库连接对象</param>
+        ///// <param name="procedureName">存储过程名称</param>
+        ///// <param name="parameters">存储过程输入参数</param>
+        ///// <param name="bindByName">是否根据名称绑定参数（假如为OracleCommand）</param>
+        ///// <returns>返回Command对象</returns>
+        //protected static Command BuildCommand(Connection connection, string procedureName, IDataParameter[] parameters, bool bindByName)
+        //{
+        //    Type commandType = typeof(Command);
+        //    Command command = (Command)Activator.CreateInstance(commandType, procedureName, connection);
+        //    command.CommandType = CommandType.StoredProcedure; //Command类型设为存储过程
+        //    //假如是OracleCommand，通过反射实现根据名称绑定参数
+        //    if (commandType.Name.Equals("OracleCommand"))
+        //    {
+        //        PropertyInfo property = commandType.GetProperty("BindByName");
+        //        property.SetValue(command, bindByName);
+        //    }
+        //    command.Parameters.Clear();
+        //    command.Parameters.AddRange(parameters);
+        //    return command;
+        //}
 
         /// <summary>
         /// 为存储过程构建Command对象
@@ -428,7 +499,7 @@ namespace CommonLib.DataUtil
         /// <param name="parameters">存储过程输入参数</param>
         /// <param name="bindByName">是否根据名称绑定参数（假如为OracleCommand）</param>
         /// <returns>返回Command对象</returns>
-        protected static Command BuildCommand(Connection connection, string procedureName, IDataParameter[] parameters, bool bindByName)
+        protected static Command BuildCommand(Connection connection, string procedureName, IEnumerable<Parameter> parameters, bool bindByName)
         {
             Type commandType = typeof(Command);
             Command command = (Command)Activator.CreateInstance(commandType, procedureName, connection);
@@ -440,7 +511,7 @@ namespace CommonLib.DataUtil
                 property.SetValue(command, bindByName);
             }
             command.Parameters.Clear();
-            command.Parameters.AddRange(parameters);
+            command.Parameters.AddRange(parameters.ToArray());
             return command;
         }
 
@@ -451,7 +522,7 @@ namespace CommonLib.DataUtil
         /// <param name="procedureName">存储过程名称</param>
         /// <param name="parameters">存储过程输入参数</param>
         /// <returns>返回Command对象</returns>
-        protected static Command BuildCommand(Connection connection, string procedureName, IDataParameter[] parameters)
+        protected static Command BuildCommand(Connection connection, string procedureName, IEnumerable<Parameter> parameters)
         {
             return BuildCommand(connection, procedureName, parameters, true);
         }

@@ -69,6 +69,7 @@
     <Compile Include="Events\EventHandlers.cs" />
     <Compile Include="Events\IdChangedEventArgs.cs" />
     <Compile Include="Events\RoutineStatusChangedEventArgs.cs" />
+    <Compile Include="Extensions\Property\PropertyMapperExtension.cs" />
     <Compile Include="Function\BaseFunctions.cs" />
     <Compile Include="Clients\ConnClient.cs" />
     <Compile Include="Clients\DerivedTcpClient.cs" />

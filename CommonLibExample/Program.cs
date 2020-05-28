@@ -1,4 +1,5 @@
 ﻿using CommonLib.DataUtil;
+using CommonLib.Extensions.Property;
 using CommonLib.Function;
 using CommonLib.Helpers;
 using System;
@@ -18,8 +19,16 @@ namespace CommonLibExample
         [STAThread]
         static void Main()
         {
-            string path = @"Log", name = "test.txt";
-            FileSystemHelper.UpdateFilePath(ref path, name, out string fileNameDate, out string filePath, out string filePathDate);
+            //StudentSource studentSource = new StudentSource() { StudentName = "Molly Shannon", StudentAge = 17, SchoolName = "Grandville High School", SchoolPosition = new List<double>() { 119, 911 }, SchoolCityName = "Gotham" };
+            //Student student = null;
+            //studentSource.CopyPropertyValueTo(ref student);
+            //string path = @"Log", name = "test.txt";
+            //FileSystemHelper.UpdateFilePath(ref path, name, out string fileNameDate, out string filePath, out string filePathDate);
+
+            //int a = 1, b = 2;
+            //Type type1 = a.GetType(), type2 = b.GetType();
+            //bool flag = type1 == type2;
+
             //TempClass c = new TempClass() { Id = 1 };
             //Type type = typeof(Converter);
             //var method = type.GetMethod("ConvertType", new Type[] { typeof(object) });

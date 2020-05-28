@@ -82,8 +82,13 @@
     <Compile Include="FormTimerEventRaiser.Designer.cs">
       <DependentUpon>FormTimerEventRaiser.cs</DependentUpon>
     </Compile>
+    <Compile Include="PropertyMapper\Model\City.cs" />
+    <Compile Include="PropertyMapper\Model\School.cs" />
+    <Compile Include="PropertyMapper\Model\Student.cs" />
+    <Compile Include="PropertyMapper\Model\StudentSource.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyMapper\PropertyMapperExample.cs" />
     <EmbeddedResource Include="FormDatabaseTest.resx">
       <DependentUpon>FormDatabaseTest.cs</DependentUpon>
     </EmbeddedResource>

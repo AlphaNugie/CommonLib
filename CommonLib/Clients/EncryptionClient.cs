@@ -148,7 +148,7 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="decryptString">待解密的字符串</param>
         /// <param name="decryptKey">解密密钥，要求为32位，和加密密钥相同</param>
-        /// <param name="encryptIV">解密向量，要求为16位，和加密向量相同</param>
+        /// <param name="decryptIV">解密向量，要求为16位，和加密向量相同</param>
         /// <returns>解密成功返回解密后的字符串，失败返源串</returns>
         public string DecryptAES(string decryptString, string decryptKey, string decryptIV)
         {
@@ -228,7 +228,7 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="decryptString">待解密的字符串</param>
         /// <param name="decryptKey">解密密钥，要求为8位，和加密密钥相同</param>
-        /// <param name="encryptIV">加密向量，要求为8位，和加密向量相同</param>
+        /// <param name="decryptIV">解密向量，要求为8位，和加密向量相同</param>
         /// <returns>解密成功返回解密后的字符串，失败返源串</returns>
         public string DecryptDES(string decryptString, string decryptKey, string decryptIV)
         {

@@ -101,6 +101,9 @@ namespace CommonLib.Clients
         /// </summary>
         public bool IsConnected { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public DerivedTcpClient TcpClient { get; private set; }
         #endregion
 
@@ -232,9 +235,9 @@ namespace CommonLib.Clients
         /// 发送指令
         /// </summary>
         /// <param name="command">指令字符串</param>
+        /// <param name="connType"></param>
         public void SendCommand(string command, ConnTypes connType)
         {
-
             //TODO 完善其它连接方式的发送方法
             try
             {

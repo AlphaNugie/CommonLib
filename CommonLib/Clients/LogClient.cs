@@ -18,9 +18,9 @@ namespace CommonLib.Clients
         #endregion
 
         #region 私有成员
-        private string logDir { get; set; }
-        private string subDir { get; set; }
-        private bool dateAdded = false;
+        private string logDir;
+        private string subDir;
+        //private bool dateAdded = false;
         #endregion
 
         #region 属性

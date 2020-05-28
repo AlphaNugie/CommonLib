@@ -51,7 +51,7 @@ namespace CommonLib.Function
         /// <summary>
         /// 热键取消注册
         /// </summary>
-        /// <param name="hWnd">窗口句柄</param>
+        /// <param name="winHandle">窗口句柄</param>
         /// <param name="id">已注册热键的识别ID</param>
         /// <returns>假如取消注册成功，返回true，否则返回false</returns>
         public static bool Unregister(IntPtr winHandle, int id)

@@ -151,7 +151,7 @@ namespace CommonLib.Clients
             }
             catch (Exception e)
             {
-                //this.LastErrorMessage = "服务端";
+                this.LastErrorMessage = e.Message;
                 throw;
             }
             return true;

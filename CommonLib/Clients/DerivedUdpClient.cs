@@ -45,8 +45,7 @@ namespace CommonLib.Clients
         /// <summary>
         /// UdpClient对象
         /// </summary>
-        private UdpClient baseClient = null;
-        private bool logging = false;
+        //private bool logging = false;
         private bool autoReceive = true;
         private IPEndPoint remote_endpoint, local_endpoint;
         #endregion
@@ -54,11 +53,7 @@ namespace CommonLib.Clients
         /// <summary>
         /// UdpClient对象
         /// </summary>
-        public UdpClient BaseClient
-        {
-            get { return this.baseClient; }
-            private set { this.baseClient = value; }
-        }
+        public UdpClient BaseClient { get; private set; } = null;
 
         /// <summary>
         /// 与之建立TCP连接的主机IP地址
@@ -162,7 +157,7 @@ namespace CommonLib.Clients
         public void SetName()
         {
             try { this.Name = this.BaseClient.Client.GetName(out this.remote_endpoint, out this.local_endpoint); }
-            catch (Exception e) { this.Name = string.Empty; }
+            catch (Exception) { this.Name = string.Empty; }
         }
 
         /// <summary>

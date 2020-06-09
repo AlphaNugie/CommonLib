@@ -10,11 +10,18 @@ namespace CommonLibExample.PropertyMapper
 {
     public static class PropertyMapperExample
     {
-        public static void Test()
+        public static void CopyToMethodTest()
         {
             StudentSource studentSource = new StudentSource() { StudentName = "Molly Shannon", StudentAge = 17, SchoolName = "Grandville High School", SchoolPosition = new List<double>() { 119, 911 }, SchoolCityName = "Gotham" };
             Student student = null;
             studentSource.CopyPropertyValueTo(ref student);
+        }
+
+        public static void CopyFromMethodTest()
+        {
+            StudentSource studentSource = new StudentSource();
+            Student student = new Student() { Name = "Molly Shannon", Age = 17, School = new School() { Name = "Grandville High School", Position = new List<double>() { 119, 911 }, City = new City() { Name = "Gotham" } } };
+            studentSource.CopyPropertyValueFrom(student);
         }
     }
 }

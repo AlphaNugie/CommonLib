@@ -17,14 +17,19 @@ namespace CommonLibExample
             InitializeComponent();
         }
 
-        private void button_TimerEventRaiser_Click(object sender, EventArgs e)
+        private void Button_TimerEventRaiser_Click(object sender, EventArgs e)
         {
             new FormTimerEventRaiser().Show();
         }
 
-        private void button_DatabaseTest_Click(object sender, EventArgs e)
+        private void Button_DatabaseTest_Click(object sender, EventArgs e)
         {
             new FormDatabaseTest().Show();
+        }
+
+        private void Button_Encrypt_Click(object sender, EventArgs e)
+        {
+            new FormEncryption().Show();
         }
     }
 }

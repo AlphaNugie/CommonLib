@@ -30,6 +30,7 @@
         {
             this.button_TimerEventRaiser = new System.Windows.Forms.Button();
             this.button_DatabaseTest = new System.Windows.Forms.Button();
+            this.button_Encrypt = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button_TimerEventRaiser
@@ -41,7 +42,7 @@
             this.button_TimerEventRaiser.TabIndex = 0;
             this.button_TimerEventRaiser.Text = "TimerEventRaiser";
             this.button_TimerEventRaiser.UseVisualStyleBackColor = true;
-            this.button_TimerEventRaiser.Click += new System.EventHandler(this.button_TimerEventRaiser_Click);
+            this.button_TimerEventRaiser.Click += new System.EventHandler(this.Button_TimerEventRaiser_Click);
             // 
             // button_DatabaseTest
             // 
@@ -52,13 +53,25 @@
             this.button_DatabaseTest.TabIndex = 1;
             this.button_DatabaseTest.Text = "数据库";
             this.button_DatabaseTest.UseVisualStyleBackColor = true;
-            this.button_DatabaseTest.Click += new System.EventHandler(this.button_DatabaseTest_Click);
+            this.button_DatabaseTest.Click += new System.EventHandler(this.Button_DatabaseTest_Click);
+            // 
+            // button_Encrypt
+            // 
+            this.button_Encrypt.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_Encrypt.Location = new System.Drawing.Point(415, 28);
+            this.button_Encrypt.Name = "button_Encrypt";
+            this.button_Encrypt.Size = new System.Drawing.Size(170, 40);
+            this.button_Encrypt.TabIndex = 1;
+            this.button_Encrypt.Text = "加密解密";
+            this.button_Encrypt.UseVisualStyleBackColor = true;
+            this.button_Encrypt.Click += new System.EventHandler(this.Button_Encrypt_Click);
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.button_Encrypt);
             this.Controls.Add(this.button_DatabaseTest);
             this.Controls.Add(this.button_TimerEventRaiser);
             this.Font = new System.Drawing.Font("等线", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -72,6 +85,7 @@
 
         private System.Windows.Forms.Button button_TimerEventRaiser;
         private System.Windows.Forms.Button button_DatabaseTest;
+        private System.Windows.Forms.Button button_Encrypt;
     }
 }
 

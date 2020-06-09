@@ -64,6 +64,12 @@
     <Compile Include="FormDatabaseTest.Designer.cs">
       <DependentUpon>FormDatabaseTest.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormEncryption.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormEncryption.Designer.cs">
+      <DependentUpon>FormEncryption.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,6 +97,9 @@
     <Compile Include="PropertyMapper\PropertyMapperExample.cs" />
     <EmbeddedResource Include="FormDatabaseTest.resx">
       <DependentUpon>FormDatabaseTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormEncryption.resx">
+      <DependentUpon>FormEncryption.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>

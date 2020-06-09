@@ -2,10 +2,12 @@
 using CommonLib.Extensions.Property;
 using CommonLib.Function;
 using CommonLib.Helpers;
+using CommonLibExample.PropertyMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -19,9 +21,9 @@ namespace CommonLibExample
         [STAThread]
         static void Main()
         {
-            //StudentSource studentSource = new StudentSource() { StudentName = "Molly Shannon", StudentAge = 17, SchoolName = "Grandville High School", SchoolPosition = new List<double>() { 119, 911 }, SchoolCityName = "Gotham" };
-            //Student student = null;
-            //studentSource.CopyPropertyValueTo(ref student);
+            //PropertyMapperExample.CopyToMethodTest();
+            //PropertyMapperExample.CopyFromMethodTest();
+
             //string path = @"Log", name = "test.txt";
             //FileSystemHelper.UpdateFilePath(ref path, name, out string fileNameDate, out string filePath, out string filePathDate);
 

@@ -11,9 +11,7 @@ namespace CommonLib.UIControlUtil
     /// <summary>
     /// TreeView相关方法
     /// </summary>
-    public static class TreeViewUtil
-    {
-    }
+    public static class TreeViewUtil { }
 
     /// <summary>
     /// 扩展方法类
@@ -39,9 +37,11 @@ namespace CommonLib.UIControlUtil
             foreach (DataRow dataRow in dataRows)
             {
                 //决定当前节点的文本与值
-                TreeNode treeNode = new TreeNode();
-                treeNode.Text = dataRow[displayField].ToString();
-                treeNode.Tag = dataRow[keyField].ToString();
+                TreeNode treeNode = new TreeNode
+                {
+                    Text = dataRow[displayField].ToString(),
+                    Tag = dataRow[keyField].ToString()
+                };
 
                 treeNode.FillTree(dataSource, parentField, keyField, displayField); //填充当前节点的子节点
                 treeView.Nodes.Add(treeNode); //向TreeView添加当前节点
@@ -49,16 +49,6 @@ namespace CommonLib.UIControlUtil
 
             if (treeView.TopNode != null)
                 treeView.SelectedNode = treeView.TopNode;
-            //for (int i = 0; i < dataRows.Length; i++)
-            //{
-            //    //决定当前节点的文本与值
-            //    TreeNode treeNode = new TreeNode();
-            //    treeNode.Text = dataRows[i][displayMember].ToString();
-            //    treeNode.Tag = dataRows[i][keyField].ToString();
-
-            //    treeNode.FillTree(dataSource, parentField, keyField, displayMember); //填充当前节点的子节点
-            //    treeView.Nodes.Add(treeNode); //向TreeView添加当前节点
-            //}
         }
 
         /// <summary>
@@ -82,22 +72,14 @@ namespace CommonLib.UIControlUtil
 
             foreach (DataRow dataRow in dataRows)
             {
-                TreeNode childNode = new TreeNode();
-                childNode.Text = dataRow[displayMember].ToString();
-                childNode.Tag = dataRow[keyField].ToString();
+                TreeNode childNode = new TreeNode
+                {
+                    Text = dataRow[displayMember].ToString(),
+                    Tag = dataRow[keyField].ToString()
+                };
                 childNode.FillTree(dataSource, parentField, keyField, displayMember);
                 treeNode.Nodes.Add(childNode);
             }
-            //for (int i = 0; i < dataRows.Length; i++)
-            //{
-            //    TreeNode childNode = new TreeNode();
-            //    childNode.Text = dataRows[i][displayMember].ToString();
-            //    childNode.Tag = dataRows[i][keyField].ToString();
-            //    childNode.FillTree(dataSource, parentField, keyField, displayMember);
-            //    //if (dataRows[i]["parent_id"].ToString() == treeNode.Tag.ToString())
-            //    //    childNode.FillTree(dataSource, parentField, keyField, displayMember);
-            //    treeNode.Nodes.Add(childNode);
-            //}
         }
 
         /// <summary>

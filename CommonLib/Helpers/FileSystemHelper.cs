@@ -12,7 +12,6 @@ namespace CommonLib.Helpers
     /// </summary>
     public static class FileSystemHelper
     {
-
         /// <summary>
         /// 可执行文件的启动目录(而不是当前DLL的目录)
         /// </summary>

@@ -12,7 +12,7 @@ namespace CommonLib.Function
     /// <summary>
     /// 热键注册类
     /// </summary>
-    public class HotKeyRegister
+    public static class HotKeyRegister
     {
         /// <summary>
         /// 注册热键

@@ -12,23 +12,28 @@ namespace CommonLib.Clients
     /// </summary>
     public class DataFilterClient
     {
-        private byte wing = 3;
+        private ushort wing = 3;
 
         /// <summary>
-        /// 邻域翼展（半径）
+        /// 邻域翼展（半径），默认为3
         /// </summary>
-        public byte Wing
+        public ushort Wing
         {
             get { return this.wing; }
             set
             {
                 this.wing = value;
-                this.Neighbours = (short)(2 * this.wing + 1);
+                this.Neighbours = (short)((this.DoubleWinged ? 2 : 1) * this.wing + 1);
             }
         }
 
         /// <summary>
-        /// 邻域大小，应为奇数
+        /// 是否为双翼（从中心向两侧延伸），假如为false则为单翼（从中心向左侧延伸），默认为true
+        /// </summary>
+        public bool DoubleWinged { get; set; } = true;
+
+        /// <summary>
+        /// 邻域大小，假如为双翼，则应为奇数
         /// </summary>
         public short Neighbours { get; private set; }
 
@@ -47,23 +52,25 @@ namespace CommonLib.Clients
         /// </summary>
         public string LastErrorMessage { get; set; }
 
-        /// <summary>
-        /// 构造器
-        /// </summary>
-        /// <param name="wing">邻域翼展（半径），假如邻域长度为7，则半径应为3</param>
-        /// <param name="type">滤波类型</param>
-        public DataFilterClient(byte wing, FilterType type) : this(wing, type, 0) { }
+        ///// <summary>
+        ///// 构造器
+        ///// </summary>
+        ///// <param name="wing">邻域翼展（半径），假如邻域长度为7，则半径应为3</param>
+        ///// <param name="type">滤波类型</param>
+        //public DataFilterClient(byte wing, FilterType type) : this(wing, type, 0) { }
 
         /// <summary>
         /// 构造器
         /// </summary>
-        /// <param name="wing">邻域翼展（半径），假如邻域长度为7，则半径应为3</param>
+        /// <param name="wing">邻域翼展（半径），假如半径为3，当领域为双翼时邻域长度为7，否则邻域长度为4</param>
         /// <param name="type">滤波类型</param>
-        /// <param name="sigma">高斯分布标准差</param>
-        public DataFilterClient(byte wing, FilterType type, double sigma)
+        /// <param name="sigma">高斯分布标准差，标准差越大，数据分布越分散，反之数据分布越集中</param>
+        /// <param name="double_winged">样本中心两侧是双翼还是单翼</param>
+        public DataFilterClient(ushort wing, FilterType type, double sigma = 4.5, bool double_winged = true)
         {
             this.Wing = wing;
             this.Type = type;
+            this.DoubleWinged = double_winged;
             this.GausCalc = new GaussianCalculator(1, 0, sigma);
         }
 
@@ -85,13 +92,13 @@ namespace CommonLib.Clients
             
             List<double> result = new List<double>(); //储存结果的List
             var count = samples.Count();
-            double element, element_new;
+            double element, element_new = 0;
 
             for (var i = 0; i < count; i++)
             {
                 element = samples.ElementAt(i);
                 //边缘的样本不处理，直接返回
-                if (i < wing || i >= count - wing)
+                if (i < wing || i >= count - (this.DoubleWinged ? wing : 0))
                 {
                     result.Add(element);
                     continue;
@@ -102,7 +109,7 @@ namespace CommonLib.Clients
                     element_new = medianSamples.Average();
                 else if (this.Type == FilterType.Median) //中值
                     element_new = this.GetMedianNumber(medianSamples);
-                else
+                else if (this.Type == FilterType.Gaussian)
                     element_new = this.GetGaussianValue(medianSamples);
                 result.Add(element_new);
             }
@@ -131,7 +138,7 @@ namespace CommonLib.Clients
 
             var count = samples.Count();
             List<double> array = new List<double>();
-            for (var i = index - this.Wing; i <= index + this.Wing; i++)
+            for (var i = index - this.Wing; i <= index + (this.DoubleWinged ? this.Wing : 0); i++)
             {
                 //当邻域范围超出左侧或右侧时，改变索引值（向右或向左找）
                 var temp = (i < 0 || i >= count) ? (i < 0 ? count + i : i - count) : i;
@@ -171,18 +178,32 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public double GetGaussianValue(IEnumerable<double> samples)
         {
+            return this.GetGaussianValue(samples, out _);
+        }
+
+        /// <summary>
+        /// 根据高斯分布（中心样本为中心点）求各位置样本系数并加权平均
+        /// </summary>
+        /// <param name="samples">样本</param>
+        /// <param name="ratios">计算结束后返回的每个样本根据高斯分布得出的系数</param>
+        /// <returns></returns>
+        public double GetGaussianValue(IEnumerable<double> samples, out List<double> ratios)
+        {
+            ratios = null;
             if (samples == null || samples.Count() == 0)
                 this.LastErrorMessage = "样本中没有任何元素";
 
             if (!string.IsNullOrWhiteSpace(this.LastErrorMessage))
                 throw new ArgumentException(this.LastErrorMessage, "samples");
 
-            double center = (samples.Count() - 1) / 2, ratio_sum = 0, value_sum = 0;
+            double center = (samples.Count() - 1) / (this.DoubleWinged ? 2 : 1), ratio_sum = 0, value_sum = 0;
+            ratios = new List<double>();
             for (int i = 0; i < samples.Count(); i++)
             {
                 double ratio = this.GausCalc.Calc(i - center); //高斯分布在某坐标的值（center处的值为最高点）
                 ratio_sum += ratio;
                 value_sum += ratio * samples.ElementAt(i);
+                ratios.Add(ratio);
             }
             return value_sum / ratio_sum;
         }

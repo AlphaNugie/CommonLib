@@ -34,10 +34,22 @@ namespace OpcLibrary
         /// </summary>
         public GroupType GroupType { get; set; }
 
+        private object _data_source = null;
         /// <summary>
         /// 数据源，需要在连接前设置（否则无效），从OPC读取向数据源写入或从数据源读取向OPC写入，写入时假如数据源不为空则优先从数据源取值
         /// </summary>
-        public object DataSource { get; set; }
+        public object DataSource
+        {
+            get { return this._data_source; }
+            set
+            {
+                this._data_source = value;
+                Type type = this._data_source?.GetType();
+                foreach (var itemInfo in this.ListItemInfo)
+                    if (type != null && !string.IsNullOrWhiteSpace(itemInfo.FieldName))
+                        itemInfo.Property = type.GetProperty(itemInfo.FieldName);
+            }
+        }
 
         /// <summary>
         /// OPC组所拥有的OPC项数量
@@ -159,7 +171,7 @@ namespace OpcLibrary
         public Array GetValues(IEnumerable<int> serverHandles)
         {
             bool flag = serverHandles == null || serverHandles.Count() == 0; //特殊条件
-            this.ListItemInfo.ForEach(item => item.SetItemValue(this.DataSource)); //根据数据源为item赋值（假如数据源不为空或字段名称正确）
+            this.ListItemInfo.ForEach(item => item.SetItemValue(this._data_source)); //根据数据源为item赋值（假如数据源不为空或字段名称正确）
             //假如给定的服务端句柄范围为空则选择所有OPC项的值，否则选择服务端在范围内的OPC项以及第一个OPC项的值
             return this.ListItemInfo == null ? Array.Empty<object>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => (object)p.item.Value).ToArray();
         }
@@ -209,7 +221,7 @@ namespace OpcLibrary
                 //添加OPC项后根据ID找到OPC项信息对象并设置服务端句柄，向OPC项信息List中添加
                 if (this.item_ids.Length > 1)
                 {
-                    Type type = this.DataSource?.GetType();
+                    Type type = this._data_source?.GetType();
                     for (int i = 1; i < this.item_ids.Length; i++)
                     {
                         OpcItemInfo itemInfo = itemList.Find(p => p.ItemId.Equals(this.item_ids.GetValue(i)));
@@ -266,7 +278,7 @@ namespace OpcLibrary
                         if (itemInfo != null)
                         {
                             itemInfo.Value = values.GetValue(i).ToString();
-                            itemInfo.SetPropertyValue(this.DataSource);
+                            itemInfo.SetPropertyValue(this._data_source);
                             //if (itemInfo.Property != null/* && this.GroupType == GroupType.READ*/)
                             //    itemInfo.Property.SetValue(this.DataSource, itemInfo.GetPropertyValue());
                         }
@@ -277,7 +289,7 @@ namespace OpcLibrary
             }
             catch (Exception ex)
             {
-                message = string.Format("从名称为{0}的OPC组读取值失败：{1}", this.OpcGroup.Name, ex.Message);
+                message = string.Format("从名称为{0}的OPC组读取值失败：{1}", this.OpcGroup == null ? "null" : this.OpcGroup.Name, ex.Message);
                 return false;
             }
             return values.Length > 0;
@@ -290,7 +302,6 @@ namespace OpcLibrary
         /// <returns></returns>
         public bool WriteValues(out string message)
         {
-            //return this.WriteValues(this.server_handles, out message);
             return this.WriteValues(null, false, out message);
         }
 
@@ -302,7 +313,6 @@ namespace OpcLibrary
         /// <returns></returns>
         public bool WriteValues(bool using_async, out string message)
         {
-            //return this.WriteValues(this.server_handles, out message);
             return this.WriteValues(null, using_async, out message);
         }
 
@@ -315,21 +325,6 @@ namespace OpcLibrary
         public bool WriteValues(Array serverHandles, out string message)
         {
             return this.WriteValues(serverHandles, false, out message);
-            //message = string.Empty;
-            //try
-            //{
-            //    IEnumerable<int> temp = serverHandles == null || serverHandles.Length == 0 ? null : serverHandles.Cast<int>();
-            //    Array handles = this.GetServerHandles(temp), values = this.GetValues(temp);
-            //    int itemCount = handles.Length - 1;
-            //    this.OpcGroup.SyncWrite(itemCount, ref handles, ref values, out this.errors);
-            //    GC.Collect();
-            //}
-            //catch (Exception ex)
-            //{
-            //    message = string.Format("向名称为{0}的OPC组写入值失败：{1}", this.OpcGroup.Name, ex.Message);
-            //    return false;
-            //}
-            //return true;
         }
 
         /// <summary>

@@ -14,7 +14,7 @@ namespace CommonLib.DataUtil
     /// <summary>
     /// 基础数据库操作类
     /// </summary>
-    public class BaseDataService<T>
+    public class BaseDataService<T> where T : Record
     {
         /// <summary>
         /// Oracle基础操作类

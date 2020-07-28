@@ -82,6 +82,12 @@
     <Compile Include="FormOracleTest.Designer.cs">
       <DependentUpon>FormOracleTest.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormSocket.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormSocket.Designer.cs">
+      <DependentUpon>FormSocket.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormTimerEventRaiser.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -106,6 +112,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormOracleTest.resx">
       <DependentUpon>FormOracleTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormSocket.resx">
+      <DependentUpon>FormSocket.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormTimerEventRaiser.resx">
       <DependentUpon>FormTimerEventRaiser.cs</DependentUpon>

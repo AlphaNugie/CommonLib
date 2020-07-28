@@ -42,7 +42,7 @@ namespace CommonLib.Function
         /// <summary>
         /// 匹配MyBatis参数格式的正则表达式，如 #{property,jdbcType=INTEGER} 或 #{some}
         /// </summary>
-        private static string reg_BatisParam = @"\#\{((_)?[0-9a-zA-Z](_)?)*(,jdbcType=[A-Z]+)?\}";
+        private static string reg_BatisParam = @"\#\{((_)?[0-9a-zA-Z](_)?)*(,(\s)*jdbcType=[A-Z]+)?\}";
         #endregion
         #region 公共属性
         /// <summary>

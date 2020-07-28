@@ -31,6 +31,7 @@
             this.button_TimerEventRaiser = new System.Windows.Forms.Button();
             this.button_DatabaseTest = new System.Windows.Forms.Button();
             this.button_Encrypt = new System.Windows.Forms.Button();
+            this.button_Socket = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button_TimerEventRaiser
@@ -66,11 +67,23 @@
             this.button_Encrypt.UseVisualStyleBackColor = true;
             this.button_Encrypt.Click += new System.EventHandler(this.Button_Encrypt_Click);
             // 
+            // button_Socket
+            // 
+            this.button_Socket.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_Socket.Location = new System.Drawing.Point(606, 29);
+            this.button_Socket.Name = "button_Socket";
+            this.button_Socket.Size = new System.Drawing.Size(170, 40);
+            this.button_Socket.TabIndex = 2;
+            this.button_Socket.Text = "SOCKET";
+            this.button_Socket.UseVisualStyleBackColor = true;
+            this.button_Socket.Click += new System.EventHandler(this.Button_Socket_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.button_Socket);
             this.Controls.Add(this.button_Encrypt);
             this.Controls.Add(this.button_DatabaseTest);
             this.Controls.Add(this.button_TimerEventRaiser);
@@ -86,6 +99,7 @@
         private System.Windows.Forms.Button button_TimerEventRaiser;
         private System.Windows.Forms.Button button_DatabaseTest;
         private System.Windows.Forms.Button button_Encrypt;
+        private System.Windows.Forms.Button button_Socket;
     }
 }
 

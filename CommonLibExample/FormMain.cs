@@ -31,5 +31,10 @@ namespace CommonLibExample
         {
             new FormEncryption().Show();
         }
+
+        private void Button_Socket_Click(object sender, EventArgs e)
+        {
+            new FormSocket().Show();
+        }
     }
 }

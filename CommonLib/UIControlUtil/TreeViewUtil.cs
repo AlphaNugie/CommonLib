@@ -9,14 +9,9 @@ using System.Windows.Forms;
 namespace CommonLib.UIControlUtil
 {
     /// <summary>
-    /// TreeView相关方法
-    /// </summary>
-    public static class TreeViewUtil { }
-
-    /// <summary>
     /// 扩展方法类
     /// </summary>
-    public static class TreeViewExtentionClass
+    public static class TreeViewUtil
     {
         /// <summary>
         /// 为TreeView绑定数据源

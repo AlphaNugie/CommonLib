@@ -173,7 +173,8 @@ namespace OpcLibrary
             bool flag = serverHandles == null || serverHandles.Count() == 0; //特殊条件
             this.ListItemInfo.ForEach(item => item.SetItemValue(this._data_source)); //根据数据源为item赋值（假如数据源不为空或字段名称正确）
             //假如给定的服务端句柄范围为空则选择所有OPC项的值，否则选择服务端在范围内的OPC项以及第一个OPC项的值
-            return this.ListItemInfo == null ? Array.Empty<object>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => (object)p.item.Value).ToArray();
+            //return this.ListItemInfo == null ? Array.Empty<object>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => (object)p.item.Value).ToArray();
+            return this.ListItemInfo == null ? new object[0] : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => (object)p.item.Value).ToArray();
         }
 
         /// <summary>
@@ -184,12 +185,14 @@ namespace OpcLibrary
         private Array GetServerHandles(IEnumerable<int> serverHandles)
         {
             bool flag = serverHandles == null || serverHandles.Count() == 0; //特殊条件
-            IEnumerable<int> handles = this.ListItemInfo == null ? Array.Empty<int>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle);
+            //IEnumerable<int> handles = this.ListItemInfo == null ? Array.Empty<int>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle);
+            IEnumerable<int> handles = this.ListItemInfo == null ? new int[0] : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle);
             //假如有不止一个为0的服务端句柄（列表中首个元素必为0），则抛出
             if (handles.Count(h => h == 0) > 1)
                 throw new InvalidCastException("给出的服务端句柄中包含无效数字0");
             //假如给定的服务端句柄范围为空则选择所有OPC项的值，否则选择服务端在范围内的OPC项以及第一个OPC项的值
-            return this.ListItemInfo == null ? Array.Empty<int>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle).ToArray();
+            //return this.ListItemInfo == null ? Array.Empty<int>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle).ToArray();
+            return this.ListItemInfo == null ? new int[0] : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle).ToArray();
             ////首先要包括第一个OPC项的服务端句柄，之后假如给定的服务端句柄范围为空则选择所有OPC项的句柄，否则选择服务端句柄在范围内且不为0的OPC项
             //return this.ListItemInfo == null ? Array.Empty<int>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => p.index == 0 || (p.item.ServerHandle != 0 && (flag || serverHandles.Contains(p.item.ServerHandle)))).Select(p => p.item.ServerHandle).ToArray();
         }

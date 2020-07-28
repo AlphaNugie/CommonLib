@@ -28,7 +28,7 @@ namespace CommonLib.UIControlUtil
     /// <summary>
     /// 控件扩展基础类
     /// </summary>
-    public static class ControlExtentionClass
+    public static class ControlUtil
     {
         /// <summary>
         /// 控件线程安全访问

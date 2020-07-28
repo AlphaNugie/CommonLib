@@ -5,6 +5,7 @@ using CommonLib.Helpers;
 using CommonLibExample.PropertyMapper;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -21,6 +22,13 @@ namespace CommonLibExample
         [STAThread]
         static void Main()
         {
+            //string fileName = @"D:\煤二期\Documents\雷达数据\files-20200723-臂架右后雷达\20200723_155710_行走向北2_距离增加\arm_right_back";
+            //string[] lines = File.ReadAllLines(fileName + ".txt");
+            //foreach (string line in lines)
+            //    if (!line.Contains('-'))
+            //        File.AppendAllLines(fileName + "-modi.txt", new string[] { line });
+            //return;
+
             //PropertyMapperExample.CopyToMethodTest();
             //PropertyMapperExample.CopyFromMethodTest();
 
@@ -47,6 +55,7 @@ namespace CommonLibExample
             //string result = Converter.ConvertType<string>(DateTime.Now);
             //DateTime time = Converter.ConvertType<DateTime>(result);
             //int i = "13".ConvertType<int>();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FormMain());

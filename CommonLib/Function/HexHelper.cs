@@ -157,7 +157,7 @@ namespace CommonLib.Function
         /// <returns>返回模256</returns>
         public static byte GetModel256(string hexString)
         {
-            return HexHelper.GetModel256(HexHelper.HexString2Bytes(hexString));
+            return GetModel256(HexString2Bytes(hexString));
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static bool ValidateCommandModel256(string hexString)
         {
-            return ValidateCommandModel256(HexHelper.HexString2Bytes(hexString));
+            return ValidateCommandModel256(HexString2Bytes(hexString));
         }
 
         /// <summary>
@@ -260,7 +260,7 @@ namespace CommonLib.Function
         /// <returns>返回字节数组</returns>
         public static byte[] GetCRC16(string hexString)
         {
-            return GetCRC16(HexHelper.HexString2Bytes(hexString));
+            return GetCRC16(HexString2Bytes(hexString));
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace CommonLib.Function
         /// <returns>返回16进制格式字符串</returns>
         public static string GetCRC16_String(string hexString)
         {
-            return GetCRC16_String(HexHelper.HexString2Bytes(hexString));
+            return GetCRC16_String(HexString2Bytes(hexString));
         }
 
         /// <summary>
@@ -280,7 +280,7 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static bool ValidateCommandCRC16(string hexString)
         {
-            return ValidateCommandCRC16(HexHelper.HexString2Bytes(hexString));
+            return ValidateCommandCRC16(HexString2Bytes(hexString));
         }
 
         /// <summary>
@@ -388,14 +388,69 @@ namespace CommonLib.Function
         }
         #endregion
 
+        #region 字符串每一位字符累加校验和
         /// <summary>
         /// 获取字符串中每一位字符的累加校验和（字符串为空时为0）
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="input">待计算累积和字符串</param>
         /// <returns></returns>
         public static int GetStringSum(string input)
         {
-            return string.IsNullOrEmpty(input) ? 0 : input.ToCharArray().Sum<char>(c => (int)c);
+            return string.IsNullOrEmpty(input) ? 0 : input.ToCharArray().Sum(c => c);
         }
+
+        /// <summary>
+        /// 获取字符串中每一位字符的累加校验和并添加到字符串末尾，校验和与字符串之间用指定分隔字符连接（字符串为空时返回空字符串）
+        /// </summary>
+        /// <param name="input">待计算累积和字符串</param>
+        /// <param name="bridge">连接字符</param>
+        /// <returns></returns>
+        public static string GetStringSumResult(string input, char bridge)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+            input += bridge;
+            int sum = GetStringSum(input);
+            return string.Format("{0}{1}", input, sum);
+        }
+
+        /// <summary>
+        /// 获取字符串是否符合字符累加校验和的校验，分隔字符为指定字符
+        /// </summary>
+        /// <param name="input">待计算累积和字符串</param>
+        /// <param name="bridge">连接字符</param>
+        /// <returns></returns>
+        public static bool IsStringSumVerified(string input, char bridge)
+        {
+            input = input ?? string.Empty;
+            //假如没有分隔符则返回false
+            int index = input.LastIndexOf(bridge);
+            if (index <= 0 || index >= input.Length - 1)
+                return false;
+            string first = input.Substring(0, index + 1), last = input.Substring(index + 1, input.Length - index - 1);
+            int sum = GetStringSum(first);
+            return sum.ToString().Equals(last);
+        }
+
+        /// <summary>
+        /// 获取字符串中每一位字符的累加校验和并添加到字符串末尾，校验和与字符串之间用半角逗号连接（字符串为空时返回空字符串）
+        /// </summary>
+        /// <param name="input">待计算累积和字符串</param>
+        /// <returns></returns>
+        public static string GetStringSumResult(string input)
+        {
+            return GetStringSumResult(input, ',');
+        }
+
+        /// <summary>
+        /// 获取字符串是否符合字符累加校验和的校验，分隔字符为半角逗号
+        /// </summary>
+        /// <param name="input">待计算累积和字符串</param>
+        /// <returns></returns>
+        public static bool IsStringSumVerified(string input)
+        {
+            return IsStringSumVerified(input, ',');
+        }
+        #endregion
     }
 }

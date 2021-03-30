@@ -31,9 +31,42 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommonLib">
       <HintPath>..\CommonLib\bin\Debug\CommonLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics, Version=4.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.4.12.0\lib\net40\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="MatlabFunctions, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\MatlabAPI\GetPolyfit\for_redistribution_files_only\MatlabFunctions.dll</HintPath>
+    </Reference>
+    <Reference Include="MWArray, Version=2.19.0.0, Culture=neutral, PublicKeyToken=e1d84a0da19db86f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Softwares\MATLAB\MATLAB Runtime\v96\toolbox\dotnetbuilder\bin\win64\v4.0\MWArray.dll</HintPath>
     </Reference>
     <Reference Include="OpcLibrary">
       <HintPath>..\OpcLibrary\bin\Debug\netstandard2.0\OpcLibrary.dll</HintPath>
@@ -45,6 +78,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
@@ -70,6 +104,18 @@
     <Compile Include="FormEncryption.Designer.cs">
       <DependentUpon>FormEncryption.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormFilters.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormFilters.Designer.cs">
+      <DependentUpon>FormFilters.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormKalmanFilter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormKalmanFilter.Designer.cs">
+      <DependentUpon>FormKalmanFilter.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -94,6 +140,7 @@
     <Compile Include="FormTimerEventRaiser.Designer.cs">
       <DependentUpon>FormTimerEventRaiser.cs</DependentUpon>
     </Compile>
+    <Compile Include="MathNet\MathNetSample.cs" />
     <Compile Include="PropertyMapper\Model\City.cs" />
     <Compile Include="PropertyMapper\Model\School.cs" />
     <Compile Include="PropertyMapper\Model\Student.cs" />
@@ -106,6 +153,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormEncryption.resx">
       <DependentUpon>FormEncryption.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormFilters.resx">
+      <DependentUpon>FormFilters.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormKalmanFilter.resx">
+      <DependentUpon>FormKalmanFilter.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
@@ -129,6 +182,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include=".editorconfig" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -148,6 +202,9 @@
       <Project>{f5c04513-a6e1-4835-9533-d5fdcdb90ff8}</Project>
       <Name>CommonLib.DataUtil.OracleProviderLib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\Debug\CommonLibExample.exe" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

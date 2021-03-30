@@ -95,6 +95,15 @@ namespace CommonLib.Clients
         }
 
         /// <summary>
+        /// 清空队列内所有对象
+        /// </summary>
+        public void Clear()
+        {
+            if (Count != 0)
+                Queue.Clear();
+        }
+
+        /// <summary>
         /// 返回当前实体
         /// </summary>
         /// <returns></returns>
@@ -107,10 +116,9 @@ namespace CommonLib.Clients
         /// 转到上一条实体并返回，假如已是末尾则无变化
         /// </summary>
         /// <returns></returns>
-        public T Last()
+        public T Previous()
         {
             this.Index++;
-            //return this.CurrentContent;
             return this.Current();
         }
 
@@ -121,7 +129,26 @@ namespace CommonLib.Clients
         public T Next()
         {
             this.Index--;
-            //return this.CurrentContent;
+            return this.Current();
+        }
+
+        /// <summary>
+        /// 转到队列中最靠前（最晚加入的）实体并返回，假如已在第一条实体则跳出队列
+        /// </summary>
+        /// <returns></returns>
+        public T First()
+        {
+            this.Index = 0;
+            return this.Current();
+        }
+
+        /// <summary>
+        /// 转到队列中最靠前（最早加入的）实体并返回，假如已在第一条实体则跳出队列
+        /// </summary>
+        /// <returns></returns>
+        public T Last()
+        {
+            this.Index = this.Count - 1;
             return this.Current();
         }
 

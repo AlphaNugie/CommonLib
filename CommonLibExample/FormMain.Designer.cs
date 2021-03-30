@@ -32,6 +32,7 @@
             this.button_DatabaseTest = new System.Windows.Forms.Button();
             this.button_Encrypt = new System.Windows.Forms.Button();
             this.button_Socket = new System.Windows.Forms.Button();
+            this.button_Filters = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button_TimerEventRaiser
@@ -78,6 +79,17 @@
             this.button_Socket.UseVisualStyleBackColor = true;
             this.button_Socket.Click += new System.EventHandler(this.Button_Socket_Click);
             // 
+            // button_Filters
+            // 
+            this.button_Filters.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_Filters.Location = new System.Drawing.Point(28, 95);
+            this.button_Filters.Name = "button_Filters";
+            this.button_Filters.Size = new System.Drawing.Size(176, 40);
+            this.button_Filters.TabIndex = 0;
+            this.button_Filters.Text = "滤波";
+            this.button_Filters.UseVisualStyleBackColor = true;
+            this.button_Filters.Click += new System.EventHandler(this.Button_Filters_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -86,6 +98,7 @@
             this.Controls.Add(this.button_Socket);
             this.Controls.Add(this.button_Encrypt);
             this.Controls.Add(this.button_DatabaseTest);
+            this.Controls.Add(this.button_Filters);
             this.Controls.Add(this.button_TimerEventRaiser);
             this.Font = new System.Drawing.Font("等线", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Name = "FormMain";
@@ -100,6 +113,7 @@
         private System.Windows.Forms.Button button_DatabaseTest;
         private System.Windows.Forms.Button button_Encrypt;
         private System.Windows.Forms.Button button_Socket;
+        private System.Windows.Forms.Button button_Filters;
     }
 }
 

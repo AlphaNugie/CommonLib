@@ -36,5 +36,10 @@ namespace CommonLibExample
         {
             new FormSocket().Show();
         }
+
+        private void Button_Filters_Click(object sender, EventArgs e)
+        {
+            new FormFilters().Show();
+        }
     }
 }

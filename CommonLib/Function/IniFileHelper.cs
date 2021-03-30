@@ -57,7 +57,7 @@ namespace CommonLib.Function
         /// <param name="length">配置项内容最大长度</param>
         /// <param name="iniFilePath">INI配置文件路径</param>
         /// <returns>返回配置文件内容</returns>
-        public string ReadData(string section, string key, string noText, int length, string iniFilePath)
+        public static string ReadData(string section, string key, string noText, int length, string iniFilePath)
         {
             if (!File.Exists(iniFilePath) || string.IsNullOrWhiteSpace(key) || length <= 0)
                 return string.Empty;
@@ -78,7 +78,7 @@ namespace CommonLib.Function
         /// <returns>返回配置文件内容</returns>
         public string ReadData(string section, string key, string noText, int length)
         {
-            return this.ReadData(section, key, noText, length, this.FilePath);
+            return ReadData(section, key, noText, length, this.FilePath);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace CommonLib.Function
         /// <returns>返回配置文件内容</returns>
         public string ReadData(string section, string key)
         {
-            return this.ReadData(section, key, key + " not found", 1024, this.FilePath);
+            return ReadData(section, key, key + " not found", 1024, this.FilePath);
         }
 
         /// <summary>

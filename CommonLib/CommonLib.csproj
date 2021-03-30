@@ -30,6 +30,27 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\CommonLib.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -52,12 +73,15 @@
     <Compile Include="Clients\DerivedUdpClient.cs" />
     <Compile Include="Clients\GaussianCalculator.cs" />
     <Compile Include="Clients\GenericStorage.cs" />
+    <Compile Include="Clients\GlitchFilter.cs" />
+    <Compile Include="Clients\KalmanFilter.cs" />
     <Compile Include="Clients\Object\FailureLogClient.cs" />
     <Compile Include="Clients\FileClient.cs" />
     <Compile Include="Clients\LogClient.cs" />
     <Compile Include="Clients\Object\PlyDotObject.cs" />
     <Compile Include="Clients\Object\PlyFileClient.cs" />
     <Compile Include="Clients\SampleAnalyzer.cs" />
+    <Compile Include="Clients\Tasks\Task.cs" />
     <Compile Include="DataUtil\AccessProvider.cs" />
     <Compile Include="DataUtil\BaseModel.cs" />
     <Compile Include="DataUtil\BatisLike.cs" />
@@ -81,7 +105,7 @@
     <Compile Include="Enums\WindowMessage.cs" />
     <Compile Include="Clients\EncryptionClient.cs" />
     <Compile Include="Function\Converter.cs" />
-    <Compile Include="Function\CurveFitting.cs" />
+    <Compile Include="Function\Fitting\CurveFitting.cs" />
     <Compile Include="Extensions\ExtensionClass.cs" />
     <Compile Include="Function\HexHelper.cs" />
     <Compile Include="Function\IniFileHelper.cs" />
@@ -90,6 +114,7 @@
     <Compile Include="Function\OperateIniFile.cs" />
     <Compile Include="Function\TimerEventRaiser.cs" />
     <Compile Include="Function\TraceRoute.cs" />
+    <Compile Include="Helpers\DateTimeHelper.cs" />
     <Compile Include="Helpers\FileSystemHelper.cs" />
     <Compile Include="UIControlUtil\ControlUtil.cs" />
     <Compile Include="UIControlUtil\DataGridViewUtil.cs" />
@@ -105,7 +130,11 @@
   <ItemGroup>
     <None Include=".editorconfig" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="bin\Debug\CommonLib.dll" />
+    <Content Include="bin\Debug\CommonLib.pdb" />
+    <Content Include="bin\Debug\CommonLib.XML" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

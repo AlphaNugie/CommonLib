@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CommonLib.Function
+namespace CommonLib.Function.Fitting
 {
     /// <summary>
     /// 曲线拟合类
     /// </summary>
-    public class CurveFitting
+    public static class CurveFitting
     {
         ///<summary>
         ///用最小二乘法拟合二元多次曲线，获取曲线拟合函数的系数
@@ -19,7 +19,8 @@ namespace CommonLib.Function
         ///<param name="arrY">已知点的y坐标集合</param>
         ///<param name="length">已知点的个数</param>
         ///<param name="dimension">方程的最高次数</param>
-        public static double[] GetCurveCoefficients(IEnumerable<double> arrX, IEnumerable<double> arrY, int length, int dimension)//二元多次线性方程拟合曲线
+        ///<returns>返回一个数组，数组中包括从高次到低次每个次数的系数（最后一个系数为截距）</returns>
+        public static double[] GetCurveCoefficients(IEnumerable<double> arrX, IEnumerable<double> arrY, int length, int dimension)
         {
             int count = dimension + 1; //n次方程需要求n+1个系数
             double[,] guass = new double[count, count + 1]; //高斯矩阵 例如：y=a0+a1*x+a2*x*x
@@ -34,7 +35,7 @@ namespace CommonLib.Function
                 guass[i, j] = SumArr(arrX, i, arrY, 1, length);
             }
 
-            return ComputGauss(guass, count);
+            return ComputeGauss(guass, count);
 
         }
 
@@ -83,9 +84,9 @@ namespace CommonLib.Function
 
                 //假如幂数均为0，直接+1
                 if (n1 != 0 || n2 != 0)
-                    s = s + Math.Pow(arr1.ElementAt(i), n1) * Math.Pow(arr2.ElementAt(i), n2);
+                    s += Math.Pow(arr1.ElementAt(i), n1) * Math.Pow(arr2.ElementAt(i), n2);
                 else
-                    s = s + 1;
+                    s += 1;
             }
             return s;
 
@@ -97,7 +98,7 @@ namespace CommonLib.Function
         /// <param name="guass"></param>
         /// <param name="n"></param>
         /// <returns>返回值是函数的系数</returns>
-        private static double[] ComputGauss(double[,] guass, int n)
+        private static double[] ComputeGauss(double[,] guass, int n)
         {
             int i, j, k, m;
             double temp, max, s;
@@ -146,12 +147,12 @@ namespace CommonLib.Function
             {
                 s = 0;
                 for (j = i + 1; j < n; j++)
-                    s = s + guass[i, j] * x[j];
+                    s += guass[i, j] * x[j];
 
-                x[i] = (guass[i, n] - s) / guass[i, i];
+                x[i] = Math.Round((guass[i, n] - s) / guass[i, i], 3);
             }
 
-            return x;
+            return x.Reverse().ToArray();
         }
     }
 }

@@ -63,11 +63,11 @@ namespace CommonLib.Clients
         /// </summary>
         public string Path
         {
-            get { return this.path; }
+            get { return path; }
             set
             {
-                this.path = value;
-                this.UpdateFilePath(this.path, this.FileName);
+                path = value;
+                UpdateFilePath(path, FileName);
             }
         }
 
@@ -76,11 +76,11 @@ namespace CommonLib.Clients
         /// </summary>
         public string FileName
         {
-            get { return this.fileName; }
+            get { return fileName; }
             set
             {
-                this.fileName = value;
-                this.UpdateFilePath(this.Path, this.fileName);
+                fileName = value;
+                UpdateFilePath(Path, fileName);
             }
         }
 
@@ -94,11 +94,11 @@ namespace CommonLib.Clients
         /// </summary>
         public string FilePath
         {
-            get { return this.filePath; }
+            get { return filePath; }
             set
             {
-                this.filePath = value;
-                this.Extension = System.IO.Path.GetExtension(this.filePath).ToLower(); //文件扩展名，小写
+                filePath = value;
+                Extension = System.IO.Path.GetExtension(filePath).ToLower(); //文件扩展名，小写
             }
         }
 
@@ -138,15 +138,15 @@ namespace CommonLib.Clients
                 if (string.IsNullOrWhiteSpace(fileName))
                     throw new ArgumentException("待写入文件的名称为空！", "string fileName");
 
-                this.Path = path;
-                this.FileName = fileName;
-                //this.FilePath = Functions.TrimFilePath(this.Path) + Base.DirSeparator + this.FileName; //包含文件名的路径
-                //this.Extension = System.IO.Path.GetExtension(this.FilePath).ToLower(); //文件扩展名，小写
-                this.Overriding = overriding;
+                Path = path;
+                FileName = fileName;
+                //FilePath = Functions.TrimFilePath(Path) + Base.DirSeparator + FileName; //包含文件名的路径
+                //Extension = System.IO.Path.GetExtension(FilePath).ToLower(); //文件扩展名，小写
+                Overriding = overriding;
             }
             catch (Exception e)
             {
-                this.LastErrorMessage = string.Format("文件{0}写入操作类初始化失败: {1}", fileName, e.Message);
+                LastErrorMessage = string.Format("文件{0}写入操作类初始化失败: {1}", fileName, e.Message);
                 throw;
             }
         }
@@ -168,15 +168,15 @@ namespace CommonLib.Clients
             ////假如路径中不包含卷分隔符，添加根目录
             //if (!path.Contains(FileSystemHelper.VolumeSeparator))
             //    path = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.TrimFilePath(path);
-            //this.path = path;
-            //this.FileName_WithDate = FileSystemHelper.AddDateToFileName(fileName); //带日期的文件名称
-            //this.FilePath = FileSystemHelper.TrimFilePath(path) + FileSystemHelper.DirSeparator + fileName; //包含文件名的路径
-            //this.FilePath_WithDate = FileSystemHelper.TrimFilePath(path) + FileSystemHelper.DirSeparator + this.FileName_WithDate; //带日期的路径
+            //path = path;
+            //FileName_WithDate = FileSystemHelper.AddDateToFileName(fileName); //带日期的文件名称
+            //FilePath = FileSystemHelper.TrimFilePath(path) + FileSystemHelper.DirSeparator + fileName; //包含文件名的路径
+            //FilePath_WithDate = FileSystemHelper.TrimFilePath(path) + FileSystemHelper.DirSeparator + FileName_WithDate; //带日期的路径
             FileSystemHelper.UpdateFilePath(ref path, fileName, out string fileNameDate, out string filePath, out string filePathDate);
             this.path = path;
-            this.FileName_WithDate = fileNameDate; //带日期的文件名称
-            this.FilePath = filePath; //包含文件名的路径
-            this.FilePath_WithDate = filePathDate; //带日期的路径
+            FileName_WithDate = fileNameDate; //带日期的文件名称
+            FilePath = filePath; //包含文件名的路径
+            FilePath_WithDate = filePathDate; //带日期的路径
         }
 
         /// <summary>
@@ -192,14 +192,13 @@ namespace CommonLib.Clients
                     return;
 
                 //检测目录是否存在，不存在则创建
-                if (!Directory.Exists(this.Path))
-                    Directory.CreateDirectory(this.Path);
+                if (!Directory.Exists(Path))
+                    Directory.CreateDirectory(Path);
 
-                //this.UpdateFilePath(this.Path, this.FileName);
-                //this.FileName_WithDate = FileSystemHelper.AddDateToFileName(this.FileName); //带日期的文件名称
-                string filePath = fileNameWithDate ? this.FilePath_WithDate : this.FilePath;
+                UpdateFilePath(path, FileName);
+                string filePath = fileNameWithDate ? FilePath_WithDate : FilePath;
                 //假如文件存在，添加文本，否则创建文件并写入(编码方式为UTF-8)
-                if (File.Exists(filePath) && !this.Overriding)
+                if (File.Exists(filePath) && !Overriding)
                     File.AppendAllLines(filePath, lines, Encoding.UTF8);
                 else
                     File.WriteAllLines(filePath, lines, Encoding.UTF8);
@@ -207,41 +206,13 @@ namespace CommonLib.Clients
             catch (IOException) { }
         }
 
-        ///// <summary>
-        ///// 将文本写入文件
-        ///// </summary>
-        ///// <param name="lines">要添加进文件的字符串集合</param>
-        ///// <param name="withDate">文件名是否带日期</param>
-        //public void WriteLinesToFile(IEnumerable<string> lines, bool withDate)
-        //{
-        //    try
-        //    {
-        //        if (lines == null || lines.Count() == 0)
-        //            return;
-
-        //        //检测目录是否存在，不存在则创建
-        //        if (!Directory.Exists(this.Path))
-        //            Directory.CreateDirectory(this.Path);
-
-        //        //this.UpdateFilePath(this.Path, this.FileName);
-        //        this.FileName_WithDate = FileSystemHelper.AddDateToFileName(this.FileName); //带日期的文件名称
-        //        string filePath = withDate ? this.FilePath_WithDate : this.FilePath;
-        //        //假如文件存在，添加文本，否则创建文件并写入(编码方式为UTF-8)
-        //        if (File.Exists(filePath) && !this.Overriding)
-        //            File.AppendAllLines(filePath, lines, Encoding.UTF8);
-        //        else
-        //            File.WriteAllLines(filePath, lines, Encoding.UTF8);
-        //    }
-        //    catch (IOException) { }
-        //}
-
         /// <summary>
         /// 将文本写入文件，文件名默认带日期
         /// </summary>
         /// <param name="lines">要添加进文件的字符串集合</param>
         public void WriteLinesToFile(IEnumerable<string> lines)
         {
-            this.WriteLinesToFile(lines, true);
+            WriteLinesToFile(lines, true);
         }
 
         /// <summary>
@@ -251,7 +222,7 @@ namespace CommonLib.Clients
         /// <param name="withDate">文件名是否带日期</param>
         public void WriteLineToFile(string line, bool withDate)
         {
-            this.WriteLinesToFile(new string[] { line }, withDate);
+            WriteLinesToFile(new string[] { line }, withDate);
         }
 
         /// <summary>
@@ -260,7 +231,7 @@ namespace CommonLib.Clients
         /// <param name="line">要添加进文件的字符串</param>
         public void WriteLineToFile(string line)
         {
-            this.WriteLineToFile(line, true);
+            WriteLineToFile(line, true);
         }
 
         #region old static methods
@@ -384,7 +355,7 @@ namespace CommonLib.Clients
                     lines = list.ToArray();
                 }
 
-                FileClient.WriteLinesToFile(lines, path, fileName);
+                WriteLinesToFile(lines, path, fileName);
             }
             catch (IOException) { }
         }

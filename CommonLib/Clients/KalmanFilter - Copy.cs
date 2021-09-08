@@ -62,10 +62,9 @@ namespace CommonLib.Clients
         {
             this.Q = Q;
             this.R = R;
-            Reset();
-            //Values = new ValueSet();
-            //Covars = new ValueSet();
-            //_firstCycle = true;
+            Values = new ValueSet();
+            Covars = new ValueSet();
+            _firstCycle = true;
         }
 
         /// <summary>
@@ -86,10 +85,6 @@ namespace CommonLib.Clients
         /// <param name="v">速度</param>
         public void SetValue(ref double value, double a, double v)
         {
-            //假如输入值不是数字，不予处理
-            if (double.IsNaN(value))
-                return;
-
             CurrVal = value;
             Acce = a;
             Velocity = v;
@@ -103,29 +98,10 @@ namespace CommonLib.Clients
             Values.InitEval = Values.PrevBest + Velocity;
             Covars.InitEval = Covars.PrevBest + Q;
             Coeff = Covars.InitEval / (Covars.InitEval + R);
-            Values.BestEval = Values.InitEval + Coeff * (CurrVal - Values.InitEval);
+            value = Values.BestEval = Values.InitEval + Coeff * (CurrVal - Values.InitEval);
             Covars.BestEval = (1 - Coeff) * Covars.InitEval;
             Values.PrevBest = Values.BestEval;
             Covars.PrevBest = Covars.BestEval;
-            value = Values.BestEval;
-
-            //假如值与方差的最优估计在处理之后变成非数字，则进行重置
-            if (double.IsNaN(Values.PrevBest) || double.IsNaN(Covars.PrevBest))
-                Reset();
-        }
-
-        /// <summary>
-        /// 状态重置
-        /// </summary>
-        public void Reset()
-        {
-            Acce = 0;
-            Velocity = 0;
-            Values = new ValueSet();
-            Covars = new ValueSet();
-            CurrVal = 0;
-            Coeff = 0;
-            _firstCycle = true;
         }
     }
 

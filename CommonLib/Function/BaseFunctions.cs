@@ -31,11 +31,6 @@ namespace CommonLib.Function
         /// </summary>
         public static WindowStateInfo FullScreenInfo = WindowStateInfo.GetFullScreenInfo();
 
-        ///// <summary>
-        ///// 可执行文件的启动目录(而不是当前DLL的目录)
-        ///// </summary>
-        //public static string StartupPath = AppDomain.CurrentDomain.BaseDirectory;
-
         /// <summary>
         /// 特殊字符，代表正文开始
         /// </summary>
@@ -45,51 +40,6 @@ namespace CommonLib.Function
         /// 特殊字符，代表正文结束
         /// </summary>
         public const char ETX = (char)3;
-
-        ///// <summary>
-        ///// 储存日志文件的文件夹（或次级路径，如xx\xx等）
-        ///// </summary>
-        //public static string LogDir = "Logs";
-
-        ///// <summary>
-        ///// 错误日志目录
-        ///// </summary>
-        //public static string FailureLogDir = Base.LogDir + Base.DirSeparator + "Failure Logs";
-
-        ///// <summary>
-        ///// 存放数据文件的目录(一般为XML文件)
-        ///// </summary>
-        //public static string DataDir = "Data";
-
-        ///// <summary>
-        ///// 默认文本文件类型后缀
-        ///// </summary>
-        //public static string TextFileSuffix = ".txt";
-
-        ///// <summary>
-        ///// 默认日志文件类型后缀
-        ///// </summary>
-        //public static string LogFileSuffix = ".log";
-
-        ///// <summary>
-        ///// 文本分隔字符串
-        ///// </summary>
-        //public static string TextSplit = "***********************************************************************";
-
-        ///// <summary>
-        ///// 盘符与路径的分隔符
-        ///// </summary>
-        //public static string VolumeSeparator = Path.VolumeSeparatorChar.ToString() + Path.DirectorySeparatorChar.ToString();
-
-        ///// <summary>
-        ///// 当前环境（平台）中的目录分隔符（字符）
-        ///// </summary>
-        //public static char DirSeparatorChar = Path.DirectorySeparatorChar;
-
-        ///// <summary>
-        ///// 当前环境（平台）中的目录分隔符（字符串）
-        ///// </summary>
-        //public static string DirSeparator = Path.DirectorySeparatorChar.ToString();
 
         /// <summary>
         /// 当前环境（平台）中的回车换行符
@@ -112,58 +62,22 @@ namespace CommonLib.Function
     /// </summary>
     public static class Functions
     {
-        ///// <summary>
-        ///// 结构体转指针
-        ///// </summary>
-        ///// <param name="infos"></param>
-        ///// <returns></returns>
-        //public static IntPtr StructArrayToIntPtr(NET_DEVICE_LOG_ITEM_EX[] infos)
-        //{
-        //    IntPtr pointer = IntPtr.Zero;
-        //    if (infos == null)
-        //        return pointer;
-
-        //    int maxlen = Marshal.SizeOf(typeof(NET_DEVICE_LOG_ITEM_EX)) * infos.Length;
-        //    pointer = Marshal.AllocHGlobal(maxlen);
-        //    return pointer;
-        //}
-
-        ///// <summary>
-        ///// 获取本地IP
-        ///// </summary>
-        ///// <returns></returns>
-        //public static string GetLocalIp()
-        //{
-        //    return GetLocalIp(out string hostName);
-        //}
-
-        ///// <summary>
-        ///// 获取本地IP
-        ///// </summary>
-        ///// <param name="hostName">主机名称</param>
-        ///// <returns></returns>
-        //public static string GetLocalIp(out string hostName)
-        //{
-        //    IPHostEntry ipHostEntry = Dns.GetHostEntry(Environment.MachineName);
-        //    hostName = ipHostEntry.HostName.ToString();
-        //    //string ip = string.Empty;
-
-        //    IPAddress first_ip = ipHostEntry.AddressList.Where(p => p.AddressFamily == AddressFamily.InterNetwork).FirstOrDefault(); //找出第一个IPV4地址
-        //    string ip = first_ip == null ? string.Empty : first_ip.ToString();
-        //    //if (ips.Length > 0)
-        //    //    ip = ipHostEntry.AddressList[0].ToString();
-        //    ipHostEntry = Dns.GetHostEntry(ip);
-        //    hostName = ipHostEntry.HostName.ToString();
-        //    return ip;
-        //}
-
         /// <summary>
         /// 获取IPV4的地址
         /// </summary>
         /// <returns></returns>
         public static string GetIPAddressV4()
         {
-            return GetIpAddressByAddressFamily(AddressFamily.InterNetwork, out string hostName);
+            return GetIpAddressByAddressFamily(AddressFamily.InterNetwork, string.Empty, out _);
+        }
+        /// <summary>
+        /// 获取IPV4的地址
+        /// </summary>
+        /// <param name="start_with">用于过滤地址的地址起始匹配条件，假如为空则不过滤</param>
+        /// <returns></returns>
+        public static string GetIPAddressV4(string start_with)
+        {
+            return GetIpAddressByAddressFamily(AddressFamily.InterNetwork, start_with, out _);
         }
 
         /// <summary>
@@ -173,7 +87,7 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static string GetIPAddressV4(out string hostName)
         {
-            return GetIpAddressByAddressFamily(AddressFamily.InterNetwork, out hostName);
+            return GetIpAddressByAddressFamily(AddressFamily.InterNetwork, string.Empty, out hostName);
         }
 
         /// <summary>
@@ -183,7 +97,7 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static string GetIPAddressV6(out string hostName)
         {
-            return GetIpAddressByAddressFamily(AddressFamily.InterNetworkV6, out hostName);
+            return GetIpAddressByAddressFamily(AddressFamily.InterNetworkV6, string.Empty, out hostName);
         }
 
         /// <summary>
@@ -194,23 +108,25 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static string GetIpAddressByAddressFamily(AddressFamily family, out string hostName)
         {
+            return GetIpAddressByAddressFamily(family, string.Empty, out hostName);
+        }
+
+        /// <summary>
+        /// 根据地址类型获取第一个IP地址
+        /// </summary>
+        /// <param name="family">地址类型(IPV4，IPV6或其它)</param>
+        /// <param name="start_with">用于过滤地址的地址起始匹配条件，假如为空则不过滤</param>
+        /// <param name="hostName">主机名称</param>
+        /// <returns></returns>
+        public static string GetIpAddressByAddressFamily(AddressFamily family, string start_with, out string hostName)
+        {
             IPHostEntry ipHostEntry = Dns.GetHostEntry(Environment.MachineName);
             hostName = ipHostEntry.HostName.ToString();
-            IPAddress first_ip = ipHostEntry.AddressList.Where(p => p.AddressFamily == family).FirstOrDefault(); //找出第一个IPV4地址
+            IPAddress first_ip = ipHostEntry.AddressList.Where(p => p.AddressFamily == family).Where(p => string.IsNullOrWhiteSpace(start_with) ? true : p.ToString().StartsWith(start_with)).FirstOrDefault(); //找出第一个IPV4地址
             string ip = first_ip == null ? string.Empty : first_ip.ToString();
-            ipHostEntry = Dns.GetHostEntry(ip);
+            //ipHostEntry = Dns.GetHostEntry(ip);
             hostName = ipHostEntry.HostName.ToString();
             return ip;
-
-            //string ipAddress = string.Empty;
-            //hostName = Dns.GetHostName();
-            //IPHostEntry entry = Dns.GetHostEntry(hostName);
-            //IPAddress[] addressList = entry.AddressList;
-            //foreach (IPAddress address in addressList)
-            //    if (address.AddressFamily == family)
-            //        ipAddress = address.ToString();
-
-            //return ipAddress;
         }
 
         /// <summary>

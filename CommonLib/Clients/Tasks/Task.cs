@@ -14,7 +14,7 @@ namespace CommonLib.Clients.Tasks
         private readonly AutoResetEvent _auto = new AutoResetEvent(false);
         private bool _ended = false;
         private bool _paused = true;
-        protected List<string> _taskLogsBuffer = new List<string>(); //日志存放缓冲区，每次循环可以直接向里添加（Add）而不必清除（Clear）
+        private List<string> _taskLogsBuffer = new List<string>(); //日志存放缓冲区，每次循环可以直接向里添加（Add）而不必清除（Clear）
         protected string _errorMessage = string.Empty;
 
         /// <summary>
@@ -136,6 +136,37 @@ namespace CommonLib.Clients.Tasks
                 TaskLogs = _taskLogsBuffer.ToList();
                 PrintErrorMessage();
             }
+        }
+
+        /// <summary>
+        /// 添加单个日志
+        /// </summary>
+        /// <param name="log"></param>
+        public void AddLog(string log)
+        {
+            AddLogs(log);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logs"></param>
+        public void AddLogs(params string[] logs)
+        {
+            AddLogs(logs, true);
+        }
+
+        /// <summary>
+        /// 批量添加日志
+        /// </summary>
+        /// <param name="logs"></param>
+        /// <param name="trim">是否过滤空字符串与前后空格</param>
+        public void AddLogs(IEnumerable<string> logs, bool trim)
+        {
+            if (logs == null || logs.Count() == 0)
+                return;
+
+            _taskLogsBuffer.AddRange(!trim ? logs : logs.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim())); //去除空字符串、前后空格
         }
 
         /// <summary>

@@ -178,6 +178,11 @@ namespace CommonLib.Clients
             return true;
         }
 
+        public void SendData()
+        {
+
+        }
+
         /// <summary>
         /// 接受TCP客户端连接的回调函数
         /// </summary>

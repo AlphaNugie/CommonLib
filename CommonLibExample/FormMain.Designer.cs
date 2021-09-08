@@ -33,6 +33,8 @@
             this.button_Encrypt = new System.Windows.Forms.Button();
             this.button_Socket = new System.Windows.Forms.Button();
             this.button_Filters = new System.Windows.Forms.Button();
+            this.button_Opc = new System.Windows.Forms.Button();
+            this.button_ExitWindows = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button_TimerEventRaiser
@@ -90,6 +92,28 @@
             this.button_Filters.UseVisualStyleBackColor = true;
             this.button_Filters.Click += new System.EventHandler(this.Button_Filters_Click);
             // 
+            // button_Opc
+            // 
+            this.button_Opc.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_Opc.Location = new System.Drawing.Point(225, 95);
+            this.button_Opc.Name = "button_Opc";
+            this.button_Opc.Size = new System.Drawing.Size(176, 40);
+            this.button_Opc.TabIndex = 0;
+            this.button_Opc.Text = "OPC";
+            this.button_Opc.UseVisualStyleBackColor = true;
+            this.button_Opc.Click += new System.EventHandler(this.Button_Opc_Click);
+            // 
+            // button_ExitWindows
+            // 
+            this.button_ExitWindows.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_ExitWindows.Location = new System.Drawing.Point(415, 95);
+            this.button_ExitWindows.Name = "button_ExitWindows";
+            this.button_ExitWindows.Size = new System.Drawing.Size(170, 40);
+            this.button_ExitWindows.TabIndex = 0;
+            this.button_ExitWindows.Text = "操作系统操作";
+            this.button_ExitWindows.UseVisualStyleBackColor = true;
+            this.button_ExitWindows.Click += new System.EventHandler(this.Button_ExitWindows_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -98,6 +122,8 @@
             this.Controls.Add(this.button_Socket);
             this.Controls.Add(this.button_Encrypt);
             this.Controls.Add(this.button_DatabaseTest);
+            this.Controls.Add(this.button_ExitWindows);
+            this.Controls.Add(this.button_Opc);
             this.Controls.Add(this.button_Filters);
             this.Controls.Add(this.button_TimerEventRaiser);
             this.Font = new System.Drawing.Font("等线", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -114,6 +140,8 @@
         private System.Windows.Forms.Button button_Encrypt;
         private System.Windows.Forms.Button button_Socket;
         private System.Windows.Forms.Button button_Filters;
+        private System.Windows.Forms.Button button_Opc;
+        private System.Windows.Forms.Button button_ExitWindows;
     }
 }
 

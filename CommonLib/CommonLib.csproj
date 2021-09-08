@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clients\CommandStorage.cs" />
+    <Compile Include="Clients\DerivedHttpListener.cs" />
     <Compile Include="Clients\DerivedTcpListener.cs" />
     <Compile Include="Clients\DataFilerClient.cs" />
     <Compile Include="Clients\DerivedUdpClient.cs" />
@@ -89,6 +90,8 @@
     <Compile Include="DataUtil\Record.cs" />
     <Compile Include="DataUtil\SqlProvider.cs" />
     <Compile Include="Enums\DatabaseTypes.cs" />
+    <Compile Include="Enums\ServiceState.cs" />
+    <Compile Include="Events\ServiceStateEventArgs.cs" />
     <Compile Include="Extensions\EnumExtension.cs" />
     <Compile Include="Events\DataReceivedEventArgs.cs" />
     <Compile Include="Events\DataSendEventArgs.cs" />
@@ -105,6 +108,7 @@
     <Compile Include="Enums\WindowMessage.cs" />
     <Compile Include="Clients\EncryptionClient.cs" />
     <Compile Include="Function\Converter.cs" />
+    <Compile Include="Function\ExitWindowsUtil.cs" />
     <Compile Include="Function\Fitting\CurveFitting.cs" />
     <Compile Include="Extensions\ExtensionClass.cs" />
     <Compile Include="Function\HexHelper.cs" />

@@ -13,8 +13,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Forms;
 
 namespace CommonLibExample
@@ -36,6 +38,13 @@ namespace CommonLibExample
             #endregion
 
             #region test
+            //string test = "deviceId=Rrrrrryyyghh&command=%23HEADINGA%2CCOM3%2C0%2C60.0%2CFINESTEERING%2C2174%2C203295.400%2C00000000%2C0000%2C1114%3BSOL_COMPUTED%2CNARROW_FLOAT%2C1.883086681%2C217.139678955%2C-36.801155090%2C0.000000000%2C82.640968323%2C89.471420288%2C%220004%22%2C16%2C12%2C16%2C16%2C0%2C0%2C5%2C121*33a3a265";
+            //test = "deviceId=Rrrrrryyyghh&command=#HEADINGA,COM3,0,60.0,FINESTEERING,2174,203295.400,00000000,0000,1114;SOL_COMPUTED,NARROW_FLOAT,1.883086681,217.139678955,-36.801155090,0.000000000,82.640968323,89.471420288,0004,16,12,16,16,0,0,5,121*33a3a265";
+            //test = HttpUtility.UrlDecode(test, Encoding.GetEncoding("GB2312"));
+            //string sep = FileSystemHelper.DirSeparator;
+            //sep = FileSystemHelper.VolumeSeparator;
+            //return;
+
             //GenericStorage<double> store = new GenericStorage<double>(5);
             //store.Push(1);
             //store.Push(3);

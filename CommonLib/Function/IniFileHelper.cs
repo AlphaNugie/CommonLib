@@ -42,10 +42,10 @@ namespace CommonLib.Function
         /// <param name="length">INI配置项内容默认长度</param>
         public IniFileHelper(string filePath, int length)
         {
-            this.FilePath = filePath;
-            if (!this.FilePath.Contains(FileSystemHelper.VolumeSeparator))
-                this.FilePath = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.DirSeparator + this.FilePath;
-            this.DefaultLength = length;
+            FilePath = filePath;
+            if (!FilePath.Contains(FileSystemHelper.VolumeSeparator))
+                FilePath = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.DirSeparator + FilePath;
+            DefaultLength = length;
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace CommonLib.Function
 
             StringBuilder builder = new StringBuilder(length);
             //string noText = key + " not found";
-            IniFileHelper.GetPrivateProfileString(section, key, noText, builder, length, iniFilePath);
+            GetPrivateProfileString(section, key, noText, builder, length, iniFilePath);
             return builder.ToString();
         }
 
@@ -78,7 +78,7 @@ namespace CommonLib.Function
         /// <returns>返回配置文件内容</returns>
         public string ReadData(string section, string key, string noText, int length)
         {
-            return ReadData(section, key, noText, length, this.FilePath);
+            return ReadData(section, key, noText, length, FilePath);
         }
 
         /// <summary>
@@ -89,7 +89,8 @@ namespace CommonLib.Function
         /// <returns>返回配置文件内容</returns>
         public string ReadData(string section, string key)
         {
-            return ReadData(section, key, key + " not found", 1024, this.FilePath);
+            //return ReadData(section, key, key + " not found", 1024, FilePath);
+            return ReadData(section, key, string.Empty, 1024, FilePath);
         }
 
         /// <summary>
@@ -100,7 +101,7 @@ namespace CommonLib.Function
         /// <param name="value">配置待写入的值</param>
         /// <param name="iniFilePath">INI配置文件路径</param>
         /// <returns>假如操作成功，返回true，否则返回false</returns>
-        public bool WriteData(string section, string key, string value, string iniFilePath)
+        public static bool WriteData(string section, string key, string value, string iniFilePath)
         {
             if (!File.Exists(iniFilePath) || string.IsNullOrWhiteSpace(key))
                 return false;
@@ -117,7 +118,7 @@ namespace CommonLib.Function
         /// <returns>假如操作成功，返回true，否则返回false</returns>
         public bool WriteData(string section, string key, string value)
         {
-            return this.WriteData(section, key, value, this.FilePath);
+            return WriteData(section, key, value, FilePath);
         }
 
         #region API函数声明

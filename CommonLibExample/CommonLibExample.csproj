@@ -57,6 +57,10 @@
     <Reference Include="CommonLib">
       <HintPath>..\CommonLib\bin\Debug\CommonLib.dll</HintPath>
     </Reference>
+    <Reference Include="Interop.OPCAutomation">
+      <HintPath>..\..\..\OPC\DLL\Interop.OPCAutomation.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="MathNet.Numerics, Version=4.12.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.12.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
@@ -67,6 +71,10 @@
     <Reference Include="MWArray, Version=2.19.0.0, Culture=neutral, PublicKeyToken=e1d84a0da19db86f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Softwares\MATLAB\MATLAB Runtime\v96\toolbox\dotnetbuilder\bin\win64\v4.0\MWArray.dll</HintPath>
+    </Reference>
+    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\netstandard\v4.0_2.0.0.0__cc7b13ffcd2ddd51\netstandard.dll</HintPath>
     </Reference>
     <Reference Include="OpcLibrary">
       <HintPath>..\OpcLibrary\bin\Debug\netstandard2.0\OpcLibrary.dll</HintPath>
@@ -81,6 +89,7 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -92,28 +101,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FormDatabaseTest.cs">
+    <Compile Include="Forms\FormDatabaseTest.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormDatabaseTest.Designer.cs">
+    <Compile Include="Forms\FormDatabaseTest.Designer.cs">
       <DependentUpon>FormDatabaseTest.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormEncryption.cs">
+    <Compile Include="Forms\FormEncryption.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormEncryption.Designer.cs">
+    <Compile Include="Forms\FormEncryption.Designer.cs">
       <DependentUpon>FormEncryption.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormFilters.cs">
+    <Compile Include="Forms\FormExitWindows.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormFilters.Designer.cs">
+    <Compile Include="Forms\FormExitWindows.Designer.cs">
+      <DependentUpon>FormExitWindows.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormFilters.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormFilters.Designer.cs">
       <DependentUpon>FormFilters.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormKalmanFilter.cs">
+    <Compile Include="Forms\FormKalmanFilter.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormKalmanFilter.Designer.cs">
+    <Compile Include="Forms\FormKalmanFilter.Designer.cs">
       <DependentUpon>FormKalmanFilter.cs</DependentUpon>
     </Compile>
     <Compile Include="FormMain.cs">
@@ -122,22 +137,28 @@
     <Compile Include="FormMain.Designer.cs">
       <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormOracleTest.cs">
+    <Compile Include="Forms\FormOpcTest.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormOracleTest.Designer.cs">
+    <Compile Include="Forms\FormOpcTest.Designer.cs">
+      <DependentUpon>FormOpcTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormOracleTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormOracleTest.Designer.cs">
       <DependentUpon>FormOracleTest.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormSocket.cs">
+    <Compile Include="Forms\FormSocket.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormSocket.Designer.cs">
+    <Compile Include="Forms\FormSocket.Designer.cs">
       <DependentUpon>FormSocket.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormTimerEventRaiser.cs">
+    <Compile Include="Forms\FormTimerEventRaiser.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormTimerEventRaiser.Designer.cs">
+    <Compile Include="Forms\FormTimerEventRaiser.Designer.cs">
       <DependentUpon>FormTimerEventRaiser.cs</DependentUpon>
     </Compile>
     <Compile Include="MathNet\MathNetSample.cs" />
@@ -148,28 +169,34 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyMapper\PropertyMapperExample.cs" />
-    <EmbeddedResource Include="FormDatabaseTest.resx">
+    <EmbeddedResource Include="Forms\FormDatabaseTest.resx">
       <DependentUpon>FormDatabaseTest.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormEncryption.resx">
+    <EmbeddedResource Include="Forms\FormEncryption.resx">
       <DependentUpon>FormEncryption.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormFilters.resx">
+    <EmbeddedResource Include="Forms\FormExitWindows.resx">
+      <DependentUpon>FormExitWindows.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormFilters.resx">
       <DependentUpon>FormFilters.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormKalmanFilter.resx">
+    <EmbeddedResource Include="Forms\FormKalmanFilter.resx">
       <DependentUpon>FormKalmanFilter.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormOracleTest.resx">
+    <EmbeddedResource Include="Forms\FormOpcTest.resx">
+      <DependentUpon>FormOpcTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormOracleTest.resx">
       <DependentUpon>FormOracleTest.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormSocket.resx">
+    <EmbeddedResource Include="Forms\FormSocket.resx">
       <DependentUpon>FormSocket.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormTimerEventRaiser.resx">
+    <EmbeddedResource Include="Forms\FormTimerEventRaiser.resx">
       <DependentUpon>FormTimerEventRaiser.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

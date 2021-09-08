@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonLibExample.Forms;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -40,6 +41,16 @@ namespace CommonLibExample
         private void Button_Filters_Click(object sender, EventArgs e)
         {
             new FormFilters().Show();
+        }
+
+        private void Button_Opc_Click(object sender, EventArgs e)
+        {
+            new FormOpcTest().Show();
+        }
+
+        private void Button_ExitWindows_Click(object sender, EventArgs e)
+        {
+            new FormExitWindows().Show();
         }
     }
 }

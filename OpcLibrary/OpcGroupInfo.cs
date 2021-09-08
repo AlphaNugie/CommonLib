@@ -12,10 +12,10 @@ namespace OpcLibrary
     /// </summary>
     public class OpcGroupInfo : IDisposable
     {
-        private readonly Random random = new Random();
+        private readonly Random _random = new Random();
         #region 私有变量
-        private Array item_ids, server_handles, client_handles, errors;
-        private readonly OpcItemInfo opc_pack_basic = new OpcItemInfo(string.Empty, 0);
+        private Array _itemIds, _serverHandles, _clientHandles, _errors;
+        private readonly OpcItemInfo _opcPackBasic = new OpcItemInfo(string.Empty, 0);
         #endregion
 
         #region 属性
@@ -40,12 +40,12 @@ namespace OpcLibrary
         /// </summary>
         public object DataSource
         {
-            get { return this._data_source; }
+            get { return _data_source; }
             set
             {
-                this._data_source = value;
-                Type type = this._data_source?.GetType();
-                foreach (var itemInfo in this.ListItemInfo)
+                _data_source = value;
+                Type type = _data_source?.GetType();
+                foreach (var itemInfo in ListItemInfo)
                     if (type != null && !string.IsNullOrWhiteSpace(itemInfo.FieldName))
                         itemInfo.Property = type.GetProperty(itemInfo.FieldName);
             }
@@ -54,15 +54,15 @@ namespace OpcLibrary
         /// <summary>
         /// OPC组所拥有的OPC项数量
         /// </summary>
-        public int ItemCount { get { return this.OpcGroup == null ? 0 : this.OpcGroup.OPCItems.Count; } }
+        public int ItemCount { get { return OpcGroup == null ? 0 : OpcGroup.OPCItems.Count; } }
 
         /// <summary>
         /// OPC项ID Array，添加OPC项时变化
         /// </summary>
         public Array ItemIds
         {
-            get { return this.item_ids; }
-            private set { this.item_ids = value; }
+            get { return _itemIds; }
+            private set { _itemIds = value; }
         }
 
         /// <summary>
@@ -70,8 +70,8 @@ namespace OpcLibrary
         /// </summary>
         public Array ServerHandles
         {
-            get { return this.server_handles; }
-            private set { this.server_handles = value; }
+            get { return _serverHandles; }
+            private set { _serverHandles = value; }
         }
 
         /// <summary>
@@ -79,8 +79,8 @@ namespace OpcLibrary
         /// </summary>
         public Array ClientHandles
         {
-            get { return this.client_handles; }
-            private set { this.client_handles = value; }
+            get { return _clientHandles; }
+            private set { _clientHandles = value; }
         }
 
         /// <summary>
@@ -88,14 +88,19 @@ namespace OpcLibrary
         /// </summary>
         public Array Errors
         {
-            get { return this.errors; }
-            set { this.errors = value; }
+            get { return _errors; }
+            set { _errors = value; }
         }
 
         /// <summary>
         /// OPC项信息List，包含OPC项ID、客户端句柄、服务端句柄、值等信息，添加OPC组前设置此属性可在添加OPC组（OpcUtilHelper.CreateGroups方法）时直接添加OPC项
         /// </summary>
         public List<OpcItemInfo> ListItemInfo { get; set; }
+
+        ///// <summary>
+        ///// 错误信息
+        ///// </summary>
+        //public string ErrorMessage { get; private set; }
         #endregion
 
         /// <summary>
@@ -113,15 +118,11 @@ namespace OpcLibrary
         /// <param name="data_source">数据源</param>
         public OpcGroupInfo(OPCGroups groups, string name, object data_source)
         {
-            this.GroupName = name;
-            this.ListItemInfo = new List<OpcItemInfo>();
-            this.DataSource = data_source;
-            this.GroupType = GroupType.READ;
-            this.SetOpcGroup(groups, name);
-            //if (groups == null)
-            //    return;
-
-            //this.OpcGroup = groups.Add(name);
+            GroupName = name;
+            ListItemInfo = new List<OpcItemInfo>();
+            DataSource = data_source;
+            GroupType = GroupType.READ;
+            SetOpcGroup(groups, name);
         }
 
         #region 功能
@@ -135,7 +136,7 @@ namespace OpcLibrary
             if (groups == null)
                 return;
 
-            this.OpcGroup = groups.Add(name);
+            OpcGroup = groups.Add(name);
         }
 
         /// <summary>
@@ -146,21 +147,39 @@ namespace OpcLibrary
         /// <param name="isGroupSubscribed">OPC组订阅状态</param>
         public void SetGroupProperty(int updateRate, bool isGroupActive, bool isGroupSubscribed)
         {
-            if (this.OpcGroup != null)
+            if (OpcGroup != null)
             {
-                this.OpcGroup.UpdateRate = updateRate;
-                this.OpcGroup.IsActive = isGroupActive;
-                this.OpcGroup.IsSubscribed = isGroupSubscribed;
+                OpcGroup.UpdateRate = updateRate;
+                OpcGroup.IsActive = isGroupActive;
+                OpcGroup.IsSubscribed = isGroupSubscribed;
             }
         }
 
         /// <summary>
-        /// 获取所有OPC项的值并转换为Array
+        /// 根据给定的OPC服务端句柄获取符合条件的OpcItemInfo对象，列表最前方包含一个内容为空的OpcItemInfo对象
         /// </summary>
+        /// <param name="serverHandles">给定的服务端句柄数组，假如给定的服务端句柄为空，则给出所有服务端句柄</param>
         /// <returns></returns>
-        public Array GetValues()
+        private List<OpcItemInfo> GetFilteredItems(IEnumerable<int> serverHandles)
         {
-            return this.GetValues(null);
+            //特殊条件：服务端句柄范围为空
+            bool flag = serverHandles == null || serverHandles.Count() == 0;
+            //假如给定的服务端句柄范围为空则选择所有OPC项，否则选择服务端在范围内的OPC项（服务端句柄不可为0）
+            List<OpcItemInfo> list = ListItemInfo?.Where(item => (flag || serverHandles.Contains(item.ServerHandle)) && item.ServerHandle != 0).ToList();
+            //在最前方插入一个空OPC项，占位用
+            list.Insert(0, _opcPackBasic);
+            return list;
+        }
+
+        /// <summary>
+        /// 获取在给定服务端句柄中（第1项须为0）存在对应OPC项的服务端句柄并转换为Array，假如给定的服务端句柄为空，则给出所有服务端句柄
+        /// </summary>
+        /// <param name="serverHandles">给定的服务端句柄数组，假如给定的服务端句柄为空，则给出所有服务端句柄</param>
+        /// <returns></returns>
+        private Array GetServerHandles(IEnumerable<int> serverHandles)
+        {
+            var list = GetFilteredItems(serverHandles);
+            return list == null ? new int[0] : list.Select(item => item.ServerHandle).ToArray();
         }
 
         /// <summary>
@@ -170,31 +189,18 @@ namespace OpcLibrary
         /// <returns></returns>
         public Array GetValues(IEnumerable<int> serverHandles)
         {
-            bool flag = serverHandles == null || serverHandles.Count() == 0; //特殊条件
-            this.ListItemInfo.ForEach(item => item.SetItemValue(this._data_source)); //根据数据源为item赋值（假如数据源不为空或字段名称正确）
-            //假如给定的服务端句柄范围为空则选择所有OPC项的值，否则选择服务端在范围内的OPC项以及第一个OPC项的值
-            //return this.ListItemInfo == null ? Array.Empty<object>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => (object)p.item.Value).ToArray();
-            return this.ListItemInfo == null ? new object[0] : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => (object)p.item.Value).ToArray();
+            ListItemInfo.ForEach(item => item.SetItemValue(_data_source)); //根据数据源为item赋值（假如数据源不为空或字段名称正确）
+            var list = GetFilteredItems(serverHandles);
+            return list == null ? new object[0] : list.Select(item => (object)item.Value).ToArray();
         }
 
         /// <summary>
-        /// 获取在给定服务端句柄中存在对应OPC项的服务端句柄并转换为Array，假如给定的服务端句柄为空，则给出所有服务端句柄
+        /// 获取所有OPC项的值并转换为Array
         /// </summary>
-        /// <param name="serverHandles">给定的服务端句柄数组，假如给定的服务端句柄为空，则给出所有服务端句柄</param>
         /// <returns></returns>
-        private Array GetServerHandles(IEnumerable<int> serverHandles)
+        public Array GetValues()
         {
-            bool flag = serverHandles == null || serverHandles.Count() == 0; //特殊条件
-            //IEnumerable<int> handles = this.ListItemInfo == null ? Array.Empty<int>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle);
-            IEnumerable<int> handles = this.ListItemInfo == null ? new int[0] : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle);
-            //假如有不止一个为0的服务端句柄（列表中首个元素必为0），则抛出
-            if (handles.Count(h => h == 0) > 1)
-                throw new InvalidCastException("给出的服务端句柄中包含无效数字0");
-            //假如给定的服务端句柄范围为空则选择所有OPC项的值，否则选择服务端在范围内的OPC项以及第一个OPC项的值
-            //return this.ListItemInfo == null ? Array.Empty<int>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle).ToArray();
-            return this.ListItemInfo == null ? new int[0] : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => (flag || serverHandles.Contains(p.item.ServerHandle)) || p.index == 0).Select(p => p.item.ServerHandle).ToArray();
-            ////首先要包括第一个OPC项的服务端句柄，之后假如给定的服务端句柄范围为空则选择所有OPC项的句柄，否则选择服务端句柄在范围内且不为0的OPC项
-            //return this.ListItemInfo == null ? Array.Empty<int>() : this.ListItemInfo.Select((item, index) => new { item, index }).Where(p => p.index == 0 || (p.item.ServerHandle != 0 && (flag || serverHandles.Contains(p.item.ServerHandle)))).Select(p => p.item.ServerHandle).ToArray();
+            return GetValues(null);
         }
 
         /// <summary>
@@ -212,38 +218,38 @@ namespace OpcLibrary
             try
             {
                 //假如已存在OPC项，先移除
-                if (this.ItemCount > 0)
-                    this.OpcGroup.OPCItems.Remove(this.ItemCount, ref this.server_handles, out this.errors);
-                List<OpcItemInfo> itemList = items.ToList(); //转换为新List对象，防止枚举改变对象时出现未知影响
-                this.ListItemInfo.Clear();
-                this.ListItemInfo.Add(this.opc_pack_basic);
-                itemList.Insert(0, this.opc_pack_basic);
-                this.item_ids = itemList.Select(p => p.ItemId).ToArray();
-                this.client_handles = itemList.Select(p => p.ClientHandle).ToArray();
-                this.OpcGroup.OPCItems.AddItems(itemList.Count - 1, ref this.item_ids, ref this.client_handles, out this.server_handles, out this.errors);
+                if (ItemCount > 0)
+                    OpcGroup.OPCItems.Remove(ItemCount, ref _serverHandles, out _errors);
+                List<OpcItemInfo> itemList = items.Where(item => !string.IsNullOrWhiteSpace(item.ItemId)).ToList(); //排除id为空的项（后面将重新添加），转换为新List对象，防止枚举改变对象时出现未知影响
+                ListItemInfo.Clear();
+                ListItemInfo.Add(_opcPackBasic);
+                itemList.Insert(0, _opcPackBasic);
+                _itemIds = itemList.Select(p => p.ItemId).ToArray();
+                _clientHandles = itemList.Select(p => p.ClientHandle).ToArray();
+                OpcGroup.OPCItems.AddItems(itemList.Count - 1, ref _itemIds, ref _clientHandles, out _serverHandles, out _errors);
                 //添加OPC项后根据ID找到OPC项信息对象并设置服务端句柄，向OPC项信息List中添加
-                if (this.item_ids.Length > 1)
+                if (_itemIds.Length > 1)
                 {
-                    Type type = this._data_source?.GetType();
-                    for (int i = 1; i < this.item_ids.Length; i++)
+                    Type type = _data_source?.GetType();
+                    for (int i = 1; i < _itemIds.Length; i++)
                     {
-                        OpcItemInfo itemInfo = itemList.Find(p => p.ItemId.Equals(this.item_ids.GetValue(i)));
-                        itemInfo.ServerHandle = int.Parse(this.server_handles.GetValue(i).ToString());
+                        OpcItemInfo itemInfo = itemList.Find(p => p.ItemId.Equals(_itemIds.GetValue(i)));
+                        itemInfo.ServerHandle = int.Parse(_serverHandles.GetValue(i).ToString());
                         if (type != null && !string.IsNullOrWhiteSpace(itemInfo.FieldName))
                             itemInfo.Property = type.GetProperty(itemInfo.FieldName);
-                        this.ListItemInfo.Add(itemInfo);
+                        ListItemInfo.Add(itemInfo);
                     }
                 }
                 //假如添加后的数量对不上，则至少有一个OPC项未添加成功
-                if (this.ListItemInfo.Count < itemList.Count)
+                if (ListItemInfo.Count < itemList.Count)
                     message = "至少有1个OPC项未添加成功";
             }
             catch (Exception ex)
             {
-                message = string.Format("OPC组{0}移除或添加标签时发生错误:{1}", this.OpcGroup.Name, ex.Message);
+                message = string.Format("OPC组{0}移除或添加标签时发生错误:{1}", OpcGroup.Name, ex.Message);
                 return false;
             }
-            return this.ListItemInfo.Count > 1; //假如至少有1个添加成功，返回true
+            return ListItemInfo.Count > 1; //假如至少有1个添加成功，返回true
         }
 
         /// <summary>
@@ -253,8 +259,7 @@ namespace OpcLibrary
         /// <returns></returns>
         public bool ReadValues(out string message)
         {
-            //return this.ReadValues(this.server_handles, out message);
-            return this.ReadValues(null, out message);
+            return ReadValues(null, out message);
         }
 
         /// <summary>
@@ -270,20 +275,22 @@ namespace OpcLibrary
             try
             {
                 IEnumerable<int> temp = serverHandles == null || serverHandles.Length == 0 ? null : serverHandles.Cast<int>();
-                Array handles = this.GetServerHandles(temp);
+                Array handles = GetServerHandles(temp);
                 int itemCount = handles.Length - 1;
-                this.OpcGroup.SyncRead((short)OPCDataSource.OPCDevice, itemCount, ref handles, out values, out this.errors, out object qualities, out object timeStamps);
+                //OPCDataSource指定的是OPCCache或者OPCDevice
+                //它的含义是当你执行同步读操作时，读取的数据来自OPC服务器的缓存还是来自硬件设备
+                OpcGroup.SyncRead((short)OPCDataSource.OPCDevice, itemCount, ref handles, out values, out _errors, out object qualities, out object timeStamps);
                 //假如至少读取到1个值，根据服务端句柄找到OPC项信息并更新值
                 if (values.Length > 0)
                     for (int i = 1; i <= values.Length; i++)
                     {
-                        OpcItemInfo itemInfo = this.ListItemInfo.Find(item => item.ServerHandle.Equals(handles.GetValue(i)));
+                        OpcItemInfo itemInfo = ListItemInfo.Find(item => item.ServerHandle.Equals(handles.GetValue(i)));
                         if (itemInfo != null)
                         {
                             itemInfo.Value = values.GetValue(i).ToString();
-                            itemInfo.SetPropertyValue(this._data_source);
-                            //if (itemInfo.Property != null/* && this.GroupType == GroupType.READ*/)
-                            //    itemInfo.Property.SetValue(this.DataSource, itemInfo.GetPropertyValue());
+                            itemInfo.SetPropertyValue(_data_source);
+                            //if (itemInfo.Property != null/* && GroupType == GroupType.READ*/)
+                            //    itemInfo.Property.SetValue(DataSource, itemInfo.GetPropertyValue());
                         }
                     }
                 if (values.Length < itemCount)
@@ -292,7 +299,7 @@ namespace OpcLibrary
             }
             catch (Exception ex)
             {
-                message = string.Format("从名称为{0}的OPC组读取值失败：{1}", this.OpcGroup == null ? "null" : this.OpcGroup.Name, ex.Message);
+                message = string.Format("从名称为{0}的OPC组读取值失败：{1}", OpcGroup == null ? "null" : OpcGroup.Name, ex.Message);
                 return false;
             }
             return values.Length > 0;
@@ -305,7 +312,7 @@ namespace OpcLibrary
         /// <returns></returns>
         public bool WriteValues(out string message)
         {
-            return this.WriteValues(null, false, out message);
+            return WriteValues(null, false, out message);
         }
 
         /// <summary>
@@ -316,7 +323,7 @@ namespace OpcLibrary
         /// <returns></returns>
         public bool WriteValues(bool using_async, out string message)
         {
-            return this.WriteValues(null, using_async, out message);
+            return WriteValues(null, using_async, out message);
         }
 
         /// <summary>
@@ -327,7 +334,7 @@ namespace OpcLibrary
         /// <returns></returns>
         public bool WriteValues(Array serverHandles, out string message)
         {
-            return this.WriteValues(serverHandles, false, out message);
+            return WriteValues(serverHandles, false, out message);
         }
 
         /// <summary>
@@ -343,17 +350,17 @@ namespace OpcLibrary
             try
             {
                 IEnumerable<int> temp = serverHandles == null || serverHandles.Length == 0 ? null : serverHandles.Cast<int>();
-                Array handles = this.GetServerHandles(temp), values = this.GetValues(temp);
+                Array handles = GetServerHandles(temp), values = GetValues(temp);
                 int itemCount = handles.Length - 1;
                 if (!using_async)
-                    this.OpcGroup.SyncWrite(itemCount, ref handles, ref values, out this.errors);
+                    OpcGroup.SyncWrite(itemCount, ref handles, ref values, out _errors);
                 else
-                    this.OpcGroup.AsyncWrite(itemCount, ref handles, ref values, out this.errors, random.Next(1, 1000), out int cancelId);
+                    OpcGroup.AsyncWrite(itemCount, ref handles, ref values, out _errors, _random.Next(1, 1000), out int cancelId);
                 GC.Collect();
             }
             catch (Exception ex)
             {
-                message = string.Format("向名称为{0}的OPC组写入值失败：{1}", this.OpcGroup.Name, ex.Message);
+                message = string.Format("向名称为{0}的OPC组写入值失败：{1}", OpcGroup.Name, ex.Message);
                 return false;
             }
             return true;
@@ -373,13 +380,13 @@ namespace OpcLibrary
             {
                 if (disposing)
                 {
-                    this.OpcGroup = null;
-                    this.ItemIds = null;
-                    this.ClientHandles = null;
-                    this.Errors = null;
-                    this.ServerHandles = null;
-                    this.ListItemInfo.Clear();
-                    this.ListItemInfo = null;
+                    OpcGroup = null;
+                    ItemIds = null;
+                    ClientHandles = null;
+                    Errors = null;
+                    ServerHandles = null;
+                    ListItemInfo.Clear();
+                    ListItemInfo = null;
                     // TODO: 释放托管状态(托管对象)。
                 }
 

@@ -90,10 +90,18 @@
             <param name="isGroupActive">OPC组激活状态</param>
             <param name="isGroupSubscribed">OPC组订阅状态</param>
         </member>
-        <member name="M:OpcLibrary.OpcGroupInfo.GetValues">
+        <member name="M:OpcLibrary.OpcGroupInfo.GetFilteredItems(System.Collections.Generic.IEnumerable{System.Int32})">
             <summary>
-            获取所有OPC项的值并转换为Array
+            根据给定的OPC服务端句柄获取符合条件的OpcItemInfo对象，列表最前方包含一个内容为空的OpcItemInfo对象
             </summary>
+            <param name="serverHandles">给定的服务端句柄数组，假如给定的服务端句柄为空，则给出所有服务端句柄</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcGroupInfo.GetServerHandles(System.Collections.Generic.IEnumerable{System.Int32})">
+            <summary>
+            获取在给定服务端句柄中（第1项须为0）存在对应OPC项的服务端句柄并转换为Array，假如给定的服务端句柄为空，则给出所有服务端句柄
+            </summary>
+            <param name="serverHandles">给定的服务端句柄数组，假如给定的服务端句柄为空，则给出所有服务端句柄</param>
             <returns></returns>
         </member>
         <member name="M:OpcLibrary.OpcGroupInfo.GetValues(System.Collections.Generic.IEnumerable{System.Int32})">
@@ -103,11 +111,10 @@
             <param name="serverHandles">给定的服务端句柄数组，假如给定的服务端句柄为空，则给出所有值</param>
             <returns></returns>
         </member>
-        <member name="M:OpcLibrary.OpcGroupInfo.GetServerHandles(System.Collections.Generic.IEnumerable{System.Int32})">
+        <member name="M:OpcLibrary.OpcGroupInfo.GetValues">
             <summary>
-            获取在给定服务端句柄中存在对应OPC项的服务端句柄并转换为Array，假如给定的服务端句柄为空，则给出所有服务端句柄
+            获取所有OPC项的值并转换为Array
             </summary>
-            <param name="serverHandles">给定的服务端句柄数组，假如给定的服务端句柄为空，则给出所有服务端句柄</param>
             <returns></returns>
         </member>
         <member name="M:OpcLibrary.OpcGroupInfo.SetItems(System.Collections.Generic.IEnumerable{OpcLibrary.OpcItemInfo},System.String@)">

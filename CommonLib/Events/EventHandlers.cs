@@ -68,4 +68,11 @@ namespace CommonLib.Events
     /// <param name="content">待发送字符串</param>
     /// <returns>返回操作结果</returns>
     public delegate bool DataSendEventHandler_String(string content);
+
+    /// <summary>
+    /// 服务状态改变事件委托
+    /// </summary>
+    /// <param name="sender">触发事件的对象</param>
+    /// <param name="eventArgs">事件数据类对象</param>
+    public delegate void ServiceStateEventHandler(object sender, ServiceStateEventArgs eventArgs);
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -12,6 +12,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DocumentationFile>D:\CommonLib\CommonLib\OpcLibrary\OpcLibrary.xml</DocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="bin\Debug\netstandard2.0\OpcLibrary.dll" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="CommonLib">

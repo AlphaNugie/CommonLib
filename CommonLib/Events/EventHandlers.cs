@@ -49,6 +49,13 @@ namespace CommonLib.Events
     public delegate void DataReceivedEventHandler(object sender, DataReceivedEventArgs eventArgs);
 
     /// <summary>
+    /// 持续一段时间未接收到任何数据的事件委托
+    /// </summary>
+    /// <param name="sender">触发事件的对象</param>
+    /// <param name="args">事件数据类对象</param>
+    public delegate void NoneReceivedEventHandler(object sender, NoneReceivedEventArgs args);
+
+    /// <summary>
     /// 数据发送事件委托
     /// </summary>
     /// <param name="sender">触发事件的对象</param>

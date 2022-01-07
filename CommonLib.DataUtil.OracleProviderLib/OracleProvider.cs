@@ -94,6 +94,19 @@ namespace CommonLib.DataUtil
         #endregion
 
         /// <summary>
+        /// 使用指定的Clob内容键值对来执行Sql语句
+        /// </summary>
+        /// <param name="sqlString">待执行的SQL语句</param>
+        /// <param name="dict">包含CLOB内容的键值对</param>
+        /// <returns></returns>
+        public int ExecuteSqlWithClobContents(string sqlString, Dictionary<string, string> dict)
+        {
+            //将键值对转换为Clob类型的Oracle参数，参数名与内容分别由键、值决定
+            List<OracleParameter> _params = dict?.Where(pair => !string.IsNullOrWhiteSpace(pair.Key) && !string.IsNullOrWhiteSpace(pair.Value)).Select(pair => new OracleParameter(pair.Key, OracleDbType.Clob) { Value = pair.Value }).ToList();
+            return ExecuteSql(sqlString, _params);
+        }
+
+        /// <summary>
         /// 执行存储过程，返回数据集，假如参数中不包含输出的指针参数，则以给定参数名称添加一个
         /// </summary>
         /// <param name="procedureName">存储过程名</param>

@@ -24,7 +24,7 @@ namespace CommonLib.DataUtil
         /// <summary>
         /// ID改变事件的事件数据类
         /// </summary>
-        private IdChangedEventArgs eventArgs = new IdChangedEventArgs();
+        private readonly IdChangedEventArgs eventArgs = new IdChangedEventArgs();
 
         /// <summary>
         /// 记录的唯一编号
@@ -36,14 +36,14 @@ namespace CommonLib.DataUtil
         /// </summary>
         public int Id
         {
-            get { return this.id; }
+            get { return id; }
             set
             {
-                this.eventArgs.FormerId = this.id;
-                this.id = value;
-                this.eventArgs.CurrentId = this.id;
-                if (this.IdChanged != null && this.eventArgs.CurrentId != this.eventArgs.FormerId)
-                    this.IdChanged.BeginInvoke(this.GetType().Name, this.eventArgs, null, null);
+                eventArgs.FormerId = id;
+                id = value;
+                eventArgs.CurrentId = id;
+                if (IdChanged != null && eventArgs.CurrentId != eventArgs.FormerId)
+                    IdChanged.BeginInvoke(GetType().Name, eventArgs, null, null);
             }
         }
 
@@ -72,8 +72,8 @@ namespace CommonLib.DataUtil
         /// </summary>
         public BaseModel()
         {
-            this.Id = 0;
-            this.Enable = 1; //是否可用默认为1
+            Id = 0;
+            Enable = 1; //是否可用默认为1
         }
     }
 }

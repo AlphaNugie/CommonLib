@@ -29,6 +29,7 @@ namespace CommonLib.Clients
         #endregion
         #region 私有成员变量
         private readonly TimerEventRaiser _raiser = new TimerEventRaiser(1000);
+        public const string RESPONSE_OK = "OK";
         #endregion
         #region 属性
         /// <summary>
@@ -60,6 +61,11 @@ namespace CommonLib.Clients
         /// 有新请求时生成的全局唯一标识符
         /// </summary>
         public string GUID { get; private set; }
+
+        /// <summary>
+        /// 定制化返回的POST响应消息
+        /// </summary>
+        public string ResponseDescription { get; set; }
 
         /// <summary>
         /// 网页浏览器访问的返回信息
@@ -96,6 +102,7 @@ namespace CommonLib.Clients
                 Port = port;
             if (!string.IsNullOrWhiteSpace(suffix))
                 Suffix = suffix;
+            ResponseDescription = RESPONSE_OK;
             WebExplorerMessage = string.Empty;
             LastErrorMessage = string.Empty;
             //BaseListener = new HttpListener(); //提供一个简单的、可通过编程方式控制的 HTTP 协议侦听器。此类不能被继承。
@@ -136,8 +143,6 @@ namespace CommonLib.Clients
                 _raiser.Run();
                 if (BaseListener.IsListening)
                     ServiceStateChanged?.BeginInvoke(this, new ServiceStateEventArgs($"HTTP监听服务{Name}已启动", ServiceState.Started), null, null);
-                //Console.WriteLine($"服务端初始化完毕，正在等待客户端请求,时间：{DateTime.Now.ToString()}\r\n");
-                //Console.ReadKey();
             }
             catch (Exception e)
             {
@@ -163,8 +168,7 @@ namespace CommonLib.Clients
                     BaseListener = null;
                 }
                 _raiser.Stop();
-                //if (!BaseListener.IsListening)
-                    ServiceStateChanged?.BeginInvoke(this, new ServiceStateEventArgs($"HTTP监听服务{Name}已停止", ServiceState.Stopped), null, null);
+                ServiceStateChanged?.BeginInvoke(this, new ServiceStateEventArgs($"HTTP监听服务{Name}已停止", ServiceState.Stopped), null, null);
             }
             catch (ObjectDisposedException e)
             {
@@ -194,8 +198,6 @@ namespace CommonLib.Clients
             //继续异步监听
             BaseListener.BeginGetContext(Result, null);
             GUID = Guid.NewGuid().ToString();
-            //Console.ForegroundColor = ConsoleColor.White;
-            //Console.WriteLine($"接到新的请求:{GUID},时间：{DateTime.Now.ToString()}");
             //获得context对象
             var context = BaseListener.EndGetContext(ar);
             var request = context.Request;
@@ -204,33 +206,15 @@ namespace CommonLib.Clients
             //context.Response.AppendHeader("Access-Control-Allow-Origin", "*"); //后台跨域请求，通常设置为配置文件
             //context.Response.AppendHeader("Access-Control-Allow-Headers", "ID,PW"); //后台跨域参数设置，通常设置为配置文件
             //context.Response.AppendHeader("Access-Control-Allow-Method", "post"); //后台跨域请求设置，通常设置为配置文件
-            context.Response.ContentType = "text/plain;charset=UTF-8"; //告诉客户端返回的ContentType类型为纯文本格式，编码为UTF-8
-            context.Response.AddHeader("Content-type", "text/plain"); //添加响应头信息
-            context.Response.ContentEncoding = Encoding.UTF8;
+            response.ContentType = "text/plain;charset=UTF-8"; //告诉客户端返回的ContentType类型为纯文本格式，编码为UTF-8
+            response.AddHeader("Content-type", "text/plain"); //添加响应头信息
+            response.ContentEncoding = Encoding.UTF8;
             //定义返回客户端的信息，当请求为POST方式时返回处理过的信息，否则判断可能为网页访问、返回指定消息
             string returnObj = request.HttpMethod == "POST" && request.InputStream != null ? HandleRequest(request, response) : WebExplorerMessage;
-            //string returnObj = null; //定义返回客户端的信息
-            //if (request.HttpMethod == "POST" && request.InputStream != null)
-            //    returnObj = HandleRequest(request, response); //处理客户端发送的请求并返回处理信息
-            //else
-            //    returnObj = WebExplorerMessage;
             var returnByteArr = Encoding.UTF8.GetBytes(returnObj); //设置客户端返回信息的编码
-            try
-            {
-                using (var stream = response.OutputStream)
-                {
-                    //把处理信息返回到客户端
-                    stream.Write(returnByteArr, 0, returnByteArr.Length);
-                }
-            }
-            catch (Exception ex)
-            {
-                //Console.ForegroundColor = ConsoleColor.Red;
-                //Console.WriteLine($"网络蹦了：{ex.ToString()}");
-                LastErrorMessage = $"网络蹦了：{ex.ToString()}";
-            }
-            //Console.ForegroundColor = ConsoleColor.Yellow;
-            //Console.WriteLine($"请求处理完成：{GUID},时间：{ DateTime.Now.ToString()}\r\n");
+            //把处理信息返回到客户端
+            try { using (var stream = response.OutputStream) { stream.Write(returnByteArr, 0, returnByteArr.Length); } }
+            catch (Exception ex) { LastErrorMessage = $"网络蹦了：{ex.ToString()}"; }
         }
 
         /// <summary>
@@ -267,14 +251,11 @@ namespace CommonLib.Clients
                 LastErrorMessage = $"处理请求的过程中出现错误：{ex.ToString()}";
                 response.StatusDescription = LastErrorMessage;
                 response.StatusCode = 404;
-                //Console.ForegroundColor = ConsoleColor.Red;
-                //Console.WriteLine($"在接收数据时发生错误:{ex.ToString()}");
                 return response.StatusDescription; //把服务端错误信息直接返回可能会导致信息不安全，此处仅供参考
             }
-            response.StatusDescription = "OK"; //获取或设置返回给客户端的 HTTP 状态代码的文本说明。
+            //response.StatusDescription = "OK"; //获取或设置返回给客户端的 HTTP 状态代码的文本说明。
+            response.StatusDescription = ResponseDescription; //获取或设置返回给客户端的 HTTP 状态代码的文本说明。
             response.StatusCode = 200; // 获取或设置返回给客户端的 HTTP 状态代码。
-            //Console.ForegroundColor = ConsoleColor.Green;
-            //Console.WriteLine($"接收数据完成:{data.Trim()},时间：{DateTime.Now.ToString()}");
             return response.StatusDescription;
         }
 

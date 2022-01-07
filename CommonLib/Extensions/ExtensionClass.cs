@@ -15,6 +15,29 @@ namespace CommonLib.Extensions
     public static class ExtensionClass
     {
         /// <summary>
+        /// 按比例或按数量缩小列表内元素数量（从两侧或从起始处缩减）
+        /// </summary>
+        /// <typeparam name="T">列表元素的泛型类型</typeparam>
+        /// <param name="list">待缩减的列表</param>
+        /// <param name="prop">比例或数量，小于1则缩减到此比例，否则为需要缩减的元素的数量（不可为负数）</param>
+        /// <param name="both_end">是否从两侧缩减，假如为false，则仅从起始处缩减</param>
+        /// <returns></returns>
+        public static IEnumerable<T> Shrink<T>(this IEnumerable<T> list, double prop, bool both_end)
+        {
+            if (list == null)
+                throw new ArgumentNullException(paramName: nameof(list));
+            if (prop < 0)
+                throw new ArgumentOutOfRangeException(paramName: nameof(prop));
+            int length = list.Count();
+            int half = prop < 1 ? (int)Math.Floor((1 - prop) * length) : (int)Math.Floor(prop); //将被削减的元素的数量
+            int most = length < half ? 0 : length - half; //最终保留的元素的数量（最终数量小于0时补为0）
+            if (both_end)
+                half /= 2;
+            //int half = (int)Math.Floor((1 - prop) / 2 * length), most = (int)Math.Floor(prop * length);
+            return list.Skip(half).Take(most);
+        }
+
+        /// <summary>
         /// 反转字符串
         /// </summary>
         /// <param name="input">待反转的源字符串</param>
@@ -44,7 +67,7 @@ namespace CommonLib.Extensions
         /// <returns>假如处于连接状态，返回true，否则返回false</returns>
         public static bool IsSocketConnected(this UdpClient client)
         {
-            //假如TcpClient对象为空
+            //假如UdpClient对象为空
             if (client == null || client.Client == null)
                 return false;
 

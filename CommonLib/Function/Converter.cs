@@ -144,11 +144,11 @@ namespace CommonLib.Function
         /// <param name="column">列名称</param>
         /// <param name="def">默认值</param>
         /// <returns></returns>
-        public static T ConvertDataRow<T>(DataRow row, string column, T def)
+        public static T ConvertDataRow<T>(this DataRow row, string column, T def)
         {
             bool flag = row == null || row.Table == null || !row.Table.Columns.Contains(column) || row[column] == DBNull.Value; //值是否为空
             object value = flag ? null : row[column];
-            return ConvertType<T>(value, def);
+            return ConvertType(value, def);
             //object value = flag ? def : row[column];
             //return (T)(object)value;
         }
@@ -160,7 +160,7 @@ namespace CommonLib.Function
         /// <param name="row">DataRow对象</param>
         /// <param name="column">列名称</param>
         /// <returns></returns>
-        public static T ConvertDataRow<T>(DataRow row, string column)
+        public static T ConvertDataRow<T>(this DataRow row, string column)
         {
             return ConvertDataRow<T>(row, column, default);
         }

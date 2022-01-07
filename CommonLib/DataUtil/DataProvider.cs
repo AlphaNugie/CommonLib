@@ -87,7 +87,7 @@ namespace CommonLib.DataUtil
         /// <param name="connStr">连接字符串</param>
         public DataProvider(string connStr)
         {
-            this.ConnStr = connStr;
+            ConnStr = connStr;
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace CommonLib.DataUtil
                     catch (Exception e)
                     {
                         dataSet.Dispose();
-                        this.ErrorMessage = string.Format("SQL语句执行出错: {0}, SQL语句: {1}", e.Message, _string);
+                        ErrorMessage = string.Format("SQL语句执行出错: {0}, SQL语句: {1}", e.Message, _string);
                         throw; //假如不需要抛出异常，注释此行
                     }
 
@@ -158,7 +158,7 @@ namespace CommonLib.DataUtil
         public DataSet MultiQuery(string connStr, string sqlStrings)
         {
             string[] queries = sqlStrings.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries); //将源字符串拆分为字符串数组，忽略空字符串
-            return this.MultiQuery(connStr, queries);
+            return MultiQuery(connStr, queries);
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace CommonLib.DataUtil
         public DataTable Query(string connStr, string sqlString)
         {
             DataTable dataTable = null;
-            using (DataSet dataSet = this.MultiQuery(connStr, new string[] { sqlString }))
+            using (DataSet dataSet = MultiQuery(connStr, new string[] { sqlString }))
             {
                 if (dataSet != null && dataSet.Tables.Count > 0)
                     dataTable = dataSet.Tables[0];
@@ -178,13 +178,37 @@ namespace CommonLib.DataUtil
             }
         }
 
+        ///// <summary>
+        ///// 执行SQL语句，不添加额外的Command参数，返回影响的记录数
+        ///// </summary>
+        ///// <param name="connStr">连接字符串</param>
+        ///// <param name="sqlString">执行的查询语句</param>
+        ///// <returns>返回影响的记录行数</returns>
+        //public int ExecuteSql(string connStr, string sqlString)
+        //{
+        //    return ExecuteSql(connStr, sqlString, null);
+        //}
+
+        ///// <summary>
+        ///// 执行SQL语句，添加指定的Command参数，返回影响的记录数
+        ///// </summary>
+        ///// <param name="connStr">连接字符串</param>
+        ///// <param name="sqlString">执行的查询语句</param>
+        ///// <param name="_params">输入的额外Command类参数</param>
+        ///// <returns>返回影响的记录行数</returns>
+        //public int ExecuteSql(string connStr, string sqlString, params Parameter[] _params)
+        //{
+        //    return ExecuteSql(connStr, sqlString, _params.ToList());
+        //}
+
         /// <summary>
-        /// 执行SQL语句，返回影响的记录数
+        /// 执行SQL语句，添加指定的Command参数，返回影响的记录数
         /// </summary>
         /// <param name="connStr">连接字符串</param>
-        /// <param name="sqlString">执行的查询语句</param>
+        /// <param name="sqlString">执行的SQL语句</param>
+        /// <param name="_params">输入的额外Command类参数</param>
         /// <returns>返回影响的记录行数</returns>
-        public int ExecuteSql(string connStr, string sqlString)
+        public int ExecuteSql(string connStr, string sqlString, IEnumerable<Parameter> _params)
         {
             if (string.IsNullOrWhiteSpace(sqlString))
                 return 0;
@@ -198,12 +222,17 @@ namespace CommonLib.DataUtil
                     try
                     {
                         connection.Open();
+                        //假如参数列表不为空，则添加其中不为空的参数
+                        if (_params != null)
+                            foreach (Parameter param in _params)
+                                if (param != null)
+                                    command.Parameters.Add(param);
                         result = command.ExecuteNonQuery();
                     }
                     catch (Exception e)
                     {
                         result = 0;
-                        this.ErrorMessage = string.Format("SQL语句执行出错: {0}, SQL语句: {1}", e.Message, sqlString);
+                        ErrorMessage = string.Format("SQL语句执行出错: {0}, SQL语句: {1}", e.Message, sqlString);
                         throw; //假如不需要抛出异常，注释此行
                     }
 
@@ -234,7 +263,7 @@ namespace CommonLib.DataUtil
                     catch (Exception e)
                     {
                         result = false;
-                        this.ErrorMessage = string.Format("数据库连接打开失败: {0}", e.Message);
+                        ErrorMessage = string.Format("数据库连接打开失败: {0}", e.Message);
                         throw;
                     }
 
@@ -262,7 +291,7 @@ namespace CommonLib.DataUtil
                         {
                             result = false;
                             transaction.Rollback();
-                            this.ErrorMessage = string.Format("SQL语句事务执行失败: {0}, 执行失败的SQL语句: {1}", e.Message, sql);
+                            ErrorMessage = string.Format("SQL语句事务执行失败: {0}, 执行失败的SQL语句: {1}", e.Message, sql);
                             throw; //假如不需要抛出异常，注释此行
                         }
 
@@ -280,7 +309,7 @@ namespace CommonLib.DataUtil
         /// <returns>假如执行成功，返回true</returns>
         public bool ExecuteSqlTrans(string connStr, IEnumerable<string> sqlStrings)
         {
-            return this.ExecuteSqlTrans(connStr, sqlStrings, IsolationLevel.ReadCommitted);
+            return ExecuteSqlTrans(connStr, sqlStrings, IsolationLevel.ReadCommitted);
         }
 
         /// <summary>
@@ -294,7 +323,7 @@ namespace CommonLib.DataUtil
             //将源字符串拆分为字符串数组，忽略空字符串
             //假如字符串为空白字符串，数组为空
             string[] sqlArray = string.IsNullOrWhiteSpace(sqlStrings) ? null : sqlStrings.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            return this.ExecuteSqlTrans(connStr, sqlArray);
+            return ExecuteSqlTrans(connStr, sqlArray);
         }
 
         /// <summary>
@@ -319,7 +348,7 @@ namespace CommonLib.DataUtil
                     catch (Exception e)
                     {
                         result = 0;
-                        this.ErrorMessage = string.Format("存储过程{0}执行失败: {1}", procedureName, e.Message);
+                        ErrorMessage = string.Format("存储过程{0}执行失败: {1}", procedureName, e.Message);
                         throw; //假如不需要抛出异常，将此行注释
                     }
 
@@ -352,7 +381,7 @@ namespace CommonLib.DataUtil
                         catch (Exception e)
                         {
                             dataSet.Dispose();
-                            this.ErrorMessage = string.Format("存储过程{0}执行失败: {1}", procedureName, e.Message);
+                            ErrorMessage = string.Format("存储过程{0}执行失败: {1}", procedureName, e.Message);
                             throw; //假如不需要抛出异常，将此行注释
                         }
 
@@ -370,7 +399,7 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public bool IsConnOpen()
         {
-            return IsConnOpen(this.ConnStr);
+            return IsConnOpen(ConnStr);
         }
 
         /// <summary>
@@ -380,7 +409,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回结果集</returns>
         public DataSet MultiQuery(string[] sqlStrings)
         {
-            return this.MultiQuery(this.ConnStr, sqlStrings);
+            return MultiQuery(ConnStr, sqlStrings);
         }
 
         /// <summary>
@@ -390,7 +419,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回数据集</returns>
         public DataSet MultiQuery(string sqlStrings)
         {
-            return this.MultiQuery(this.ConnStr, sqlStrings);
+            return MultiQuery(ConnStr, sqlStrings);
         }
 
         /// <summary>
@@ -400,7 +429,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回数据表</returns>
         public DataTable Query(string sqlString)
         {
-            return this.Query(this.ConnStr, sqlString);
+            return Query(ConnStr, sqlString);
         }
 
         /// <summary>
@@ -410,7 +439,29 @@ namespace CommonLib.DataUtil
         /// <returns>返回影响的记录行数</returns>
         public int ExecuteSql(string sqlString)
         {
-            return this.ExecuteSql(this.ConnStr, sqlString);
+            return ExecuteSql(ConnStr, sqlString, null);
+        }
+
+        /// <summary>
+        /// 执行SQL语句，添加指定的Command参数，返回影响的记录数
+        /// </summary>
+        /// <param name="sqlString">执行的查询语句</param>
+        /// <param name="_params">输入的额外Command类参数</param>
+        /// <returns>返回影响的记录行数</returns>
+        public int ExecuteSql(string sqlString, params Parameter[] _params)
+        {
+            return ExecuteSql(ConnStr, sqlString, _params.ToList());
+        }
+
+        /// <summary>
+        /// 执行SQL语句，添加指定的Command参数，返回影响的记录数
+        /// </summary>
+        /// <param name="sqlString">执行的SQL语句</param>
+        /// <param name="_params">输入的额外Command类参数</param>
+        /// <returns>返回影响的记录行数</returns>
+        public int ExecuteSql(string sqlString, IEnumerable<Parameter> _params)
+        {
+            return ExecuteSql(ConnStr, sqlString, _params);
         }
 
         /// <summary>
@@ -421,7 +472,7 @@ namespace CommonLib.DataUtil
         /// <returns>假如执行成功，返回true</returns>
         public bool ExecuteSqlTrans(IEnumerable<string> sqlStrings, IsolationLevel level)
         {
-            return this.ExecuteSqlTrans(this.ConnStr, sqlStrings, level);
+            return ExecuteSqlTrans(ConnStr, sqlStrings, level);
         }
 
         /// <summary>
@@ -431,7 +482,7 @@ namespace CommonLib.DataUtil
         /// <returns>假如执行成功，返回true</returns>
         public bool ExecuteSqlTrans(IEnumerable<string> sqlStrings)
         {
-            return this.ExecuteSqlTrans(this.ConnStr, sqlStrings);
+            return ExecuteSqlTrans(ConnStr, sqlStrings);
         }
 
         /// <summary>
@@ -441,7 +492,7 @@ namespace CommonLib.DataUtil
         /// <returns>假如执行成功，返回true</returns>
         public bool ExecuteSqlTrans(string sqlStrings)
         {
-            return this.ExecuteSqlTrans(this.ConnStr, sqlStrings);
+            return ExecuteSqlTrans(ConnStr, sqlStrings);
         }
 
         /// <summary>
@@ -452,7 +503,7 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public int RunProcedure(string procedureName, IEnumerable<Parameter> parameters)
         {
-            return this.RunProcedure(this.ConnStr, procedureName, parameters);
+            return RunProcedure(ConnStr, procedureName, parameters);
         }
 
         /// <summary>
@@ -463,7 +514,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回执行完毕返回的数据集</returns>
         public DataSet RunProcedureQuery(string procedureName, IEnumerable<Parameter> parameters)
         {
-            return this.RunProcedureQuery(this.ConnStr, procedureName, parameters);
+            return RunProcedureQuery(ConnStr, procedureName, parameters);
         }
         #endregion
 

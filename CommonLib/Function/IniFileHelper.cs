@@ -94,6 +94,46 @@ namespace CommonLib.Function
         }
 
         /// <summary>
+        /// 读取INI文件内的整型数据
+        /// </summary>
+        /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+        /// <param name="key">每条配置的关键字（形如Key = Value）</param>
+        /// <param name="def">没有该项配置的默认值</param>
+        /// <param name="iniFilePath">INI配置文件路径</param>
+        /// <returns>返回配置文件内容</returns>
+        public static int ReadInt(string section, string key, int def, string iniFilePath)
+        {
+            if (!File.Exists(iniFilePath) || string.IsNullOrWhiteSpace(key))
+                return def;
+
+            long result = GetPrivateProfileInt(section, key, def, iniFilePath);
+            return (int)result;
+        }
+
+        /// <summary>
+        /// 读取INI文件内的整型数据
+        /// </summary>
+        /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+        /// <param name="key">每条配置的关键字（形如Key = Value）</param>
+        /// <param name="def">没有该项配置的默认值</param>
+        /// <returns>返回配置文件内容</returns>
+        public int ReadInt(string section, string key, int def)
+        {
+            return ReadInt(section, key, def, FilePath);
+        }
+
+        /// <summary>
+        /// 读取INI文件内的整型数据
+        /// </summary>
+        /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+        /// <param name="key">每条配置的关键字（形如Key = Value）</param>
+        /// <returns>返回配置文件内容</returns>
+        public int ReadInt(string section, string key)
+        {
+            return ReadInt(section, key, 0, FilePath);
+        }
+
+        /// <summary>
         /// 写INI配置文件
         /// </summary>
         /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
@@ -135,7 +175,7 @@ namespace CommonLib.Function
             string val, string filePath);
 
         /// <summary>
-        /// 获取INI配置文件内容
+        /// 获取INI配置文件中字符串类型数据
         /// </summary>
         /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
         /// <param name="key">每条配置的关键字（形如Key = Value）</param>
@@ -147,6 +187,18 @@ namespace CommonLib.Function
         [DllImport(V, CharSet = CharSet.Unicode)]//返回取得字符串缓冲区的长度
         private static extern long GetPrivateProfileString(string section, string key,
             string def, StringBuilder retVal, int size, string filePath);
+
+        /// <summary>
+        /// 获取INI配置文件中32位有符号整型类型数据
+        /// </summary>
+        /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+        /// <param name="key">每条配置的关键字（形如Key = Value）</param>
+        /// <param name="def">默认值</param>
+        /// <param name="filePath">INI配置文件路径</param>
+        /// <returns></returns>
+        [DllImport(V, CharSet = CharSet.Unicode)]//返回取得字符串缓冲区的长度
+        private static extern long GetPrivateProfileInt(string section, string key,
+            int def, string filePath);
         #endregion
     }
 }

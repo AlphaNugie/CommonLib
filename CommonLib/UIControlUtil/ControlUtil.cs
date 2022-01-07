@@ -31,7 +31,7 @@ namespace CommonLib.UIControlUtil
     public static class ControlUtil
     {
         /// <summary>
-        /// 控件线程安全访问
+        /// 控件线程安全访问（注意：当空间窗体句柄未创建时将不执行任何操作）
         /// .Net2.0中线程安全访问控件扩展方法，可以获取返回值，可能还有其它问题
         /// CrossThreadCalls.SafeInvoke(this.statusStrip1, new CrossThreadCalls.TaskDelegate(delegate()
         /// {
@@ -56,22 +56,18 @@ namespace CommonLib.UIControlUtil
         /// <param name="handler">控件访问的委托方法</param>
         public static void SafeInvoke(this Control control, TaskDelegate handler)
         {
-            //当控件没有与其关联的句柄时，退出
+            ////当控件没有与其关联的句柄时，退出
+            //if (!control.IsHandleCreated)
+            //    return;
+            //当控件没有与其关联的句柄时，直接执行，然后退出
             if (!control.IsHandleCreated)
+            {
+                handler.Invoke();
                 return;
+            }
             //假如需要跨线程
             if (control.InvokeRequired)
             {
-                ////只有当控件有与其关联的句柄时才会向下进行
-                //while (!control.IsHandleCreated)
-                //{
-                //    //假如正在释放或已经释放，退出
-                //    if (control.Disposing || control.IsDisposed)
-                //        return;
-                //}
-                ////当控件没有与其关联的句柄时，退出
-                //if (!control.IsHandleCreated)
-                //    return;
                 IAsyncResult result = control.BeginInvoke(new InvokeMethodDelegate(SafeInvoke), new object[] { control, handler });
                 control.EndInvoke(result);//获取委托执行结果的返回值
                 return;

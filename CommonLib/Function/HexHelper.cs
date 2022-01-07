@@ -105,7 +105,7 @@ namespace CommonLib.Function
         /// </summary>
         /// <param name="hexStrings">16进制格式字符串数组，如[ "FE", "FE", ... ]</param>
         /// <returns>返回byte数组</returns>
-        public static byte[] StringArray2Bytes(IEnumerable<string> hexStrings)
+        public static byte[] HexStringArray2Bytes(IEnumerable<string> hexStrings)
         {
             if (hexStrings == null || hexStrings.Count() == 0)
                 return null;
@@ -123,7 +123,7 @@ namespace CommonLib.Function
             if (string.IsNullOrWhiteSpace(hexString))
                 return null;
 
-            return HexHelper.StringArray2Bytes(hexString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+            return HexStringArray2Bytes(hexString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
         }
 
         /// <summary>

@@ -224,6 +224,11 @@
             读取或待写入的值
             </summary>
         </member>
+        <member name="P:OpcLibrary.OpcItemInfo.Coeff">
+            <summary>
+            值的系数（默认为0，此时不起作用）
+            </summary>
+        </member>
         <member name="P:OpcLibrary.OpcItemInfo.FieldName">
             <summary>
             数据源字段名称
@@ -253,6 +258,26 @@
             <param name="itemId">OPC项ID</param>
             <param name="clientHandle">客户端句柄</param>
             <param name="fieldName">数据源中字段名称</param>
+        </member>
+        <member name="M:OpcLibrary.OpcItemInfo.#ctor(System.String,System.Int32,System.String,System.Double)">
+            <summary>
+            构造器
+            </summary>
+            <param name="itemId">OPC项ID</param>
+            <param name="clientHandle">客户端句柄</param>
+            <param name="fieldName">数据源中字段名称</param>
+            <param name="coeff">值的系数，默认为0，此时不起作用</param>
+        </member>
+        <member name="M:OpcLibrary.OpcItemInfo.InitTargetProperty(System.Object)">
+            <summary>
+            在给定的数据源中根据现有的参数获取数据源的目标属性，同时得出该属性的所属实体
+            </summary>
+            <param name="dataSource">数据源实体</param>
+        </member>
+        <member name="M:OpcLibrary.OpcItemInfo.UpdateCurrentEntityByIndexes">
+            <summary>
+            根据给定索引更新当前实体的值以及类型转换泛型方法的对象
+            </summary>
         </member>
         <member name="M:OpcLibrary.OpcItemInfo.GetPropertyValue">
             <summary>

@@ -1,15 +1,18 @@
 ﻿using CommonLib.Clients;
 using CommonLib.DataUtil;
+using CommonLib.Extensions;
 using CommonLib.Extensions.Property;
 using CommonLib.Function;
 using CommonLib.Helpers;
 using CommonLibExample.MathNet;
 using CommonLibExample.PropertyMapper;
+using CommonLibExample.PropertyMapper.Model;
 using MathWorks.MATLAB.NET.Arrays;
 using MatlabFunctions;
 //using MatlabFunctionsNative;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -38,6 +41,22 @@ namespace CommonLibExample
             #endregion
 
             #region test
+            //double d1 = 1.5, d2 = 13.4;
+            //MathExtension.Exchange(ref d1, ref d2);
+            //return;
+
+            //Student student = new Student("sam", 21);
+            //int hashCode = student.GetHashCode();
+            //student.Name = "jack";
+            //hashCode = student.GetHashCode();
+            //student = new Student("mary", 13);
+            //hashCode = student.GetHashCode();
+            //return;
+
+            //object source = new DataTable();
+            //Type type = source.GetType();
+            //goto START;
+
             //string test = "deviceId=Rrrrrryyyghh&command=%23HEADINGA%2CCOM3%2C0%2C60.0%2CFINESTEERING%2C2174%2C203295.400%2C00000000%2C0000%2C1114%3BSOL_COMPUTED%2CNARROW_FLOAT%2C1.883086681%2C217.139678955%2C-36.801155090%2C0.000000000%2C82.640968323%2C89.471420288%2C%220004%22%2C16%2C12%2C16%2C16%2C0%2C0%2C5%2C121*33a3a265";
             //test = "deviceId=Rrrrrryyyghh&command=#HEADINGA,COM3,0,60.0,FINESTEERING,2174,203295.400,00000000,0000,1114;SOL_COMPUTED,NARROW_FLOAT,1.883086681,217.139678955,-36.801155090,0.000000000,82.640968323,89.471420288,0004,16,12,16,16,0,0,5,121*33a3a265";
             //test = HttpUtility.UrlDecode(test, Encoding.GetEncoding("GB2312"));
@@ -79,6 +98,7 @@ namespace CommonLibExample
 
             //PropertyMapperExample.CopyToMethodTest();
             //PropertyMapperExample.CopyFromMethodTest();
+            //goto START;
 
             //string path = @"Log", name = "test.txt";
             //FileSystemHelper.UpdateFilePath(ref path, name, out string fileNameDate, out string filePath, out string filePathDate);
@@ -105,6 +125,7 @@ namespace CommonLibExample
             //int i = "13".ConvertType<int>();
             #endregion
 
+            //START:
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FormMain());

@@ -146,5 +146,18 @@ namespace CommonLib.Extensions
             catch (Exception) { }
             return max;
         }
+
+        /// <summary>
+        /// 对两个值类型的值进行交换
+        /// </summary>
+        /// <typeparam name="T">要交换的值的类型</typeparam>
+        /// <param name="t1">值1</param>
+        /// <param name="t2">值2</param>
+        public static void Exchange<T>(ref T t1, ref T t2) where T: struct
+        {
+            T temp = t1;
+            t1 = t2;
+            t2 = temp;
+        }
     }
 }

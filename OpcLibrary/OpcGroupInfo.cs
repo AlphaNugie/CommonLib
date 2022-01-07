@@ -34,20 +34,21 @@ namespace OpcLibrary
         /// </summary>
         public GroupType GroupType { get; set; }
 
-        private object _data_source = null;
+        private object _dataSource = null;
         /// <summary>
         /// 数据源，需要在连接前设置（否则无效），从OPC读取向数据源写入或从数据源读取向OPC写入，写入时假如数据源不为空则优先从数据源取值
         /// </summary>
         public object DataSource
         {
-            get { return _data_source; }
+            get { return _dataSource; }
             set
             {
-                _data_source = value;
-                Type type = _data_source?.GetType();
+                _dataSource = value;
+                //Type type = _dataSource?.GetType();
                 foreach (var itemInfo in ListItemInfo)
-                    if (type != null && !string.IsNullOrWhiteSpace(itemInfo.FieldName))
-                        itemInfo.Property = type.GetProperty(itemInfo.FieldName);
+                    itemInfo.InitTargetProperty(_dataSource);
+                    //if (type != null && !string.IsNullOrWhiteSpace(itemInfo.FieldName))
+                    //    itemInfo.Property = type.GetProperty(itemInfo.FieldName);
             }
         }
 
@@ -179,7 +180,8 @@ namespace OpcLibrary
         private Array GetServerHandles(IEnumerable<int> serverHandles)
         {
             var list = GetFilteredItems(serverHandles);
-            return list == null ? new int[0] : list.Select(item => item.ServerHandle).ToArray();
+            //return list == null ? new int[0] : list.Select(item => item.ServerHandle).ToArray();
+            return list == null ? Array.Empty<int>() : list.Select(item => item.ServerHandle).ToArray();
         }
 
         /// <summary>
@@ -189,9 +191,10 @@ namespace OpcLibrary
         /// <returns></returns>
         public Array GetValues(IEnumerable<int> serverHandles)
         {
-            ListItemInfo.ForEach(item => item.SetItemValue(_data_source)); //根据数据源为item赋值（假如数据源不为空或字段名称正确）
+            ListItemInfo.ForEach(item => item.SetItemValue(_dataSource)); //根据数据源为item赋值（假如数据源不为空或字段名称正确）
             var list = GetFilteredItems(serverHandles);
-            return list == null ? new object[0] : list.Select(item => (object)item.Value).ToArray();
+            //return list == null ? new object[0] : list.Select(item => (object)item.Value).ToArray();
+            return list == null ? Array.Empty<object>() : list.Select(item => (object)item.Value).ToArray();
         }
 
         /// <summary>
@@ -227,16 +230,19 @@ namespace OpcLibrary
                 _itemIds = itemList.Select(p => p.ItemId).ToArray();
                 _clientHandles = itemList.Select(p => p.ClientHandle).ToArray();
                 OpcGroup.OPCItems.AddItems(itemList.Count - 1, ref _itemIds, ref _clientHandles, out _serverHandles, out _errors);
-                //添加OPC项后根据ID找到OPC项信息对象并设置服务端句柄，向OPC项信息List中添加
+                ////添加OPC项后根据ID找到OPC项信息对象并设置服务端句柄，向OPC项信息List中添加
+                //添加OPC项后根据客户端句柄找到OPC项信息对象并设置服务端句柄，向OPC项信息List中添加
                 if (_itemIds.Length > 1)
                 {
-                    Type type = _data_source?.GetType();
+                    //Type type = _dataSource?.GetType();
                     for (int i = 1; i < _itemIds.Length; i++)
                     {
-                        OpcItemInfo itemInfo = itemList.Find(p => p.ItemId.Equals(_itemIds.GetValue(i)));
+                        //OpcItemInfo itemInfo = itemList.Find(p => p.ItemId.Equals(_itemIds.GetValue(i)));
+                        OpcItemInfo itemInfo = itemList.Find(p => p.ClientHandle.Equals(int.Parse(_clientHandles.GetValue(i).ToString())));
                         itemInfo.ServerHandle = int.Parse(_serverHandles.GetValue(i).ToString());
-                        if (type != null && !string.IsNullOrWhiteSpace(itemInfo.FieldName))
-                            itemInfo.Property = type.GetProperty(itemInfo.FieldName);
+                        itemInfo.InitTargetProperty(_dataSource);
+                        //if (type != null && !string.IsNullOrWhiteSpace(itemInfo.FieldName))
+                        //    itemInfo.Property = type.GetProperty(itemInfo.FieldName);
                         ListItemInfo.Add(itemInfo);
                     }
                 }
@@ -288,9 +294,7 @@ namespace OpcLibrary
                         if (itemInfo != null)
                         {
                             itemInfo.Value = values.GetValue(i).ToString();
-                            itemInfo.SetPropertyValue(_data_source);
-                            //if (itemInfo.Property != null/* && GroupType == GroupType.READ*/)
-                            //    itemInfo.Property.SetValue(DataSource, itemInfo.GetPropertyValue());
+                            itemInfo.SetPropertyValue(_dataSource);
                         }
                     }
                 if (values.Length < itemCount)

@@ -85,11 +85,11 @@ namespace OpcLibrary
         /// </summary>
         public bool IsGroupsActive
         {
-            get { return this.is_groups_active; }
+            get { return is_groups_active; }
             set
             {
-                this.is_groups_active = value;
-                this.OpcServer.OPCGroups.DefaultGroupIsActive = is_groups_active;
+                is_groups_active = value;
+                OpcServer.OPCGroups.DefaultGroupIsActive = is_groups_active;
             }
         }
 
@@ -98,11 +98,11 @@ namespace OpcLibrary
         /// </summary>
         public float GroupsDeadband
         {
-            get { return this.groups_deadband; }
+            get { return groups_deadband; }
             set
             {
-                this.groups_deadband = value;
-                this.OpcServer.OPCGroups.DefaultGroupDeadband = groups_deadband;
+                groups_deadband = value;
+                OpcServer.OPCGroups.DefaultGroupDeadband = groups_deadband;
             }
         }
 
@@ -111,11 +111,11 @@ namespace OpcLibrary
         /// </summary>
         public bool IsGroupActive
         {
-            get { return this.is_group_active; }
+            get { return is_group_active; }
             set
             {
-                this.is_group_active = value;
-                this.ListGroupInfo.ForEach(groupInfo => groupInfo.OpcGroup.IsActive = this.is_group_active);
+                is_group_active = value;
+                ListGroupInfo.ForEach(groupInfo => groupInfo.OpcGroup.IsActive = is_group_active);
             }
         }
 
@@ -124,11 +124,11 @@ namespace OpcLibrary
         /// </summary>
         public bool IsGroupSubscribed
         {
-            get { return this.is_group_subscribed; }
+            get { return is_group_subscribed; }
             set
             {
-                this.is_group_subscribed = value;
-                this.ListGroupInfo.ForEach(groupInfo => groupInfo.OpcGroup.IsSubscribed = this.is_group_subscribed);
+                is_group_subscribed = value;
+                ListGroupInfo.ForEach(groupInfo => groupInfo.OpcGroup.IsSubscribed = is_group_subscribed);
             }
         }
 
@@ -137,11 +137,11 @@ namespace OpcLibrary
         /// </summary>
         public int GroupUpdateRate
         {
-            get { return this.group_update_rate; }
+            get { return group_update_rate; }
             set
             {
-                this.group_update_rate = value;
-                this.ListGroupInfo.ForEach(groupInfo => groupInfo.OpcGroup.UpdateRate = this.group_update_rate);
+                group_update_rate = value;
+                ListGroupInfo.ForEach(groupInfo => groupInfo.OpcGroup.UpdateRate = group_update_rate);
             }
         }
 
@@ -168,11 +168,11 @@ namespace OpcLibrary
         /// <param name="reconn_enabled">是否重连</param>
         public OpcUtilHelper(int updateRate, bool reconn_enabled)
         {
-            this.ReconnEnabled = reconn_enabled;
-            //this.OpcServer = new OPCServer();
-            this.OpcUpdateRate = updateRate;
-            this.ListGroupInfo = new List<OpcGroupInfo>();
-            this.ItemId = string.Empty;
+            ReconnEnabled = reconn_enabled;
+            //OpcServer = new OPCServer();
+            OpcUpdateRate = updateRate;
+            ListGroupInfo = new List<OpcGroupInfo>();
+            ItemId = string.Empty;
         }
 
         /// <summary>
@@ -186,9 +186,9 @@ namespace OpcLibrary
         /// </summary>
         public void UpdateServerInfo()
         {
-            this.ServerStartTime = this.OpcServer == null ? string.Empty : string.Format("启动时间:{0}", this.OpcServer.StartTime.ToString());
-            this.ServerVersion = this.OpcServer == null ? string.Empty : string.Format("版本:{0}.{1}.{2}", this.OpcServer.MajorVersion, this.OpcServer.MinorVersion, this.OpcServer.BuildNumber);
-            this.ServerState = this.OpcServer == null ? string.Empty : (this.OpcServer.ServerState == (int)OPCServerState.OPCRunning ? string.Format("已连接:{0}", this.OpcServer.ServerName) : string.Format("状态：{0}", this.OpcServer.ServerState.ToString()));
+            ServerStartTime = OpcServer == null ? string.Empty : string.Format("启动时间:{0}", OpcServer.StartTime.ToString());
+            ServerVersion = OpcServer == null ? string.Empty : string.Format("版本:{0}.{1}.{2}", OpcServer.MajorVersion, OpcServer.MinorVersion, OpcServer.BuildNumber);
+            ServerState = OpcServer == null ? string.Empty : (OpcServer.ServerState == (int)OPCServerState.OPCRunning ? string.Format("已连接:{0}", OpcServer.ServerName) : string.Format("状态：{0}", OpcServer.ServerState.ToString()));
         }
 
         /// <summary>
@@ -209,13 +209,13 @@ namespace OpcLibrary
                     return null;
                 }
 
-                if (this.OpcServer == null)
-                    this.OpcServer = new OPCServer();
-                array = (Array)(object)this.OpcServer.GetOPCServers(ipAddress);
+                if (OpcServer == null)
+                    OpcServer = new OPCServer();
+                array = (Array)(object)OpcServer.GetOPCServers(ipAddress);
             }
             //假如获取OPC Server过程中引发COMException，即代表无法连接此IP的OPC Server
             catch (Exception ex) { message = "无法连接此IP地址的OPC Server！" + ex.Message; }
-            return array == null ? null : array.Cast<string>().ToArray();
+            return array?.Cast<string>().ToArray();
         }
 
         /// <summary>
@@ -230,23 +230,23 @@ namespace OpcLibrary
             message = string.Empty;
             try
             {
-                this.OpcServer = new OPCServer();
-                this.OpcServer.Connect(remoteServerName, remoteServerIP);
-                this.OpcServerName = remoteServerName;
-                this.OpcServerIp = remoteServerIP;
-                this.OpcConnected = true;
-                this.UpdateServerInfo(); //刷新OPC服务信息
-                this.SetGroupsProperty(this.IsGroupsActive, this.GroupsDeadband); //设置组集合属性
-                this.CreateDefaultGroup(out message); //创建默认OPC组
+                OpcServer = new OPCServer();
+                OpcServer.Connect(remoteServerName, remoteServerIP);
+                OpcServerName = remoteServerName;
+                OpcServerIp = remoteServerIP;
+                OpcConnected = true;
+                UpdateServerInfo(); //刷新OPC服务信息
+                SetGroupsProperty(IsGroupsActive, GroupsDeadband); //设置组集合属性
+                CreateDefaultGroup(out message); //创建默认OPC组
                 //TODO 根据对象自身具有的OPC组信息List创建OPC组，假如连接前未在ListGroupInfo属性中设置OPC组信息，则在连接后用CreateGroups方法创建OPC组
-                this.CreateGroups(this.ListGroupInfo, out message);
-                //try { if (this.Thread_Reconn != null) this.Thread_Reconn.Abort(); }
+                CreateGroups(ListGroupInfo, out message);
+                //try { if (Thread_Reconn != null) Thread_Reconn.Abort(); }
                 //catch (Exception e) { }
                 //假如线程为空，初始化重连线程；假如线程不为空，则线程已经开始运行
-                if (this.Thread_Reconn == null)
+                if (Thread_Reconn == null)
                 {
-                    this.Thread_Reconn = new Thread(new ThreadStart(this.Reconn_Recursive)) { IsBackground = true };
-                    this.Thread_Reconn.Start();
+                    Thread_Reconn = new Thread(new ThreadStart(Reconn_Recursive)) { IsBackground = true };
+                    Thread_Reconn.Start();
                 }
             }
             catch (Exception ex)
@@ -262,24 +262,24 @@ namespace OpcLibrary
         /// </summary>
         public void DisconnectRemoteServer()
         {
-            if (this.Thread_Reconn != null)
+            if (Thread_Reconn != null)
             {
-                this.Thread_Reconn.Abort();
-                this.Thread_Reconn = null;
+                Thread_Reconn.Abort();
+                Thread_Reconn = null;
             }
-            if (!this.OpcConnected)
+            if (!OpcConnected)
                 return;
 
-            if (this.OpcServer != null)
+            if (OpcServer != null)
             {
-                this.OpcServer.OPCGroups.RemoveAll();
-                this.OpcServer.Disconnect();
-                this.OpcServer = null;
-                this.ListGroupInfo.ForEach(g => g.Dispose());
-                this.ListGroupInfo.Clear();
+                OpcServer.OPCGroups.RemoveAll();
+                OpcServer.Disconnect();
+                OpcServer = null;
+                ListGroupInfo.ForEach(g => g.Dispose());
+                ListGroupInfo.Clear();
             }
 
-            this.OpcConnected = false;
+            OpcConnected = false;
         }
 
         /// <summary>
@@ -287,13 +287,14 @@ namespace OpcLibrary
         /// </summary>
         private void Reconn_Recursive()
         {
-            string info;
+            //string info;
             while (true)
             {
-                if (!this.ReconnEnabled)
+                if (!ReconnEnabled)
                     break;
                 Thread.Sleep(5000);
-                this.Reconn(out info);
+                //Reconn(out info);
+                Reconn(out _);
             }
         }
 
@@ -305,16 +306,16 @@ namespace OpcLibrary
             info = string.Empty;
             try
             {
-                if (this.OpcServer.ServerState != (int)OPCServerState.OPCRunning)
-                    this.ReconnDetail(out info);
+                if (OpcServer.ServerState != (int)OPCServerState.OPCRunning)
+                    ReconnDetail(out info);
             }
             //假如捕捉到COMException
             catch (COMException)
             {
-                try { this.ReconnDetail(out info); }
+                try { ReconnDetail(out info); }
                 catch { }
             }
-            catch (Exception e) { info = string.Format("准备重连OPC服务{0} (IP {1}) 时出现异常: {2}", this.OpcServerName, this.OpcServerIp, e.Message); }
+            catch (Exception e) { info = string.Format("准备重连OPC服务{0} (IP {1}) 时出现异常: {2}", OpcServerName, OpcServerIp, e.Message); }
         }
 
         /// <summary>
@@ -326,16 +327,16 @@ namespace OpcLibrary
             info = string.Empty;
             try
             {
-                this.OpcServer = new OPCServer();
-                info = string.Format("OPC服务{0} (IP {1}) 连接失败，尝试重连", this.OpcServerName, this.OpcServerIp);
-                this.ConnectRemoteServer(this.OpcServerIp, this.OpcServerName, out info);
-                //this.OpcServer.Connect(this.OpcServerName, this.OpcServerIp);
-                info = string.Format("OPC服务{0} (IP {1}) 重连成功", this.OpcServerName, this.OpcServerIp);
-                //this.OpcServer.OPCGroups.RemoveAll();
-                //if (this.CreateDefaultGroup(out info))
-                //    info = string.Format("OPC服务{0} (IP {1}) 的OPC组创建成功", this.OpcServerName, this.OpcServerIp);
+                OpcServer = new OPCServer();
+                info = string.Format("OPC服务{0} (IP {1}) 连接失败，尝试重连", OpcServerName, OpcServerIp);
+                ConnectRemoteServer(OpcServerIp, OpcServerName, out info);
+                //OpcServer.Connect(OpcServerName, OpcServerIp);
+                info = string.Format("OPC服务{0} (IP {1}) 重连成功", OpcServerName, OpcServerIp);
+                //OpcServer.OPCGroups.RemoveAll();
+                //if (CreateDefaultGroup(out info))
+                //    info = string.Format("OPC服务{0} (IP {1}) 的OPC组创建成功", OpcServerName, OpcServerIp);
             }
-            catch (Exception e) { info = string.Format("OPC服务{0} (IP {1}) 重连失败: {2}", this.OpcServerName, this.OpcServerIp, e.Message); }
+            catch (Exception e) { info = string.Format("OPC服务{0} (IP {1}) 重连失败: {2}", OpcServerName, OpcServerIp, e.Message); }
         }
 
         /// <summary>
@@ -348,9 +349,9 @@ namespace OpcLibrary
             message = string.Empty;
             try
             {
-                try { this.OpcServer.OPCGroups.Remove(DEFAULT_GROUP_NAME); } catch (Exception e) { } //试着移除已存在组
-                this.DefaultGroupInfo = new OpcGroupInfo(this.OpcServer.OPCGroups, DEFAULT_GROUP_NAME);
-                this.DefaultGroupInfo.SetGroupProperty(this.GroupUpdateRate, this.IsGroupActive, this.IsGroupSubscribed);
+                try { OpcServer.OPCGroups.Remove(DEFAULT_GROUP_NAME); } catch (Exception) { } //试着移除已存在组
+                DefaultGroupInfo = new OpcGroupInfo(OpcServer.OPCGroups, DEFAULT_GROUP_NAME);
+                DefaultGroupInfo.SetGroupProperty(GroupUpdateRate, IsGroupActive, IsGroupSubscribed);
             }
             catch (Exception ex)
             {
@@ -383,29 +384,29 @@ namespace OpcLibrary
                         continue;
                     string name = groupInfo.GroupName; //OPC组名称
                     List<OpcItemInfo> itemInfos = groupInfo.ListItemInfo; //OPC项信息集合
-                    try { this.OpcServer.OPCGroups.Remove(name); } catch (Exception) { } //试着移除已存在组
+                    try { OpcServer.OPCGroups.Remove(name); } catch (Exception) { } //试着移除已存在组
                     #region 新添加组方法
-                    groupInfo.SetOpcGroup(this.OpcServer.OPCGroups, name); //重新添加OPC组
-                    groupInfo.SetGroupProperty(this.GroupUpdateRate, this.IsGroupActive, this.IsGroupSubscribed);
+                    groupInfo.SetOpcGroup(OpcServer.OPCGroups, name); //重新添加OPC组
+                    groupInfo.SetGroupProperty(GroupUpdateRate, IsGroupActive, IsGroupSubscribed);
                     //TODO 假如OPC组信息中已设置OPC项信息，则根据这些OPC项信息添加OPC项，否则创建组之后调用SetItems方法
                     groupInfo.SetItems(itemInfos, out message);
-                    if (!this.ListGroupInfo.Contains(groupInfo))
-                        this.ListGroupInfo.Add(groupInfo);
+                    if (!ListGroupInfo.Contains(groupInfo))
+                        ListGroupInfo.Add(groupInfo);
                     #endregion
                     #region 旧添加组方法
                     ////初始化OPC组信息并设置OPC组属性、添加OPC项
-                    //OpcGroupInfo group = new OpcGroupInfo(this.OpcServer.OPCGroups, name);
-                    //group.SetGroupProperty(this.GroupUpdateRate, this.IsGroupActive, this.IsGroupSubscribed);
+                    //OpcGroupInfo group = new OpcGroupInfo(OpcServer.OPCGroups, name);
+                    //group.SetGroupProperty(GroupUpdateRate, IsGroupActive, IsGroupSubscribed);
                     ////假如OPC组信息中已设置OPC项信息，则根据这些OPC项信息添加OPC项，否则创建组之后调用SetItems方法
                     //group.SetItems(itemInfos, out message);
 
                     ////假如List中已存在，则移除
-                    //if (this.ListGroupInfo.Contains(groupInfo))
+                    //if (ListGroupInfo.Contains(groupInfo))
                     //{
-                    //    this.ListGroupInfo.Remove(groupInfo);
+                    //    ListGroupInfo.Remove(groupInfo);
                     //    groupInfo.Dispose();
                     //}
-                    //this.ListGroupInfo.Add(group);
+                    //ListGroupInfo.Add(group);
                     #endregion
                 }
             }
@@ -425,8 +426,8 @@ namespace OpcLibrary
         /// <returns></returns>
         public bool CreateGroups(IEnumerable<string> groupNames, out string message)
         {
-            IEnumerable<OpcGroupInfo> groupInfos = groupNames == null ? null : groupNames.Select(n => new OpcGroupInfo(null, n));
-            return this.CreateGroups(groupInfos, out message);
+            IEnumerable<OpcGroupInfo> groupInfos = groupNames?.Select(n => new OpcGroupInfo(null, n));
+            return CreateGroups(groupInfos, out message);
         }
 
         /// <summary>
@@ -436,10 +437,10 @@ namespace OpcLibrary
         /// <param name="deadband">OPC组集合不敏感区</param>
         public void SetGroupsProperty(bool isGroupsActive, float deadband)
         {
-            if (this.OpcServer.OPCGroups != null)
+            if (OpcServer.OPCGroups != null)
             {
-                this.OpcServer.OPCGroups.DefaultGroupIsActive = isGroupsActive;
-                this.OpcServer.OPCGroups.DefaultGroupDeadband = deadband;
+                OpcServer.OPCGroups.DefaultGroupIsActive = isGroupsActive;
+                OpcServer.OPCGroups.DefaultGroupDeadband = deadband;
             }
         }
 
@@ -454,7 +455,7 @@ namespace OpcLibrary
         {
             try
             {
-                if (this.DefaultGroupInfo == null)
+                if (DefaultGroupInfo == null)
                 {
                     message = "未找到默认组";
                     return false;
@@ -462,19 +463,19 @@ namespace OpcLibrary
 
                 //初始化OPC项信息并在默认OPC组中添加
                 List<OpcItemInfo> list = new List<OpcItemInfo>() { new OpcItemInfo(itemId, clientHandle) };
-                this.DefaultGroupInfo.SetItems(list, out message);
-                if (this.DefaultGroupInfo.ItemCount > 0)
+                DefaultGroupInfo.SetItems(list, out message);
+                if (DefaultGroupInfo.ItemCount > 0)
                 {
-                    OpcItemInfo item = this.DefaultGroupInfo.ListItemInfo.Last();
+                    OpcItemInfo item = DefaultGroupInfo.ListItemInfo.Last();
                     //保存默认OPC项的客户端句柄，服务端句柄，标签名称
-                    this.ItemHandleClient = item.ClientHandle;
-                    this.ItemId = item.ItemId;
-                    this.ItemHandleServer = item.ServerHandle;
+                    ItemHandleClient = item.ClientHandle;
+                    ItemId = item.ItemId;
+                    ItemHandleServer = item.ServerHandle;
                 }
             }
             catch (Exception ex)
             {
-                this.ItemHandleClient = 0;
+                ItemHandleClient = 0;
                 message = "移除或添加标签时发生错误:" + ex.Message;
                 return false;
             }
@@ -491,21 +492,21 @@ namespace OpcLibrary
             value = string.Empty;
             try
             {
-                if (this.DefaultGroupInfo == null)
+                if (DefaultGroupInfo == null)
                 {
                     message = "未找到默认组";
                     return false;
                 }
 
-                if (!this.DefaultGroupInfo.ReadValues(out message))
+                if (!DefaultGroupInfo.ReadValues(out message))
                     return false;
-                if (this.DefaultGroupInfo.ItemCount > 0)
-                    value = this.DefaultGroupInfo.ListItemInfo.Last().Value;
+                if (DefaultGroupInfo.ItemCount > 0)
+                    value = DefaultGroupInfo.ListItemInfo.Last().Value;
                 GC.Collect();
             }
             catch (Exception ex)
             {
-                message = string.Format("从服务端句柄为{0}、标签ID为{1}的标签读取值失败：{2}", this.ItemHandleServer, this.ItemId, ex.Message);
+                message = string.Format("从服务端句柄为{0}、标签ID为{1}的标签读取值失败：{2}", ItemHandleServer, ItemId, ex.Message);
                 return false;
             }
             return true;
@@ -520,21 +521,21 @@ namespace OpcLibrary
         {
             try
             {
-                if (this.DefaultGroupInfo == null)
+                if (DefaultGroupInfo == null)
                 {
                     message = "未找到默认组";
                     return false;
                 }
 
-                if (this.DefaultGroupInfo.ItemCount > 0)
-                    this.DefaultGroupInfo.ListItemInfo.Last().Value = value;
-                if (!this.DefaultGroupInfo.WriteValues(out message))
+                if (DefaultGroupInfo.ItemCount > 0)
+                    DefaultGroupInfo.ListItemInfo.Last().Value = value;
+                if (!DefaultGroupInfo.WriteValues(out message))
                     return false;
                 GC.Collect();
             }
             catch (Exception ex)
             {
-                message = string.Format("向服务端句柄为{0}的标签写入值{1}失败：{2}", this.ItemHandleServer, value, ex.Message);
+                message = string.Format("向服务端句柄为{0}的标签写入值{1}失败：{2}", ItemHandleServer, value, ex.Message);
                 return false;
             }
             return true;

@@ -47,18 +47,41 @@ namespace CommonLib.Extensions
             return new string(input.ToCharArray().Reverse().ToArray());
         }
 
+        ///// <summary>
+        ///// 更新并返回TcpClient的连接状态
+        ///// </summary>
+        ///// <returns>假如处于连接状态，返回true，否则返回false</returns>
+        //public static bool IsSocketConnected(this TcpClient client)
+        //{
+        //    //假如TcpClient对象为空
+        //    if (client == null || client.Client == null)
+        //        return false;
+
+        //    Socket socket = client.Client;
+        //    return (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected;
+        //}
+
+        ///// <summary>
+        ///// 更新并返回UdpClient的连接状态
+        ///// </summary>
+        ///// <returns>假如处于连接状态，返回true，否则返回false</returns>
+        //public static bool IsSocketConnected(this UdpClient client)
+        //{
+        //    //假如UdpClient对象为空
+        //    if (client == null || client.Client == null)
+        //        return false;
+
+        //    Socket socket = client.Client;
+        //    return (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected;
+        //}
+
         /// <summary>
         /// 更新并返回TcpClient的连接状态
         /// </summary>
         /// <returns>假如处于连接状态，返回true，否则返回false</returns>
         public static bool IsSocketConnected(this TcpClient client)
         {
-            //假如TcpClient对象为空
-            if (client == null || client.Client == null)
-                return false;
-
-            Socket socket = client.Client;
-            return (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected;
+            return client != null && client.Client != null && client.Client.IsSocketConnected();
         }
 
         /// <summary>
@@ -67,11 +90,15 @@ namespace CommonLib.Extensions
         /// <returns>假如处于连接状态，返回true，否则返回false</returns>
         public static bool IsSocketConnected(this UdpClient client)
         {
-            //假如UdpClient对象为空
-            if (client == null || client.Client == null)
-                return false;
+            return client != null && client.Client != null && client.Client.IsSocketConnected();
+        }
 
-            Socket socket = client.Client;
+        /// <summary>
+        /// 更新并返回TcpClient的连接状态
+        /// </summary>
+        /// <returns>假如处于连接状态，返回true，否则返回false</returns>
+        public static bool IsSocketConnected(this Socket socket)
+        {
             return (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected;
         }
 

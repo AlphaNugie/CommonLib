@@ -1,0 +1,231 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CommonLib.DataUtil.OracleProviderLib</name>
+    </assembly>
+    <members>
+        <member name="T:CommonLib.DataUtil.BaseDataService`1">
+            <summary>
+            基础数据库操作类
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.BaseDataService`1.provider">
+            <summary>
+            Oracle基础操作类
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.BaseDataService`1.batisLike">
+            <summary>
+            Batis操作类
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.BaseDataService`1.TypeName">
+            <summary>
+            类型名称
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.BaseDataService`1.LastErrorCode">
+            <summary>
+            最新错误代码
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.BaseDataService`1.LastErrorMessage">
+            <summary>
+            最新错误信息
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.#ctor">
+            <summary>
+            数据库操作类构造器
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.#ctor(System.String)">
+            <summary>
+            数据库操作类构造器
+            </summary>
+            <param name="connStr">连接字符串</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.#ctor(System.String,System.Boolean)">
+            <summary>
+            数据库操作类构造器
+            </summary>
+            <param name="connStr">连接字符串</param>
+            <param name="usingRemote">是否使用远程数据库</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.ConvertObjectByDataRow(System.Data.DataRow)">
+            <summary>
+            将数据行的数据转换为实体类
+            </summary>
+            <param name="dataRow">包含待转换数据的数据行</param>
+            <returns>返回转换后的实体类对象</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.ConvertObjectListByDataTable(System.Data.DataTable)">
+            <summary>
+            将数据表的数据转换为实体类List
+            </summary>
+            <param name="dataTable">包含待转换数据的数据表</param>
+            <returns>返回转换后的实体类对象List</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.GetEnableEnums">
+            <summary>
+            获取可用/不可用枚举
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.GetRecordById(System.Int32)">
+            <summary>
+            根据记录ID获取记录
+            </summary>
+            <param name="id">记录的ID</param>
+            <returns>返回数据表</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.GetRecordObjectById(System.Int32)">
+            <summary>
+            根据数据库表ID获取数据库表实体类对象
+            </summary>
+            <param name="id">记录在数据库表中的ID</param>
+            <returns>返回实体类对象</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.GetRecords(System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            根据条件获取符合条件的记录
+            </summary>
+            <param name="dict">包含条件的键值对，假如为空，则所有参数为空</param>
+            <returns>返回数据表</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.GetRecordObjects(System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            根据条件获取包含实体类对象的List
+            </summary>
+            <param name="dict">包含条件的键值对，假如为空，则所有参数为空</param>
+            <returns>返回包含实体类对象的List</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.EditRecords(System.Collections.Generic.List{`0},System.Collections.Generic.List{CommonLib.Enums.RoutineStatus})">
+            <summary>
+            批量新增、更新或删除記錄
+            </summary>
+            <param name="records">包含实体类的List</param>
+            <param name="statuses">包含新增、编辑或删除状态的List</param>
+            <returns>假如执行成功，返回true，否则返回false</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.EditRecords(System.Collections.Generic.List{`0},CommonLib.Enums.RoutineStatus)">
+            <summary>
+            批量新增、编辑或删除记录
+            </summary>
+            <param name="records">包含实体类对象的List</param>
+            <param name="status">新增、编辑或删除状态</param>
+            <returns>假如执行成功，返回true，否则返回false</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.EditRecord(`0,CommonLib.Enums.RoutineStatus)">
+            <summary>
+            新增、编辑或删除记录
+            </summary>
+            <param name="record">实体类对象</param>
+            <param name="status">新增、编辑或删除状态</param>
+            <returns>返回影响记录条数</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.DeleteRecords(System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            根据条件删除记录
+            </summary>
+            <param name="dict">字典键值对对象</param>
+            <returns>返回影像记录条数</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.SetEnableById(`0)">
+            <summary>
+            根据ID启用或停用记录
+            </summary>
+            <param name="obj">实体类对象</param>
+            <returns>返回影响记录条数</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataService`1.SetEnableById(System.Int32,System.Int32)">
+            <summary>
+            根据ID启用或停用记录
+            </summary>
+            <param name="id">记录的唯一ID</param>
+            <param name="enable">是否可用，0 不可用，1 可用</param>
+            <returns>返回影响记录条数</returns>
+        </member>
+        <member name="T:CommonLib.DataUtil.OracleProvider">
+            <summary>
+            Oracle数据库基础操作类
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.OracleProvider.ConnStrModel">
+            <summary>
+            Oracle连接字符串模板
+            形如“Data Source=ORCL1;User Id=test;Password=123;”，其中ORCL1可由具体的(DESCRIPTION...)代替
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.OracleProvider.DefaultPort">
+            <summary>
+            默认端口号
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.OracleProvider.GetConnStr(System.String,System.Int32,System.String,System.String,System.String)">
+            <summary>
+            获取连接字符串
+            </summary>
+            <param name="hostAddress">数据库主机地址</param>
+            <param name="hostPort">数据库主机端口</param>
+            <param name="serviceName">数据库名称</param>
+            <param name="userName">用户名</param>
+            <param name="password">密码</param>
+            <returns>返回连接字符串</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.OracleProvider.#ctor">
+            <summary>
+            以默认配置初始化OracleProvider
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.OracleProvider.#ctor(System.String,System.Object)">
+            <summary>
+            用App.config配置项名称初始化
+            </summary>
+            <param name="configurationName">App.config文件中configuration/appSettings节点下的关键字名称</param>
+            <param name="_">充数的参数，防止签名一致</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.OracleProvider.#ctor(System.String)">
+            <summary>
+            构造器
+            </summary>
+            <param name="connStr">连接字符串，形如“Data Source=ORCL1;User Id=test;Password=123;”，其中ORCL1可由具体的(DESCRIPTION...)代替</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.OracleProvider.#ctor(System.String,System.Int32,System.String,System.String,System.String)">
+            <summary>
+            根据给定的数据库相关信息初始化
+            </summary>
+            <param name="hostAddress">数据库地址</param>
+            <param name="hostPort">端口号</param>
+            <param name="serviceName">数据库服务名</param>
+            <param name="userName">用户名称</param>
+            <param name="password">用户密码</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.OracleProvider.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            根据给定的数据库相关信息以及默认端口号初始化
+            </summary>
+            <param name="hostAddress">数据库地址</param>
+            <param name="serviceName">数据库服务名</param>
+            <param name="userName">用户名称</param>
+            <param name="password">用户密码</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.OracleProvider.ExecuteSqlWithClobContents(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            使用指定的Clob内容键值对来执行Sql语句
+            </summary>
+            <param name="sqlString">待执行的SQL语句</param>
+            <param name="dict">包含CLOB内容的键值对</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.OracleProvider.RunProcedureQuery(System.String,System.Collections.Generic.IEnumerable{Oracle.ManagedDataAccess.Client.OracleParameter},System.String)">
+            <summary>
+            执行存储过程，返回数据集，假如参数中不包含输出的指针参数，则以给定参数名称添加一个
+            </summary>
+            <param name="procedureName">存储过程名</param>
+            <param name="parameters">输入参数</param>
+            <param name="cursorName">输出指针的参数名称</param>
+            <returns>返回执行完毕返回的数据集</returns>
+        </member>
+    </members>
+</doc>

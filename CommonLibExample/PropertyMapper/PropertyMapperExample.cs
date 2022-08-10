@@ -20,6 +20,9 @@ namespace CommonLibExample.PropertyMapper
             //studentSource.CopyPropertyValueTo(ref student);
             StudentSource = new StudentSource() { StudentName = "Molly Shannon", StudentAge = 17, SchoolName = "Grandville High School", SchoolPosition = new List<double>() { 119, 911 }, SchoolCityName = "Gotham" };
             Student = null;
+            StudentSource.ListSource1 = "1";
+            StudentSource.ListSource2 = "xxx";
+            StudentSource.ListSource3 = "tontonton";
             StudentSource.CopyPropertyValueTo(ref Student);
         }
 
@@ -29,7 +32,7 @@ namespace CommonLibExample.PropertyMapper
             //Student student = new Student() { Name = "Molly Shannon", Age = 17, School = new School() { Name = "Grandville High School", Position = new List<double>() { 119, 911 }, City = new City() { Name = "Gotham" } } };
             //studentSource.CopyPropertyValueFrom(student);
             StudentSource = new StudentSource();
-            Student = new Student() { Name = "Molly Shannon", Age = 17, School = new School() { Name = "Grandville High School", Position = new List<double>() { 119, 911 }, City = new City() { Name = "Gotham" } } };
+            Student = new Student() { Name = "Molly Shannon", Age = 17, School = new School() { Name = "Grandville High School", Position = new List<double>() { 119, 911 }, City = new City() { Name = "Gotham" } }, StrList = new List<string>() { "x1", "x2", "x3" } };
             StudentSource.CopyPropertyValueFrom(Student);
         }
     }

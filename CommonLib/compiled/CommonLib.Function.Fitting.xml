@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CommonLib.Function.Fitting</name>
+    </assembly>
+    <members>
+        <member name="T:CommonLib.Function.Fitting.FittingVariables">
+            <summary>
+            拟合或变换所用到的常量
+            </summary>
+        </member>
+        <member name="T:CommonLib.Function.Fitting.SpaceOrienting">
+            <summary>
+            空间定位、变换工具类
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.Fitting.SpaceOrienting.GetAngleOrientedMatrix(System.Double,CommonLib.Function.Fitting.AxisType)">
+            <summary>
+            当某坐标系绕某个特定的轴旋转特定角度时，从旧坐标系向新坐标系的变换矩阵（角度正方向为从一个轴的正向向另一个轴正向旋转，如X轴向Y轴，Y轴向Z轴，X轴向Z轴）
+            </summary>
+            <param name="angle"></param>
+            <param name="axis"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CommonLib.Function.Fitting.AxisType">
+            <summary>
+            坐标轴类型
+            </summary>
+        </member>
+        <member name="T:CommonLib.Function.Fitting.SurfaceFitting">
+            <summary>
+            平面拟合类
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.Fitting.SurfaceFitting.GetSurceCoefficients(System.Collections.Generic.IEnumerable{System.Double},System.Collections.Generic.IEnumerable{System.Double},System.Collections.Generic.IEnumerable{System.Double},System.String@)">
+            <summary>
+            用最小二乘法拟合三元一次曲面（也就是平面），获取曲面拟合函数的系数
+            表达式形如ax + by + d = z，方法将返回包含a, b, d的的数组
+            </summary>
+            <param name="arrX">已知点的x坐标集合</param>
+            <param name="arrY">已知点的y坐标集合</param>
+            <param name="arrZ">已知点的z坐标集合</param>
+            <param name="message">返回的错误消息</param>
+            <returns>返回一个数组，数组中包括x, y的系数以及常数</returns>
+        </member>
+    </members>
+</doc>

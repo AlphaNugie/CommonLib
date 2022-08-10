@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CommonLib.DataUtil.SqliteProviderLib</name>
+    </assembly>
+    <members>
+        <member name="T:CommonLib.DataUtil.SqliteProvider">
+            <summary>
+            SQLite数据库基础操作类
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.SqliteProvider.ConnStrModel">
+            <summary>
+            SQLite连接字符串模板，格式形如“[路径\]xxx.db”
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.GetConnStr(System.String,System.String)">
+            <summary>
+            获取连接字符串
+            </summary>
+            <param name="fileDir">数据库文件路径，假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+            <param name="fileName">数据库文件名称，包括后缀</param>
+            <returns>返回连接字符串</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.GetConnStr(System.String)">
+            <summary>
+            获取连接字符串
+            </summary>
+            <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+            <returns>返回连接字符串</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.#ctor">
+            <summary>
+            以默认配置初始化MySqlProvider
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.#ctor(System.String,System.Object)">
+            <summary>
+            用App.config配置项名称初始化
+            </summary>
+            <param name="configurationName">App.config文件中configuration/appSettings节点下的关键字名称</param>
+            <param name="_">充数的参数，防止签名一致</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.#ctor(System.String)">
+            <summary>
+            以给定的文件路径+文件名称初始化
+            </summary>
+            <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.#ctor(System.String,System.String)">
+            <summary>
+            以给定的文件路径与文件名称初始化
+            </summary>
+            <param name="fileDir">数据库文件路径（为空则查找可执行文件所在路径）</param>
+            <param name="fileName">数据库文件名称（包括后缀）</param>
+        </member>
+    </members>
+</doc>

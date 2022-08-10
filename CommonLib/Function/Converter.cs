@@ -137,6 +137,18 @@ namespace CommonLib.Function
         //}
 
         /// <summary>
+        /// 将DataRow中某一列的值转换为特定类型的值，假如为空，则返回该类型默认值
+        /// </summary>
+        /// <typeparam name="T">转换的目标类型</typeparam>
+        /// <param name="row">DataRow对象</param>
+        /// <param name="column">列名称</param>
+        /// <returns></returns>
+        public static T Convert<T>(this DataRow row, string column)
+        {
+            return ConvertDataRow<T>(row, column, default);
+        }
+
+        /// <summary>
         /// 将DataRow中某一列的值转换为特定类型的值，假如为空，则返回默认值
         /// </summary>
         /// <typeparam name="T">转换的目标类型</typeparam>
@@ -144,6 +156,20 @@ namespace CommonLib.Function
         /// <param name="column">列名称</param>
         /// <param name="def">默认值</param>
         /// <returns></returns>
+        public static T Convert<T>(this DataRow row, string column, T def)
+        {
+            return ConvertDataRow(row, column, def);
+        }
+
+        /// <summary>
+        /// 将DataRow中某一列的值转换为特定类型的值，假如为空，则返回默认值
+        /// </summary>
+        /// <typeparam name="T">转换的目标类型</typeparam>
+        /// <param name="row">DataRow对象</param>
+        /// <param name="column">列名称</param>
+        /// <param name="def">默认值</param>
+        /// <returns></returns>
+        [Obsolete]
         public static T ConvertDataRow<T>(this DataRow row, string column, T def)
         {
             bool flag = row == null || row.Table == null || !row.Table.Columns.Contains(column) || row[column] == DBNull.Value; //值是否为空
@@ -160,6 +186,7 @@ namespace CommonLib.Function
         /// <param name="row">DataRow对象</param>
         /// <param name="column">列名称</param>
         /// <returns></returns>
+        [Obsolete]
         public static T ConvertDataRow<T>(this DataRow row, string column)
         {
             return ConvertDataRow<T>(row, column, default);

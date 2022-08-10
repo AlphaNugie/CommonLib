@@ -18,14 +18,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="CommonLib">
-      <HintPath>..\CommonLib\bin\Debug\CommonLib.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\CommonLib\CommonLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Interop.OPCAutomation">
       <HintPath>..\..\..\OPC\DLL\Interop.OPCAutomation.dll</HintPath>
       <EmbedInteropTypes>true</EmbedInteropTypes>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug\netstandard2.0 $(SolutionDir)CommonLib\compiled\" />
+  </Target>
 
 </Project>

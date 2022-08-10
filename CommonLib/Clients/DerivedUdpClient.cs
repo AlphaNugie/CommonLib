@@ -495,7 +495,8 @@ namespace CommonLib.Clients
 
             try
             {
-                //IPEndPoint point = RemoteEndPoint;
+                if (BaseClient == null)
+                    return;
                 byte[] recdata = BaseClient.EndReceive(ar, ref remote_endpoint);
                 //RemoteEndPoint = point;
 
@@ -611,7 +612,8 @@ namespace CommonLib.Clients
         /// <returns>返回发送结果</returns>
         public bool SendData(object data_origin, out string errorMessage)
         {
-            return SendData(data_origin, RemoteEndPoint, out errorMessage);
+            //return SendData(data_origin, RemoteEndPoint, out errorMessage);
+            return SendData(data_origin, null, out errorMessage);
         }
 
         /// <summary>

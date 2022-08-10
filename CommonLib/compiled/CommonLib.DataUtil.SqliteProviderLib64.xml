@@ -1,0 +1,240 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CommonLib.DataUtil.SqliteProviderLib64</name>
+    </assembly>
+    <members>
+        <member name="T:CommonLib.DataUtil.BaseDataServiceSqlite">
+            <summary>
+            基础Sqlite数据服务类
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.BaseDataServiceSqlite.Provider">
+            <summary>
+            SQLite数据库操作对象
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.BaseDataServiceSqlite.TableName">
+            <summary>
+            对应表名称
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.BaseDataServiceSqlite.ColumnsMustHave">
+            <summary>
+            必须具备的字段
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.#ctor(System.String,System.String)">
+            <summary>
+            构造器
+            </summary>
+            <param name="path"></param>
+            <param name="name"></param>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.GetTableName">
+            <summary>
+            获取并返回当前表的名称
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.GetColumnsMustHave">
+            <summary>
+            获取并返回包含必须存在的字段的列表
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.SetFilePath(System.String)">
+            <summary>
+            设置Sqlite文件的完整路径
+            </summary>
+            <param name="filePath">文件路径</param>
+            <exception cref="T:System.ArgumentException">未指定Sqlite文件完整路径</exception>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.SetFilePath(System.String,System.String)">
+            <summary>
+            设置Sqlite文件的路径与路径下文件名称
+            </summary>
+            <param name="path">文件路径</param>
+            <param name="name">文件名称</param>
+            <exception cref="T:System.ArgumentNullException">未指定Sqlite文件名称</exception>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.CheckForTableColumns(System.String@)">
+            <summary>
+            检查数据项表的字段，假如缺少字段则增加
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.GetAllRecords(System.String)">
+            <summary>
+            获取所有记录，并按特定字段排序
+            </summary>
+            <param name="orderby">排序字段，假如为空则不排序</param>
+            <returns></returns>
+        </member>
+        <member name="T:CommonLib.DataUtil.SqliteColumnMapping">
+            <summary>
+            对应SQLite数据库字段的类
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.ColumnName">
+            <summary>
+            字段名称
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.SqlType">
+            <summary>
+            字段类型
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.NotNull">
+            <summary>
+            是否受非空约束
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.NotNullConflictClause">
+            <summary>
+            引起非空约束冲突时的操作
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.DefaultValue">
+            <summary>
+            默认值
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.Unique">
+            <summary>
+            是否受唯一约束
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.UniqueConflictClause">
+            <summary>
+            引起唯一约束冲突时的操作
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.Structure">
+            <summary>
+            字段架构
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteColumnMapping.#ctor(System.String,CommonLib.DataUtil.SqliteSqlType,System.Boolean,CommonLib.DataUtil.ConflictClause,System.Nullable{System.Double},System.Boolean,CommonLib.DataUtil.ConflictClause)">
+            <summary>
+            构造器
+            </summary>
+            <param name="columnName">字段名称</param>
+            <param name="sqlType">字段类型</param>
+            <param name="notNull">是否非空</param>
+            <param name="notNullConflictClause">非空冲突的操作</param>
+            <param name="defaultValue">默认值</param>
+            <param name="unique">是否受唯一约束</param>
+            <param name="uniqueConflictClause">唯一约束冲突的操作</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteColumnMapping.GetStructure">
+            <summary>
+            获取当前字段对象的架构语句
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CommonLib.DataUtil.SqliteSqlType">
+            <summary>
+            SQLite数据库内字段类型
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.SqliteSqlType.DOUBLE">
+            <summary>
+            双精度类型
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.SqliteSqlType.INTEGER">
+            <summary>
+            整型
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.SqliteSqlType.NUMBER">
+            <summary>
+            数值类型
+            </summary>
+        </member>
+        <member name="T:CommonLib.DataUtil.ConflictClause">
+            <summary>
+            引起冲突时的从句格式
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.ConflictClause.NONE">
+            <summary>
+            不执行操作
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.ConflictClause.ROLLBACK">
+            <summary>
+            操作回滚（针对事务，非事务语句表现为ABORT）
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.ConflictClause.ABORT">
+            <summary>
+            放弃操作
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.ConflictClause.FAIL">
+            <summary>
+            操作失败（事务中仅放弃出现冲突的语句，而保留前面成功的语句）
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.ConflictClause.IGNORE">
+            <summary>
+            忽略（事务中忽略出现冲突的语句，继续执行后面的语句）
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.ConflictClause.REPLACE">
+            <summary>
+            替换（当执行当前语句在唯一UNIQUE或主键PRIMARY KEY约束出现冲突时，删除前面已有的记录中引起冲突的部分并继续执行当前语句；非空NOT NULL约束出现冲突时，将NULL值赋以默认值，假如未指定默认值则执行ABORT；CHECK或外键FOREIGN KEY约束出现冲突时体现为ABORT）
+            </summary>
+        </member>
+        <member name="T:CommonLib.DataUtil.SqliteProvider">
+            <summary>
+            SQLite数据库基础操作类
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.SqliteProvider.ConnStrModel">
+            <summary>
+            SQLite连接字符串模板，格式形如“[路径\]xxx.db”
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.GetConnStr(System.String,System.String)">
+            <summary>
+            获取连接字符串
+            </summary>
+            <param name="fileDir">数据库文件路径，假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+            <param name="fileName">数据库文件名称，包括后缀</param>
+            <returns>返回连接字符串</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.GetConnStr(System.String)">
+            <summary>
+            获取连接字符串
+            </summary>
+            <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+            <returns>返回连接字符串</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.#ctor">
+            <summary>
+            以默认配置初始化MySqlProvider
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.#ctor(System.String,System.Object)">
+            <summary>
+            用App.config配置项名称初始化
+            </summary>
+            <param name="configurationName">App.config文件中configuration/appSettings节点下的关键字名称</param>
+            <param name="_">充数的参数，防止签名一致</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.#ctor(System.String)">
+            <summary>
+            以给定的文件路径+文件名称初始化
+            </summary>
+            <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.#ctor(System.String,System.String)">
+            <summary>
+            以给定的文件路径与文件名称初始化
+            </summary>
+            <param name="fileDir">数据库文件路径（为空则查找可执行文件所在路径）</param>
+            <param name="fileName">数据库文件名称（包括后缀）</param>
+        </member>
+    </members>
+</doc>

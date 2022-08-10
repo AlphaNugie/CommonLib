@@ -4,6 +4,7 @@ using CommonLib.Extensions;
 using CommonLib.Extensions.Property;
 using CommonLib.Function;
 using CommonLib.Helpers;
+using CommonLib.UIControlUtil.ControlTemplates;
 using CommonLibExample.MathNet;
 using CommonLibExample.PropertyMapper;
 using CommonLibExample.PropertyMapper.Model;
@@ -41,8 +42,41 @@ namespace CommonLibExample
             #endregion
 
             #region test
-            //double d1 = 1.5, d2 = 13.4;
-            //MathExtension.Exchange(ref d1, ref d2);
+            //PropertyMapperExample.CopyToMethodTest();
+            PropertyMapperExample.CopyFromMethodTest();
+            return;
+            //goto START;
+
+            //double angle = MathExtension.GetAngleByCoordinates(-1515, 0, -1545, 0);
+            //return;
+            //CustomBitConverter<byte> converter = new CustomBitConverter<byte>();
+            //var value = converter.Value;
+            //converter.SetBit(1, 2);
+            //converter.SetBit(true, 99);
+            //converter.SetBit(true, 7);
+            //value = converter.GetValue();
+            //converter.Reset();
+            //value = converter.GetValue();
+            //converter.Reset(true);
+            //value = converter.GetValue();
+
+            //CustomBitConverter<ulong> conv2 = new CustomBitConverter<ulong>();
+            //var value2 = conv2.Value;
+            //conv2.SetBit(1, 2);
+            //conv2.SetBit(-2, 4);
+            //conv2.SetBit(4, 6);
+            //conv2.SetBit(true, 8);
+            //conv2.SetBit(true, 99);
+            //value2 = conv2.GetValue();
+            //conv2.Reset();
+            //value2 = conv2.GetValue();
+            //conv2.Reset(true);
+            //value2 = conv2.GetValue();
+            //return;
+
+            //string c = CustomMessageBoxButton.OK.ToString();
+            ////double d1 = 1.5, d2 = 13.4;
+            ////MathExtension.Exchange(ref d1, ref d2);
             //return;
 
             //Student student = new Student("sam", 21);
@@ -95,10 +129,6 @@ namespace CommonLibExample
             //foreach (string line in lines)
             //    if (!line.Contains('-'))
             //        File.AppendAllLines(fileName + "-modi.txt", new string[] { line });
-
-            //PropertyMapperExample.CopyToMethodTest();
-            //PropertyMapperExample.CopyFromMethodTest();
-            //goto START;
 
             //string path = @"Log", name = "test.txt";
             //FileSystemHelper.UpdateFilePath(ref path, name, out string fileNameDate, out string filePath, out string filePathDate);

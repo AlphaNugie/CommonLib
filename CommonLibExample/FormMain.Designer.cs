@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.button_TimerEventRaiser = new System.Windows.Forms.Button();
             this.button_DatabaseTest = new System.Windows.Forms.Button();
             this.button_Encrypt = new System.Windows.Forms.Button();
@@ -35,7 +36,13 @@
             this.button_Filters = new System.Windows.Forms.Button();
             this.button_Opc = new System.Windows.Forms.Button();
             this.button_ExitWindows = new System.Windows.Forms.Button();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.button_CustomMessageBox = new System.Windows.Forms.Button();
             this.SuspendLayout();
+            // 
+            // notifyIcon_Main
+            // 
+            this.notifyIcon_Main.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon_Main.Icon")));
             // 
             // button_TimerEventRaiser
             // 
@@ -114,11 +121,29 @@
             this.button_ExitWindows.UseVisualStyleBackColor = true;
             this.button_ExitWindows.Click += new System.EventHandler(this.Button_ExitWindows_Click);
             // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(210, 24);
+            this.toolStripMenuItem2.Text = "333";
+            // 
+            // button_CustomMessageBox
+            // 
+            this.button_CustomMessageBox.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_CustomMessageBox.Location = new System.Drawing.Point(606, 95);
+            this.button_CustomMessageBox.Name = "button_CustomMessageBox";
+            this.button_CustomMessageBox.Size = new System.Drawing.Size(170, 40);
+            this.button_CustomMessageBox.TabIndex = 2;
+            this.button_CustomMessageBox.Text = "CustomMessageBox";
+            this.button_CustomMessageBox.UseVisualStyleBackColor = true;
+            this.button_CustomMessageBox.Click += new System.EventHandler(this.Button_CustomMessageBox_Click);
+            // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.button_CustomMessageBox);
             this.Controls.Add(this.button_Socket);
             this.Controls.Add(this.button_Encrypt);
             this.Controls.Add(this.button_DatabaseTest);
@@ -129,6 +154,7 @@
             this.Font = new System.Drawing.Font("等线", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Name = "FormMain";
             this.Text = "测试";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
             this.ResumeLayout(false);
 
         }
@@ -142,6 +168,8 @@
         private System.Windows.Forms.Button button_Filters;
         private System.Windows.Forms.Button button_Opc;
         private System.Windows.Forms.Button button_ExitWindows;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
+        private System.Windows.Forms.Button button_CustomMessageBox;
     }
 }
 

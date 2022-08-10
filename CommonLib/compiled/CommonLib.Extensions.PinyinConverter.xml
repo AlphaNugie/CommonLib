@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CommonLib.Extensions.PinyinConverter</name>
+    </assembly>
+    <members>
+        <member name="M:CommonLib.Extensions.ExtensionClass.GetPinyinInitials(System.String)">
+            <summary>
+            获取一段字符串中汉字的拼音首字母
+            </summary>
+            <param name="str">待转换的字符串</param>
+            <returns>返回汉字的拼音首字母，字母或数字原样返回</returns>
+        </member>
+    </members>
+</doc>

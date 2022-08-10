@@ -12,6 +12,56 @@ namespace CommonLib.Extensions
     public static class MathExtension
     {
         /// <summary>
+        /// 根据给定的顶端以及回转处坐标计算（初步的）回转角度
+        /// </summary>
+        /// <param name="x1">顶端X坐标</param>
+        /// <param name="y1">顶端Y坐标</param>
+        /// <param name="xa">回转处X坐标</param>
+        /// <param name="ya">回转处Y坐标</param>
+        /// <returns></returns>
+        public static double GetAngleByCoordinates(double x1, double y1, double xa, double ya)
+        {
+            //两点距离，加上一个极小值防止为0
+            double xdiff = x1 - xa, ydiff = y1 - ya, dist = Math.Sqrt(Math.Pow(xdiff, 2) + Math.Pow(ydiff, 2)) + 1e-20;
+            //初步角度，值区间为[-90, 90]
+            double angle = Math.Asin(xdiff / dist) * 180 / Math.PI;
+            //假如y坐标差为赋值，则需要相对X轴做对称
+            if (ydiff < 0)
+                angle = 180 * (xdiff > 0 ? 1 : -1) - angle;
+            return angle;
+        }
+
+        /// <summary>
+        /// 对两个值类型的值进行交换
+        /// </summary>
+        /// <typeparam name="T">要交换的值的类型</typeparam>
+        /// <param name="t1">值1</param>
+        /// <param name="t2">值2</param>
+        public static void Exchange<T>(ref T t1, ref T t2) where T : struct
+        {
+            T temp = t1;
+            t1 = t2;
+            t2 = temp;
+        }
+
+        /// <summary>
+        /// 尝试获取值小数点后的数值位数
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static int GetDecimalPlaces(this object value)
+        {
+            int places = 0;
+            try
+            {
+                string[] parts = value.ToString().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                places = parts == null || parts.Length < 2 ? 0 : parts[1].Length;
+            }
+            catch (Exception) { }
+            return places;
+        }
+
+        /// <summary>
         /// 计算输入值的半正矢，假如输入为角度，自动转换为弧度
         /// </summary>
         /// <param name="input">输入角度或弧度</param>
@@ -47,7 +97,7 @@ namespace CommonLib.Extensions
         //}
 
         /// <summary>
-        /// 判断是否在两个数值之间（或等于）
+        /// 判断一个双精度浮点数是否在两个数值之间（或等于）
         /// </summary>
         /// <param name="input">待判断的数字</param>
         /// <param name="number1">数值1</param>
@@ -59,7 +109,7 @@ namespace CommonLib.Extensions
         }
 
         /// <summary>
-        /// 判断是否在两个数值之间（或等于）
+        /// 判断一个32位整型数是否在两个数值之间（或等于）
         /// </summary>
         /// <param name="input">待判断的数字</param>
         /// <param name="number1">数值1</param>
@@ -67,7 +117,31 @@ namespace CommonLib.Extensions
         /// <returns>假如在数值之间，返回true，否则返回false</returns>
         public static bool Between(this int input, double number1, double number2)
         {
-            return (input >= number1 && input <= number2) || (input >= number2 && input <= number1);
+            return Between((double)input, number1, number2);
+        }
+
+        /// <summary>
+        /// 判断一个16位整型数是否在两个数值之间（或等于）
+        /// </summary>
+        /// <param name="input">待判断的数字</param>
+        /// <param name="number1">数值1</param>
+        /// <param name="number2">数值2</param>
+        /// <returns>假如在数值之间，返回true，否则返回false</returns>
+        public static bool Between(this short input, double number1, double number2)
+        {
+            return Between((double)input, number1, number2);
+        }
+
+        /// <summary>
+        /// 判断一个字节型数是否在两个数值之间（或等于）
+        /// </summary>
+        /// <param name="input">待判断的数字</param>
+        /// <param name="number1">数值1</param>
+        /// <param name="number2">数值2</param>
+        /// <returns>假如在数值之间，返回true，否则返回false</returns>
+        public static bool Between(this byte input, double number1, double number2)
+        {
+            return Between((double)input, number1, number2);
         }
 
         /// <summary>
@@ -145,19 +219,6 @@ namespace CommonLib.Extensions
             try { max = set.Count() == 0 ? 0 : set.Max(); }
             catch (Exception) { }
             return max;
-        }
-
-        /// <summary>
-        /// 对两个值类型的值进行交换
-        /// </summary>
-        /// <typeparam name="T">要交换的值的类型</typeparam>
-        /// <param name="t1">值1</param>
-        /// <param name="t2">值2</param>
-        public static void Exchange<T>(ref T t1, ref T t2) where T: struct
-        {
-            T temp = t1;
-            t1 = t2;
-            t2 = temp;
         }
     }
 }

@@ -38,13 +38,15 @@ namespace CommonLib.Extensions.Property
         /// <param name="propMapper">指定属性的名称，形如“Class.Student.Name”</param>
         /// <param name="initProp">假如查找指定属性的过程中有任意一层属性为空，决定是否初始化</param>
         /// <param name="upperLevelEntity">指定属性所属的实体：假如不查找子属性，则该实体就是当前待查询的实体；假如属性名形如“Class.Student.Name”，则所属实体就是Student</param>
+        /// <param name="lowerLevelEntity">指定属性所对应的实体，假如属性名称内带有索引，则为索引处元素的实体；假如属性名形如“Class.Student”，则对应实体就是Student，如属性名形如“Class.Desk[0]”，则对应实体就是Desk列表的第一个元素</param>
         /// <param name="indexes">假如最底层属性名称中带有枚举数的索引，则将这些索引以uint数组的形式输出出来，否则输出null</param>
         /// <returns></returns>
-        public static PropertyInfo GetEntityProperty_InConstruction(this object entity, string propMapper, bool initProp, out object upperLevelEntity, out int[] indexes)
+        public static PropertyInfo GetEntityProperty_InConstruction(this object entity, string propMapper, bool initProp, out object upperLevelEntity, out object lowerLevelEntity, out int[] indexes)
         {
             PropertyInfo targetProperty = null;
             //upperLevelEntity = null;
-            upperLevelEntity = entity;
+            upperLevelEntity = lowerLevelEntity = entity;
+            //lowerLevelEntity = entity;
             List<int> listIndexes = new List<int>();
             if (entity == null || string.IsNullOrWhiteSpace(propMapper))
                 goto ENDING;
@@ -53,21 +55,22 @@ namespace CommonLib.Extensions.Property
             Type targetPropertyType = entity.GetType(); //目标属性的类型
             //上层目标实体与下层目标实体：当只有一层时前者为参数entity，后者为第一层属性值；当有多层时则依次递进
             //upperLevelEntity = entity;
-            object lowerLevelTarget = entity;
+            //object lowerLevelTarget = entity;
             //遍历PropertyMapper中指定的每一层属性
             foreach (var fullPart in parts)
             {
                 listIndexes.Clear();
                 //假如不初始化空目标实体，且上层实体值为空，则当前层属性必然找不到，跳出循环
-                if (!initProp && lowerLevelTarget == null)
+                if (!initProp && lowerLevelEntity == null)
                 {
                     targetProperty = null;
                     break;
                 }
-                upperLevelEntity = lowerLevelTarget;
+                upperLevelEntity = lowerLevelEntity;
                 //把当前层属性名称中的方括号内容提取出来，并从当前层属性名称中剔除
                 //string brackets = _regexBrackets.Match(fullPart).Value;
-                string brackets, part = fullPart.Replace(brackets = _regexBrackets.Match(fullPart).Value, string.Empty);
+                //string brackets, part = fullPart.Replace(brackets = _regexBrackets.Match(fullPart).Value, string.Empty); //报错
+                string brackets = _regexBrackets.Match(fullPart).Value, part = string.IsNullOrWhiteSpace(brackets) ? fullPart : fullPart.Replace(brackets, string.Empty);
                 //根据上层实体类型以及当前层属性名称获取目标属性，假如目标属性为空，则跳出循环
                 targetProperty = targetPropertyType.GetProperty(part);
                 if (targetProperty == null)
@@ -80,7 +83,7 @@ namespace CommonLib.Extensions.Property
                         targetProperty.SetValue(upperLevelEntity, Activator.CreateInstance(targetPropertyType));
                 }
                 catch (Exception) { break; }
-                lowerLevelTarget = targetProperty.GetValue(upperLevelEntity); //假如有下个循环，则当前层实体将成为下个循环的上层实体
+                lowerLevelEntity = targetProperty.GetValue(upperLevelEntity); //假如有下个循环，则当前层实体将成为下个循环的上层实体
                 #region 根据方括号内的索引逐层获取列表内或数组内的元素
                 //foreach (Match match in _regexIndexes.Matches(brackets))
                 //{
@@ -109,7 +112,7 @@ namespace CommonLib.Extensions.Property
                 if (coll == null || coll.Count == 0)
                     continue;
                 listIndexes = coll.Cast<Match>().Select(match => int.Parse(match.Value.Trim('[', ']'))).ToList();
-                GetEntityByBracketIndexes(ref lowerLevelTarget, listIndexes, ref targetPropertyType);
+                GetEntityByBracketIndexes(ref lowerLevelEntity, listIndexes, ref targetPropertyType);
                 #endregion
             }
         ENDING:
@@ -147,7 +150,13 @@ namespace CommonLib.Extensions.Property
                 //将Emumerable.Element<T>方法通过获取到的类型参数转化为泛型方法
                 MethodInfo genericMethod = ReflectionUtil.ElementAtMethod.MakeGenericMethod(genericType);
                 //执行静态的Element<T>方法，并迭代当前对象值
-                currentEntity = genericMethod.Invoke(null, new object[] { currentEntity, index });
+                //可能目标对象的索引长度不够，导致反射调用产生异常，此种情况直接捕捉
+                try
+                {
+                    currentEntity = genericMethod.Invoke(null, new object[] { currentEntity, index });
+                    entityType = currentEntity.GetType();
+                }
+                catch (TargetInvocationException) { }
                 //listIndexes.Add(index);
             }
         }
@@ -258,7 +267,8 @@ namespace CommonLib.Extensions.Property
                     #endregion
 
                     #region 新判断方式
-                    PropertyInfo targetProperty = target.GetEntityProperty(attr.PropertyMapper, true, out object upperLevelTarget);
+                    //PropertyInfo targetProperty = target.GetEntityProperty(attr.PropertyMapper, true, out object upperLevelTarget);
+                    PropertyInfo targetProperty = target.GetEntityProperty_InConstruction(attr.PropertyMapper, true, out object upperLevelTarget, out object lowerLevelTarget, out int[] indexes);
                     //假如未找到该属性，进入下一次循环
                     if (targetProperty == null)
                         continue;
@@ -267,7 +277,14 @@ namespace CommonLib.Extensions.Property
 
                     //假如目标属性具有set访问器
                     //if (targetProperty != null)
+                    if (indexes == null || indexes.Length == 0)
                         targetProperty.SetValue(upperLevelTarget, sourceProperty.PropertyType == targetPropertyType ? sourceValue : Converter.Convert(targetPropertyType, sourceValue));
+                    else
+                    {
+                        //TODO 反射给集合元素赋值需完善，在给集合赋值时需要判断是继承了IList或IDictionary，然后使用Array.SetValue方法
+                        //targetPropertyType = lowerLevelTarget.GetType();
+                        //targetProperty.SetValue(lowerLevelTarget, sourceProperty.PropertyType == targetPropertyType ? sourceValue : Converter.Convert(targetPropertyType, sourceValue));
+                    }
                 }
             }
         }
@@ -327,14 +344,22 @@ namespace CommonLib.Extensions.Property
                     #endregion
 
                     #region 新判断方法
-                    PropertyInfo targetProperty = target.GetEntityProperty(attr.PropertyMapper, false, out object upperLevelTarget);
+                    //PropertyInfo targetProperty = target.GetEntityProperty(attr.PropertyMapper, false, out object upperLevelTarget);
+                    PropertyInfo targetProperty = target.GetEntityProperty_InConstruction(attr.PropertyMapper, false, out object upperLevelTarget, out object lowerLevelTarget, out int[] indexes);
                     Type targetPropertyType = targetProperty.PropertyType;
                     #endregion
 
                     //假如获取到了目标属性且目标属性具有set访问器
                     if (targetProperty != null)
                         targetValue = targetProperty.GetValue(upperLevelTarget);
-                    sourceProperty.SetValue(source, sourcePropertyType == targetPropertyType ? targetValue : Converter.Convert(sourcePropertyType, targetValue));
+                    if (indexes == null || indexes.Length == 0)
+                        sourceProperty.SetValue(source, sourcePropertyType == targetPropertyType ? targetValue : Converter.Convert(sourcePropertyType, targetValue));
+                    else
+                    {
+                        targetValue = lowerLevelTarget;
+                        targetPropertyType = lowerLevelTarget.GetType();
+                        sourceProperty.SetValue(source, sourcePropertyType == targetPropertyType ? targetValue : Converter.Convert(sourcePropertyType, targetValue));
+                    }
                 }
             }
         }

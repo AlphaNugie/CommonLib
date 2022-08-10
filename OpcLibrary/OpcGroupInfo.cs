@@ -12,9 +12,9 @@ namespace OpcLibrary
     /// </summary>
     public class OpcGroupInfo : IDisposable
     {
-        private readonly Random _random = new Random();
         #region 私有变量
         private Array _itemIds, _serverHandles, _clientHandles, _errors;
+        private readonly Random _random = new Random();
         private readonly OpcItemInfo _opcPackBasic = new OpcItemInfo(string.Empty, 0);
         #endregion
 
@@ -165,8 +165,10 @@ namespace OpcLibrary
         {
             //特殊条件：服务端句柄范围为空
             bool flag = serverHandles == null || serverHandles.Count() == 0;
-            //假如给定的服务端句柄范围为空则选择所有OPC项，否则选择服务端在范围内的OPC项（服务端句柄不可为0）
-            List<OpcItemInfo> list = ListItemInfo?.Where(item => (flag || serverHandles.Contains(item.ServerHandle)) && item.ServerHandle != 0).ToList();
+            ////假如给定的服务端句柄范围为空则选择所有OPC项，否则选择服务端在范围内的OPC项（服务端句柄不可为0）
+            //List<OpcItemInfo> list = ListItemInfo?.Where(item => (flag || serverHandles.Contains(item.ServerHandle)) && item.ServerHandle != 0).ToList();
+            //假如给定的服务端句柄范围为空则选择所有OPC项，否则选择服务端在范围内的OPC项（服务端句柄不可为0，待写入的值不可为空）
+            List<OpcItemInfo> list = ListItemInfo?.Where(item => (flag || serverHandles.Contains(item.ServerHandle)) && item.ServerHandle != 0 && item.Value != null).ToList();
             //在最前方插入一个空OPC项，占位用
             list.Insert(0, _opcPackBasic);
             return list;
@@ -354,8 +356,10 @@ namespace OpcLibrary
             try
             {
                 IEnumerable<int> temp = serverHandles == null || serverHandles.Length == 0 ? null : serverHandles.Cast<int>();
-                Array handles = GetServerHandles(temp), values = GetValues(temp);
+                Array values = GetValues(temp), handles = GetServerHandles(temp);
                 int itemCount = handles.Length - 1;
+                if (itemCount <= 0)
+                    return true;
                 if (!using_async)
                     OpcGroup.SyncWrite(itemCount, ref handles, ref values, out _errors);
                 else

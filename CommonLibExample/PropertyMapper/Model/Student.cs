@@ -16,13 +16,21 @@ namespace CommonLibExample.PropertyMapper.Model
 
         public School School { get; set; }
 
-        public Student() { }
+        public List<string> StrList { get; set; }
 
-        public Student(string name, int age, int gender = 0)
+        public List<City> CityList { get; set; }
+
+        public Student()
         {
-            this.Name = name;
-            this.Age = age;
-            this.Gender = gender;
+            StrList = new List<string>() { string.Empty, string.Empty, string.Empty, string.Empty };
+            CityList = new List<City>() { new City() { Name = "London" }, new City() { Name = "New York" }, new City() { Name = "Peking" } };
+        }
+
+        public Student(string name, int age, int gender = 0) : this()
+        {
+            Name = name;
+            Age = age;
+            Gender = gender;
         }
     }
 }

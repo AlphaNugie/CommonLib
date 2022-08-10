@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,10 +13,16 @@ namespace CommonLib.Helpers
     /// </summary>
     public static class FileSystemHelper
     {
+        #region 属性
         /// <summary>
         /// 可执行文件的启动目录(而不是当前DLL的目录)
         /// </summary>
-        public static string StartupPath { get { return AppDomain.CurrentDomain.BaseDirectory; } }
+        public static string StartupPath { get => AppDomain.CurrentDomain.BaseDirectory; }
+
+        /// <summary>
+        /// 可执行文件所在盘符根目录(而不是当前DLL的盘符根目录)
+        /// </summary>
+        public static string DiskRoot { get => Directory.GetDirectoryRoot(StartupPath); }
 
         /// <summary>
         /// 盘符与路径的分隔符
@@ -31,6 +38,95 @@ namespace CommonLib.Helpers
         /// 当前环境（平台）中的目录分隔符（字符串）
         /// </summary>
         public static string DirSeparator { get { return Path.DirectorySeparatorChar.ToString(); } }
+        #endregion
+
+        /// <summary>
+        /// 杀掉所有与给定的文件对象相关的进程
+        /// </summary>
+        /// <param name="fileInfo">给定的文件对象</param>
+        /// <returns>假如操作成功则返回true，否则假如有一个操作未成功则返回false</returns>
+        public static bool KillRelatedProcesses(this FileInfo fileInfo)
+        {
+            return KillRelatedProcesses(fileInfo, out _);
+        }
+
+        /// <summary>
+        /// 杀掉所有与给定的文件对象相关的进程，并输出错误信息
+        /// </summary>
+        /// <param name="fileInfo">给定的文件对象</param>
+        /// <param name="error">返回的错误信息</param>
+        /// <returns>假如操作成功则返回true，否则假如有一个操作未成功则返回false</returns>
+        public static bool KillRelatedProcesses(this FileInfo fileInfo, out string error)
+        {
+            bool result = true;
+            error = string.Empty;
+            if (fileInfo == null || !fileInfo.Exists)
+                goto RET;
+
+            try
+            {
+                string name = fileInfo.Name.Replace(fileInfo.Extension, string.Empty);
+                Process[] processes = Process.GetProcessesByName(name);
+                foreach (Process process in processes)
+                    process.Kill();
+            }
+            catch (Exception e)
+            {
+                error = e.Message;
+                result = false;
+            }
+        RET:
+            return result;
+        }
+
+        /// <summary>
+        /// 启动一个与给定的文件对象相关的进程
+        /// </summary>
+        /// <param name="fileInfo">给定的文件对象</param>
+        /// <returns>假如操作成功则返回true，否则返回false</returns>
+        public static bool StartRelatedProcess(this FileInfo fileInfo)
+        {
+            return StartRelatedProcess(fileInfo, 1, out _);
+        }
+
+        /// <summary>
+        /// 启动给定数量的与给定的文件对象相关的进程
+        /// </summary>
+        /// <param name="fileInfo">给定的文件对象</param>
+        /// <param name="count">启动的进程数量</param>
+        /// <returns>假如操作成功则返回true，否则假如有一个操作未成功则返回false</returns>
+        public static bool StartRelatedProcess(this FileInfo fileInfo, int count)
+        {
+            return StartRelatedProcess(fileInfo, count, out _);
+        }
+
+        /// <summary>
+        /// 启动给定数量的与给定的文件对象相关的进程，并输出错误信息
+        /// </summary>
+        /// <param name="fileInfo">给定的文件对象</param>
+        /// <param name="count">启动的进程数量</param>
+        /// <param name="error">返回的错误信息</param>
+        /// <returns>假如操作成功则返回true，否则假如有一个操作未成功则返回false</returns>
+        public static bool StartRelatedProcess(this FileInfo fileInfo, int count, out string error)
+        {
+            bool result = true;
+            error = string.Empty;
+            if (fileInfo == null || !fileInfo.Exists)
+                goto RET;
+
+            try
+            {
+                for (int i = 0; i < count; i++)
+                    Process.Start(fileInfo.FullName);
+            }
+            catch (Exception e)
+            {
+                error = e.Message;
+                result = false;
+            }
+        RET:
+            return result;
+        }
 
         /// <summary>
         /// 将日期添加到文件名中（文件名包含后缀）
@@ -60,6 +156,8 @@ namespace CommonLib.Helpers
         {
             //if (string.IsNullOrWhiteSpace(filePath))
             //    throw new ArgumentException("路径名称为空！");
+            if (string.IsNullOrWhiteSpace(filePath))
+                filePath = string.Empty;
 
             return filePath.Trim(new char[] { DirSeparatorChar });
         }

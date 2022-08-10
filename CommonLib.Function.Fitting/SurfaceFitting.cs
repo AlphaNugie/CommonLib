@@ -38,6 +38,7 @@ namespace CommonLib.Function.Fitting
                 return null;
             }
             var M = Matrix<double>.Build;
+            //var M = FittingVariables.MatrixBuilder;
             double[] arrayc = new double[length];
             for (int i = 0; i < arrayc.Length; i++)
                 arrayc[i] = 1;

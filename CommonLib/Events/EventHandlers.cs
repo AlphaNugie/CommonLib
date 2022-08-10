@@ -82,4 +82,18 @@ namespace CommonLib.Events
     /// <param name="sender">触发事件的对象</param>
     /// <param name="eventArgs">事件数据类对象</param>
     public delegate void ServiceStateEventHandler(object sender, ServiceStateEventArgs eventArgs);
+
+    /// <summary>
+    /// 值改变事件的委托
+    /// </summary>
+    /// <param name="sender">触发事件的对象</param>
+    /// <param name="eventArgs">事件数据类对象</param>
+    public delegate void ValueChangedEventHandler<T>(object sender, ValueChangedEventArgs<T> eventArgs) where T : IComparable;
+
+    /// <summary>
+    /// 值变化趋势累积事件的委托
+    /// </summary>
+    /// <param name="sender">触发事件的对象</param>
+    /// <param name="eventArgs">事件数据类对象</param>
+    public delegate void ValueTrendTickerReachedEventHandler(object sender, ValueTrendTickerReachedEventArgs eventArgs);
 }

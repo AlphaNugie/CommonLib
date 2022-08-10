@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CommonLib.DataUtil.MySqlProviderLib</name>
+    </assembly>
+    <members>
+        <member name="T:CommonLib.DataUtil.MySqlProvider">
+            <summary>
+            MySql数据库基础操作类
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.MySqlProvider.ConnStrModel">
+            <summary>
+            MySql连接字符串模板
+            形如“Data Source=localhost; port=3306; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”，port, Charset, Persist Security Info可选，Persist Security Info=True则代表连接方法在数据库连接成功后保存密码信息，=False则不保存
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.MySqlProvider.GetConnStr(System.String,System.Int32,System.String,System.String,System.String)">
+            <summary>
+            获取连接字符串
+            </summary>
+            <param name="hostAddress">数据库主机地址</param>
+            <param name="hostPort">数据库主机端口</param>
+            <param name="serviceName">数据库名称</param>
+            <param name="userName">用户名</param>
+            <param name="password">密码</param>
+            <returns>返回连接字符串</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.MySqlProvider.#ctor">
+            <summary>
+            以默认配置初始化MySqlProvider
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.MySqlProvider.#ctor(System.String,System.Object)">
+            <summary>
+            用App.config配置项名称初始化
+            </summary>
+            <param name="configurationName">App.config文件中configuration/appSettings节点下的关键字名称</param>
+            <param name="_">充数的参数，防止签名一致</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.MySqlProvider.#ctor(System.String)">
+            <summary>
+            构造器
+            </summary>
+            <param name="connStr">连接字符串，形如“Data Source=localhost; port=3306; Initial Catalog=xxx; Persist Security Info=True; user id=root; password=xxx;”</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.MySqlProvider.#ctor(System.String,System.Int32,System.String,System.String,System.String)">
+            <summary>
+            根据给定的数据库相关信息初始化
+            </summary>
+            <param name="hostAddress">数据库地址</param>
+            <param name="hostPort">端口号</param>
+            <param name="serviceName">数据库服务名</param>
+            <param name="userName">用户名称</param>
+            <param name="password">用户密码</param>
+        </member>
+    </members>
+</doc>

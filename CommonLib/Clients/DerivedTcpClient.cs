@@ -159,7 +159,8 @@ namespace CommonLib.Clients
         /// <summary>
         /// Tcp Socket的真实连接状态
         /// </summary>
-        public bool IsConnected_Socket { get; private set; }
+        public bool IsConnected_Socket { get { return BaseClient != null && BaseClient.IsSocketConnected(); } }
+        //public bool IsConnected_Socket { get; private set; }
 
         /// <summary>
         /// 在无返回数据时是否重新连接
@@ -319,7 +320,7 @@ namespace CommonLib.Clients
             }
 
             IsConnected = BaseClient.Connected;
-            IsSocketConnected();
+            //IsSocketConnected();
             if (IsConnected)
             {
                 //调用Tcp连接事件委托
@@ -384,9 +385,9 @@ namespace CommonLib.Clients
                 //假如属性提示未连接，则TCP重连线程挂起
                 if (!IsConnected)
                     Auto_TcpReconnect.WaitOne();
-
                 //假如属性提示已连接但实际上连接已断开，尝试重连
-                else if (IsConnected && !IsSocketConnected())
+                //else if (IsConnected && !IsSocketConnected())
+                else if (IsConnected && !IsConnected_Socket)
                 {
                     ////调用连接断开事件委托
                     //if (Disconnected != null)
@@ -520,7 +521,7 @@ namespace CommonLib.Clients
                     ServerIp = null;
                     ServerPort = 0;
                     IsConnected = false;
-                    IsConnected_Socket = false;
+                    //IsConnected_Socket = false;
                     //调用连接断开事件委托
                     if (Disconnected != null)
                         Disconnected.BeginInvoke(Name, new EventArgs(), null, null);
@@ -540,21 +541,21 @@ namespace CommonLib.Clients
             return result;
         }
 
-        /// <summary>
-        /// 更新并返回TcpClient的连接状态
-        /// </summary>
-        /// <returns>假如处于连接状态，返回true，否则返回false</returns>
-        public bool IsSocketConnected()
-        {
-            ////假如TcpClient对象为空
-            //if (BaseClient == null || BaseClient.Client == null)
-            //    return false;
+        ///// <summary>
+        ///// 更新并返回TcpClient的连接状态
+        ///// </summary>
+        ///// <returns>假如处于连接状态，返回true，否则返回false</returns>
+        //public bool IsSocketConnected()
+        //{
+        //    ////假如TcpClient对象为空
+        //    //if (BaseClient == null || BaseClient.Client == null)
+        //    //    return false;
 
-            //Socket socket = BaseClient.Client;
-            //return (IsConnected_Socket = (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected);
+        //    //Socket socket = BaseClient.Client;
+        //    //return (IsConnected_Socket = (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected);
 
-            return IsConnected_Socket = (BaseClient != null && BaseClient.IsSocketConnected());
-        }
+        //    return IsConnected_Socket = (BaseClient != null && BaseClient.IsSocketConnected());
+        //}
 
         /// <summary>
         /// TCP客户端以byte数组或16进制格式字符串发送数据
@@ -565,7 +566,8 @@ namespace CommonLib.Clients
         public bool SendData(object data_origin, out string errorMessage)
         {
             errorMessage = string.Empty;
-            if (!IsConnected || !IsSocketConnected())
+            //if (!IsConnected || !IsSocketConnected())
+            if (!IsConnected || !IsConnected_Socket)
             {
                 errorMessage = string.Format("TCP服务端{0}未连接", Name);
                 if (logging)
@@ -602,7 +604,8 @@ namespace CommonLib.Clients
         public void SendString(string content)
         {
             //假如未连接，退出方法
-            if (!IsConnected || !IsSocketConnected() || string.IsNullOrEmpty(content))
+            //if (!IsConnected || !IsSocketConnected() || string.IsNullOrEmpty(content))
+            if (!IsConnected || !IsConnected_Socket || string.IsNullOrEmpty(content))
                 return;
 
             try
@@ -626,7 +629,8 @@ namespace CommonLib.Clients
         public string ReceiveInfo()
         {
             //假如未连接，返回空字符串
-            if (!IsConnected || !IsSocketConnected())
+            //if (!IsConnected || !IsSocketConnected())
+            if (!IsConnected || !IsConnected_Socket)
                 return string.Empty;
 
             try

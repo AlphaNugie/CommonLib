@@ -28,5 +28,20 @@ namespace CommonLibExample.PropertyMapper.Model
         [PropertyMapperTo("School.City.Name")]
         [PropertyMapperFrom("School.City.Name")]
         public string SchoolCityName { get; set; } = string.Empty;
+
+        [PropertyMapperTo("StrList[0]")]
+        [PropertyMapperFrom("StrList[0]")]
+        public string ListSource1 { get; set; }
+
+        [PropertyMapperTo("StrList[1]")]
+        [PropertyMapperFrom("StrList[1]")]
+        public string ListSource2 { get; set; }
+
+        [PropertyMapperTo("StrList[2]")]
+        [PropertyMapperFrom("StrList[2]")]
+        public string ListSource3 { get; set; }
+
+        [PropertyMapperFrom("CityList[0].Name")]
+        public string CityName1 { get; set; }
     }
 }

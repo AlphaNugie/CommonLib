@@ -1,4 +1,5 @@
-﻿using CommonLib.Extensions.Property;
+﻿using CommonLib.Extensions;
+using CommonLib.Extensions.Property;
 using CommonLib.Function;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace OpcLibrary
     /// </summary>
     public class OpcItemInfo
     {
-        private object _upperLevelEntity, _currentEntity; //对应属性所属的实体，以及直接与属性相关联的当前层实体
+        private object _upperLevelEntity, _lowerLevelEntity, _currentEntity; //对应属性所属的实体，以及直接与属性相关联的当前层实体
         private int[] _indexes = null; //方括号索引
 
         #region 属性
@@ -41,6 +42,11 @@ namespace OpcLibrary
         /// 值的系数（默认为0，此时不起作用）
         /// </summary>
         public double Coeff { get; set; }
+
+        /// <summary>
+        /// 值的偏移量（默认为0，系数为0时不起作用）
+        /// </summary>
+        public double Offset { get; set; }
 
         /// <summary>
         /// 数据源字段名称
@@ -94,13 +100,24 @@ namespace OpcLibrary
         /// <param name="clientHandle">客户端句柄</param>
         /// <param name="fieldName">数据源中字段名称</param>
         /// <param name="coeff">值的系数，默认为0，此时不起作用</param>
-        public OpcItemInfo(string itemId, int clientHandle, string fieldName, double coeff)
+        public OpcItemInfo(string itemId, int clientHandle, string fieldName, double coeff) : this(itemId, clientHandle, fieldName, coeff, 0) { }
+
+        /// <summary>
+        /// 构造器
+        /// </summary>
+        /// <param name="itemId">OPC项ID</param>
+        /// <param name="clientHandle">客户端句柄</param>
+        /// <param name="fieldName">数据源中字段名称</param>
+        /// <param name="coeff">值的系数，默认为0，此时不起作用</param>
+        /// <param name="offset">值的偏移量，默认为0，系数为0时不起作用</param>
+        public OpcItemInfo(string itemId, int clientHandle, string fieldName, double coeff, double offset)
         {
             ItemId = itemId;
             ClientHandle = clientHandle;
             Value = string.Empty;
             FieldName = fieldName;
             Coeff = coeff;
+            Offset = offset;
         }
 
         /// <summary>
@@ -113,7 +130,8 @@ namespace OpcLibrary
                 return;
 
             //Property = dataSource.GetEntityProperty(FieldName, true, out _upperLevelEntity);
-            Property = dataSource.GetEntityProperty_InConstruction(FieldName, true, out _upperLevelEntity, out _indexes);
+            //Property = dataSource.GetEntityProperty_InConstruction(FieldName, true, out _upperLevelEntity, out _indexes);
+            Property = dataSource.GetEntityProperty_InConstruction(FieldName, true, out _upperLevelEntity, out _lowerLevelEntity, out _indexes);
         }
 
         /// <summary>
@@ -136,8 +154,10 @@ namespace OpcLibrary
         /// <returns></returns>
         public object GetPropertyValue()
         {
-            //假如值的系数不为0，则试图乘以这个系数
-            object[] values = Coeff == 0 ? new object[] { Value } : new object[] { double.Parse(Value) * Coeff };
+            ////假如值的系数不为0，则试图乘以这个系数
+            //object[] values = Coeff == 0 ? new object[] { Value } : new object[] { double.Parse(Value) * Coeff };
+            //假如值的系数不为0，则试图乘以这个系数并加上偏移量
+            object[] values = Coeff == 0 ? new object[] { Value } : new object[] { double.Parse(Value) * Coeff + Offset };
             return ConvertTypeMethod?.Invoke(null, values);
             //return ConvertTypeMethod?.Invoke(null, new object[] { Value });
         }
@@ -206,10 +226,15 @@ namespace OpcLibrary
             //    Value = value.ToString();
             //    //Value = Property.GetValue(_upperLevelEntity).ToString();
             //}
-            //假如属性为空或属性所属实体为空，退出方法
+
+            ////假如属性为空或属性所属实体为空，退出方法
+            //if (Property == null || _upperLevelEntity == null)
+            //    return;
+            //object value;
+            //默认值为空，假如属性为空或属性所属实体为空，跳到最后赋值部分
+            object value = null;
             if (Property == null || _upperLevelEntity == null)
-                return;
-            object value;
+                goto SET_VALUE;
             //假如没有提供方括号索引，则直接获取值，否则根据索引获取元素值
             if (_indexes == null || _indexes.Length == 0)
                 value = Property.GetValue(_upperLevelEntity);
@@ -222,15 +247,30 @@ namespace OpcLibrary
                 UpdateCurrentEntityByIndexes();
                 value = _currentEntity;
             }
+            //假如值为空，跳到最后赋值部分
+            if (value == null)
+                goto SET_VALUE;
+            ////假如值的系数不为0，则试图乘以这个系数
+            //if (Coeff != 0)
+            //{
+            //    ////尝试获取小数点后的数值位数，并根据此位数对乘以系数之后的值进行舍入
+            //    //string[] parts = value.ToString().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+            //    //int places = parts == null || parts.Length < 2 ? 0 : parts[1].Length;
+            //    //value = Math.Round(double.Parse(value.ToString()) * Coeff, places);
+            //    //舍入的小数点位数：将值与系数的小数点位数相加，相加的和与偏移量的小数点位数取较大值
+            //    int places = Math.Max(value.GetDecimalPlaces() + Coeff.GetDecimalPlaces(), Offset.GetDecimalPlaces());
+            //    value = Math.Round(double.Parse(value.ToString()) * Coeff + Offset, places);
+            //}
+            //Value = value.ToString();
             //假如值的系数不为0，则试图乘以这个系数
             if (Coeff != 0)
             {
-                //尝试获取小数点后的数值位数，并根据此位数对乘以系数之后的值进行舍入
-                string[] parts = value.ToString().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-                int places = parts == null || parts.Length < 2 ? 0 : parts[1].Length;
-                value = Math.Round(double.Parse(value.ToString()) * Coeff, places);
+                //舍入的小数点位数：将值与系数的小数点位数相加，相加的和与偏移量的小数点位数取较大值
+                int places = Math.Max(value.GetDecimalPlaces() + Coeff.GetDecimalPlaces(), Offset.GetDecimalPlaces());
+                value = Math.Round(double.Parse(value.ToString()) * Coeff + Offset, places);
             }
-            Value = value.ToString();
+            SET_VALUE:
+            Value = value?.ToString();
         }
     }
 }

@@ -57,6 +57,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -67,8 +68,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clients\CustomBitConverter.cs" />
     <Compile Include="Clients\ColorSmoother.cs" />
     <Compile Include="Clients\CommandStorage.cs" />
+    <Compile Include="Clients\CustomProcessInfo.cs" />
     <Compile Include="Clients\DerivedHttpListener.cs" />
     <Compile Include="Clients\DerivedTcpListener.cs" />
     <Compile Include="Clients\DataFilerClient.cs" />
@@ -84,6 +87,7 @@
     <Compile Include="Clients\Object\PlyFileClient.cs" />
     <Compile Include="Clients\SampleAnalyzer.cs" />
     <Compile Include="Clients\Tasks\Task.cs" />
+    <Compile Include="Clients\ValueDiffStorage.cs" />
     <Compile Include="DataUtil\AccessProvider.cs" />
     <Compile Include="DataUtil\BaseModel.cs" />
     <Compile Include="DataUtil\BatisLike.cs" />
@@ -91,10 +95,14 @@
     <Compile Include="DataUtil\Record.cs" />
     <Compile Include="DataUtil\SqlProvider.cs" />
     <Compile Include="Enums\DatabaseTypes.cs" />
+    <Compile Include="Enums\IntFlag.cs" />
     <Compile Include="Enums\ServiceState.cs" />
     <Compile Include="Enums\ShapeEnum.cs" />
+    <Compile Include="Enums\ValueTrend.cs" />
     <Compile Include="Events\NoneReceivedEventArgs.cs" />
     <Compile Include="Events\ServiceStateEventArgs.cs" />
+    <Compile Include="Events\ValueChangedEventArgs.cs" />
+    <Compile Include="Events\ValueTrendTickerEventArgs.cs" />
     <Compile Include="Extensions\EnumExtension.cs" />
     <Compile Include="Events\DataReceivedEventArgs.cs" />
     <Compile Include="Events\DataSendEventArgs.cs" />
@@ -115,24 +123,48 @@
     <Compile Include="Function\ExitWindowsUtil.cs" />
     <Compile Include="Function\Fitting\CurveFitting.cs" />
     <Compile Include="Extensions\ExtensionClass.cs" />
-    <Compile Include="Function\HexHelper.cs" />
-    <Compile Include="Function\IniFileHelper.cs" />
+    <Compile Include="Helpers\HexHelper.cs" />
+    <Compile Include="Helpers\IniFileHelper.cs" />
     <Compile Include="Extensions\MathExtension.cs" />
-    <Compile Include="Function\Modbus\ModbusHelper.cs" />
+    <Compile Include="Helpers\Modbus\ModbusHelper.cs" />
     <Compile Include="Function\OperateIniFile.cs" />
     <Compile Include="Function\TimerEventRaiser.cs" />
     <Compile Include="Function\TraceRoute.cs" />
     <Compile Include="Helpers\DateTimeHelper.cs" />
     <Compile Include="Helpers\FileSystemHelper.cs" />
-    <Compile Include="UIControlUtil\ControlUtil.cs" />
-    <Compile Include="UIControlUtil\DataGridViewUtil.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="UIControlUtil\WinForms\ControlTemplates\FormNotifyBasis.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UIControlUtil\WinForms\ControlTemplates\FormNotifyBasis.Designer.cs">
+      <DependentUpon>FormNotifyBasis.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UIControlUtil\WinForms\ControlTemplates\CustomMessageBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UIControlUtil\WinForms\ControlTemplates\CustomMessageBox.Designer.cs">
+      <DependentUpon>CustomMessageBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UIControlUtil\WinForms\ControlUtil.cs" />
+    <Compile Include="UIControlUtil\WinForms\DataGridViewUtil.cs" />
     <Compile Include="Function\FailureInfo.cs" />
     <Compile Include="Function\HotKeyRegister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Function\RegexMatcher.cs" />
-    <Compile Include="UIControlUtil\TabControlUtil.cs" />
-    <Compile Include="UIControlUtil\TextBoxWrapper.cs" />
-    <Compile Include="UIControlUtil\TreeViewUtil.cs" />
+    <Compile Include="UIControlUtil\WinForms\TabControlUtil.cs" />
+    <Compile Include="UIControlUtil\WinForms\TextBoxWrapper.cs" />
+    <Compile Include="UIControlUtil\WinForms\TreeViewUtil.cs" />
+    <Compile Include="UIControlUtil\WinForms\WindowUtil.cs" />
+    <Compile Include="UIControlUtil\WPF\Controls\ButtonEx.cs" />
+    <Compile Include="UIControlUtil\WPF\Controls\ImageButton.cs" />
+    <Compile Include="UIControlUtil\WPF\Controls\MultiComboBox.cs" />
+    <Compile Include="UIControlUtil\WPF\Controls\TabItemClose.cs" />
+    <Compile Include="UIControlUtil\WPF\ControlUtil.cs" />
+    <Compile Include="UIControlUtil\WPF\Convers\ValueConver.cs" />
     <Compile Include="UIControlUtil\WPF\WindowStateInfo.cs" />
     <Compile Include="UIControlUtil\WPF\WindowUtil.cs" />
   </ItemGroup>
@@ -144,7 +176,27 @@
     <Content Include="bin\Debug\CommonLib.pdb" />
     <Content Include="bin\Debug\CommonLib.XML" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\Resource.resources" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UIControlUtil\WinForms\ControlTemplates\FormNotifyBasis.resx">
+      <DependentUpon>FormNotifyBasis.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UIControlUtil\WinForms\ControlTemplates\CustomMessageBox.resx">
+      <DependentUpon>CustomMessageBox.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="compiled\" />
+    <Folder Include="UIControlUtil\WPF\Styles\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug $(SolutionDir)CommonLib\compiled\</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -42,10 +42,10 @@ namespace CommonLibExample
             #endregion
 
             #region test
-            //PropertyMapperExample.CopyToMethodTest();
-            PropertyMapperExample.CopyFromMethodTest();
-            return;
-            //goto START;
+            ////PropertyMapperExample.CopyToMethodTest();
+            //PropertyMapperExample.CopyFromMethodTest();
+            //return;
+            ////goto START;
 
             //double angle = MathExtension.GetAngleByCoordinates(-1515, 0, -1545, 0);
             //return;

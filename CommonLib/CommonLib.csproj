@@ -86,6 +86,7 @@
     <Compile Include="Clients\Object\PlyDotObject.cs" />
     <Compile Include="Clients\Object\PlyFileClient.cs" />
     <Compile Include="Clients\SampleAnalyzer.cs" />
+    <Compile Include="Clients\Tasks\BlankTask.cs" />
     <Compile Include="Clients\Tasks\Task.cs" />
     <Compile Include="Clients\ValueDiffStorage.cs" />
     <Compile Include="DataUtil\AccessProvider.cs" />

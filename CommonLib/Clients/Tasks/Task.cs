@@ -1,8 +1,10 @@
-﻿using System;
+﻿using CommonLib.Function;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using static CommonLib.Function.TimerEventRaiser;
 
 namespace CommonLib.Clients.Tasks
 {
@@ -17,6 +19,21 @@ namespace CommonLib.Clients.Tasks
         private List<string> _taskLogsBuffer = new List<string>(); //日志存放缓冲区，每次循环可以直接向里添加（Add）而不必清除（Clear）
         protected string _errorMessage = string.Empty;
 
+        #region 事件
+        /// <summary>
+        /// 任务每次循环触发事件的委托
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public delegate void TaskContentLoopedEventHandler(object sender, TaskContentLoopedEventArgs e);
+
+        /// <summary>
+        /// 任务每经过一次循环就触发一次的事件
+        /// </summary>
+        public event TaskContentLoopedEventHandler ContentLooped;
+        #endregion
+
+        #region 属性
         /// <summary>
         /// 错误消息
         /// </summary>
@@ -55,6 +72,7 @@ namespace CommonLib.Clients.Tasks
         /// 是否为一次性任务
         /// </summary>
         public bool RunOnlyOnce { get; set; }
+        #endregion
 
         /// <summary>
         /// 初始化Task类，默认任务执行间隔1000毫秒，初始状态为暂停
@@ -79,14 +97,14 @@ namespace CommonLib.Clients.Tasks
         /// </summary>
         public void Run()
         {
-            ////假如未初始化，先初始化
-            //if (!Initialized)
-            //{
-            //    Init();
-            //    Initialized = true;
-            //}
             _paused = false;
             _auto.Set();
+        }
+
+        public void RunOnceNStop()
+        {
+            RunOnlyOnce = true;
+            Run();
         }
 
         /// <summary>
@@ -133,6 +151,8 @@ namespace CommonLib.Clients.Tasks
                     _taskLogsBuffer.Clear();
                 try { LoopContent(); }
                 catch (Exception e) { _errorMessage = e.Message; }
+                if (ContentLooped != null)
+                    ContentLooped.BeginInvoke(this, new TaskContentLoopedEventArgs(LoopCounter, _errorMessage), null, null);
                 TaskLogs = _taskLogsBuffer.ToList();
                 PrintErrorMessage();
             }
@@ -193,5 +213,37 @@ namespace CommonLib.Clients.Tasks
             Console.WriteLine(_errorMessage);
             _errorMessage = string.Empty;
         }
+    }
+
+    /// <summary>
+    /// 任务每次循环触发事件的事件参数类
+    /// </summary>
+    public class TaskContentLoopedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// 任务循环次数
+        /// </summary>
+        public ulong LoopCounter { get; set; }
+
+        /// <summary>
+        /// 错误信息
+        /// </summary>
+        public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// 构造器
+        /// </summary>
+        /// <param name="counter">任务循环次数</param>
+        /// <param name="errorMessage">错误信息</param>
+        public TaskContentLoopedEventArgs(ulong counter, string errorMessage)
+        {
+            LoopCounter = counter;
+            ErrorMessage = errorMessage;
+        }
+
+        /// <summary>
+        /// 默认构造器
+        /// </summary>
+        public TaskContentLoopedEventArgs() : this(0, string.Empty) { }
     }
 }

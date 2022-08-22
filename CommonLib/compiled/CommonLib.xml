@@ -1743,9 +1743,31 @@
             <param name="list"></param>
             <returns></returns>
         </member>
+        <member name="T:CommonLib.Clients.Tasks.BlankTask">
+            <summary>
+            空白任务
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.Tasks.BlankTask.#ctor">
+            <summary>
+            构造器
+            </summary>
+        </member>
         <member name="T:CommonLib.Clients.Tasks.Task">
             <summary>
             基础任务类
+            </summary>
+        </member>
+        <member name="T:CommonLib.Clients.Tasks.Task.TaskContentLoopedEventHandler">
+            <summary>
+            任务每次循环触发事件的委托
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="E:CommonLib.Clients.Tasks.Task.ContentLooped">
+            <summary>
+            任务每经过一次循环就触发一次的事件
             </summary>
         </member>
         <member name="P:CommonLib.Clients.Tasks.Task.ErrorMessage">
@@ -1850,6 +1872,33 @@
         <member name="M:CommonLib.Clients.Tasks.Task.PrintErrorMessage">
             <summary>
             打印错误信息
+            </summary>
+        </member>
+        <member name="T:CommonLib.Clients.Tasks.TaskContentLoopedEventArgs">
+            <summary>
+            任务每次循环触发事件的事件参数类
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.Tasks.TaskContentLoopedEventArgs.LoopCounter">
+            <summary>
+            任务循环次数
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.Tasks.TaskContentLoopedEventArgs.ErrorMessage">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.Tasks.TaskContentLoopedEventArgs.#ctor(System.UInt64,System.String)">
+            <summary>
+            构造器
+            </summary>
+            <param name="counter">任务循环次数</param>
+            <param name="errorMessage">错误信息</param>
+        </member>
+        <member name="M:CommonLib.Clients.Tasks.TaskContentLoopedEventArgs.#ctor">
+            <summary>
+            默认构造器
             </summary>
         </member>
         <member name="T:CommonLib.Clients.ValueDiffStorage`1">

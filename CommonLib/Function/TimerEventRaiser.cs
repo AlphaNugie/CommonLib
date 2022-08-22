@@ -51,11 +51,11 @@ namespace CommonLib.Function
         /// </summary>
         public uint Interval
         {
-            get { return this.interval; }
+            get { return interval; }
             set
             {
-                this.interval = value > 0 ? value : DEFAULT_INTERVAL; //为0则赋值为默认值
-                this.timer.Interval = this.interval;
+                interval = value > 0 ? value : DEFAULT_INTERVAL; //为0则赋值为默认值
+                timer.Interval = interval;
             }
         }
 
@@ -65,9 +65,9 @@ namespace CommonLib.Function
         public uint RaiseInterval
         {
             //未曾触发事件时触发间隔以触发阈值为准
-            //get { return this.raised_counter == 0 ? this.raise_threshold : this.raise_interval; }
-            get { return this.raise_interval; }
-            set { this.raise_interval = value > 0 ? value : DEFAULT_RAISE_THRESHOLD; }
+            //get { return raised_counter == 0 ? raise_threshold : raise_interval; }
+            get { return raise_interval; }
+            set { raise_interval = value > 0 ? value : DEFAULT_RAISE_THRESHOLD; }
         }
 
         /// <summary>
@@ -75,12 +75,12 @@ namespace CommonLib.Function
         /// </summary>
         public ulong Counter
         {
-            get { return this.counter; }
+            get { return counter; }
             private set
             {
                 ////计时长度大于触发间隔后不再累加
-                //if (value <= this.RaiseInterval)
-                    this.counter = value;
+                //if (value <= RaiseInterval)
+                    counter = value;
             }
         }
 
@@ -89,8 +89,8 @@ namespace CommonLib.Function
         /// </summary>
         public uint RaisedTimes
         {
-            get { return this.raised_counter; }
-            private set { this.raised_counter = value; }
+            get { return raised_counter; }
+            private set { raised_counter = value; }
         }
 
         /// <summary>
@@ -98,9 +98,9 @@ namespace CommonLib.Function
         /// </summary>
         public ulong RaiseThreshold
         {
-            //get { return this.raise_threshold; }
-            get { return this.raise_threshold + this.raised_counter * this.raise_interval; }
-            set { this.raise_threshold = value > 0 ? value : DEFAULT_RAISE_THRESHOLD; }
+            //get { return raise_threshold; }
+            get { return raise_threshold + raised_counter * raise_interval; }
+            set { raise_threshold = value > 0 ? value : DEFAULT_RAISE_THRESHOLD; }
         }
         #endregion
 
@@ -111,8 +111,8 @@ namespace CommonLib.Function
         /// <param name="interval">计时间隔（毫秒）</param>
         public TimerEventRaiser(uint interval)
         {
-            this.Interval = interval;
-            this.timer.Elapsed += new ElapsedEventHandler(this.TimerElapsed);
+            Interval = interval;
+            timer.Elapsed += new ElapsedEventHandler(TimerElapsed);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace CommonLib.Function
         /// </summary>
         public void Run()
         {
-            this.timer.Start();
+            timer.Start();
         }
 
         /// <summary>
@@ -135,8 +135,8 @@ namespace CommonLib.Function
         /// </summary>
         public void Stop()
         {
-            this.timer.Stop();
-            this.Reset();
+            timer.Stop();
+            Reset();
         }
 
         /// <summary>
@@ -144,8 +144,8 @@ namespace CommonLib.Function
         /// </summary>
         public void Reset()
         {
-            this.counter = 0;
-            this.RaisedTimes = 0;
+            counter = 0;
+            RaisedTimes = 0;
         }
 
         /// <summary>
@@ -153,9 +153,9 @@ namespace CommonLib.Function
         /// </summary>
         public void Raise()
         {
-            if (this.ThresholdReached != null)
-                this.ThresholdReached.BeginInvoke(this, new ThresholdReachedEventArgs(this.counter, ++this.RaisedTimes), null, null);
-            //this.counter = 0;
+            if (ThresholdReached != null)
+                ThresholdReached.BeginInvoke(this, new ThresholdReachedEventArgs(counter, ++RaisedTimes), null, null);
+            //counter = 0;
         }
 
         /// <summary>
@@ -164,9 +164,9 @@ namespace CommonLib.Function
         /// <param name="message">点击信息</param>
         public void Click(string message)
         {
-            this.Reset();
-            if (this.Clicked != null)
-                this.Clicked.BeginInvoke(this, new ClickedEventArgs(message), null, null);
+            Reset();
+            if (Clicked != null)
+                Clicked.BeginInvoke(this, new ClickedEventArgs(message), null, null);
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace CommonLib.Function
         /// </summary>
         public void Click()
         {
-            this.Click(string.Empty);
+            Click(string.Empty);
         }
         #endregion
 
@@ -185,10 +185,10 @@ namespace CommonLib.Function
         /// <param name="e"></param>
         public void TimerElapsed(object sender, ElapsedEventArgs e)
         {
-            this.Counter += this.Interval;
-            //if (this.counter >= this.RaiseThreshold && this.counter >= this.RaiseInterval)
-            if (this.counter >= this.RaiseThreshold)
-                this.Raise();
+            Counter += Interval;
+            //if (counter >= RaiseThreshold && counter >= RaiseInterval)
+            if (counter >= RaiseThreshold)
+                Raise();
         }
     }
 
@@ -214,8 +214,8 @@ namespace CommonLib.Function
         /// <param name="raised_times">触发次数</param>
         public ThresholdReachedEventArgs(ulong counter, uint raised_times)
         {
-            this.Counter = counter;
-            this.RaisedTimes = raised_times;
+            Counter = counter;
+            RaisedTimes = raised_times;
         }
 
         /// <summary>
@@ -240,7 +240,7 @@ namespace CommonLib.Function
         /// <param name="message">点击信息</param>
         public ClickedEventArgs(string message)
         {
-            this.ClickMessage = message;
+            ClickMessage = message;
         }
 
         /// <summary>

@@ -80,6 +80,7 @@ namespace CommonLib.UIControlUtil
         /// </summary>
         /// <param name="gridView">DataGridView对象</param>
         /// <returns>返回List</returns>
+        [Obsolete]
         public static List<DataGridViewRow> GetDataGridViewSelectedRows(this DataGridView gridView)
         {
             List<DataGridViewRow> list;
@@ -88,6 +89,24 @@ namespace CommonLib.UIControlUtil
             list.Add(gridView.CurrentRow);
 
             return list;
+        }
+
+        /// <summary>
+        /// 获取DataGridView的所有选中行，不受SelectionMode影响
+        /// </summary>
+        /// <param name="gridView"></param>
+        /// <returns></returns>
+        public static List<DataGridViewRow> GetSelectedRows(this DataGridView gridView)
+        {
+            List<DataGridViewRow> gridViewRows = new List<DataGridViewRow>();
+            if (gridView == null)
+                goto END;
+            //添加选中的行（根据选择模式(SelectionMode)可能数量为0）
+            gridViewRows.AddRange(gridView.SelectedRows.Cast<DataGridViewRow>());
+            //在选中的单元格中查找已选中同时还未被包括在列表中的行，找到后添加
+            gridViewRows.AddRange(gridView.SelectedCells.Cast<DataGridViewCell>().Where(gridViewCell => !gridViewRows.Any(row => row.Index == gridViewCell.RowIndex)).Select(gridViewCell => gridViewCell.OwningRow));
+            END:
+            return gridViewRows;
         }
     }
 }

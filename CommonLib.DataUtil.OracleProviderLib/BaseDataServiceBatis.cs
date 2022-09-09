@@ -14,7 +14,7 @@ namespace CommonLib.DataUtil
     /// <summary>
     /// 基础数据库操作类（仿Batis）
     /// </summary>
-    public class BaseDataService<T> where T : Record
+    public class BaseDataService<T> where T : BaseModel/* where T : Record*/
     {
         /// <summary>
         /// Oracle基础操作类
@@ -62,12 +62,12 @@ namespace CommonLib.DataUtil
         public BaseDataService(string connStr, bool usingRemote)
         {
             if (!string.IsNullOrWhiteSpace(connStr) && usingRemote)
-                this.provider = new OracleProvider(connStr);
-            this.TypeName = typeof(T).Name;
-            this.batisLike = new BatisLike(this.TypeName); //BatisLike对象中的映射名称为类型名称
-            //this.batisLike.MapperName = this.TypeName; //BatisLike对象中的映射名称为类型名称
-            this.LastErrorCode = string.Empty;
-            this.LastErrorMessage = string.Empty;
+                provider = new OracleProvider(connStr);
+            TypeName = typeof(T).Name;
+            batisLike = new BatisLike(TypeName); //BatisLike对象中的映射名称为类型名称
+            //batisLike.MapperName = TypeName; //BatisLike对象中的映射名称为类型名称
+            LastErrorCode = string.Empty;
+            LastErrorMessage = string.Empty;
         }
 
         ///// <summary>
@@ -77,9 +77,9 @@ namespace CommonLib.DataUtil
         ///// <returns></returns>
         //public string GetSqlStringBySqlMapKey(string sqlMapKey, Dictionary<string, object> dict)
         //{
-        //    string sqlString = this.batisLike.GetSql(this.TypeName + "." + sqlMapKey);
+        //    string sqlString = batisLike.GetSql(TypeName + "." + sqlMapKey);
         //    if (dict != null && dict.Keys.Count > 0)
-        //        sqlString = this.batisLike.ConvertSqlStringByKeyValue(sqlString, dict);
+        //        sqlString = batisLike.ConvertSqlStringByKeyValue(sqlString, dict);
         //    return sqlString;
         //}
 
@@ -90,7 +90,7 @@ namespace CommonLib.DataUtil
         ///// <returns></returns>
         //public string GetSqlStringBySqlMapKey(string sqlMapKey)
         //{
-        //    return this.GetSqlStringBySqlMapKey(sqlMapKey, null);
+        //    return GetSqlStringBySqlMapKey(sqlMapKey, null);
         //}
 
         ///// <summary>
@@ -100,9 +100,9 @@ namespace CommonLib.DataUtil
         ///// <returns></returns>
         //public DataTable GetRecordBySqlMapKey(string sqlMapKey, Dictionary<string, object> dict)
         //{
-        //    //string sqlString = this.batisLike.GetSql(this.TypeName + "." + sqlMapKey);
-        //    string sqlString = this.batisLike.GetSqlStringBySqlMapKey(sqlMapKey, dict);
-        //    return this.provider.Query(sqlString);
+        //    //string sqlString = batisLike.GetSql(TypeName + "." + sqlMapKey);
+        //    string sqlString = batisLike.GetSqlStringBySqlMapKey(sqlMapKey, dict);
+        //    return provider.Query(sqlString);
         //}
 
         ///// <summary>
@@ -112,9 +112,9 @@ namespace CommonLib.DataUtil
         ///// <returns></returns>
         //public DataTable GetRecordBySqlMapKey(string sqlMapKey)
         //{
-        //    //string sqlString = this.batisLike.GetSql(this.TypeName + "." + sqlMapKey);
-        //    string sqlString = this.GetSqlStringBySqlMapKey(sqlMapKey);
-        //    return this.provider.Query(sqlString);
+        //    //string sqlString = batisLike.GetSql(TypeName + "." + sqlMapKey);
+        //    string sqlString = GetSqlStringBySqlMapKey(sqlMapKey);
+        //    return provider.Query(sqlString);
         //}
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回转换后的实体类对象</returns>
         public T ConvertObjectByDataRow(DataRow dataRow)
         {
-            return this.batisLike.ConvertObjectByDataRow<T>(dataRow);
+            return batisLike.ConvertObjectByDataRow<T>(dataRow);
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回转换后的实体类对象List</returns>
         public List<T> ConvertObjectListByDataTable(DataTable dataTable)
         {
-            return this.batisLike.ConvertObjectListByDataTable<T>(dataTable);
+            return batisLike.ConvertObjectListByDataTable<T>(dataTable);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace CommonLib.DataUtil
               select 1 code, '可用' name from dual
                 union all
               select 0 code, '不可用' name from dual";
-            return this.provider.Query(sqlString);
+            return provider.Query(sqlString);
         }
 
         /// <summary>
@@ -157,27 +157,26 @@ namespace CommonLib.DataUtil
         /// <returns>返回数据表</returns>
         public DataTable GetRecordById(int id)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict.Add("Id", id);
+            Dictionary<string, object> dict = new Dictionary<string, object> { { "Id", id } };
             DataTable table;
-            try { table = this.GetRecords(dict); }
+            try { table = GetRecords(dict); }
             catch (Exception e)
             {
-                this.LastErrorCode = "Exception";
-                this.LastErrorMessage = e.Message;
+                LastErrorCode = "Exception";
+                LastErrorMessage = e.Message;
                 //return null;
                 throw;
             }
 
             if (table == null || table.Rows.Count == 0)
             {
-                this.LastErrorCode = "001";
-                this.LastErrorMessage = "未查询到任何数据";
+                LastErrorCode = "001";
+                LastErrorMessage = "未查询到任何数据";
             }
             else if (table.Rows.Count > 1)
             {
-                this.LastErrorCode = "002";
-                this.LastErrorMessage = "查询到多条记录";
+                LastErrorCode = "002";
+                LastErrorMessage = "查询到多条记录";
             }
 
             return table;
@@ -190,9 +189,9 @@ namespace CommonLib.DataUtil
         /// <returns>返回实体类对象</returns>
         public virtual T GetRecordObjectById(int id)
         {
-            List<T> list = this.ConvertObjectListByDataTable(this.GetRecordById(id));
+            List<T> list = ConvertObjectListByDataTable(GetRecordById(id));
             if (list == null || list.Count == 0)
-                return default(T);
+                return default;
             return list[0];
         }
 
@@ -203,9 +202,9 @@ namespace CommonLib.DataUtil
         /// <returns>返回数据表</returns>
         public DataTable GetRecords(Dictionary<string, object> dict)
         {
-            string sqlString = this.batisLike.GetSqlStringBySqlMapKey("Get", dict);
-            //string sqlString = this.batisLike.GetQueryString(dict);
-            return this.provider.Query(sqlString);
+            string sqlString = batisLike.GetSqlStringBySqlMapKey("Get", dict);
+            //string sqlString = batisLike.GetQueryString(dict);
+            return provider.Query(sqlString);
         }
 
         /// <summary>
@@ -215,7 +214,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回包含实体类对象的List</returns>
         public List<T> GetRecordObjects(Dictionary<string, object> dict)
         {
-            return this.ConvertObjectListByDataTable(this.GetRecords(dict));
+            return ConvertObjectListByDataTable(GetRecords(dict));
         }
 
         /// <summary>
@@ -233,8 +232,8 @@ namespace CommonLib.DataUtil
 
             string[] sqlStrings = new string[records.Count];
             for (int i = 0; i < records.Count; i++)
-                sqlStrings[i] = this.batisLike.GetDataManageString(records[i], statuses[i]);
-            return this.provider.ExecuteSqlTrans(sqlStrings);
+                sqlStrings[i] = batisLike.GetDataManageString(records[i], statuses[i]);
+            return provider.ExecuteSqlTrans(sqlStrings);
         }
 
         /// <summary>
@@ -245,8 +244,8 @@ namespace CommonLib.DataUtil
         /// <returns>假如执行成功，返回true，否则返回false</returns>
         public bool EditRecords(List<T> records, RoutineStatus status)
         {
-            string[] sqlStrings = records.Select(record => this.batisLike.GetDataManageString(record, status)).ToArray();
-            return this.provider.ExecuteSqlTrans(sqlStrings);
+            string[] sqlStrings = records.Select(record => batisLike.GetDataManageString(record, status)).ToArray();
+            return provider.ExecuteSqlTrans(sqlStrings);
         }
 
         /// <summary>
@@ -257,8 +256,8 @@ namespace CommonLib.DataUtil
         /// <returns>返回影响记录条数</returns>
         public int EditRecord(T record, RoutineStatus status)
         {
-            string sqlString = this.batisLike.GetDataManageString(record, status);
-            return this.provider.ExecuteSql(sqlString);
+            string sqlString = batisLike.GetDataManageString(record, status);
+            return provider.ExecuteSql(sqlString);
         }
 
         /// <summary>
@@ -268,9 +267,9 @@ namespace CommonLib.DataUtil
         /// <returns>返回影像记录条数</returns>
         public int DeleteRecords(Dictionary<string, object> dict)
         {
-            //string sqlString = this.batisLike.GetDeleteString(dict);
-            string sqlString = this.batisLike.GetSqlStringBySqlMapKey("Delete", dict);
-            return this.provider.ExecuteSql(sqlString);
+            //string sqlString = batisLike.GetDeleteString(dict);
+            string sqlString = batisLike.GetSqlStringBySqlMapKey("Delete", dict);
+            return provider.ExecuteSql(sqlString);
         }
 
         /// <summary>
@@ -280,9 +279,9 @@ namespace CommonLib.DataUtil
         /// <returns>返回影响记录条数</returns>
         public int SetEnableById(T obj)
         {
-            string sqlString = this.batisLike.GetSqlStringBySqlMapKey("GetEnableById", obj);
-            //string sqlString = this.batisLike.GetSetEnableString(obj);
-            return this.provider.ExecuteSql(sqlString);
+            string sqlString = batisLike.GetSqlStringBySqlMapKey("GetEnableById", obj);
+            //string sqlString = batisLike.GetSetEnableString(obj);
+            return provider.ExecuteSql(sqlString);
         }
 
         /// <summary>
@@ -298,7 +297,7 @@ namespace CommonLib.DataUtil
             property.SetValue(obj, id);
             property = obj.GetType().GetProperty("Enable");
             property.SetValue(obj, enable);
-            return this.SetEnableById(obj);
+            return SetEnableById(obj);
         }
     }
 }

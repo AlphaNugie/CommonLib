@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,42 @@ namespace CommonLib.UIControlUtil
     /// </summary>
     public static class TreeViewUtil
     {
+        /// <summary>
+        /// 遍历TreeView下的所有节点，可选择是否包括子节点
+        /// </summary>
+        /// <param name="treeView">当前等待遍历的TreeView</param>
+        /// <param name="childIncl">是否算入子节点</param>
+        public static List<TreeNode> GetAllNodes(this TreeView treeView, bool childIncl = true)
+        {
+            List<TreeNode> nodes = new List<TreeNode>();
+            if (treeView == null || treeView.Nodes == null || treeView.Nodes.Count == 0)
+                goto END;
+            var childNodes = treeView.Nodes.Cast<TreeNode>().ToList();
+            nodes.AddRange(childNodes);
+            if (childIncl)
+                childNodes.ForEach(child => nodes.AddRange(child.GetAllNodes()));
+        END:
+            return nodes;
+        }
+
+        /// <summary>
+        /// 遍历TreeNode下的所有节点，可选择是否包括子节点
+        /// </summary>
+        /// <param name="treeNode">当前等待遍历的TreeNode</param>
+        /// <param name="childIncl">是否算入子节点</param>
+        public static List<TreeNode> GetAllNodes(this TreeNode treeNode, bool childIncl = true)
+        {
+            List<TreeNode> nodes = new List<TreeNode>();
+            if (treeNode == null || treeNode.Nodes == null || treeNode.Nodes.Count == 0)
+                goto END;
+            var childNodes = treeNode.Nodes.Cast<TreeNode>().ToList();
+            nodes.AddRange(childNodes);
+            if (childIncl)
+                childNodes.ForEach(child => nodes.AddRange(child.GetAllNodes()));
+            END:
+            return nodes;
+        }
+
         /// <summary>
         /// 为TreeView绑定数据源
         /// </summary>

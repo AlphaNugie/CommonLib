@@ -11,10 +11,10 @@ namespace CommonLib.Enums
     /// </summary>
     public enum RoutineStatus
     {
-        /// <summary>
-        /// 默认状态
-        /// </summary>
-        DEFAULT = -1,
+        ///// <summary>
+        ///// 默认状态
+        ///// </summary>
+        //DEFAULT = -1,
 
         /// <summary>
         /// 普通状态

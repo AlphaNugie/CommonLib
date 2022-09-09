@@ -186,11 +186,11 @@ namespace CommonLib.Clients
         /// <param name="fileNameWithDate">文件名是否带日期</param>
         public void WriteLinesToFile(IEnumerable<string> lines, bool fileNameWithDate)
         {
+            if (lines == null || lines.Count() == 0)
+                return;
+
             try
             {
-                if (lines == null || lines.Count() == 0)
-                    return;
-
                 //检测目录是否存在，不存在则创建
                 if (!Directory.Exists(Path))
                     Directory.CreateDirectory(Path);
@@ -245,6 +245,9 @@ namespace CommonLib.Clients
         /// <param name="overriding">是否覆盖文本</param>
         public static void WriteLinesToFile(IEnumerable<string> lines, string path, string fileName, string extension, bool overriding)
         {
+            if (lines == null || lines.Count() == 0)
+                return;
+
             try
             {
                 //if (lines == null)
@@ -254,8 +257,8 @@ namespace CommonLib.Clients
                 if (string.IsNullOrWhiteSpace(fileName))
                     throw new ArgumentException("待写入文件的名称为空！", "string fileName");
 
-                if (lines == null || lines.Count() == 0)
-                    return;
+                //if (lines == null || lines.Count() == 0)
+                //    return;
 
                 string filePath = FileSystemHelper.TrimFilePath(path) + FileSystemHelper.DirSeparator + fileName; //包含文件名的路径
 
@@ -323,6 +326,9 @@ namespace CommonLib.Clients
         /// <param name="level">当前行在文本中的级别，0最高，每增加1级添加4个空格</param>
         public static void WriteLogsToFile(IEnumerable<string> lines, string subDir, string fileName, bool usingSplitter, int level)
         {
+            if (lines == null || lines.Count() == 0)
+                return;
+
             try
             {
                 //日志存储路径，保存在程序启动目录下特定皮带秤文件夹中，移除LogFolder首部以及尾部的"\"，假如有的话

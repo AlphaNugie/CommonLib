@@ -9,6 +9,9 @@ namespace CommonLibExample.PropertyMapper.Model
 {
     public class StudentSource
     {
+        [PropertyMapperFrom("TestEnum")]
+        public int TestEnumValue { get; set; }
+
         [PropertyMapperTo("Name")]
         [PropertyMapperFrom("Name")]
         public string StudentName { get; set; } = string.Empty;

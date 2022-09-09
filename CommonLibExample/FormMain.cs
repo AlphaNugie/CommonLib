@@ -59,11 +59,7 @@ namespace CommonLibExample
         {
             //窗体关闭原因为单击"关闭"按钮或Alt+F4  
             if (e.CloseReason == CloseReason.UserClosing)
-            {
-                //e.Cancel = true; //取消关闭操作 表现为不关闭窗体
-                //HideWindow();
                 return;
-            }
         }
 
         private void Button_CustomMessageBox_Click(object sender, EventArgs e)

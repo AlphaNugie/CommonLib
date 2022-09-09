@@ -4,6 +4,7 @@ using CommonLib.Extensions;
 using CommonLib.Extensions.Property;
 using CommonLib.Function;
 using CommonLib.Helpers;
+using CommonLib.UIControlUtil;
 using CommonLib.UIControlUtil.ControlTemplates;
 using CommonLibExample.MathNet;
 using CommonLibExample.PropertyMapper;
@@ -42,7 +43,11 @@ namespace CommonLibExample
             #endregion
 
             #region test
-            ////PropertyMapperExample.CopyToMethodTest();
+            //DataGridViewRow row = null;
+            //object o = row.ConvertDataGridViewRow2Obect<object>();
+            //return;
+
+            //PropertyMapperExample.CopyToMethodTest();
             //PropertyMapperExample.CopyFromMethodTest();
             //return;
             ////goto START;

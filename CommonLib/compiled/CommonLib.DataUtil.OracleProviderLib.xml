@@ -173,6 +173,25 @@
             <param name="password">密码</param>
             <returns>返回连接字符串</returns>
         </member>
+        <member name="M:CommonLib.DataUtil.OracleProvider.IsConnOpen(System.String,System.Int32,System.String,System.String,System.String,System.String@)">
+            <summary>
+            测试以给定的连接字符串模板以及相关数据库参数描述的数据库连接是否正常（能够连接）
+            </summary>
+            <param name="hostAddress">数据库主机地址</param>
+            <param name="hostPort">数据库主机端口</param>
+            <param name="serviceName">数据库名称</param>
+            <param name="userName">用户名</param>
+            <param name="password">密码</param>
+            <param name="connStr">输出的数据库字符串描述</param>
+            <returns>假如能够连接，返回true，否则返回false</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.OracleProvider.IsConnOpen(System.String)">
+            <summary>
+            测试以给定的连接字符串描述的Oracle数据库连接是否正常（能够连接）
+            </summary>
+            <param name="connStr">Oracle连接字符串</param>
+            <returns>假如能够连接，返回true，否则返回false</returns>
+        </member>
         <member name="M:CommonLib.DataUtil.OracleProvider.#ctor">
             <summary>
             以默认配置初始化OracleProvider

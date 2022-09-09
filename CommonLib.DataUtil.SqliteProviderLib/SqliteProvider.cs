@@ -45,6 +45,27 @@ namespace CommonLib.DataUtil
         {
             return string.Format(ConnStrModel, filePath);
         }
+
+        /// <summary>
+        /// 测试以给定的文件路径以及文件名称描述的数据库连接是否正常（能够连接）
+        /// </summary>
+        /// <param name="fileDir">数据库文件路径，假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+        /// <param name="fileName">数据库文件名称，包括后缀</param>
+        /// <returns>假如能够连接，返回true，否则返回false</returns>
+        public static bool IsConnOpen(string fileDir, string fileName)
+        {
+            return IsConnOpen(GetConnStr(fileDir, fileName));
+        }
+
+        /// <summary>
+        /// 测试以给定的连接字符串描述的sqlite数据库连接是否正常（能够连接）
+        /// </summary>
+        /// <param name="connStr">sqlite连接字符串</param>
+        /// <returns>假如能够连接，返回true，否则返回false</returns>
+        public static new bool IsConnOpen(string connStr)
+        {
+            return DataProvider<SQLiteConnection, SQLiteDataAdapter, SQLiteCommand, SQLiteTransaction, SQLiteParameter>.IsConnOpen(connStr);
+        }
         #endregion
 
         #region 构造器

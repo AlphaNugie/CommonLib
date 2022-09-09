@@ -6,6 +6,7 @@ using MySql.Data.MySqlClient;
 using System.Configuration;
 using System.Data.Common;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace CommonLib.DataUtil
 {
@@ -42,26 +43,31 @@ password = {4};";
             //return string.Format(ConnStrModel, hostAddress, hostPort, serviceName, userName, password);
         }
 
-        ///// <summary>
-        ///// 测试数据库连接是否正常（能够连接）
-        ///// </summary>
-        ///// <param name="connStr">连接字符串</param>
-        ///// <returns>假如能够连接，返回true，否则返回false</returns>
-        //public static bool IsConnOpen(string connStr)
-        //{
-        //    return IsConnOpen(connStr);
-        //    //using (var connection = new MySqlConnection(connStr))
-        //    //{
-        //    //    ConnectionState state = ConnectionState.Closed;
-        //    //    try
-        //    //    {
-        //    //        connection.Open();
-        //    //        state = connection.State;
-        //    //    }
-        //    //    catch (Exception) { state = ConnectionState.Closed; }
-        //    //    return state == ConnectionState.Open;
-        //    //}
-        //}
+        /// <summary>
+        /// 测试以给定的连接字符串模板以及相关数据库参数描述的数据库连接是否正常（能够连接）
+        /// </summary>
+        /// <param name="hostAddress">数据库主机地址</param>
+        /// <param name="hostPort">数据库主机端口</param>
+        /// <param name="serviceName">数据库名称</param>
+        /// <param name="userName">用户名</param>
+        /// <param name="password">密码</param>
+        /// <param name="connStr">输出的数据库字符串描述</param>
+        /// <returns>假如能够连接，返回true，否则返回false</returns>
+        public static bool IsConnOpen(string hostAddress, int hostPort, string serviceName, string userName, string password, out string connStr)
+        {
+            //return IsConnOpen(GetConnStr(ConnStrModel, hostAddress, hostPort, serviceName, userName, password));
+            return IsConnOpen(ConnStrModel, hostAddress, hostPort, serviceName, userName, password, out connStr);
+        }
+
+        /// <summary>
+        /// 测试以给定的连接字符串描述的MySql数据库连接是否正常（能够连接）
+        /// </summary>
+        /// <param name="connStr">MySql连接字符串</param>
+        /// <returns>假如能够连接，返回true，否则返回false</returns>
+        public static new bool IsConnOpen(string connStr)
+        {
+            return DataProvider<MySqlConnection, MySqlDataAdapter, MySqlCommand, MySqlTransaction, MySqlParameter>.IsConnOpen(connStr);
+        }
         #endregion
 
         ///// <summary>

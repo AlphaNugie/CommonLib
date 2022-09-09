@@ -29,16 +29,49 @@ namespace CommonLib.DataUtil
         /// <summary>
         /// 获取连接字符串
         /// </summary>
-        /// <param name="connStr">连接字符串模板，按顺序为后面5个参数留出替换格式项（如{0}, {1}）</param>
+        /// <param name="connStrModel">连接字符串模板，按顺序为后面5个参数留出替换格式项（如{0}, {1}）</param>
         /// <param name="hostAddress">数据库主机地址</param>
         /// <param name="hostPort">数据库主机端口</param>
         /// <param name="serviceName">数据库名称</param>
         /// <param name="userName">用户名</param>
         /// <param name="password">密码</param>
         /// <returns>返回连接字符串</returns>
-        public static string GetConnStr(string connStr, string hostAddress, int hostPort, string serviceName, string userName, string password)
+        public static string GetConnStr(string connStrModel, string hostAddress, int hostPort, string serviceName, string userName, string password)
         {
-            return string.Format(connStr, hostAddress, hostPort, serviceName, userName, password);
+            return string.Format(connStrModel, hostAddress, hostPort, serviceName, userName, password);
+        }
+
+        /// <summary>
+        /// 测试以给定的连接字符串模板以及相关数据库参数描述的数据库连接是否正常（能够连接）
+        /// </summary>
+        /// <param name="connStrModel">连接字符串模板，按顺序为后面5个参数留出替换格式项（如{0}, {1}）</param>
+        /// <param name="hostAddress">数据库主机地址</param>
+        /// <param name="hostPort">数据库主机端口</param>
+        /// <param name="serviceName">数据库名称</param>
+        /// <param name="userName">用户名</param>
+        /// <param name="password">密码</param>
+        /// <returns>假如能够连接，返回true，否则返回false</returns>
+        public static bool IsConnOpen(string connStrModel, string hostAddress, int hostPort, string serviceName, string userName, string password)
+        {
+            return IsConnOpen(connStrModel, hostAddress, hostPort, serviceName, userName, password, out _);
+            //return IsConnOpen(GetConnStr(connStrModel, hostAddress, hostPort, serviceName, userName, password));
+        }
+
+        /// <summary>
+        /// 测试以给定的连接字符串模板以及相关数据库参数描述的数据库连接是否正常（能够连接），测试完成后输出数据库字符串描述
+        /// </summary>
+        /// <param name="connStrModel">连接字符串模板，按顺序为后面5个参数留出替换格式项（如{0}, {1}）</param>
+        /// <param name="hostAddress">数据库主机地址</param>
+        /// <param name="hostPort">数据库主机端口</param>
+        /// <param name="serviceName">数据库名称</param>
+        /// <param name="userName">用户名</param>
+        /// <param name="password">密码</param>
+        /// <param name="connStr">输出的数据库字符串描述</param>
+        /// <returns>假如能够连接，返回true，否则返回false</returns>
+        public static bool IsConnOpen(string connStrModel, string hostAddress, int hostPort, string serviceName, string userName, string password, out string connStr)
+        {
+            connStr = GetConnStr(connStrModel, hostAddress, hostPort, serviceName, userName, password);
+            return IsConnOpen(connStr);
         }
 
         /// <summary>

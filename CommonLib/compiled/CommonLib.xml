@@ -1810,9 +1810,14 @@
             初始化Task类，默认任务执行间隔1000毫秒，初始状态为暂停
             </summary>
         </member>
+        <member name="M:CommonLib.Clients.Tasks.Task.Initialize">
+            <summary>
+            初始化任务，同时将添加的日志从缓冲区保存到正式列表中，也可进行一些其它内置的操作
+            </summary>
+        </member>
         <member name="M:CommonLib.Clients.Tasks.Task.Init">
             <summary>
-            任务初始化
+            任务初始化（不会保留添加的任务日志或进行其它任何其它操作）
             </summary>
         </member>
         <member name="M:CommonLib.Clients.Tasks.Task.Run">
@@ -1863,6 +1868,11 @@
             </summary>
             <param name="logs"></param>
             <param name="trim">是否过滤空字符串与前后空格</param>
+        </member>
+        <member name="M:CommonLib.Clients.Tasks.Task.FlushLogs">
+            <summary>
+            将任务日志从缓冲区发送到正式列表中
+            </summary>
         </member>
         <member name="M:CommonLib.Clients.Tasks.Task.PrintTaskLogs">
             <summary>
@@ -2473,12 +2483,12 @@
             ID改变事件
             </summary>
         </member>
-        <member name="F:CommonLib.DataUtil.BaseModel.eventArgs">
+        <member name="E:CommonLib.DataUtil.BaseModel.PropertyChanged">
             <summary>
-            ID改变事件的事件数据类
+            属性改变事件
             </summary>
         </member>
-        <member name="F:CommonLib.DataUtil.BaseModel.id">
+        <member name="F:CommonLib.DataUtil.BaseModel._id">
             <summary>
             记录的唯一编号
             </summary>
@@ -2508,10 +2518,31 @@
             更新时间
             </summary>
         </member>
+        <member name="P:CommonLib.DataUtil.BaseModel.ViewName">
+            <summary>
+            显示的名称
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.BaseModel.Checked">
+            <summary>
+            是否选中
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.BaseModel.RoutineStatus">
+            <summary>
+            当前记录的状态（新增、修改或删除）
+            </summary>
+        </member>
         <member name="M:CommonLib.DataUtil.BaseModel.#ctor">
             <summary>
             构造器
             </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseModel.NotifyPropertyChanged(System.String)">
+            <summary>
+            通知属性改变
+            </summary>
+            <param name="propertyName"></param>
         </member>
         <member name="T:CommonLib.DataUtil.BatisLike">
             <summary>
@@ -2696,13 +2727,38 @@
             <summary>
             获取连接字符串
             </summary>
-            <param name="connStr">连接字符串模板，按顺序为后面5个参数留出替换格式项（如{0}, {1}）</param>
+            <param name="connStrModel">连接字符串模板，按顺序为后面5个参数留出替换格式项（如{0}, {1}）</param>
             <param name="hostAddress">数据库主机地址</param>
             <param name="hostPort">数据库主机端口</param>
             <param name="serviceName">数据库名称</param>
             <param name="userName">用户名</param>
             <param name="password">密码</param>
             <returns>返回连接字符串</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.DataProvider`5.IsConnOpen(System.String,System.String,System.Int32,System.String,System.String,System.String)">
+            <summary>
+            测试以给定的连接字符串模板以及相关数据库参数描述的数据库连接是否正常（能够连接）
+            </summary>
+            <param name="connStrModel">连接字符串模板，按顺序为后面5个参数留出替换格式项（如{0}, {1}）</param>
+            <param name="hostAddress">数据库主机地址</param>
+            <param name="hostPort">数据库主机端口</param>
+            <param name="serviceName">数据库名称</param>
+            <param name="userName">用户名</param>
+            <param name="password">密码</param>
+            <returns>假如能够连接，返回true，否则返回false</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.DataProvider`5.IsConnOpen(System.String,System.String,System.Int32,System.String,System.String,System.String,System.String@)">
+            <summary>
+            测试以给定的连接字符串模板以及相关数据库参数描述的数据库连接是否正常（能够连接），测试完成后输出数据库字符串描述
+            </summary>
+            <param name="connStrModel">连接字符串模板，按顺序为后面5个参数留出替换格式项（如{0}, {1}）</param>
+            <param name="hostAddress">数据库主机地址</param>
+            <param name="hostPort">数据库主机端口</param>
+            <param name="serviceName">数据库名称</param>
+            <param name="userName">用户名</param>
+            <param name="password">密码</param>
+            <param name="connStr">输出的数据库字符串描述</param>
+            <returns>假如能够连接，返回true，否则返回false</returns>
         </member>
         <member name="M:CommonLib.DataUtil.DataProvider`5.IsConnOpen(System.String)">
             <summary>
@@ -2932,6 +2988,7 @@
         <member name="T:CommonLib.DataUtil.Record">
             <summary>
             数据记录基础类
+            （已弃用，建议使用BaseModel）
             </summary>
         </member>
         <member name="P:CommonLib.DataUtil.Record.Id">
@@ -2991,6 +3048,25 @@
             <param name="userName">用户名</param>
             <param name="password">密码</param>
             <returns>返回连接字符串</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqlProvider.IsConnOpen(System.String,System.Int32,System.String,System.String,System.String,System.String@)">
+            <summary>
+            测试以给定的连接字符串模板以及相关数据库参数描述的数据库连接是否正常（能够连接）
+            </summary>
+            <param name="hostAddress">数据库主机地址</param>
+            <param name="hostPort">数据库主机端口</param>
+            <param name="serviceName">数据库名称</param>
+            <param name="userName">用户名</param>
+            <param name="password">密码</param>
+            <param name="connStr">输出的数据库字符串描述</param>
+            <returns>假如能够连接，返回true，否则返回false</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqlProvider.IsConnOpen(System.String)">
+            <summary>
+            测试以给定的连接字符串描述的SqlServer数据库连接是否正常（能够连接）
+            </summary>
+            <param name="connStr">SqlServer连接字符串</param>
+            <returns>假如能够连接，返回true，否则返回false</returns>
         </member>
         <member name="M:CommonLib.DataUtil.SqlProvider.#ctor">
             <summary>
@@ -3178,11 +3254,6 @@
         <member name="T:CommonLib.Enums.RoutineStatus">
             <summary>
             数据维护页面所处状态
-            </summary>
-        </member>
-        <member name="F:CommonLib.Enums.RoutineStatus.DEFAULT">
-            <summary>
-            默认状态
             </summary>
         </member>
         <member name="F:CommonLib.Enums.RoutineStatus.REGULAR">
@@ -5209,6 +5280,61 @@
             <param name="pattern">匹配模式</param>
             <returns>返回包含匹配字符串的字符串数组</returns>
         </member>
+        <member name="T:CommonLib.Helpers.ImageHelper">
+            <summary>
+            图像操作工具类
+            </summary>
+        </member>
+        <member name="M:CommonLib.Helpers.ImageHelper.ImageToBytes(System.Drawing.Image)">
+            <summary>
+            Convert Image to Byte[]
+            </summary>
+            <param name="image"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Helpers.ImageHelper.BytesToImage(System.Byte[])">
+            <summary>
+            Convert Byte[] to Image
+            </summary>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Helpers.ImageHelper.CreateImageFromBytes(System.String,System.Byte[])">
+            <summary>
+            Convert Byte[] to a picture and Store it in file
+            </summary>
+            <param name="fileName"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CommonLib.Helpers.MD5Helper">
+            <summary>
+            MD5操作工具类
+            </summary>
+        </member>
+        <member name="M:CommonLib.Helpers.MD5Helper.CreateMD5(System.String)">
+            <summary>
+            计算指定文件的MD5值
+            </summary>
+            <param name="fileName">指定文件的路径</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Helpers.MD5Helper.CreateMD5(System.IO.Stream)">
+            <summary>
+            根据流计算MD5值
+            </summary>
+            <param name="stream"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Helpers.MD5Helper.CreateMD5(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="buffer"></param>
+            <param name="offset"></param>
+            <param name="count"></param>
+            <returns></returns>
+        </member>
         <member name="T:CommonLib.Helpers.DateTimeHelper">
             <summary>
             DateTime类
@@ -5616,7 +5742,7 @@
             DataGridView相关方法
             </summary>
         </member>
-        <member name="M:CommonLib.UIControlUtil.DataGridViewUtil.ConvertDataGridViewRow2Obect``1(System.Windows.Forms.DataGridViewRow,System.Boolean)">
+        <member name="M:CommonLib.UIControlUtil.DataGridViewUtil.Convert2Object``1(System.Windows.Forms.DataGridViewRow,System.Boolean)">
             <summary>
             将DataGridViewRow对象转换为实体类对象，列名应为 "XXX_[PropertyName]" 的形式
             </summary>
@@ -5625,12 +5751,30 @@
             <param name="throwing">是否抛出异常</param>
             <returns></returns>
         </member>
-        <member name="M:CommonLib.UIControlUtil.DataGridViewUtil.ConvertDataGridViewRow2Obect``1(System.Windows.Forms.DataGridViewRow)">
+        <member name="M:CommonLib.UIControlUtil.DataGridViewUtil.Convert2Object``1(System.Windows.Forms.DataGridViewRow)">
             <summary>
             将DataGridViewRow对象转换为实体类对象，列名应为 "XXX_[PropertyName]" 的形式
             </summary>
             <typeparam name="T">欲转换为的泛型类</typeparam>
             <param name="row">DataGridViewRow对象</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.UIControlUtil.DataGridViewUtil.ConvertDataGridViewRow2Object``1(System.Windows.Forms.DataGridViewRow)">
+            <summary>
+            将DataGridViewRow对象转换为实体类对象，列名应为 "XXX_[PropertyName]" 的形式
+            （已过时，建议使用扩展方法Convert2Object）
+            </summary>
+            <typeparam name="T">欲转换为的泛型类</typeparam>
+            <param name="row">DataGridViewRow对象</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.UIControlUtil.DataGridViewUtil.ConvertDataGridViewRow2Object``1(System.Windows.Forms.DataGridViewRow,System.Boolean)">
+            <summary>
+            将DataGridViewRow对象转换为实体类对象，列名应为 "XXX_[PropertyName]" 的形式
+            </summary>
+            <typeparam name="T">欲转换为的泛型类</typeparam>
+            <param name="row">DataGridViewRow对象</param>
+            <param name="throwing">是否抛出异常</param>
             <returns></returns>
         </member>
         <member name="T:CommonLib.UIControlUtil.DataGridViewExtentionClass">
@@ -5676,10 +5820,16 @@
         </member>
         <member name="M:CommonLib.UIControlUtil.TabControlUtil.DisposeTabPage(System.Windows.Forms.TabControl,System.Windows.Forms.TabPage)">
             <summary>
-            释放TabControl的TabPage资源
+            释放TabControl的TabPage资源(WinForm)
             </summary>
             <param name="tabControl">需释放TabPage资源的TabControl控件</param>
             <param name="page">TabPage对象</param>
+        </member>
+        <member name="M:CommonLib.UIControlUtil.TabControlUtil.DisposeTabPage(System.Windows.Forms.TabPage)">
+            <summary>
+            释放TabPage资源(WinForm)
+            </summary>
+            <param name="page">需进行资源释放的TabPage对象</param>
         </member>
         <member name="M:CommonLib.UIControlUtil.TabControlUtil.DisposeAllTabPages(System.Windows.Forms.TabControl)">
             <summary>
@@ -5741,6 +5891,20 @@
             <summary>
             扩展方法类
             </summary>
+        </member>
+        <member name="M:CommonLib.UIControlUtil.TreeViewUtil.GetAllNodes(System.Windows.Forms.TreeView,System.Boolean)">
+            <summary>
+            遍历TreeView下的所有节点，可选择是否包括子节点
+            </summary>
+            <param name="treeView">当前等待遍历的TreeView</param>
+            <param name="childIncl">是否算入子节点</param>
+        </member>
+        <member name="M:CommonLib.UIControlUtil.TreeViewUtil.GetAllNodes(System.Windows.Forms.TreeNode,System.Boolean)">
+            <summary>
+            遍历TreeNode下的所有节点，可选择是否包括子节点
+            </summary>
+            <param name="treeNode">当前等待遍历的TreeNode</param>
+            <param name="childIncl">是否算入子节点</param>
         </member>
         <member name="M:CommonLib.UIControlUtil.TreeViewUtil.BindTreeViewDataSource(System.Windows.Forms.TreeView,System.Data.DataTable,System.String,System.String,System.String)">
             <summary>

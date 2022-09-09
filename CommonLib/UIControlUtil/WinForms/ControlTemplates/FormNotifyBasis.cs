@@ -144,6 +144,11 @@ namespace CommonLib.UIControlUtil.ControlTemplates
         }
         #endregion
 
+        private void FormNotifyBasis_TextChanged(object sender, EventArgs e)
+        {
+            notifyIcon_Main.Text = Text;
+        }
+
         private void FormNotifyBasis_Resize(object sender, EventArgs e)
         {
             if (_resizing)

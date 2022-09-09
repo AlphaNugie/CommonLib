@@ -47,6 +47,32 @@ namespace CommonLib.DataUtil
             return GetConnStr(ConnStrModel, hostAddress, hostPort, serviceName, userName, password);
             //return string.Format(ConnStrModel, hostAddress, hostPort, serviceName, userName, password);
         }
+
+        /// <summary>
+        /// 测试以给定的连接字符串模板以及相关数据库参数描述的数据库连接是否正常（能够连接）
+        /// </summary>
+        /// <param name="hostAddress">数据库主机地址</param>
+        /// <param name="hostPort">数据库主机端口</param>
+        /// <param name="serviceName">数据库名称</param>
+        /// <param name="userName">用户名</param>
+        /// <param name="password">密码</param>
+        /// <param name="connStr">输出的数据库字符串描述</param>
+        /// <returns>假如能够连接，返回true，否则返回false</returns>
+        public static bool IsConnOpen(string hostAddress, int hostPort, string serviceName, string userName, string password, out string connStr)
+        {
+            //return IsConnOpen(GetConnStr(ConnStrModel, hostAddress, hostPort, serviceName, userName, password));
+            return IsConnOpen(ConnStrModel, hostAddress, hostPort, serviceName, userName, password, out connStr);
+        }
+
+        /// <summary>
+        /// 测试以给定的连接字符串描述的Oracle数据库连接是否正常（能够连接）
+        /// </summary>
+        /// <param name="connStr">Oracle连接字符串</param>
+        /// <returns>假如能够连接，返回true，否则返回false</returns>
+        public static new bool IsConnOpen(string connStr)
+        {
+            return DataProvider<OracleConnection, OracleDataAdapter, OracleCommand, OracleTransaction, OracleParameter>.IsConnOpen(connStr);
+        }
         #endregion
 
         ///// <summary>
@@ -121,7 +147,7 @@ namespace CommonLib.DataUtil
                 list.Add(new OracleParameter(cursorName, OracleDbType.RefCursor, ParameterDirection.Output));
                 parameters = list;
             }
-            return base.RunProcedureQuery(procedureName, parameters);
+            return RunProcedureQuery(procedureName, parameters);
         }
     }
 }

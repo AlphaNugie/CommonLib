@@ -11,7 +11,9 @@ namespace CommonLib.DataUtil
 {
     /// <summary>
     /// 数据记录基础类
+    /// （已弃用，建议使用BaseModel）
     /// </summary>
+    [Obsolete]
     public class Record : INotifyPropertyChanged
     {
         private int _id;
@@ -70,7 +72,8 @@ namespace CommonLib.DataUtil
         /// </summary>
         public Record()
         {
-            this.RoutineStatus = RoutineStatus.DEFAULT;
+            //RoutineStatus = RoutineStatus.DEFAULT;
+            RoutineStatus = RoutineStatus.REGULAR;
         }
 
         /// <summary>
@@ -79,8 +82,8 @@ namespace CommonLib.DataUtil
         /// <param name="propertyName"></param>
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
-            if (this.RoutineStatus == RoutineStatus.DEFAULT || this.RoutineStatus == RoutineStatus.REGULAR || this.RoutineStatus == RoutineStatus.EDIT)
-                this.RoutineStatus = RoutineStatus.EDIT;
+            if (/*RoutineStatus == RoutineStatus.DEFAULT || */RoutineStatus == RoutineStatus.REGULAR || RoutineStatus == RoutineStatus.EDIT)
+                RoutineStatus = RoutineStatus.EDIT;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }

@@ -125,8 +125,10 @@
     <Compile Include="Function\Fitting\CurveFitting.cs" />
     <Compile Include="Extensions\ExtensionClass.cs" />
     <Compile Include="Helpers\HexHelper.cs" />
+    <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\IniFileHelper.cs" />
     <Compile Include="Extensions\MathExtension.cs" />
+    <Compile Include="Helpers\MD5Helper.cs" />
     <Compile Include="Helpers\Modbus\ModbusHelper.cs" />
     <Compile Include="Function\OperateIniFile.cs" />
     <Compile Include="Function\TimerEventRaiser.cs" />

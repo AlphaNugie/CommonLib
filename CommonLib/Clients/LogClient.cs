@@ -29,12 +29,12 @@ namespace CommonLib.Clients
         /// </summary>
         public string LogDir
         {
-            get { return this.logDir; }
+            get { return logDir; }
             set
             {
-                this.logDir = value;
-                this.UpdateLogDirFull(this.logDir, this.SubDir);
-                //this.LogDirFull = this.logDir + (string.IsNullOrWhiteSpace(this.logDir) ? string.Empty : Base.DirSeparator + this.SubDir);
+                logDir = value;
+                UpdateLogDirFull(logDir, SubDir);
+                //LogDirFull = logDir + (string.IsNullOrWhiteSpace(logDir) ? string.Empty : Base.DirSeparator + SubDir);
             }
         }
 
@@ -43,11 +43,11 @@ namespace CommonLib.Clients
         /// </summary>
         public string SubDir
         {
-            get { return this.subDir; }
+            get { return subDir; }
             set
             {
-                this.subDir = value;
-                this.UpdateLogDirFull(this.LogDir, this.subDir);
+                subDir = value;
+                UpdateLogDirFull(LogDir, subDir);
             }
         }
 
@@ -83,12 +83,12 @@ namespace CommonLib.Clients
         ///// <param name="logWithTime">记录是否添加时间</param>
         //public LogClient(string logDir, string subDir, string fileName, bool usingSplitter, bool addDate, bool logWithTime) : base(logDir + (string.IsNullOrWhiteSpace(subDir) ? string.Empty : FileSystemHelper.DirSeparator + subDir), fileName, false)
         //{
-        //    this.LogDir = logDir;
-        //    this.SubDir = subDir;
-        //    //this.LogDirFull = this.LogDir + (string.IsNullOrWhiteSpace(this.LogDir) ? string.Empty : Base.DirSeparator + this.SubDir);
-        //    this.UsingSplitter = usingSplitter;
-        //    this.AddDate = addDate;
-        //    this.LogWithTime = logWithTime;
+        //    LogDir = logDir;
+        //    SubDir = subDir;
+        //    //LogDirFull = LogDir + (string.IsNullOrWhiteSpace(LogDir) ? string.Empty : Base.DirSeparator + SubDir);
+        //    UsingSplitter = usingSplitter;
+        //    AddDate = addDate;
+        //    LogWithTime = logWithTime;
         //}
 
         ///// <summary>
@@ -111,11 +111,11 @@ namespace CommonLib.Clients
         /// <param name="addDate">文件名中是否添加日期</param>
         public LogClient(string logDir, string subDir, string fileName, bool usingSplitter, bool addDate) : base(logDir + (string.IsNullOrWhiteSpace(subDir) ? string.Empty : FileSystemHelper.DirSeparator + subDir), fileName, false)
         {
-            this.LogDir = logDir;
-            this.SubDir = subDir;
-            //this.LogDirFull = this.LogDir + (string.IsNullOrWhiteSpace(this.LogDir) ? string.Empty : Base.DirSeparator + this.SubDir);
-            this.UsingSplitter = usingSplitter;
-            this.AddDate = addDate;
+            LogDir = logDir;
+            SubDir = subDir;
+            //LogDirFull = LogDir + (string.IsNullOrWhiteSpace(LogDir) ? string.Empty : Base.DirSeparator + SubDir);
+            UsingSplitter = usingSplitter;
+            AddDate = addDate;
         }
 
         /// <summary>
@@ -136,8 +136,8 @@ namespace CommonLib.Clients
             //日志存储路径，保存在程序启动目录下特定皮带秤文件夹中，移除LogFolder首部以及尾部的"\"，假如有的话
             if (!logDir.Contains(FileSystemHelper.VolumeSeparator) && !string.IsNullOrWhiteSpace(logDir))
                 logDir = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.DirSeparator + FileSystemHelper.TrimFilePath(logDir);
-            this.LogDirFull = logDir + (string.IsNullOrWhiteSpace(logDir) ? string.Empty : FileSystemHelper.DirSeparator + subDir);
-            this.Path = this.LogDirFull;
+            LogDirFull = logDir + (string.IsNullOrWhiteSpace(logDir) ? string.Empty : FileSystemHelper.DirSeparator + subDir);
+            Path = LogDirFull;
         }
 
         /// <summary>
@@ -147,33 +147,16 @@ namespace CommonLib.Clients
         /// <param name="level">当前行在文本中的级别，0最高，每增加1级添加4个空格</param>
         public void WriteLogsToFile(IEnumerable<string> lines, int level)
         {
+            if (lines == null || lines.Count() == 0)
+                return;
+
             try
             {
                 string localDateTime = string.Format("{0:yyyy年M月d日 H时m分s秒}", DateTime.Now); //本地格式的日期时间，精确到秒
 
-                ////假如添加日志分隔符或添加空格（每一行文本级别不为0）
-                //if (this.UsingSplitter || level != 0)
-                //{
-                //    var list = new List<string>();
-                //    //是否需要添加分隔符和时间记录
-                //    if (this.UsingSplitter)
-                //    {
-                //        list.Add(Base.NewLine + TEXT_SPLIT + Base.NewLine);
-                //        list.Add(localDateTime + "：" + Base.NewLine); //待写入的文本中添加日期时间
-                //    }
-                //    //添加原有文本行
-                //    foreach (var line in lines)
-                //    {
-                //        string prefix = new string(' ', level * 4); //根据每一行的级别添加空格
-                //        list.Add(prefix + line);
-                //    }
-
-                //    lines = list.ToArray();
-                //}
-
                 var list = new List<string>();
                 //是否需要添加分隔符和时间记录
-                if (this.UsingSplitter)
+                if (UsingSplitter)
                 {
                     list.Add(Base.NewLine + TEXT_SPLIT + Base.NewLine);
                     list.Add(localDateTime + "：" + Base.NewLine); //待写入的文本中添加日期时间
@@ -182,10 +165,10 @@ namespace CommonLib.Clients
                 foreach (var line in lines)
                 {
                     string prefix = level == 0 ? string.Empty : new string(' ', level * 4); //根据每一行的级别添加空格
-                    list.Add((this.LogWithTime ? Functions.AddTimeToMessage(prefix) : prefix) + line);
+                    list.Add((LogWithTime ? Functions.AddTimeToMessage(prefix) : prefix) + line);
                 }
 
-                this.WriteLinesToFile(list);
+                WriteLinesToFile(list);
             }
             catch (IOException) { }
         }
@@ -196,7 +179,7 @@ namespace CommonLib.Clients
         /// <param name="lines">待写入的字符串数组</param>
         public void WriteLogsToFile(IEnumerable<string> lines)
         {
-            this.WriteLogsToFile(lines, 0);
+            WriteLogsToFile(lines, 0);
         }
 
         /// <summary>
@@ -205,7 +188,7 @@ namespace CommonLib.Clients
         /// <param name="line"></param>
         public void WriteLogsToFile(string line)
         {
-            this.WriteLogsToFile(new string[] { line }, 0);
+            WriteLogsToFile(new string[] { line }, 0);
         }
     }
 }

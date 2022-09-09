@@ -58,8 +58,22 @@
         </member>
         <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.CheckForTableColumns(System.String@)">
             <summary>
-            检查数据项表的字段，假如缺少字段则增加
+            检查数据表的字段，假如缺少字段则增加
             </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.TableExists(System.Data.DataTable@)">
+            <summary>
+            判断
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.CheckForTable(System.Data.DataTable@,System.String@)">
+            <summary>
+            检查数据表是否存在，不存在则新增
+            </summary>
+            <param name="table"></param>
+            <param name="message"></param>
+            <returns></returns>
         </member>
         <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.GetAllRecords(System.String)">
             <summary>
@@ -81,6 +95,26 @@
         <member name="P:CommonLib.DataUtil.SqliteColumnMapping.SqlType">
             <summary>
             字段类型
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.Size">
+            <summary>
+            字段长度
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.PrimaryKey">
+            <summary>
+            是否为主键
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.PrimaryKeyConflictClause">
+            <summary>
+            引起主键冲突时的操作
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.SqliteColumnMapping.AutoIncrement">
+            <summary>
+            是否自增
             </summary>
         </member>
         <member name="P:CommonLib.DataUtil.SqliteColumnMapping.NotNull">
@@ -113,22 +147,33 @@
             字段架构
             </summary>
         </member>
-        <member name="M:CommonLib.DataUtil.SqliteColumnMapping.#ctor(System.String,CommonLib.DataUtil.SqliteSqlType,System.Boolean,CommonLib.DataUtil.ConflictClause,System.Nullable{System.Double},System.Boolean,CommonLib.DataUtil.ConflictClause)">
+        <member name="M:CommonLib.DataUtil.SqliteColumnMapping.#ctor(System.String,CommonLib.DataUtil.SqliteSqlType,System.Nullable{System.Int32},System.Boolean,CommonLib.DataUtil.ConflictClause,System.Nullable{System.Double},System.Boolean,CommonLib.DataUtil.ConflictClause,System.Boolean,CommonLib.DataUtil.ConflictClause,System.Boolean)">
             <summary>
             构造器
             </summary>
             <param name="columnName">字段名称</param>
             <param name="sqlType">字段类型</param>
+            <param name="size">字段长度</param>
             <param name="notNull">是否非空</param>
             <param name="notNullConflictClause">非空冲突的操作</param>
             <param name="defaultValue">默认值</param>
             <param name="unique">是否受唯一约束</param>
             <param name="uniqueConflictClause">唯一约束冲突的操作</param>
+            <param name="primaryKey">是否主键</param>
+            <param name="primaryKeyConflictClause">主键冲突的操作</param>
+            <param name="autoIncrement">作为主键是否自增</param>
         </member>
         <member name="M:CommonLib.DataUtil.SqliteColumnMapping.GetStructure">
             <summary>
-            获取当前字段对象的架构语句
+            获取当前字段对象的架构语句，默认为修改表
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteColumnMapping.GetStructure(System.Boolean)">
+            <summary>
+            获取当前字段对象的架构语句，并制定是新建表还是修改表
+            </summary>
+            <param name="creating">是否在创建表，为false则代表修改表</param>
             <returns></returns>
         </member>
         <member name="T:CommonLib.DataUtil.SqliteSqlType">
@@ -149,6 +194,16 @@
         <member name="F:CommonLib.DataUtil.SqliteSqlType.NUMBER">
             <summary>
             数值类型
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.SqliteSqlType.VARCHAR">
+            <summary>
+            字符串类型1
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.SqliteSqlType.VARCHAR2">
+            <summary>
+            字符串类型2
             </summary>
         </member>
         <member name="T:CommonLib.DataUtil.ConflictClause">
@@ -210,6 +265,21 @@
             </summary>
             <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
             <returns>返回连接字符串</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.IsConnOpen(System.String,System.String)">
+            <summary>
+            测试以给定的文件路径以及文件名称描述的数据库连接是否正常（能够连接）
+            </summary>
+            <param name="fileDir">数据库文件路径，假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+            <param name="fileName">数据库文件名称，包括后缀</param>
+            <returns>假如能够连接，返回true，否则返回false</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.IsConnOpen(System.String)">
+            <summary>
+            测试以给定的连接字符串描述的sqlite数据库连接是否正常（能够连接）
+            </summary>
+            <param name="connStr">sqlite连接字符串</param>
+            <returns>假如能够连接，返回true，否则返回false</returns>
         </member>
         <member name="M:CommonLib.DataUtil.SqliteProvider.#ctor">
             <summary>

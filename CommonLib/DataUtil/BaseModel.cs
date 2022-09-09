@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CommonLib.Enums;
 using CommonLib.Events;
 using CommonLib.Function;
 
@@ -14,36 +17,48 @@ namespace CommonLib.DataUtil
     /// <summary>
     /// 基础实体类
     /// </summary>
-    public class BaseModel
+    public class BaseModel : INotifyPropertyChanged
     {
+        #region 事件
         /// <summary>
         /// ID改变事件
         /// </summary>
         public event IdChangedEventHandler IdChanged;
 
         /// <summary>
-        /// ID改变事件的事件数据类
+        /// 属性改变事件
         /// </summary>
-        private readonly IdChangedEventArgs eventArgs = new IdChangedEventArgs();
+        public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
 
+        ///// <summary>
+        ///// ID改变事件的事件数据类
+        ///// </summary>
+        //private readonly IdChangedEventArgs eventArgs = new IdChangedEventArgs();
+
+        #region 数据库通用字段
         /// <summary>
         /// 记录的唯一编号
         /// </summary>
-        private int id = 0;
+        private int _id;
 
         /// <summary>
         /// 记录的唯一编号
         /// </summary>
         public int Id
         {
-            get { return id; }
+            get { return _id; }
             set
             {
-                eventArgs.FormerId = id;
-                id = value;
-                eventArgs.CurrentId = id;
-                if (IdChanged != null && eventArgs.CurrentId != eventArgs.FormerId)
+                if (_id == value)
+                    return;
+                var eventArgs = new IdChangedEventArgs() { FormerId = _id, CurrentId = value };
+                //eventArgs.FormerId = _id;
+                _id = value;
+                //eventArgs.CurrentId = _id;
+                if (IdChanged != null/* && eventArgs.CurrentId != eventArgs.FormerId*/)
                     IdChanged.BeginInvoke(GetType().Name, eventArgs, null, null);
+                NotifyPropertyChanged();
             }
         }
 
@@ -66,6 +81,22 @@ namespace CommonLib.DataUtil
         /// 更新时间
         /// </summary>
         public DateTime UpdateTime { get; set; }
+        #endregion
+
+        /// <summary>
+        /// 显示的名称
+        /// </summary>
+        public string ViewName { get; set; }
+
+        /// <summary>
+        /// 是否选中
+        /// </summary>
+        public bool Checked { get; set; }
+
+        /// <summary>
+        /// 当前记录的状态（新增、修改或删除）
+        /// </summary>
+        public RoutineStatus RoutineStatus { get; set; }
 
         /// <summary>
         /// 构造器
@@ -74,6 +105,18 @@ namespace CommonLib.DataUtil
         {
             Id = 0;
             Enable = 1; //是否可用默认为1
+            RoutineStatus = RoutineStatus.REGULAR;
+        }
+
+        /// <summary>
+        /// 通知属性改变
+        /// </summary>
+        /// <param name="propertyName"></param>
+        protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            if (/*RoutineStatus == RoutineStatus.DEFAULT || */RoutineStatus == RoutineStatus.REGULAR || RoutineStatus == RoutineStatus.EDIT)
+                RoutineStatus = RoutineStatus.EDIT;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

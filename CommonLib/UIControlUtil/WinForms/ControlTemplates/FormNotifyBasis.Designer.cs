@@ -53,31 +53,31 @@
             this.toolStripSeparator5,
             this.toolStripMenu_NotifyExit});
             this.contextMenuStrip_Main.Name = "contextMenuStrip1";
-            this.contextMenuStrip_Main.Size = new System.Drawing.Size(111, 82);
+            this.contextMenuStrip_Main.Size = new System.Drawing.Size(109, 82);
             // 
             // toolStripMenu_Show
             // 
             this.toolStripMenu_Show.Name = "toolStripMenu_Show";
-            this.toolStripMenu_Show.Size = new System.Drawing.Size(110, 24);
+            this.toolStripMenu_Show.Size = new System.Drawing.Size(108, 24);
             this.toolStripMenu_Show.Text = "显示";
             this.toolStripMenu_Show.Click += new System.EventHandler(this.ToolStripMenu_Show_Click);
             // 
             // toolStripMenu_Hide
             // 
             this.toolStripMenu_Hide.Name = "toolStripMenu_Hide";
-            this.toolStripMenu_Hide.Size = new System.Drawing.Size(110, 24);
+            this.toolStripMenu_Hide.Size = new System.Drawing.Size(108, 24);
             this.toolStripMenu_Hide.Text = "隐藏";
             this.toolStripMenu_Hide.Click += new System.EventHandler(this.ToolStripMenu_Hide_Click);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(107, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(105, 6);
             // 
             // toolStripMenu_NotifyExit
             // 
             this.toolStripMenu_NotifyExit.Name = "toolStripMenu_NotifyExit";
-            this.toolStripMenu_NotifyExit.Size = new System.Drawing.Size(110, 24);
+            this.toolStripMenu_NotifyExit.Size = new System.Drawing.Size(108, 24);
             this.toolStripMenu_NotifyExit.Text = "退出";
             this.toolStripMenu_NotifyExit.Click += new System.EventHandler(this.ToolStripMenu_NotifyExit_Click);
             // 
@@ -89,6 +89,7 @@
             this.Name = "FormNotifyBasis";
             this.Text = "FormNotifyBasis";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_FormClosing);
+            this.TextChanged += new System.EventHandler(this.FormNotifyBasis_TextChanged);
             this.Resize += new System.EventHandler(this.FormNotifyBasis_Resize);
             this.contextMenuStrip_Main.ResumeLayout(false);
             this.ResumeLayout(false);

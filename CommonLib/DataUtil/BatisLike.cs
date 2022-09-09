@@ -419,7 +419,7 @@ namespace CommonLib.DataUtil
         /// <typeparam name="T">最终转换为的实体类</typeparam>
         /// <param name="dataRow">包含待转换数据的数据行</param>
         /// <returns>返回转换后的实体类对象</returns>
-        public T ConvertObjectByDataRow<T>(DataRow dataRow) where T : Record
+        public T ConvertObjectByDataRow<T>(DataRow dataRow) where T : BaseModel/* where T : Record*/
         {
             T obj = Activator.CreateInstance<T>();
             if (this.PropertyMappers == null || this.PropertyMappers.Length == 0)
@@ -455,7 +455,10 @@ namespace CommonLib.DataUtil
                 //}
                 property.SetValue(obj, value);
             }
-            obj.RoutineStatus = RoutineStatus.DEFAULT;
+            //if (obj is Record)
+            //   //(obj as Record).RoutineStatus = RoutineStatus.DEFAULT;
+            //   (obj as Record).RoutineStatus = RoutineStatus.REGULAR;
+            obj.RoutineStatus = RoutineStatus.REGULAR;
 
             return obj;
         }
@@ -466,7 +469,7 @@ namespace CommonLib.DataUtil
         /// <typeparam name="T">最终转换为的实体类</typeparam>
         /// <param name="dataTable">包含待转换数据的数据表</param>
         /// <returns>返回转换后的实体类对象List</returns>
-        public List<T> ConvertObjectListByDataTable<T>(DataTable dataTable) where T : Record
+        public List<T> ConvertObjectListByDataTable<T>(DataTable dataTable) where T : BaseModel/* where T : Record*/
         {
             List<T> list = new List<T>();
             //if (dataTable == null || dataTable.Rows.Count == 0)

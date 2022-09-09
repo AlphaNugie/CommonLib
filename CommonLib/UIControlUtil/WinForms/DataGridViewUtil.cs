@@ -22,9 +22,39 @@ namespace CommonLib.UIControlUtil
         /// <param name="row">DataGridViewRow对象</param>
         /// <param name="throwing">是否抛出异常</param>
         /// <returns></returns>
-        public static T ConvertDataGridViewRow2Obect<T>(DataGridViewRow row, bool throwing)
+        public static T Convert2Object<T>(this DataGridViewRow row, bool throwing) => ConvertDataGridViewRow2Object<T>(row, throwing);
+
+        /// <summary>
+        /// 将DataGridViewRow对象转换为实体类对象，列名应为 "XXX_[PropertyName]" 的形式
+        /// </summary>
+        /// <typeparam name="T">欲转换为的泛型类</typeparam>
+        /// <param name="row">DataGridViewRow对象</param>
+        /// <returns></returns>
+        public static T Convert2Object<T>(this DataGridViewRow row) => ConvertDataGridViewRow2Object<T>(row, true);
+
+        /// <summary>
+        /// 将DataGridViewRow对象转换为实体类对象，列名应为 "XXX_[PropertyName]" 的形式
+        /// （已过时，建议使用扩展方法Convert2Object）
+        /// </summary>
+        /// <typeparam name="T">欲转换为的泛型类</typeparam>
+        /// <param name="row">DataGridViewRow对象</param>
+        /// <returns></returns>
+        [Obsolete]
+        public static T ConvertDataGridViewRow2Object<T>(DataGridViewRow row) => ConvertDataGridViewRow2Object<T>(row, true);
+
+        /// <summary>
+        /// 将DataGridViewRow对象转换为实体类对象，列名应为 "XXX_[PropertyName]" 的形式
+        /// </summary>
+        /// <typeparam name="T">欲转换为的泛型类</typeparam>
+        /// <param name="row">DataGridViewRow对象</param>
+        /// <param name="throwing">是否抛出异常</param>
+        /// <returns></returns>
+        [Obsolete]
+        public static T ConvertDataGridViewRow2Object<T>(DataGridViewRow row, bool throwing)
         {
             T obj = Activator.CreateInstance<T>();
+            if (row == null)
+                goto END;
             string columnName;
             string propName;
             //object value;
@@ -45,18 +75,8 @@ namespace CommonLib.UIControlUtil
                 }
             }
 
+            END:
             return obj;
-        }
-
-        /// <summary>
-        /// 将DataGridViewRow对象转换为实体类对象，列名应为 "XXX_[PropertyName]" 的形式
-        /// </summary>
-        /// <typeparam name="T">欲转换为的泛型类</typeparam>
-        /// <param name="row">DataGridViewRow对象</param>
-        /// <returns></returns>
-        public static T ConvertDataGridViewRow2Obect<T>(DataGridViewRow row)
-        {
-            return ConvertDataGridViewRow2Obect<T>(row, true);
         }
     }
 

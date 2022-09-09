@@ -32,7 +32,7 @@ namespace CommonLibExample.PropertyMapper
             //Student student = new Student() { Name = "Molly Shannon", Age = 17, School = new School() { Name = "Grandville High School", Position = new List<double>() { 119, 911 }, City = new City() { Name = "Gotham" } } };
             //studentSource.CopyPropertyValueFrom(student);
             StudentSource = new StudentSource();
-            Student = new Student() { Name = "Molly Shannon", Age = 17, School = new School() { Name = "Grandville High School", Position = new List<double>() { 119, 911 }, City = new City() { Name = "Gotham" } }, StrList = new List<string>() { "x1", "x2", "x3" } };
+            Student = new Student() { TestEnum = TestEnums.TestItem3, Name = "Molly Shannon", Age = 17, School = new School() { Name = "Grandville High School", Position = new List<double>() { 119, 911 }, City = new City() { Name = "Gotham" } }, StrList = new List<string>() { "x1", "x2", "x3" } };
             StudentSource.CopyPropertyValueFrom(Student);
         }
     }

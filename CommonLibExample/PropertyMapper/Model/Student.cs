@@ -8,6 +8,8 @@ namespace CommonLibExample.PropertyMapper.Model
 {
     public class Student
     {
+        public TestEnums TestEnum { get; set; }
+
         public string Name { get; set; }
 
         public int Age { get; set; }

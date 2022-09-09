@@ -169,6 +169,7 @@
     </Compile>
     <Compile Include="MathNet\MathNetSample.cs" />
     <Compile Include="PropertyMapper\Model\City.cs" />
+    <Compile Include="PropertyMapper\Model\Enums.cs" />
     <Compile Include="PropertyMapper\Model\School.cs" />
     <Compile Include="PropertyMapper\Model\Student.cs" />
     <Compile Include="PropertyMapper\Model\StudentSource.cs" />

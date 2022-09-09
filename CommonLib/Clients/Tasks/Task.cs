@@ -1,6 +1,8 @@
 ﻿using CommonLib.Function;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -88,7 +90,17 @@ namespace CommonLib.Clients.Tasks
         }
 
         /// <summary>
-        /// 任务初始化
+        /// 初始化任务，同时将添加的日志从缓冲区保存到正式列表中，也可进行一些其它内置的操作
+        /// </summary>
+        public void Initialize()
+        {
+            Init();
+            FlushLogs();
+            Initialized = true;
+        }
+
+        /// <summary>
+        /// 任务初始化（不会保留添加的任务日志或进行其它任何其它操作）
         /// </summary>
         public abstract void Init();
 
@@ -153,7 +165,8 @@ namespace CommonLib.Clients.Tasks
                 catch (Exception e) { _errorMessage = e.Message; }
                 if (ContentLooped != null)
                     ContentLooped.BeginInvoke(this, new TaskContentLoopedEventArgs(LoopCounter, _errorMessage), null, null);
-                TaskLogs = _taskLogsBuffer.ToList();
+                //TaskLogs = _taskLogsBuffer.ToList();
+                FlushLogs();
                 PrintErrorMessage();
             }
         }
@@ -190,6 +203,14 @@ namespace CommonLib.Clients.Tasks
         }
 
         /// <summary>
+        /// 将任务日志从缓冲区发送到正式列表中
+        /// </summary>
+        public void FlushLogs()
+        {
+            TaskLogs = _taskLogsBuffer.ToList();
+        }
+
+        /// <summary>
         /// 打印任务日志
         /// </summary>
         public void PrintTaskLogs()
@@ -210,7 +231,7 @@ namespace CommonLib.Clients.Tasks
         {
             if (string.IsNullOrWhiteSpace(_errorMessage))
                 return;
-            Console.WriteLine(_errorMessage);
+            Console.WriteLine(string.Format("{0}: {1}", GetType().Name, _errorMessage));
             _errorMessage = string.Empty;
         }
     }

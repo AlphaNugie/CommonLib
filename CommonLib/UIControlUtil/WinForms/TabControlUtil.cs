@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+//using System.Windows.Controls;
 using System.Windows.Forms;
 
 namespace CommonLib.UIControlUtil
@@ -72,7 +73,7 @@ namespace CommonLib.UIControlUtil
         }
 
         /// <summary>
-        /// 释放TabControl的TabPage资源
+        /// 释放TabControl的TabPage资源(WinForm)
         /// </summary>
         /// <param name="tabControl">需释放TabPage资源的TabControl控件</param>
         /// <param name="page">TabPage对象</param>
@@ -80,15 +81,47 @@ namespace CommonLib.UIControlUtil
         {
             if (tabControl == null || page == null)
                 return;
-            if (page.Controls.Count > 0 && page.Controls[0] is Form)
+
+            page.DisposeTabPage();
+            //if (page.Controls.Count > 0 && page.Controls[0] is Form)
+            //{
+            //    Form form = (Form)page.Controls[0];
+            //    if (form != null)
+            //    {
+            //        form.Close();
+            //        form.Dispose();
+            //    }
+            //}
+
+            //page.Dispose();
+        }
+
+        /// <summary>
+        /// 释放TabPage资源(WinForm)
+        /// </summary>
+        /// <param name="page">需进行资源释放的TabPage对象</param>
+        public static void DisposeTabPage(this TabPage page)
+        {
+            if (page == null)
+                return;
+
+            if (page.Controls.Count > 0 && page.Controls[0] is Form form)
             {
-                Form form = (Form)page.Controls[0];
                 if (form != null)
                 {
                     form.Close();
                     form.Dispose();
                 }
             }
+            //if (page.Controls.Count > 0 && page.Controls[0] is Form)
+            //{
+            //    Form form = (Form)page.Controls[0];
+            //    if (form != null)
+            //    {
+            //        form.Close();
+            //        form.Dispose();
+            //    }
+            //}
 
             page.Dispose();
         }

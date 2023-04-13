@@ -16,6 +16,7 @@ namespace CommonLib.Clients
     /// <summary>
     /// 传输层连接的Client，或UDP或TCP
     /// </summary>
+    [Obsolete]
     public class ConnClient
     {
         #region 私有成员变量

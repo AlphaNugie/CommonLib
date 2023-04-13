@@ -145,20 +145,39 @@ namespace OpcLibrary
             }
         }
 
+        #region OPC服务信息
+        /// <summary>
+        /// OPC服务名称
+        /// </summary>
+        public string ServerName { get { return OpcServer == null ? string.Empty : OpcServer.ServerName; } }
+
         /// <summary>
         /// OPC服务启动时间
         /// </summary>
-        public string ServerStartTime { get; set; }
+        public DateTime? ServerStartTime { get { return OpcServer?.StartTime; } }
+
+        /// <summary>
+        /// OPC服务启动时间（字符串）
+        /// </summary>
+        public string ServerStartTimeStr { get { return ServerStartTime == null ? string.Empty : string.Format("启动时间:{0}", ServerStartTime.ToString()); } }
+        //public string ServerStartTime { get; set; }
 
         /// <summary>
         /// OPC服务版本
         /// </summary>
-        public string ServerVersion { get; set; }
+        public string ServerVersionStr { get { return OpcServer == null ? string.Empty : string.Format("版本:{0}.{1}.{2}", OpcServer.MajorVersion, OpcServer.MinorVersion, OpcServer.BuildNumber); } }
+        //public string ServerVersion { get; set; }
 
         /// <summary>
         /// OPC服务状态
         /// </summary>
-        public string ServerState { get; set; }
+        public OPCServerState ServerState { get { return OpcServer == null ? OPCServerState.OPCDisconnected : (OPCServerState)OpcServer.ServerState; } }
+
+        /// <summary>
+        /// OPC服务状态（字符串）
+        /// </summary>
+        public string ServerStateStr { get { return ServerState == OPCServerState.OPCRunning ? string.Format("已连接:{0}", ServerName) : string.Format("状态：{0}", ServerState.ToString()); } }
+        #endregion
         #endregion
 
         /// <summary>
@@ -186,9 +205,9 @@ namespace OpcLibrary
         /// </summary>
         public void UpdateServerInfo()
         {
-            ServerStartTime = OpcServer == null ? string.Empty : string.Format("启动时间:{0}", OpcServer.StartTime.ToString());
-            ServerVersion = OpcServer == null ? string.Empty : string.Format("版本:{0}.{1}.{2}", OpcServer.MajorVersion, OpcServer.MinorVersion, OpcServer.BuildNumber);
-            ServerState = OpcServer == null ? string.Empty : (OpcServer.ServerState == (int)OPCServerState.OPCRunning ? string.Format("已连接:{0}", OpcServer.ServerName) : string.Format("状态：{0}", OpcServer.ServerState.ToString()));
+            //ServerStartTime = OpcServer == null ? string.Empty : string.Format("启动时间:{0}", OpcServer.StartTime.ToString());
+            //ServerVersion = OpcServer == null ? string.Empty : string.Format("版本:{0}.{1}.{2}", OpcServer.MajorVersion, OpcServer.MinorVersion, OpcServer.BuildNumber);
+            //ServerState = OpcServer == null ? string.Empty : (OpcServer.ServerState == (int)OPCServerState.OPCRunning ? string.Format("已连接:{0}", OpcServer.ServerName) : string.Format("状态：{0}", OpcServer.ServerState.ToString()));
         }
 
         /// <summary>
@@ -306,7 +325,8 @@ namespace OpcLibrary
             info = string.Empty;
             try
             {
-                if (OpcServer.ServerState != (int)OPCServerState.OPCRunning)
+                //if (OpcServer.ServerState != (int)OPCServerState.OPCRunning)
+                if (ServerState != OPCServerState.OPCRunning)
                     ReconnDetail(out info);
             }
             //假如捕捉到COMException

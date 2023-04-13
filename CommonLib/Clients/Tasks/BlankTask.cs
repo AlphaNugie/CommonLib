@@ -25,5 +25,15 @@ namespace CommonLib.Clients.Tasks
         {
             //throw new NotImplementedException();
         }
+
+        protected override Task GetNewInstance(/*int interval, bool autoRestart, long restartInterval*/)
+        {
+            return null;
+        }
+
+        //protected override void RestartUrself()
+        //{
+        //    //throw new NotImplementedException();
+        //}
     }
 }

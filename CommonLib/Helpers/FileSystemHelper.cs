@@ -132,13 +132,15 @@ namespace CommonLib.Helpers
         /// 将日期添加到文件名中（文件名包含后缀）
         /// </summary>
         /// <param name="fileName">待处理的文件名称，包括后缀</param>
+        /// <param name="format">将DateTime格式化的格式字符串，默认为yyyyMMdd</param>
         /// <returns></returns>
-        public static string AddDateToFileName(string fileName)
+        public static string AddDateToFileName(string fileName, string format = "yyyyMMdd")
         {
             if (string.IsNullOrWhiteSpace(fileName))
                 return string.Empty;
 
-            string date = DateTime.Now.ToString("yyyyMMdd");
+            //string date = DateTime.Now.ToString("yyyyMMdd");
+            string date = DateTime.Now.ToString(format);
             string[] parts = fileName.Split('.').Where(p => !string.IsNullOrWhiteSpace(p)).ToArray();
             if (parts.Length == 1)
                 parts[0] += " " + date;
@@ -163,15 +165,20 @@ namespace CommonLib.Helpers
         }
 
         /// <summary>
-        /// 根据路径与文件名称获取补完的路径与文件完整路径
+        /// 根据路径与文件名称获取补完的路径与文件完整路径，假如文件名称为空则输出全为空字符串
         /// </summary>
         /// <param name="path">文件所在路径，假如为相对路径则在开头添加启动路径</param>
-        /// <param name="fileName">文件名称</param>
+        /// <param name="fileName">文件名称，假如为空则输出全为空字符串</param>
         /// <param name="fileNameDate">带日期的文件名称</param>
         /// <param name="filePath">包含文件名称的完整路径</param>
         /// <param name="filePathDate">包含带日期的文件名称的完整路径</param>
         public static void UpdateFilePath(ref string path, string fileName, out string fileNameDate, out string filePath, out string filePathDate)
         {
+            fileNameDate = filePath = filePathDate = string.Empty;
+            if (string.IsNullOrWhiteSpace(fileName))
+                return;
+            if (string.IsNullOrWhiteSpace(path))
+                path = string.Empty;
             path = TrimFilePath(path) + DirSeparator; //确保路径字符串末尾包含路径分隔符
             //假如路径中不包含卷分隔符，添加根目录
             if (!path.Contains(VolumeSeparator))
@@ -185,10 +192,10 @@ namespace CommonLib.Helpers
         }
 
         /// <summary>
-        /// 根据路径与文件名称获取补完的路径与文件完整路径
+        /// 根据路径与文件名称获取补完的路径与文件完整路径，假如文件名称为空则输出全为空字符串
         /// </summary>
         /// <param name="path">文件所在路径，假如为相对路径则在开头添加启动路径</param>
-        /// <param name="fileName">文件名称</param>
+        /// <param name="fileName">文件名称，假如为空则输出全为空字符串</param>
         /// <param name="filePath">包含文件名称的完整路径</param>
         public static void UpdateFilePath(ref string path, string fileName, out string filePath)
         {

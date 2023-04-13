@@ -4,6 +4,65 @@
         <name>CommonLib.DataUtil.SqliteProviderLib64</name>
     </assembly>
     <members>
+        <member name="T:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1">
+            <summary>
+            SQLite基础数据库操作类（仿Batis）
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1._provider">
+            <summary>
+            SQLite基础操作类对象
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.#ctor">
+            <summary>
+            数据库操作类构造器，使用App.config文件中"SqliteClient"配置项内容初始化
+            </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.#ctor(System.String)">
+            <summary>
+            数据库操作类构造器，使用给定的数据库文件完整路径初始化
+            </summary>
+            <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径（假如为空输出空字符串）</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.#ctor(System.String,System.Boolean)">
+            <summary>
+            数据库操作类构造器，在连接字符串不为空且使用远程数据库时用连接字符串初始化，否则使用"SqliteClient"配置项
+            </summary>
+            <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径（假如为空输出空字符串）</param>
+            <param name="usingRemote">是否使用远程数据库（而非当前使用的数据库）</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.#ctor(System.String,System.String)">
+            <summary>
+            数据库操作类构造器，使用给定的数据库文件完整路径初始化
+            </summary>
+            <param name="fileDir">数据库文件路径，假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+            <param name="fileName">数据库文件名称，包括后缀</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.#ctor(System.String,System.String,System.Boolean)">
+            <summary>
+            数据库操作类构造器，在连接字符串不为空且使用远程数据库时用连接字符串初始化，否则使用"SqliteClient"配置项
+            </summary>
+            <param name="fileDir">数据库文件路径，假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+            <param name="fileName">数据库文件名称，包括后缀</param>
+            <param name="usingRemote">是否使用远程数据库（而非当前使用的数据库）</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.InitProviderInstance(System.String,System.Boolean)">
+            <summary>
+            初始化Provider对象，在连接字符串不为空且使用远程数据库时用连接字符串初始化，否则使用App.config文件中"SqliteClient"配置项内容初始化
+            </summary>
+            <param name="connStr">连接字符串</param>
+            <param name="usingRemote">是否使用远程数据库（而非当前使用的数据库）</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.ProviderExecuteSql(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.ProviderExecuteSqlTrans(System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.ProviderQuery(System.String)">
+            <inheritdoc/>
+        </member>
         <member name="T:CommonLib.DataUtil.BaseDataServiceSqlite">
             <summary>
             基础Sqlite数据服务类
@@ -56,6 +115,26 @@
             <param name="name">文件名称</param>
             <exception cref="T:System.ArgumentNullException">未指定Sqlite文件名称</exception>
         </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.GetAllColumnMappings(System.String@)">
+            <summary>
+            获取所有数据库字段信息
+            </summary>
+            <param name="message"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.GetColumnMappings(System.Collections.Generic.IEnumerable{System.String},System.String@)">
+            <summary>
+            根据给定的数据库字段列表获取数据库字段信息，假如列表为空则获取所有字段
+            </summary>
+            <param name="columnNames">给定的数据库字段列表，假如为空则获取所有字段</param>
+            <param name="message"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.CheckForTableColumns">
+            <summary>
+            检查数据表的字段，假如缺少字段则增加
+            </summary>
+        </member>
         <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.CheckForTableColumns(System.String@)">
             <summary>
             检查数据表的字段，假如缺少字段则增加
@@ -65,6 +144,13 @@
             <summary>
             判断
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.CheckForTable(System.Data.DataTable@)">
+            <summary>
+            检查数据表是否存在，不存在则新增
+            </summary>
+            <param name="table"></param>
             <returns></returns>
         </member>
         <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.CheckForTable(System.Data.DataTable@,System.String@)">
@@ -163,6 +249,12 @@
             <param name="primaryKeyConflictClause">主键冲突的操作</param>
             <param name="autoIncrement">作为主键是否自增</param>
         </member>
+        <member name="M:CommonLib.DataUtil.SqliteColumnMapping.#ctor(System.Data.DataRow)">
+            <summary>
+            根据pragma命令给出的结果初始化
+            </summary>
+            <param name="dataRow">pragma命令的每一个数据行</param>
+        </member>
         <member name="M:CommonLib.DataUtil.SqliteColumnMapping.GetStructure">
             <summary>
             获取当前字段对象的架构语句，默认为修改表
@@ -179,6 +271,11 @@
         <member name="T:CommonLib.DataUtil.SqliteSqlType">
             <summary>
             SQLite数据库内字段类型
+            </summary>
+        </member>
+        <member name="F:CommonLib.DataUtil.SqliteSqlType.NONE">
+            <summary>
+            无类型
             </summary>
         </member>
         <member name="F:CommonLib.DataUtil.SqliteSqlType.DOUBLE">
@@ -261,9 +358,9 @@
         </member>
         <member name="M:CommonLib.DataUtil.SqliteProvider.GetConnStr(System.String)">
             <summary>
-            获取连接字符串
+            获取连接字符串，假如完整路径为空则输出空字符串
             </summary>
-            <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+            <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径（假如为空输出空字符串）</param>
             <returns>返回连接字符串</returns>
         </member>
         <member name="M:CommonLib.DataUtil.SqliteProvider.IsConnOpen(System.String,System.String)">
@@ -305,6 +402,21 @@
             </summary>
             <param name="fileDir">数据库文件路径（为空则查找可执行文件所在路径）</param>
             <param name="fileName">数据库文件名称（包括后缀）</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.SetConnStr(System.String,System.String)">
+            <summary>
+            设置连接字符串
+            </summary>
+            <param name="fileDir">数据库文件路径，假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+            <param name="fileName">数据库文件名称，包括后缀</param>
+            <returns>返回连接字符串</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.SetConnStr(System.String)">
+            <summary>
+            设置连接字符串
+            </summary>
+            <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+            <returns>返回连接字符串</returns>
         </member>
     </members>
 </doc>

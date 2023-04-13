@@ -34,9 +34,9 @@
             // button_OracleTest
             // 
             this.button_OracleTest.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_OracleTest.Location = new System.Drawing.Point(55, 34);
+            this.button_OracleTest.Location = new System.Drawing.Point(25, 25);
             this.button_OracleTest.Name = "button_OracleTest";
-            this.button_OracleTest.Size = new System.Drawing.Size(145, 50);
+            this.button_OracleTest.Size = new System.Drawing.Size(170, 40);
             this.button_OracleTest.TabIndex = 0;
             this.button_OracleTest.Text = "Oracle";
             this.button_OracleTest.UseVisualStyleBackColor = true;

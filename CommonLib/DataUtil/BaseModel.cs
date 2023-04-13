@@ -99,6 +99,11 @@ namespace CommonLib.DataUtil
         public RoutineStatus RoutineStatus { get; set; }
 
         /// <summary>
+        /// 上一个错误信息
+        /// </summary>
+        public string LastErrorMessage { get; set; }
+
+        /// <summary>
         /// 构造器
         /// </summary>
         public BaseModel()

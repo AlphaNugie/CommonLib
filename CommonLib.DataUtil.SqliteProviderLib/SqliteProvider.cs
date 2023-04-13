@@ -37,13 +37,13 @@ namespace CommonLib.DataUtil
         }
 
         /// <summary>
-        /// 获取连接字符串
+        /// 获取连接字符串，假如完整路径为空则输出空字符串
         /// </summary>
-        /// <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+        /// <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径（假如为空输出空字符串）</param>
         /// <returns>返回连接字符串</returns>
         public static string GetConnStr(string filePath)
         {
-            return string.Format(ConnStrModel, filePath);
+            return string.IsNullOrWhiteSpace(filePath) ? string.Empty : string.Format(ConnStrModel, filePath);
         }
 
         /// <summary>
@@ -94,5 +94,27 @@ namespace CommonLib.DataUtil
         /// <param name="fileName">数据库文件名称（包括后缀）</param>
         public SqliteProvider(string fileDir, string fileName) : base(GetConnStr(fileDir, fileName)) { }
         #endregion
+
+        /// <summary>
+        /// 设置连接字符串
+        /// </summary>
+        /// <param name="fileDir">数据库文件路径，假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+        /// <param name="fileName">数据库文件名称，包括后缀</param>
+        /// <returns>返回连接字符串</returns>
+        public void SetConnStr(string fileDir, string fileName)
+        {
+            base.SetConnStr(GetConnStr(fileDir, fileName));
+            //return string.Format(ConnStrModel, filePath);
+        }
+
+        /// <summary>
+        /// 设置连接字符串
+        /// </summary>
+        /// <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+        /// <returns>返回连接字符串</returns>
+        public new void SetConnStr(string filePath)
+        {
+            base.SetConnStr(GetConnStr(filePath));
+        }
     }
 }

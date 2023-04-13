@@ -184,7 +184,7 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="lines">要添加进文件的字符串集合</param>
         /// <param name="fileNameWithDate">文件名是否带日期</param>
-        public void WriteLinesToFile(IEnumerable<string> lines, bool fileNameWithDate)
+        public void WriteLinesToFile(IEnumerable<string> lines, bool fileNameWithDate = true)
         {
             if (lines == null || lines.Count() == 0)
                 return;
@@ -206,33 +206,33 @@ namespace CommonLib.Clients
             catch (IOException) { }
         }
 
-        /// <summary>
-        /// 将文本写入文件，文件名默认带日期
-        /// </summary>
-        /// <param name="lines">要添加进文件的字符串集合</param>
-        public void WriteLinesToFile(IEnumerable<string> lines)
-        {
-            WriteLinesToFile(lines, true);
-        }
+        ///// <summary>
+        ///// 将文本写入文件，文件名默认带日期
+        ///// </summary>
+        ///// <param name="lines">要添加进文件的字符串集合</param>
+        //public void WriteLinesToFile(IEnumerable<string> lines)
+        //{
+        //    WriteLinesToFile(lines, true);
+        //}
 
         /// <summary>
         /// 将文本写入文件
         /// </summary>
         /// <param name="line">待写入文本</param>
         /// <param name="withDate">文件名是否带日期</param>
-        public void WriteLineToFile(string line, bool withDate)
+        public void WriteLineToFile(string line, bool withDate = true)
         {
             WriteLinesToFile(new string[] { line }, withDate);
         }
 
-        /// <summary>
-        /// 将文本写入文件，文件名默认带日期
-        /// </summary>
-        /// <param name="line">要添加进文件的字符串</param>
-        public void WriteLineToFile(string line)
-        {
-            WriteLineToFile(line, true);
-        }
+        ///// <summary>
+        ///// 将文本写入文件，文件名默认带日期
+        ///// </summary>
+        ///// <param name="line">要添加进文件的字符串</param>
+        //public void WriteLineToFile(string line)
+        //{
+        //    WriteLineToFile(line, true);
+        //}
 
         #region old static methods
         /// <summary>
@@ -243,7 +243,7 @@ namespace CommonLib.Clients
         /// <param name="fileName">文件名（可包含文件类型后缀）</param>
         /// <param name="extension">文件扩展名</param>
         /// <param name="overriding">是否覆盖文本</param>
-        public static void WriteLinesToFile(IEnumerable<string> lines, string path, string fileName, string extension, bool overriding)
+        public static void WriteLinesToFile(IEnumerable<string> lines, string path, string fileName, string extension = "", bool overriding = false)
         {
             if (lines == null || lines.Count() == 0)
                 return;
@@ -266,8 +266,8 @@ namespace CommonLib.Clients
                 string fileExtension = System.IO.Path.GetExtension(filePath).ToLower(); //文件扩展名，小写
                 if (!string.IsNullOrWhiteSpace(extension))
                     filePath += "." + extension;
-                else if (string.IsNullOrWhiteSpace(fileExtension))
-                    filePath += TEXT_FILE_SUFFIX;
+                //else if (string.IsNullOrWhiteSpace(fileExtension))
+                //    filePath += TEXT_FILE_SUFFIX;
 
                 //检测目录是否存在，不存在则创建
                 if (!Directory.Exists(path))
@@ -282,28 +282,28 @@ namespace CommonLib.Clients
             catch (IOException) { }
         }
 
-        /// <summary>
-        /// 将文本写入文件，默认不覆盖
-        /// </summary>
-        /// <param name="lines">要添加进文件的字符串集合</param>
-        /// <param name="path">文件路径（不包含文件名）</param>
-        /// <param name="fileName">文件名（可包含文件类型后缀）</param>
-        /// <param name="extension">文件扩展名</param>
-        public static void WriteLinesToFile(IEnumerable<string> lines, string path, string fileName, string extension)
-        {
-            WriteLinesToFile(lines, path, fileName, extension, false);
-        }
+        ///// <summary>
+        ///// 将文本写入文件，默认不覆盖
+        ///// </summary>
+        ///// <param name="lines">要添加进文件的字符串集合</param>
+        ///// <param name="path">文件路径（不包含文件名）</param>
+        ///// <param name="fileName">文件名（可包含文件类型后缀）</param>
+        ///// <param name="extension">文件扩展名</param>
+        //public static void WriteLinesToFile(IEnumerable<string> lines, string path, string fileName, string extension)
+        //{
+        //    WriteLinesToFile(lines, path, fileName, extension, false);
+        //}
 
-        /// <summary>
-        /// 将文本写入文件
-        /// </summary>
-        /// <param name="lines">要添加进文件的字符串数组</param>
-        /// <param name="path">文件路径（不包含文件名）</param>
-        /// <param name="fileName">文件名（可包含文件类型后缀）</param>
-        public static void WriteLinesToFile(IEnumerable<string> lines, string path, string fileName)
-        {
-            WriteLinesToFile(lines, path, fileName, string.Empty);
-        }
+        ///// <summary>
+        ///// 将文本写入文件
+        ///// </summary>
+        ///// <param name="lines">要添加进文件的字符串数组</param>
+        ///// <param name="path">文件路径（不包含文件名）</param>
+        ///// <param name="fileName">文件名（可包含文件类型后缀）</param>
+        //public static void WriteLinesToFile(IEnumerable<string> lines, string path, string fileName)
+        //{
+        //    WriteLinesToFile(lines, path, fileName, string.Empty);
+        //}
 
         /// <summary>
         /// 将文本写入文件
@@ -324,7 +324,7 @@ namespace CommonLib.Clients
         /// <param name="fileName">文件名（不带文件后缀）</param>
         /// <param name="usingSplitter">添加日志时是否添加分隔符与日期时间记录</param>
         /// <param name="level">当前行在文本中的级别，0最高，每增加1级添加4个空格</param>
-        public static void WriteLogsToFile(IEnumerable<string> lines, string subDir, string fileName, bool usingSplitter, int level)
+        public static void WriteLogsToFile(IEnumerable<string> lines, string subDir, string fileName, bool usingSplitter = true, int level = 0)
         {
             if (lines == null || lines.Count() == 0)
                 return;
@@ -378,28 +378,28 @@ namespace CommonLib.Clients
             WriteLogsToFile(lines, subDir, fileName, true, level);
         }
 
-        /// <summary>
-        /// 将日志写到文件
-        /// </summary>
-        /// <param name="lines">待写入的字符串数组</param>
-        /// <param name="subDir">日志目录下的子目录（假如为空或空字符串，则不创建）</param>
-        /// <param name="fileName">文件名（不带文件后缀）</param>
-        /// <param name="usingSplitter">添加日志时是否添加分隔符与日期时间记录</param>
-        public static void WriteLogsToFile(IEnumerable<string> lines, string subDir, string fileName, bool usingSplitter)
-        {
-            WriteLogsToFile(lines, subDir, fileName, usingSplitter, 0);
-        }
+        ///// <summary>
+        ///// 将日志写到文件
+        ///// </summary>
+        ///// <param name="lines">待写入的字符串数组</param>
+        ///// <param name="subDir">日志目录下的子目录（假如为空或空字符串，则不创建）</param>
+        ///// <param name="fileName">文件名（不带文件后缀）</param>
+        ///// <param name="usingSplitter">添加日志时是否添加分隔符与日期时间记录</param>
+        //public static void WriteLogsToFile(IEnumerable<string> lines, string subDir, string fileName, bool usingSplitter)
+        //{
+        //    WriteLogsToFile(lines, subDir, fileName, usingSplitter, 0);
+        //}
 
-        /// <summary>
-        /// 将日志写到文件
-        /// </summary>
-        /// <param name="lines">待写入的字符串数组</param>
-        /// <param name="subDir">日志目录下的子目录（假如为空或空字符串，则不创建）</param>
-        /// <param name="fileName">文件名（不带文件后缀）</param>
-        public static void WriteLogsToFile(IEnumerable<string> lines, string subDir, string fileName)
-        {
-            WriteLogsToFile(lines, subDir, fileName, true, 0);
-        }
+        ///// <summary>
+        ///// 将日志写到文件
+        ///// </summary>
+        ///// <param name="lines">待写入的字符串数组</param>
+        ///// <param name="subDir">日志目录下的子目录（假如为空或空字符串，则不创建）</param>
+        ///// <param name="fileName">文件名（不带文件后缀）</param>
+        //public static void WriteLogsToFile(IEnumerable<string> lines, string subDir, string fileName)
+        //{
+        //    WriteLogsToFile(lines, subDir, fileName, true, 0);
+        //}
 
         /// <summary>
         /// 将多行文本写到制定文件名的错误日志文件，不包含子目录
@@ -467,15 +467,27 @@ namespace CommonLib.Clients
             WriteLogsToFile(lines, subDir, fileName);
         }
 
+        ///// <summary>
+        ///// 将异常信息作为错误信息写入错误日志
+        ///// </summary>
+        ///// <param name="e">异常对象</param>
+        ///// <param name="info">错误说明信息</param>
+        ///// <param name="usingExcepMsg">错误说明信息中是否添加异常信息(string Exception.Message)</param>
+        //public static void WriteExceptionInfo(Exception e, string info, bool usingExcepMsg)
+        //{
+        //    WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info, usingExcepMsg));
+        //}
+
         /// <summary>
         /// 将异常信息作为错误信息写入错误日志
         /// </summary>
         /// <param name="e">异常对象</param>
         /// <param name="info">错误说明信息</param>
         /// <param name="usingExcepMsg">错误说明信息中是否添加异常信息(string Exception.Message)</param>
-        public static void WriteExceptionInfo(Exception e, string info, bool usingExcepMsg)
+        /// <param name="extraInfos">额外包含的信息字符串数组</param>
+        public static void WriteExceptionInfo(Exception e, string info = "出现异常", bool usingExcepMsg = true, string[] extraInfos = null)
         {
-            WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info, usingExcepMsg));
+            WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info, usingExcepMsg, extraInfos));
         }
 
         /// <summary>
@@ -500,24 +512,24 @@ namespace CommonLib.Clients
             WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info, extraInfo));
         }
 
-        /// <summary>
-        /// 将异常信息作为错误信息写入错误日志
-        /// </summary>
-        /// <param name="e">异常对象</param>
-        /// <param name="info">异常说明信息</param>
-        public static void WriteExceptionInfo(Exception e, string info)
-        {
-            WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info));
-        }
+        ///// <summary>
+        ///// 将异常信息作为错误信息写入错误日志
+        ///// </summary>
+        ///// <param name="e">异常对象</param>
+        ///// <param name="info">异常说明信息</param>
+        //public static void WriteExceptionInfo(Exception e, string info)
+        //{
+        //    WriteFailureInfo(FailureInfo.GetFailureInfoArray(e, info));
+        //}
 
-        /// <summary>
-        /// 将异常的信息作为错误信息写入错误日志
-        /// </summary>
-        /// <param name="e">异常对象</param>
-        public static void WriteExceptionInfo(Exception e)
-        {
-            WriteFailureInfo(FailureInfo.GetFailureInfoArray(e));
-        }
+        ///// <summary>
+        ///// 将异常的信息作为错误信息写入错误日志
+        ///// </summary>
+        ///// <param name="e">异常对象</param>
+        //public static void WriteExceptionInfo(Exception e)
+        //{
+        //    WriteFailureInfo(FailureInfo.GetFailureInfoArray(e));
+        //}
 
         /// <summary>
         /// 将数据表写入指定名称的XML文件

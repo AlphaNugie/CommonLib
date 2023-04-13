@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CommonLib.Extensions;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +13,41 @@ namespace CommonLib.Function
     /// </summary>
     public static class HexHelper
     {
+        #region 数值转16进制中文编码再转为中文字符串
+        /// <summary>
+        /// 将一组8位整型数值（无论有无符号）转16进制中文编码再转为中文字符串
+        /// </summary>
+        /// <param name="numbers">输入的8位整型数列（无论有无符号），每2个数值代表一个汉字</param>
+        /// <param name="offsetBelowZero">为数列中负数元素提供的校正值，假如数值小于0（一般因为值的源类型为8位有符号整型，值域取[-128,127]），则加上此校正值（默认为256）以变为8位无符号整型，方便转为16进制</param>
+        /// <param name="offset">为数列中每个元素提供的校正值，在为负数元素校正之后操作</param>
+        /// <returns></returns>
+        public static string NumberArrayToChn_8bit(this IEnumerable<int> numbers, int offsetBelowZero = 256, int offset = 0)
+        {
+            string result = string.Empty;
+            if (numbers == null || numbers.Count() == 0)
+                goto END;
+            //调整为8位无符号整型的值区间（加上负数校正值后再加整体校正值），存储校正后的值，加上索引以在出问题时定位来源
+            var array = numbers.Select(n => (n < 0 ? n + offsetBelowZero : n) + offset).Select((value, index) => new { value, index });
+            //不在区间范围内的值
+            var invalid = array.FirstOrDefault(p => !p.value.Between(byte.MinValue, byte.MaxValue));
+            if (invalid != null)
+            {
+                int original = numbers.ElementAt(invalid.index); //在源数列中对应的原始值
+                throw new ArgumentOutOfRangeException(nameof(numbers), invalid.value, $"源数列中索引{invalid.index}处的值{original}加上校正值后变为{invalid.value}，超出了8位无符号整型的值区间[0,255]");
+            }
+            byte[] bytes = array.Where(p => p.value != 0).Select(p => (byte)p.value).ToArray();
+            result = Encoding.GetEncoding("GB2312").GetString(bytes);
+            #region 替换方法：URL解码
+            ////转为URL形式的编码（排除0，中文字符编码中2个字节均不为0）
+            //string encoded = string.Join(string.Empty, array.Where(p => p.value != 0).Select(p => '%' + p.value.ToString("X2")).ToArray());
+            ////用解码URL的方式解码中文字符
+            //result = System.Web.HttpUtility.UrlDecode(encoded, Encoding.GetEncoding("GB2312"));
+            #endregion
+        END:
+            return result;
+        }
+        #endregion
+
         #region 获取倒写的16进制BCD码
         /// <summary>
         /// 获取倒写的16进制BCD码，可根据最小长度补0、添加偏移量
@@ -127,16 +164,19 @@ namespace CommonLib.Function
         }
 
         /// <summary>
-        /// 将16进制字符串转为byte数组
+        /// 将16进制字符串转为byte数组（16进制字符串可不包含空格）
         /// </summary>
         /// <param name="hexString">待转换的16进制字符串，假如为空白则返回null</param>
         /// <returns>返回16进制数组</returns>
-        public static byte[] HexString2Bytes_Alternate(string hexString)
+        public static byte[] HexString2Bytes_NoSpaces(string hexString)
         {
             if (string.IsNullOrWhiteSpace(hexString))
                 return null;
 
             hexString = hexString.Replace(" ", string.Empty);
+            //假如16进制字符串长度为奇数位，在前侧补0，保证长度为偶数
+            if (hexString.Length % 2 == 1)
+                hexString = hexString.PadLeft(hexString.Length + 1, '0');
             byte[] bytes = new byte[hexString.Length / 2];
             int index = 0;
             for (int i = 0; i < hexString.Length; i += 2)
@@ -146,6 +186,40 @@ namespace CommonLib.Function
             }
 
             return bytes;
+        }
+        #endregion
+
+        #region 16进制转2进制
+        /// <summary>
+        /// 16进制字符串转为2进制字符串（16进制字符串可不包含空格）
+        /// </summary>
+        /// <param name="hexString">待转换的16进制字符串，假如为空白则返回空字符串</param>
+        /// <returns></returns>
+        public static string HexString2BinaryString(string hexString)
+        {
+            var bytes = HexString2Bytes_NoSpaces(hexString);
+            return bytes == null ? string.Empty : string.Join("", bytes.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
+        }
+        #endregion
+
+        #region 16进制转浮点数
+        /// <summary>
+        /// 将16进制字符串转换为32位的单精度浮点数（16进制字符串可不包含空格，计算过程遵循IEEE754标准）
+        /// </summary>
+        /// <param name="hexString">待转换的16进制字符串，假如为空白则返回0</param>
+        /// <returns></returns>
+        public static float HexString2Single(string hexString)
+        {
+            if (string.IsNullOrWhiteSpace(hexString))
+                return 0;
+
+            string binary = HexString2BinaryString(hexString); //转为2进制字符串
+            binary = binary.PadLeft(hexString.Length * 4, '0').PadRight(32, '0'); //首先向左补实际有效比特位的长度，再向右补0
+            int sign = Convert.ToInt32(binary.Substring(0, 1), 2), indexes = Convert.ToInt32(binary.Substring(1, 8), 2) - 127; //符号位（0为正，1为负），以及阶码
+            string fraction = binary.Substring(9).TrimEnd('0'); //代表值部分的尾数
+            bool equalsZero = indexes == -127 && fraction.Equals(string.Empty); //假如阶码与尾数全为0，则代表值为0
+            double fraction_value = equalsZero ? 0 : Convert.ToInt32("1" + fraction, 2) * Math.Pow(2, indexes - fraction.Length) * Math.Pow(-1, sign);
+            return (float)fraction_value;
         }
         #endregion
 

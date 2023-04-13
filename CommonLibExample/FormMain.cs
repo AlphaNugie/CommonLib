@@ -7,6 +7,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -65,6 +66,30 @@ namespace CommonLibExample
         private void Button_CustomMessageBox_Click(object sender, EventArgs e)
         {
             new FormCustomMessageBox().Show();
+        }
+
+        private void Button_Busy_Click(object sender, EventArgs e)
+        {
+            while (true)
+            {
+                _ = Math.Pow(Math.PI, 2);
+            }
+        }
+
+        private string _test = "test";
+        private void Button_Exception_Click(object sender, EventArgs e)
+        {
+            //throw new Exception();
+            while (true)
+            {
+                _test += _test;
+                Thread.Sleep(10);
+            }
+        }
+
+        private void Button_Controls_Click(object sender, EventArgs e)
+        {
+            new FormControls().Show();
         }
     }
 }

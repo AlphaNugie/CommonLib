@@ -59,6 +59,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -90,6 +91,7 @@
     <Compile Include="Clients\Tasks\Task.cs" />
     <Compile Include="Clients\ValueDiffStorage.cs" />
     <Compile Include="DataUtil\AccessProvider.cs" />
+    <Compile Include="DataUtil\BaseDataServiceBatis.cs" />
     <Compile Include="DataUtil\BaseModel.cs" />
     <Compile Include="DataUtil\BatisLike.cs" />
     <Compile Include="DataUtil\DataProvider.cs" />
@@ -111,6 +113,7 @@
     <Compile Include="Events\IdChangedEventArgs.cs" />
     <Compile Include="Events\RoutineStatusChangedEventArgs.cs" />
     <Compile Include="Extensions\Property\PropertyMapperExtension.cs" />
+    <Compile Include="Extensions\Reflection\ReflectionExtension.cs" />
     <Compile Include="Function\ReflectionUtil.cs" />
     <Compile Include="Function\BaseFunctions.cs" />
     <Compile Include="Clients\ConnClient.cs" />

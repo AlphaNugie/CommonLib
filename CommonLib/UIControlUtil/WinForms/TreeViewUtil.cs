@@ -58,8 +58,13 @@ namespace CommonLib.UIControlUtil
         /// <param name="parentField">绑定父节点的字段</param>
         /// <param name="keyField">绑定节点的字段</param>
         /// <param name="displayField">显示为文本的字段</param>
-        public static void BindTreeViewDataSource(this TreeView treeView, DataTable dataSource, string parentField, string keyField, string displayField)
+        /// <param name="stayOnCurrNode">重绑定数据源后，仍尝试停留在上个已选节点上</param>
+        public static void BindTreeViewDataSource(this TreeView treeView, DataTable dataSource, string parentField, string keyField, string displayField, bool stayOnCurrNode = true)
         {
+            if (treeView == null)
+                return;
+
+            var currNode = treeView.SelectedNode; //记录当前所选节点
             treeView.Nodes.Clear(); //清除所有节点
             if (dataSource == null || dataSource.Rows.Count == 0)
                 return;
@@ -79,8 +84,13 @@ namespace CommonLib.UIControlUtil
                 treeView.Nodes.Add(treeNode); //向TreeView添加当前节点
             }
 
-            if (treeView.TopNode != null)
+            //假如之前所选节点不为空，并设置为重回上一个所选节点，则尝试重新选定，否则选择根节点
+            if (currNode != null && stayOnCurrNode)
+                treeView.SelectedNode = treeView.GetAllNodes().FirstOrDefault(node => node.Tag.Equals(currNode.Tag));
+            else if (treeView.TopNode != null)
                 treeView.SelectedNode = treeView.TopNode;
+            //重新使TreeView获取焦点以使选中节点高亮
+            treeView.Select();
         }
 
         /// <summary>

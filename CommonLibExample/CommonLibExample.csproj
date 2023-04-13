@@ -53,6 +53,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>游戏手柄_black_256x.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Interop.OPCAutomation">
       <HintPath>..\..\..\OPC\DLL\Interop.OPCAutomation.dll</HintPath>
@@ -101,6 +104,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Forms\FormControls.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormControls.Designer.cs">
+      <DependentUpon>FormControls.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormSineWaves.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormSineWaves.Designer.cs">
+      <DependentUpon>FormSineWaves.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormTextBoxes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormTextBoxes.Designer.cs">
+      <DependentUpon>FormTextBoxes.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FormCustomMessageBox.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -176,6 +197,17 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyMapper\PropertyMapperExample.cs" />
+    <Compile Include="Tasks\ExampleTask.cs" />
+    <Compile Include="Tasks\ExampleTaskTest.cs" />
+    <EmbeddedResource Include="Forms\FormControls.resx">
+      <DependentUpon>FormControls.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormSineWaves.resx">
+      <DependentUpon>FormSineWaves.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormTextBoxes.resx">
+      <DependentUpon>FormTextBoxes.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormCustomMessageBox.resx">
       <DependentUpon>FormCustomMessageBox.cs</DependentUpon>
     </EmbeddedResource>
@@ -246,6 +278,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="bin\Debug\CommonLibExample.exe" />
+    <Content Include="游戏手柄_black_256x.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -15,8 +15,8 @@ namespace CommonLib.Function.Fitting
         /// <summary>
         /// 当某坐标系绕某个特定的轴旋转特定角度时，从旧坐标系向新坐标系的变换矩阵（角度正方向为从一个轴的正向向另一个轴正向旋转，如X轴向Y轴，Y轴向Z轴，X轴向Z轴）
         /// </summary>
-        /// <param name="angle"></param>
-        /// <param name="axis"></param>
+        /// <param name="angle">绕特定轴旋转的角度（单位：角度）</param>
+        /// <param name="axis">将坐标系以其为中心旋转的特定轴</param>
         /// <returns></returns>
         public static Matrix<double> GetAngleOrientedMatrix(double angle, AxisType axis)
         {
@@ -45,10 +45,44 @@ namespace CommonLib.Function.Fitting
     /// </summary>
     public enum AxisType
     {
+        /// <summary>
+        /// X轴
+        /// </summary>
         X = 0,
 
+        /// <summary>
+        /// Y轴
+        /// </summary>
         Y = 1,
 
+        /// <summary>
+        /// Z轴
+        /// </summary>
         Z = 2,
+    }
+
+    /// <summary>
+    /// 修改后的坐标中原XY坐标的系数
+    /// </summary>
+    public class CoordinateRatios
+    {
+        /// <summary>
+        /// 原X坐标的系数
+        /// </summary>
+        public double Xratio;
+
+        /// <summary>
+        /// 原Y坐标的系数
+        /// </summary>
+        public double Yratio;
+
+        /// <summary>
+        /// 获取字符串描述
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("{0:f4}, {1:f4}", Xratio, Yratio);
+        }
     }
 }

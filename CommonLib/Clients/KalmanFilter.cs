@@ -8,20 +8,24 @@ namespace CommonLib.Clients
 {
     /// <summary>
     /// 卡尔曼滤波
+    /// 卡尔曼滤波器用增益K是在状态预测值和观测误差值之间做了一个折中
+    /// 如果K很小，比如等于0，则滤波结果更加接近由系统状态估计值给出的递归结果；如果K很大，比如等于1，则滤波结果更加接近于观测值所反算出来的状态变量
+    /// K值的计算可大致示意为公式：K=Q/(Q+R)，因此K值与QR的比值有关系，它们的比值决定了滤波值应该更多来自于系统模型演化的信息，还是来自于观察信号信息
+    /// 如果不确切知道Q、R、P0的准确先验信息，应适当增大Q的取值，以增大对实时量测值的利用权重，俗称调谐。但是调谐存在盲目性，无法知道Q要调到多大才行
     /// </summary>
     public class KalmanFilter
     {
         private bool _firstCycle = true; //是否是第一次赋值循环
 
         /// <summary>
-        /// 预测值偏差度
+        /// 预测值偏差度（噪声协方差），代表对预测值的置信度，越小跟随性越差（越平缓），可令Q+R=1，此时仅调节Q值就可修改跟随性
         /// </summary>
-        public double Q { get; private set; }
+        public double Q { get; private set; } = 0.3;
 
         /// <summary>
-        /// 观测值偏差度
+        /// 观测值偏差度（噪声协方差），代表对测量值的置信度，R越大代表越不相信测量值，可令Q+R=1，此时仅调节Q值就可修改跟随性
         /// </summary>
-        public double R { get; private set; }
+        public double R { get; private set; } = 0.7;
 
         /// <summary>
         /// 加速度（默认为0）
@@ -58,7 +62,7 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="Q">预测值偏差度</param>
         /// <param name="R">观测值偏差度</param>
-        public KalmanFilter(double Q, double R)
+        public KalmanFilter(double Q = 0.3, double R = 0.7)
         {
             this.Q = Q;
             this.R = R;
@@ -68,30 +72,30 @@ namespace CommonLib.Clients
             //_firstCycle = true;
         }
 
-        /// <summary>
-        /// 设置当前观测值，同时提供速度，加速度默认为0
-        /// </summary>
-        /// <param name="value">当前观测值</param>
-        /// <param name="v">速度</param>
-        public void SetValue(ref double value, double v)
-        {
-            SetValue(ref value, 0, v);
-        }
+        ///// <summary>
+        ///// 设置当前观测值，同时提供速度，加速度默认为0
+        ///// </summary>
+        ///// <param name="value">当前观测值</param>
+        ///// <param name="v">速度</param>
+        //public void SetValue(ref double value, double v)
+        //{
+        //    SetValue(ref value, 0, v);
+        //}
 
         /// <summary>
         /// 设置当前观测值，同时提供加速度与速度
         /// </summary>
         /// <param name="value">当前观测值</param>
-        /// <param name="a">加速度</param>
         /// <param name="v">速度</param>
-        public void SetValue(ref double value, double a, double v)
+        ///// <param name="a">加速度</param>
+        public void SetValue(ref double value, /*double a, */double v = 0)
         {
             //假如输入值不是数字，不予处理
             if (double.IsNaN(value))
                 return;
 
             CurrVal = value;
-            Acce = a;
+            //Acce = a;
             Velocity = v;
             //第一次循环给初始值
             if (_firstCycle)

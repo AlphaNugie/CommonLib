@@ -16,6 +16,11 @@ namespace CommonLib.Clients
         private readonly bool[] _bits; //比特位的数组，从低位开始排列
 
         /// <summary>
+        /// 比特位的数组，从低位开始排列
+        /// </summary>
+        public bool[] Bits { get { return _bits; } }
+
+        /// <summary>
         /// 比特序列对应的2进制字符串
         /// </summary>
         public string Binary { get { return GetBinary(); } }
@@ -53,6 +58,41 @@ namespace CommonLib.Clients
                 throw new ArgumentException("所对应泛型并非整型", nameof(T));
         }
 
+        public void SetValue(T value)
+        {
+            if (_bits == null || _bits.Length == 0)
+                return;
+            string binary;
+            //匹配对应整型类型，假如找不到则报出异常
+            if (_baseType == typeof(byte))
+                binary = Convert.ToString((byte)(object)value, 2).PadLeft(_bits.Length, '0');
+            //else if (_baseType == typeof(sbyte) || _baseType == typeof(short))
+            //    binary = Convert.ToString((short)(object)value, 2).PadLeft(_bits.Length, '0');
+            //else if (_baseType == typeof(ushort) || _baseType == typeof(int))
+            //    binary = Convert.ToString((int)(object)value, 2).PadLeft(_bits.Length, '0');
+            //else if (_baseType == typeof(uint) || _baseType == typeof(long) || _baseType == typeof(ulong))
+            //    binary = Convert.ToString((long)(object)value, 2).PadLeft(_bits.Length, '0');
+            else if (_baseType == typeof(sbyte))
+                binary = Convert.ToString((sbyte)(object)value, 2).PadLeft(_bits.Length, '0');
+            else if (_baseType == typeof(short))
+                binary = Convert.ToString((short)(object)value, 2).PadLeft(_bits.Length, '0');
+            else if (_baseType == typeof(ushort))
+                binary = Convert.ToString((ushort)(object)value, 2).PadLeft(_bits.Length, '0');
+            else if (_baseType == typeof(int))
+                binary = Convert.ToString((int)(object)value, 2).PadLeft(_bits.Length, '0');
+            else if (_baseType == typeof(uint))
+                binary = Convert.ToString((uint)(object)value, 2).PadLeft(_bits.Length, '0');
+            else if (_baseType == typeof(long))
+                binary = Convert.ToString((long)(object)value, 2).PadLeft(_bits.Length, '0');
+            else if (_baseType == typeof(ulong))
+                //binary = Convert.ToString(unchecked((long)(object)value), 2).PadLeft(_bits.Length, '0');
+                binary = Convert.ToString(BitConverter.ToInt64(BitConverter.GetBytes((ulong)(object)value), 0), 2).PadLeft(_bits.Length, '0');
+            else
+                throw new ArgumentException("所对应泛型并非整型", nameof(T));
+            for (int i = 0; i < _bits.Length; i++)
+                _bits[i] = binary[_bits.Length - 1 - i] == '1';
+        }
+
         /// <summary>
         /// 设置对应索引位置比特位的值，低位索引位置为0，假如索引位置不存在则不进行任何操作
         /// </summary>
@@ -82,8 +122,20 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public T GetValue()
         {
-            //string binary = string.Join(string.Empty, _bits.Reverse().Select(bit => bit ? 1 : 0).ToArray());
-            string binary = GetBinary();
+            return _bits == null || _bits.Length == 0 ? default : GetValue(0, _bits.Length);
+        }
+
+        /// <summary>
+        /// 获取从比特转来的整型值
+        /// 获取从比特序列中任意索引处开始、长度若干的子比特序列转换而来的整型值
+        /// </summary>
+        /// <param name="index">子比特序列开始的索引位置</param>
+        /// <param name="length">子比特序列的长度</param>
+        /// <returns></returns>
+        public T GetValue(int index, int length)
+        {
+            //string binary = GetBinary();
+            string binary = GetBinary(index, length);
             var value = default(T);
             //匹配对应整型类型，假如找不到则报出异常
             if (_baseType == typeof(byte))
@@ -111,7 +163,24 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public string GetBinary()
         {
-            return string.Join(string.Empty, _bits.Reverse().Select(bit => bit ? 1 : 0).ToArray());
+            return _bits == null || _bits.Length == 0 ? null : GetBinary(0, _bits.Length);
+        }
+
+        /// <summary>
+        /// 获取从比特序列中任意索引处开始、长度若干的子比特序列转换而来的2进制字符串
+        /// </summary>
+        /// <param name="index">子比特序列开始的索引位置</param>
+        /// <param name="length">子比特序列的长度</param>
+        /// <returns></returns>
+        public string GetBinary(int index, int length)
+        {
+            if (_bits == null || _bits.Length == 0) return null;
+            index = index < 0 ? 0 : index;
+            length = length + index > _bits.Length ? _bits.Length - index : length;
+            //return string.Join(string.Empty, _bits.Reverse().Select(bit => bit ? 1 : 0).ToArray());
+            //根据比特序列开始位置的索引以及持续的长度来提取比特序列
+            var array = index == 0 && length == _bits.Length ? _bits.Reverse() : _bits.Skip(index).Take(length).Reverse();
+            return string.Join(string.Empty, array.Select(bit => bit ? 1 : 0).ToArray());
         }
 
         /// <summary>

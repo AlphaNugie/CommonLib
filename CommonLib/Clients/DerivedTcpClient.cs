@@ -639,7 +639,7 @@ namespace CommonLib.Clients
                 byte[] buffer = new byte[ReceiveBufferSize];
                 NetStream.Flush(); //不知道有没有用
                 NetStream.Read(buffer, 0, buffer.Length);
-                string info = System.Text.Encoding.ASCII.GetString(buffer).Trim('\0'); //去除字符串头尾的空白字符
+                string info = Encoding.ASCII.GetString(buffer).Trim('\0'); //去除字符串头尾的空白字符
                 if (info == null || info.Length == 0)
                     return string.Empty;
 

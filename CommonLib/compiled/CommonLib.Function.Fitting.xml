@@ -18,14 +18,50 @@
             <summary>
             当某坐标系绕某个特定的轴旋转特定角度时，从旧坐标系向新坐标系的变换矩阵（角度正方向为从一个轴的正向向另一个轴正向旋转，如X轴向Y轴，Y轴向Z轴，X轴向Z轴）
             </summary>
-            <param name="angle"></param>
-            <param name="axis"></param>
+            <param name="angle">绕特定轴旋转的角度（单位：角度）</param>
+            <param name="axis">将坐标系以其为中心旋转的特定轴</param>
             <returns></returns>
         </member>
         <member name="T:CommonLib.Function.Fitting.AxisType">
             <summary>
             坐标轴类型
             </summary>
+        </member>
+        <member name="F:CommonLib.Function.Fitting.AxisType.X">
+            <summary>
+            X轴
+            </summary>
+        </member>
+        <member name="F:CommonLib.Function.Fitting.AxisType.Y">
+            <summary>
+            Y轴
+            </summary>
+        </member>
+        <member name="F:CommonLib.Function.Fitting.AxisType.Z">
+            <summary>
+            Z轴
+            </summary>
+        </member>
+        <member name="T:CommonLib.Function.Fitting.CoordinateRatios">
+            <summary>
+            修改后的坐标中原XY坐标的系数
+            </summary>
+        </member>
+        <member name="F:CommonLib.Function.Fitting.CoordinateRatios.Xratio">
+            <summary>
+            原X坐标的系数
+            </summary>
+        </member>
+        <member name="F:CommonLib.Function.Fitting.CoordinateRatios.Yratio">
+            <summary>
+            原Y坐标的系数
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.Fitting.CoordinateRatios.ToString">
+            <summary>
+            获取字符串描述
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:CommonLib.Function.Fitting.SurfaceFitting">
             <summary>

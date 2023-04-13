@@ -71,9 +71,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseDataServiceBatisSqlite.cs" />
     <Compile Include="BaseDataServiceSqlite.cs" />
     <Compile Include="SqliteColumnMapping.cs" />
     <Compile Include="SqliteEnums.cs" />
+    <Compile Include="SqliteExtension.cs" />
     <Compile Include="SqliteProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

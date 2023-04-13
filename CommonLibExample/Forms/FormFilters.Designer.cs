@@ -34,9 +34,9 @@
             // button_KalmanFilter
             // 
             this.button_KalmanFilter.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_KalmanFilter.Location = new System.Drawing.Point(48, 32);
+            this.button_KalmanFilter.Location = new System.Drawing.Point(25, 25);
             this.button_KalmanFilter.Name = "button_KalmanFilter";
-            this.button_KalmanFilter.Size = new System.Drawing.Size(145, 50);
+            this.button_KalmanFilter.Size = new System.Drawing.Size(170, 40);
             this.button_KalmanFilter.TabIndex = 1;
             this.button_KalmanFilter.Text = "卡尔曼滤波";
             this.button_KalmanFilter.UseVisualStyleBackColor = true;

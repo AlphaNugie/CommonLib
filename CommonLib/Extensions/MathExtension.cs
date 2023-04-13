@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,7 +38,21 @@ namespace CommonLib.Extensions
         /// <typeparam name="T">要交换的值的类型</typeparam>
         /// <param name="t1">值1</param>
         /// <param name="t2">值2</param>
+        [Obsolete]
         public static void Exchange<T>(ref T t1, ref T t2) where T : struct
+        {
+            T temp = t1;
+            t1 = t2;
+            t2 = temp;
+        }
+
+        /// <summary>
+        /// 对两个值类型的值进行交换
+        /// </summary>
+        /// <typeparam name="T">要交换的值的类型</typeparam>
+        /// <param name="t1">值1</param>
+        /// <param name="t2">值2</param>
+        public static void Swap<T>(ref T t1, ref T t2) where T : struct
         {
             T temp = t1;
             t1 = t2;
@@ -193,15 +208,24 @@ namespace CommonLib.Extensions
         /// 获取数据集中所有不为0的数中最小的数，假如数据集为空或不存在非0的数据，则返回0
         /// </summary>
         /// <param name="set">待从中寻找符合条件的数据的源数据集</param>
+        /// <param name="def">当数据集为空或不存在非0的数据时返回的默认值，默认为0</param>
         /// <returns></returns>
-        public static double MinExceptZero(this IEnumerable<double> set)
+        public static double MinExceptZero(this IEnumerable<double> set, double def = 0)
         {
+            //if (set == null)
+            //    return 0;
+            //set = set.Where(d => d != 0);
+            //double min = 0;
+            //try { min = set.Count() == 0 ? 0 : set.Min(); }
+            //catch (Exception) { }
+            //return min;
+            double min = def;
             if (set == null)
-                return 0;
+                goto END;
             set = set.Where(d => d != 0);
-            double min = 0;
-            try { min = set.Count() == 0 ? 0 : set.Min(); }
+            try { if (set.Count() > 0) min = set.Min(); }
             catch (Exception) { }
+            END:
             return min;
         }
 
@@ -209,16 +233,71 @@ namespace CommonLib.Extensions
         /// 获取数据集中所有不为0的数中最大的数，假如数据集为空或不存在非0的数据，则返回0
         /// </summary>
         /// <param name="set">待从中寻找符合条件的数据的源数据集</param>
+        /// <param name="def">当数据集为空或不存在非0的数据时返回的默认值，默认为0</param>
         /// <returns></returns>
-        public static double MaxExceptZero(this IEnumerable<double> set)
+        public static double MaxExceptZero(this IEnumerable<double> set, double def = 0)
         {
+            //if (set == null)
+            //    return 0;
+            //set = set.Where(d => d != 0);
+            //double max = 0;
+            //try { max = set.Count() == 0 ? 0 : set.Max(); }
+            //catch (Exception) { }
+            //return max;
+            double max = def;
             if (set == null)
-                return 0;
+                goto END;
             set = set.Where(d => d != 0);
-            double max = 0;
-            try { max = set.Count() == 0 ? 0 : set.Max(); }
+            try { if (set.Count() > 0) max = set.Max(); }
             catch (Exception) { }
+            END:
             return max;
+        }
+
+        /// <summary>
+        /// 将一组原始数据(S)和一组对照数据(S')进行比较并计算差异参数（sum1→n[abs(Sn-S'n]/sum1→n[Sn]），数值区间在0到+∞（实际在等于或大于1时差异已明显过大），比较时指定原始数据在下标(索引)上和数值上的位移
+        /// </summary>
+        /// <param name="datas">原始数据组</param>
+        /// <param name="comparisons">对照数据组</param>
+        /// <param name="index_offset">原始数据在下标(索引)上的位移（假如偏移后超出范围则不参与计算）</param>
+        /// <param name="peak_offset">原始数据在数值上的位移</param>
+        /// <returns></returns>
+        public static double GetSequenceDifference(this IEnumerable<double> datas, IEnumerable<double> comparisons, int index_offset = 0, double peak_offset = 0)
+        {
+            return GetSequenceDifference(datas, comparisons, out _, index_offset, peak_offset);
+        }
+
+        /// <summary>
+        /// 将一组原始数据(S)和一组对照数据(S')进行比较并计算差异参数（sum1→n[abs(Sn-S'n]/sum1→n[Sn]），数值区间在0到+∞（实际在等于或大于1时差异已明显过大），比较时指定原始数据在下标(索引)上和数值上的位移
+        /// </summary>
+        /// <param name="datas">原始数据组</param>
+        /// <param name="comparisons">对照数据组</param>
+        /// <param name="differences">对外输出的差值（绝对值）序列</param>
+        /// <param name="index_offset">原始数据在下标(索引)上的位移（假如偏移后超出范围则不参与计算）</param>
+        /// <param name="peak_offset">原始数据在数值上的位移</param>
+        /// <returns></returns>
+        public static double GetSequenceDifference(this IEnumerable<double> datas, IEnumerable<double> comparisons, out List<double> differences, int index_offset = 0, double peak_offset = 0)
+        {
+            //原始数据数量，对照数据数量
+            int countd, countc;
+            differences = new List<double>();
+            if (datas == null || (countd = datas.Count()) == 0 || comparisons == null || (countc = comparisons.Count()) == 0)
+                return 1;
+            double sum_diff = 0, sum_data = 0;
+            for (int j = 0; j < countc; j++)
+            {
+                //原始数据下标(索引)
+                int i = j - index_offset;
+                if (i < 0)
+                    continue;
+                else if (i >= countd)
+                    break;
+                double data = datas.ElementAt(i) + peak_offset, comp = comparisons.ElementAt(j), diff = Math.Abs(data - comp);
+                sum_diff += diff;
+                sum_data += data;
+                differences.Add(diff);
+            }
+            return sum_diff / sum_data;
         }
     }
 }

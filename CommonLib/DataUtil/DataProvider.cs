@@ -120,7 +120,8 @@ namespace CommonLib.DataUtil
         /// <param name="connStr">连接字符串</param>
         public DataProvider(string connStr)
         {
-            ConnStr = connStr;
+            //ConnStr = connStr;
+            SetConnStr(connStr);
         }
 
         /// <summary>
@@ -134,6 +135,15 @@ namespace CommonLib.DataUtil
         /// <param name="password">用户密码</param>
         public DataProvider(string connStr, string hostAddress, int hostPort, string serviceName, string userName, string password) : this(GetConnStr(connStr, hostAddress, hostPort, serviceName, userName, password)) { }
         #endregion
+
+        /// <summary>
+        /// 将数据库连接字符串设定为指定的内容
+        /// </summary>
+        /// <param name="connStr">指定的数据库连接字符串</param>
+        public void SetConnStr(string connStr)
+        {
+            ConnStr = connStr;
+        }
 
         #region with connstr as parameter
         /// <summary>

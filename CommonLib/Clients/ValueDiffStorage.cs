@@ -13,10 +13,18 @@ namespace CommonLib.Clients
     /// <typeparam name="T">数值的类型（只能是可比较类型）</typeparam>
     public class ValueDiffStorage<T> where T : IComparable
     {
-        //public delegate void DiffTickerReachedEventHandler(object sender, T diff);
-        //public delegate void ValueChangedEventHandler(object sender, T prevVal, T currVal);
+        #region 事件
+        /// <summary>
+        /// 变化趋势改变事件
+        /// </summary>
         public event ValueTrendTickerReachedEventHandler ValueTrendTickerReached;
+
+        /// <summary>
+        /// 值改变事件
+        /// </summary>
         public event ValueChangedEventHandler<T> ValueChangedEvent;
+        #endregion
+
         private T _currValue; //当前值
         private int _currTrend; //当前变化趋势（-1,0,1）
         private uint _tickerThres = 5; //差异计数器临界值

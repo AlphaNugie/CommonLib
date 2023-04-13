@@ -38,18 +38,22 @@
             this.button_ExitWindows = new System.Windows.Forms.Button();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.button_CustomMessageBox = new System.Windows.Forms.Button();
+            this.button_KeepBusy = new System.Windows.Forms.Button();
+            this.button_Exception = new System.Windows.Forms.Button();
+            this.button_Controls = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // notifyIcon_Main
             // 
             this.notifyIcon_Main.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon_Main.Icon")));
+            this.notifyIcon_Main.Text = "测试";
             // 
             // button_TimerEventRaiser
             // 
             this.button_TimerEventRaiser.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_TimerEventRaiser.Location = new System.Drawing.Point(28, 28);
+            this.button_TimerEventRaiser.Location = new System.Drawing.Point(25, 25);
             this.button_TimerEventRaiser.Name = "button_TimerEventRaiser";
-            this.button_TimerEventRaiser.Size = new System.Drawing.Size(176, 40);
+            this.button_TimerEventRaiser.Size = new System.Drawing.Size(170, 40);
             this.button_TimerEventRaiser.TabIndex = 0;
             this.button_TimerEventRaiser.Text = "TimerEventRaiser";
             this.button_TimerEventRaiser.UseVisualStyleBackColor = true;
@@ -58,7 +62,7 @@
             // button_DatabaseTest
             // 
             this.button_DatabaseTest.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_DatabaseTest.Location = new System.Drawing.Point(225, 28);
+            this.button_DatabaseTest.Location = new System.Drawing.Point(225, 25);
             this.button_DatabaseTest.Name = "button_DatabaseTest";
             this.button_DatabaseTest.Size = new System.Drawing.Size(170, 40);
             this.button_DatabaseTest.TabIndex = 1;
@@ -69,7 +73,7 @@
             // button_Encrypt
             // 
             this.button_Encrypt.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_Encrypt.Location = new System.Drawing.Point(415, 28);
+            this.button_Encrypt.Location = new System.Drawing.Point(425, 25);
             this.button_Encrypt.Name = "button_Encrypt";
             this.button_Encrypt.Size = new System.Drawing.Size(170, 40);
             this.button_Encrypt.TabIndex = 1;
@@ -80,7 +84,7 @@
             // button_Socket
             // 
             this.button_Socket.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_Socket.Location = new System.Drawing.Point(606, 29);
+            this.button_Socket.Location = new System.Drawing.Point(625, 25);
             this.button_Socket.Name = "button_Socket";
             this.button_Socket.Size = new System.Drawing.Size(170, 40);
             this.button_Socket.TabIndex = 2;
@@ -91,9 +95,9 @@
             // button_Filters
             // 
             this.button_Filters.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_Filters.Location = new System.Drawing.Point(28, 95);
+            this.button_Filters.Location = new System.Drawing.Point(25, 95);
             this.button_Filters.Name = "button_Filters";
-            this.button_Filters.Size = new System.Drawing.Size(176, 40);
+            this.button_Filters.Size = new System.Drawing.Size(170, 40);
             this.button_Filters.TabIndex = 0;
             this.button_Filters.Text = "滤波";
             this.button_Filters.UseVisualStyleBackColor = true;
@@ -104,7 +108,7 @@
             this.button_Opc.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_Opc.Location = new System.Drawing.Point(225, 95);
             this.button_Opc.Name = "button_Opc";
-            this.button_Opc.Size = new System.Drawing.Size(176, 40);
+            this.button_Opc.Size = new System.Drawing.Size(170, 40);
             this.button_Opc.TabIndex = 0;
             this.button_Opc.Text = "OPC";
             this.button_Opc.UseVisualStyleBackColor = true;
@@ -113,7 +117,7 @@
             // button_ExitWindows
             // 
             this.button_ExitWindows.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_ExitWindows.Location = new System.Drawing.Point(415, 95);
+            this.button_ExitWindows.Location = new System.Drawing.Point(425, 95);
             this.button_ExitWindows.Name = "button_ExitWindows";
             this.button_ExitWindows.Size = new System.Drawing.Size(170, 40);
             this.button_ExitWindows.TabIndex = 0;
@@ -130,28 +134,66 @@
             // button_CustomMessageBox
             // 
             this.button_CustomMessageBox.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_CustomMessageBox.Location = new System.Drawing.Point(606, 95);
+            this.button_CustomMessageBox.Location = new System.Drawing.Point(625, 95);
             this.button_CustomMessageBox.Name = "button_CustomMessageBox";
             this.button_CustomMessageBox.Size = new System.Drawing.Size(170, 40);
             this.button_CustomMessageBox.TabIndex = 2;
-            this.button_CustomMessageBox.Text = "CustomMessageBox";
+            this.button_CustomMessageBox.Text = "CustomMsgBox";
             this.button_CustomMessageBox.UseVisualStyleBackColor = true;
             this.button_CustomMessageBox.Click += new System.EventHandler(this.Button_CustomMessageBox_Click);
             // 
+            // button_KeepBusy
+            // 
+            this.button_KeepBusy.BackColor = System.Drawing.SystemColors.HotTrack;
+            this.button_KeepBusy.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.button_KeepBusy.Location = new System.Drawing.Point(12, 390);
+            this.button_KeepBusy.Name = "button_KeepBusy";
+            this.button_KeepBusy.Size = new System.Drawing.Size(52, 48);
+            this.button_KeepBusy.TabIndex = 3;
+            this.button_KeepBusy.Text = "循环";
+            this.button_KeepBusy.UseVisualStyleBackColor = false;
+            this.button_KeepBusy.Click += new System.EventHandler(this.Button_Busy_Click);
+            // 
+            // button_Exception
+            // 
+            this.button_Exception.BackColor = System.Drawing.Color.Salmon;
+            this.button_Exception.Location = new System.Drawing.Point(70, 390);
+            this.button_Exception.Name = "button_Exception";
+            this.button_Exception.Size = new System.Drawing.Size(52, 48);
+            this.button_Exception.TabIndex = 3;
+            this.button_Exception.Text = "异常";
+            this.button_Exception.UseVisualStyleBackColor = false;
+            this.button_Exception.Click += new System.EventHandler(this.Button_Exception_Click);
+            // 
+            // button_Controls
+            // 
+            this.button_Controls.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_Controls.Location = new System.Drawing.Point(25, 165);
+            this.button_Controls.Name = "button_Controls";
+            this.button_Controls.Size = new System.Drawing.Size(170, 40);
+            this.button_Controls.TabIndex = 0;
+            this.button_Controls.Text = "控件";
+            this.button_Controls.UseVisualStyleBackColor = true;
+            this.button_Controls.Click += new System.EventHandler(this.Button_Controls_Click);
+            // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(820, 450);
+            this.Controls.Add(this.button_Exception);
+            this.Controls.Add(this.button_KeepBusy);
             this.Controls.Add(this.button_CustomMessageBox);
             this.Controls.Add(this.button_Socket);
             this.Controls.Add(this.button_Encrypt);
             this.Controls.Add(this.button_DatabaseTest);
             this.Controls.Add(this.button_ExitWindows);
             this.Controls.Add(this.button_Opc);
+            this.Controls.Add(this.button_Controls);
             this.Controls.Add(this.button_Filters);
             this.Controls.Add(this.button_TimerEventRaiser);
             this.Font = new System.Drawing.Font("等线", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormMain";
             this.Text = "测试";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
@@ -170,6 +212,9 @@
         private System.Windows.Forms.Button button_ExitWindows;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.Button button_CustomMessageBox;
+        private System.Windows.Forms.Button button_KeepBusy;
+        private System.Windows.Forms.Button button_Exception;
+        private System.Windows.Forms.Button button_Controls;
     }
 }
 

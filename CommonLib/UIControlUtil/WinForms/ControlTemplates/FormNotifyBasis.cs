@@ -94,7 +94,8 @@ namespace CommonLib.UIControlUtil.ControlTemplates
         /// </summary>
         public void Exit()
         {
-            if (MessageBox.Show("是否退出程序？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
+            //if (MessageBox.Show("是否退出程序？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
+            if (MessageBox.Show($"是否退出{Text}？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
                 return;
 
             notifyIcon_Main.Visible = false;

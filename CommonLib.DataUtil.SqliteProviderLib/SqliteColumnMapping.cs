@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CommonLib.Function;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,7 +56,7 @@ namespace CommonLib.DataUtil
         /// <summary>
         /// 默认值
         /// </summary>
-        public double? DefaultValue { get; set; }
+        public object DefaultValue { get; set; }
 
         /// <summary>
         /// 是否受唯一约束
@@ -103,6 +105,29 @@ namespace CommonLib.DataUtil
         }
 
         /// <summary>
+        /// 根据pragma命令给出的结果初始化
+        /// </summary>
+        /// <param name="dataRow">pragma命令的每一个数据行</param>
+        public SqliteColumnMapping(DataRow dataRow)
+        {
+            if (dataRow == null || string.IsNullOrWhiteSpace(dataRow.Convert<string>("name")))
+                throw new ArgumentNullException("列名不可为空", nameof(dataRow));
+            ColumnName = dataRow.Convert<string>("name");
+            string[] typeInfos = dataRow.Convert<string>("type").Split(new char[] { '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+            SqlType = Enum.TryParse(typeInfos[0], true, out SqliteSqlType type) ? type : SqliteSqlType.NONE;
+            Size = (typeInfos.Length > 1 && int.TryParse(typeInfos[1], out int size)) ? (int?)size : null;
+            NotNull = dataRow.Convert<int>("notnull") == 1;
+            string def = dataRow.Convert<string>("dflt_value");
+            if (string.IsNullOrWhiteSpace(def))
+                DefaultValue = DBNull.Value;
+            else if (SqlType == SqliteSqlType.VARCHAR || SqlType == SqliteSqlType.VARCHAR2)
+                DefaultValue = def;
+            else
+                DefaultValue = double.TryParse(def, out double value) ? value : 0;
+            PrimaryKey = dataRow.Convert<int>("pk") == 1;
+        }
+
+        /// <summary>
         /// 获取当前字段对象的架构语句，默认为修改表
         /// </summary>
         /// <returns></returns>
@@ -143,7 +168,8 @@ namespace CommonLib.DataUtil
             }
             //string notNullClause = NotNull && NotNullConflictClause != ConflictClause.NONE ? string.Format("NOT NULL ON CONFLICT {0} ", NotNullConflictClause) : string.Empty;
             //string uniqueClause = Unique && UniqueConflictClause != ConflictClause.NONE ? string.Format("UNIQUE ON CONFLICT {0} ", UniqueConflictClause) : string.Empty;
-            string defClause = DefaultValue != null ? string.Format("DEFAULT {0}", DefaultValue.Value) : string.Empty;
+            //string defClause = DefaultValue != null ? string.Format("DEFAULT {0}", DefaultValue.Value) : string.Empty;
+            string defClause = DefaultValue != null ? string.Format(SqlType == SqliteSqlType.VARCHAR || SqlType == SqliteSqlType.VARCHAR2 ? "DEFAULT '{0}'" : "DEFAULT {0}", DefaultValue) : string.Empty;
             return string.Format("{0} {1} {2}{3}{4}{5}", columnName, sqlType, primaryKeyClause, notNullClause, uniqueClause, defClause);
         }
     }

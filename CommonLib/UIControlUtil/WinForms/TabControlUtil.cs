@@ -64,12 +64,6 @@ namespace CommonLib.UIControlUtil
             tabControl.TabPages.Add(page);
             tabControl.SelectedTab = page;
             form.Show();
-            //tabControl.Invoke(new MethodInvoker(delegate
-            //{
-            //    tabControl.TabPages.Add(page);
-            //    tabControl.SelectedTab = page;
-            //    form.Show();
-            //}));
         }
 
         /// <summary>
@@ -77,51 +71,43 @@ namespace CommonLib.UIControlUtil
         /// </summary>
         /// <param name="tabControl">需释放TabPage资源的TabControl控件</param>
         /// <param name="page">TabPage对象</param>
-        public static void DisposeTabPage(this TabControl tabControl, TabPage page)
+        /// <param name="closeWinform">在释放TabPage时是否关闭并释放其中的Winform（假如第一个控件为Winform）</param>
+        public static void DisposeTabPage(this TabControl tabControl, TabPage page, bool closeWinform = true)
         {
             if (tabControl == null || page == null)
                 return;
 
-            page.DisposeTabPage();
-            //if (page.Controls.Count > 0 && page.Controls[0] is Form)
-            //{
-            //    Form form = (Form)page.Controls[0];
-            //    if (form != null)
-            //    {
-            //        form.Close();
-            //        form.Dispose();
-            //    }
-            //}
-
-            //page.Dispose();
+            page.DisposeTabPage(closeWinform);
         }
 
         /// <summary>
         /// 释放TabPage资源(WinForm)
         /// </summary>
         /// <param name="page">需进行资源释放的TabPage对象</param>
-        public static void DisposeTabPage(this TabPage page)
+        /// <param name="closeWinform">在释放TabPage时是否关闭并释放其中的Winform（假如第一个控件为Winform）</param>
+        public static void DisposeTabPage(this TabPage page, bool closeWinform = true)
         {
             if (page == null)
                 return;
 
-            if (page.Controls.Count > 0 && page.Controls[0] is Form form)
-            {
-                if (form != null)
-                {
-                    form.Close();
-                    form.Dispose();
-                }
-            }
-            //if (page.Controls.Count > 0 && page.Controls[0] is Form)
+            //if (page.Controls.Count > 0 && page.Controls[0] is Form form)
             //{
-            //    Form form = (Form)page.Controls[0];
             //    if (form != null)
             //    {
             //        form.Close();
             //        form.Dispose();
             //    }
             //}
+            if (/*closeWinform && */page.Controls.Count > 0 && page.Controls[0] is Form form && form != null)
+            {
+                if (closeWinform)
+                {
+                    form.Close();
+                    form.Dispose();
+                }
+                else
+                    page.Controls.Remove(form);
+            }
 
             page.Dispose();
         }
@@ -130,21 +116,23 @@ namespace CommonLib.UIControlUtil
         /// 释放TabControl的所有TabPage资源
         /// </summary>
         /// <param name="tabControl">需释放所有TabPage资源的TabControl控件</param>
-        public static void DisposeAllTabPages(this TabControl tabControl)
+        /// <param name="closeWinform">在释放所有TabPage时是否关闭并释放其中的所有Winform（假如第一个控件为Winform）</param>
+        public static void DisposeAllTabPages(this TabControl tabControl, bool closeWinform = true)
         {
             if (tabControl == null)
                 return;
             foreach (TabPage page in tabControl.TabPages)
-                tabControl.DisposeTabPage(page);
+                tabControl.DisposeTabPage(page, closeWinform);
         }
 
         /// <summary>
         /// 释放TabControl的选中TabPage资源
         /// </summary>
         /// <param name="tabControl">需释放选中TabPage资源的TabControl控件</param>
-        public static void DisposeSelectedTabPage(this TabControl tabControl)
+        /// <param name="closeWinform">在释放TabPage时是否关闭并释放其中的Winform（假如第一个控件为Winform）</param>
+        public static void DisposeSelectedTabPage(this TabControl tabControl, bool closeWinform = true)
         {
-            tabControl.DisposeTabPage(tabControl.SelectedTab);
+            tabControl.DisposeTabPage(tabControl.SelectedTab, closeWinform);
         }
     }
 }

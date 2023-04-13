@@ -1,5 +1,6 @@
 ﻿using CommonLib.Extensions;
 using CommonLib.Extensions.Property;
+using CommonLib.Extensions.Reflection;
 using CommonLib.Function;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,11 @@ namespace OpcLibrary
     /// </summary>
     public class OpcItemInfo
     {
-        private object _upperLevelEntity, _lowerLevelEntity, _currentEntity; //对应属性所属的实体，以及直接与属性相关联的当前层实体
-        private int[] _indexes = null; //方括号索引
+        private object _upperLevelEntity; //对应属性所属的实体
+        private object _midLevelEntity; //指定属性所对应或所属的中间实体，假如属性名称内带有索引，则为索引处元素所属的集合、数组或List
+        //private object _lowerLevelEntity; //直接与对应属性相关联的当前层实体
+        private object _currentEntity; //直接与对应属性相关联的当前层实体，实际使用中就是最终对应的值或实体
+        private int[] _indices = null; //方括号索引
 
         #region 属性
         /// <summary>
@@ -129,9 +133,8 @@ namespace OpcLibrary
             if (dataSource == null)
                 return;
 
-            //Property = dataSource.GetEntityProperty(FieldName, true, out _upperLevelEntity);
-            //Property = dataSource.GetEntityProperty_InConstruction(FieldName, true, out _upperLevelEntity, out _indexes);
-            Property = dataSource.GetEntityProperty_InConstruction(FieldName, true, out _upperLevelEntity, out _lowerLevelEntity, out _indexes);
+            //Property = dataSource.GetEntityProperty_InConstruction(FieldName, true, out _upperLevelEntity, out _lowerLevelEntity, out _indexes);
+            Property = dataSource.GetEntityProperty_InConstruction(FieldName, true, out _upperLevelEntity, out _, out _indices);
         }
 
         /// <summary>
@@ -139,12 +142,24 @@ namespace OpcLibrary
         /// </summary>
         private void UpdateCurrentEntityByIndexes()
         {
-            if (Property == null || _indexes == null || _indexes.Length == 0)
+            UpdateCurrentEntityByIndexes(out _);
+        }
+
+        /// <summary>
+        /// 根据给定索引更新当前实体的值以及类型转换泛型方法的对象
+        /// </summary>
+        /// <param name="type">输出该索引处元素的类型对象</param>
+        private void UpdateCurrentEntityByIndexes(out Type type)
+        {
+            type = null;
+            if (Property == null || _indices == null || _indices.Length == 0)
                 return;
 
             _currentEntity = Property.GetValue(_upperLevelEntity);
-            Type type = Property.PropertyType;
-            PropertyMapperExtension.GetEntityByBracketIndexes(ref _currentEntity, _indexes, ref type);
+            //Type type = Property.PropertyType;
+            type = Property.PropertyType;
+            //PropertyMapperExtension.GetEntityByBracketIndexes(ref _currentEntity, _indexes, ref type);
+            PropertyMapperExtension.GetEntityByBracketIndexes(ref _currentEntity, out _midLevelEntity, _indices, ref type);
             ConvertTypeMethod = _currentEntity == null ? null : Converter.ConvertTypeMethod.MakeGenericMethod(type);
         }
 
@@ -154,23 +169,10 @@ namespace OpcLibrary
         /// <returns></returns>
         public object GetPropertyValue()
         {
-            ////假如值的系数不为0，则试图乘以这个系数
-            //object[] values = Coeff == 0 ? new object[] { Value } : new object[] { double.Parse(Value) * Coeff };
             //假如值的系数不为0，则试图乘以这个系数并加上偏移量
             object[] values = Coeff == 0 ? new object[] { Value } : new object[] { double.Parse(Value) * Coeff + Offset };
             return ConvertTypeMethod?.Invoke(null, values);
-            //return ConvertTypeMethod?.Invoke(null, new object[] { Value });
         }
-
-        ///// <summary>
-        ///// 假如属性或给定的数据源不为空，则为数据源设置经过转换方法转换后的数据源字段值
-        ///// </summary>
-        ///// <param name="dataSource"></param>
-        //public void SetPropertyValue(object dataSource)
-        //{
-        //    if (Property != null && dataSource != null)
-        //        Property.SetValue(dataSource, GetPropertyValue());
-        //}
 
         /// <summary>
         /// 假如属性或给定的数据源不为空，则为数据源设置经过转换方法转换后的数据源字段值
@@ -179,43 +181,37 @@ namespace OpcLibrary
         public void SetPropertyValue(object dataSource)
         {
             InitTargetProperty(dataSource);
-            //if (Property != null && _upperLevelEntity != null)
-            //    Property.SetValue(_upperLevelEntity, GetPropertyValue());
             //假如属性为空或属性所属实体为空，退出方法
             if (Property == null || _upperLevelEntity == null)
                 return;
-            //假如没有提供任何方括号索引
-            if (_indexes == null || _indexes.Length == 0)
-                Property.SetValue(_upperLevelEntity, GetPropertyValue());
-            //假如提供了方括号索引，则去寻找对应位置的元素
-            else
-            {
-                //_currentEntity = Property.GetValue(_upperLevelEntity);
-                //Type type = Property.PropertyType;
-                //PropertyMapperExtension.GetEntityByBracketIndexes(ref _currentEntity, _indexes, ref type);
-                //ConvertTypeMethod = _currentEntity == null ? null : Converter.ConvertTypeMethod.MakeGenericMethod(type);
+            ////假如没有提供任何方括号索引
+            //if (_indexes == null || _indexes.Length == 0)
+            //    Property.SetValue(_upperLevelEntity, GetPropertyValue());
+            //是否没有提供任何方括号索引
+            bool noIndices = _indices == null || _indices.Length == 0;
+            //获取属性要赋的值，赋值之前先检查是否为方括号索引所指向的实体（没有索引将不进行特殊操作）
+            if (!noIndices)
                 UpdateCurrentEntityByIndexes();
-                //TODO 需要一个向枚举数内部元素写入值的方法
-                //写入_currentEntity的值
-            }
+            object value = GetPropertyValue();
+            //假如没有提供任何方括号索引
+            if (_indices == null || _indices.Length == 0)
+                Property.SetValue(_upperLevelEntity, value);
+            //假如提供了方括号索引，则去寻找对应位置的元素
+            //TODO 在泛型List、数组或集合之中，SetPropertyValue方法目前仅支持向数组中的元素赋值
+            else
+                ReflectionUtil.SetValueMethod.Invoke(_midLevelEntity, new object[] { value, _indices[0] });
         }
-
-        ///// <summary>
-        ///// 假如属性或给定的数据源不为空，则从数据源向Item赋值
-        ///// </summary>
-        ///// <param name="dataSource"></param>
-        //public void SetItemValue(object dataSource)
-        //{
-        //    if (Property != null && dataSource != null)
-        //        Value = Property.GetValue(dataSource).ToString();
-        //}
 
         /// <summary>
         /// 假如属性或给定的数据源不为空，则从数据源向Item赋值
         /// </summary>
         /// <param name="dataSource"></param>
-        public void SetItemValue(object dataSource)
+        /// <param name="nullValueHandling">当获取到的标签值为空时的处理方法</param>
+        public void SetItemValue(object dataSource, NullValueHandling nullValueHandling = NullValueHandling.Skip)
         {
+            //假如数据源对象为空，则跳过赋值操作
+            if (dataSource == null)
+                return;
             InitTargetProperty(dataSource);
             //if (Property != null && _upperLevelEntity != null)
             //{
@@ -233,23 +229,39 @@ namespace OpcLibrary
             //object value;
             //默认值为空，假如属性为空或属性所属实体为空，跳到最后赋值部分
             object value = null;
+            //目标属性类型
+            Type type = null;
             if (Property == null || _upperLevelEntity == null)
-                goto SET_VALUE;
+                //goto SET_VALUE;
+                goto NULL_HANDLING;
             //假如没有提供方括号索引，则直接获取值，否则根据索引获取元素值
-            if (_indexes == null || _indexes.Length == 0)
+            if (_indices == null || _indices.Length == 0)
+            {
                 value = Property.GetValue(_upperLevelEntity);
+                type = Property.PropertyType;
+            }
             else
             {
                 //_currentEntity = Property.GetValue(_upperLevelEntity);
                 //Type type = Property.PropertyType;
                 //PropertyMapperExtension.GetEntityByBracketIndexes(ref _currentEntity, _indexes, ref type);
                 //ConvertTypeMethod = _currentEntity == null ? null : Converter.ConvertTypeMethod.MakeGenericMethod(type);
-                UpdateCurrentEntityByIndexes();
+                //UpdateCurrentEntityByIndexes();
+                UpdateCurrentEntityByIndexes(out type);
                 value = _currentEntity;
             }
-            //假如值为空，跳到最后赋值部分
+            NULL_HANDLING:
+            //对应属性值为null时的操作（值为null或者未找到属性）
             if (value == null)
-                goto SET_VALUE;
+            {
+                //直接跳到最后赋值部分，值为null将不会写入
+                if (nullValueHandling == NullValueHandling.Skip)
+                    goto SET_VALUE;
+                //无视空值，假如为值类型将初始化为新实例（引用类型依然为null）
+                else if (nullValueHandling == NullValueHandling.Ignore)
+                    value = type.CreateDefValue();
+            }
+
             ////假如值的系数不为0，则试图乘以这个系数
             //if (Coeff != 0)
             //{

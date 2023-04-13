@@ -294,6 +294,12 @@
             根据给定索引更新当前实体的值以及类型转换泛型方法的对象
             </summary>
         </member>
+        <member name="M:OpcLibrary.OpcItemInfo.UpdateCurrentEntityByIndexes(System.Type@)">
+            <summary>
+            根据给定索引更新当前实体的值以及类型转换泛型方法的对象
+            </summary>
+            <param name="type">输出该索引处元素的类型对象</param>
+        </member>
         <member name="M:OpcLibrary.OpcItemInfo.GetPropertyValue">
             <summary>
             获取经过转换方法转换后的数据源字段值，假如转换方法为空则返回空
@@ -306,11 +312,12 @@
             </summary>
             <param name="dataSource"></param>
         </member>
-        <member name="M:OpcLibrary.OpcItemInfo.SetItemValue(System.Object)">
+        <member name="M:OpcLibrary.OpcItemInfo.SetItemValue(System.Object,CommonLib.Extensions.Property.NullValueHandling)">
             <summary>
             假如属性或给定的数据源不为空，则从数据源向Item赋值
             </summary>
             <param name="dataSource"></param>
+            <param name="nullValueHandling">当获取到的标签值为空时的处理方法</param>
         </member>
         <member name="T:OpcLibrary.OpcUtilHelper">
             <summary>
@@ -402,12 +409,22 @@
             OPC组更新速度
             </summary>
         </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.ServerName">
+            <summary>
+            OPC服务名称
+            </summary>
+        </member>
         <member name="P:OpcLibrary.OpcUtilHelper.ServerStartTime">
             <summary>
             OPC服务启动时间
             </summary>
         </member>
-        <member name="P:OpcLibrary.OpcUtilHelper.ServerVersion">
+        <member name="P:OpcLibrary.OpcUtilHelper.ServerStartTimeStr">
+            <summary>
+            OPC服务启动时间（字符串）
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.ServerVersionStr">
             <summary>
             OPC服务版本
             </summary>
@@ -415,6 +432,11 @@
         <member name="P:OpcLibrary.OpcUtilHelper.ServerState">
             <summary>
             OPC服务状态
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.OpcUtilHelper.ServerStateStr">
+            <summary>
+            OPC服务状态（字符串）
             </summary>
         </member>
         <member name="M:OpcLibrary.OpcUtilHelper.#ctor(System.Int32,System.Boolean)">

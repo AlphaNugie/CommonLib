@@ -22,10 +22,13 @@ namespace CommonLibExample.PropertyMapper.Model
 
         public List<City> CityList { get; set; }
 
+        public string[] Friends { get; set; }
+
         public Student()
         {
             StrList = new List<string>() { string.Empty, string.Empty, string.Empty, string.Empty };
             CityList = new List<City>() { new City() { Name = "London" }, new City() { Name = "New York" }, new City() { Name = "Peking" } };
+            Friends = new string[5];
         }
 
         public Student(string name, int age, int gender = 0) : this()

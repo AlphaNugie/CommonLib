@@ -12,6 +12,11 @@ namespace CommonLib.DataUtil
     public enum SqliteSqlType
     {
         /// <summary>
+        /// 无类型
+        /// </summary>
+        NONE,
+
+        /// <summary>
         /// 双精度类型
         /// </summary>
         DOUBLE,

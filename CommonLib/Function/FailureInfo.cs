@@ -12,15 +12,15 @@ namespace CommonLib.Function
     /// </summary>
     public class FailureInfo
     {
-        /// <summary>
-        /// 获取包含异常信息的字符串数组
-        /// </summary>
-        /// <param name="e">异常对象</param>
-        /// <returns>返回字符串数组，包括异常信息、方法以及堆栈信息等</returns>
-        public static string[] GetFailureInfoArray(Exception e)
-        {
-            return GetFailureInfoArray(e, "出现异常");
-        }
+        ///// <summary>
+        ///// 获取包含异常信息的字符串数组
+        ///// </summary>
+        ///// <param name="e">异常对象</param>
+        ///// <returns>返回字符串数组，包括异常信息、方法以及堆栈信息等</returns>
+        //public static string[] GetFailureInfoArray(Exception e)
+        //{
+        //    return GetFailureInfoArray(e, "出现异常");
+        //}
 
         /// <summary>
         /// 获取包含异常信息与额外信息的字符串数组
@@ -30,7 +30,7 @@ namespace CommonLib.Function
         /// <param name="usingExcepMsg">错误说明信息中是否添加异常信息(string Exception.Message)</param>
         /// <param name="extraInfos">额外包含的信息字符串数组</param>
         /// <returns>返回字符串数组，包含异常信息、方法以及堆栈信息等</returns>
-        public static string[] GetFailureInfoArray(Exception ex, string info, bool usingExcepMsg, IEnumerable<string> extraInfos)
+        public static string[] GetFailureInfoArray(Exception ex, string info = "出现异常", bool usingExcepMsg = true, IEnumerable<string> extraInfos = null)
         {
             List<string> list = new List<string>();
             list.Add(usingExcepMsg ? string.Format("{0}：{1}", info, ex.Message) : info); //是否需要异常信息
@@ -43,17 +43,17 @@ namespace CommonLib.Function
             return list.ToArray();
         }
 
-        /// <summary>
-        /// 获取包含异常信息的字符串数组
-        /// </summary>
-        /// <param name="e">异常对象</param>
-        /// <param name="info">错误说明信息</param>
-        /// <param name="usingExcepMsg">错误说明信息中是否添加异常信息(string Exception.Message)</param>
-        /// <returns>返回字符串数组，包含异常信息、方法以及堆栈信息等</returns>
-        public static string[] GetFailureInfoArray(Exception e, string info, bool usingExcepMsg)
-        {
-            return GetFailureInfoArray(e, info, usingExcepMsg, null);
-        }
+        ///// <summary>
+        ///// 获取包含异常信息的字符串数组
+        ///// </summary>
+        ///// <param name="e">异常对象</param>
+        ///// <param name="info">错误说明信息</param>
+        ///// <param name="usingExcepMsg">错误说明信息中是否添加异常信息(string Exception.Message)</param>
+        ///// <returns>返回字符串数组，包含异常信息、方法以及堆栈信息等</returns>
+        //public static string[] GetFailureInfoArray(Exception e, string info, bool usingExcepMsg)
+        //{
+        //    return GetFailureInfoArray(e, info, usingExcepMsg, null);
+        //}
 
         /// <summary>
         /// 获取包含异常信息与额外信息的字符串数组
@@ -79,15 +79,15 @@ namespace CommonLib.Function
             return GetFailureInfoArray(e, info, true, new string[] { extraInfo });
         }
 
-        /// <summary>
-        /// 获取包含错误说明+异常信息的字符串数组
-        /// </summary>
-        /// <param name="e">异常对象</param>
-        /// <param name="info">错误说明信息</param>
-        /// <returns>返回字符串数组，包含异常信息、方法以及堆栈信息等</returns>
-        public static string[] GetFailureInfoArray(Exception e, string info)
-        {
-            return GetFailureInfoArray(e, info, true, null);
-        }
+        ///// <summary>
+        ///// 获取包含错误说明+异常信息的字符串数组
+        ///// </summary>
+        ///// <param name="e">异常对象</param>
+        ///// <param name="info">错误说明信息</param>
+        ///// <returns>返回字符串数组，包含异常信息、方法以及堆栈信息等</returns>
+        //public static string[] GetFailureInfoArray(Exception e, string info)
+        //{
+        //    return GetFailureInfoArray(e, info, true, null);
+        //}
     }
 }

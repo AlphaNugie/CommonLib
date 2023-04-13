@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonLib.Extensions.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -45,16 +46,17 @@ namespace CommonLib.Function
         /// <param name="type">要转换的基础类型</param>
         /// <param name="source">要转换的值</param>
         /// <returns>返回转换后的实体类对象</returns>
-        public static object Convert(Type type,  object source)
+        public static object Convert(Type type, object source)
         {
             //假如原数据为空（或数据库空值），返回类型的新实例
             if (source == null || source.GetType().Name.Equals("DBNull"))
             {
-                //假如是值类型，生成新实例，否则返回null
-                if (type.IsValueType)
-                    return Activator.CreateInstance(type);
-                else
-                    return null;
+                ////假如是值类型，生成新实例，否则返回null
+                //if (type.IsValueType)
+                //    return Activator.CreateInstance(type);
+                //else
+                //    return null;
+                return type.CreateDefValue();
             }
 
             //泛型Nullable判断，取其中的类型

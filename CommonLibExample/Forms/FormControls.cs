@@ -26,5 +26,10 @@ namespace CommonLibExample.Forms
         {
             new FormSineWaves().Show();
         }
+
+        private void Button_NormalDistribution_Click(object sender, EventArgs e)
+        {
+            new FormNormalDistribution().Show();
+        }
     }
 }

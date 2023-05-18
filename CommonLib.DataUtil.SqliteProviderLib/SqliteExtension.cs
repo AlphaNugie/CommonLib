@@ -64,16 +64,6 @@ namespace CommonLib.DataUtil
             catch (Exception) { return false; }
         }
 
-        ///// <summary>
-        ///// 检查数据表是否存在，不存在则新增
-        ///// </summary>
-        ///// <param name="table"></param>
-        ///// <returns></returns>
-        //public bool CheckForTable(out DataTable table)
-        //{
-        //    return CheckForTable(out table, out _);
-        //}
-
         /// <summary>
         /// 根据给定的表名检查数据表是否存在，假如存在返回true，假如不存在则用给定列进行新增表操作，最终返回操作结果
         /// </summary>
@@ -146,13 +136,6 @@ namespace CommonLib.DataUtil
                 fields.Add(column.ColumnName);
                 sqls.Add(string.Format("alter table {0} add column {1};", tableName, column.Structure));
             }
-            //columnsMustHave.ForEach(column =>
-            //{
-            //    if (currCols.Contains(column.ColumnName.ToLower()))
-            //        return;
-            //    fields.Add(column.ColumnName);
-            //    sqls.Add(string.Format("alter table {0} add column {1};", TableName, column.Structure));
-            //});
             bool result = sqls.Count == 0 || provider.ExecuteSqlTrans(sqls);
             if (result)
                 message = sqls.Count > 0 ? string.Format("已添加字段{0}", string.Join(", ", fields.ToArray()).TrimEnd(',', ' ').ToUpper()) : string.Empty;

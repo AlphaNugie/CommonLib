@@ -17,9 +17,9 @@ namespace CommonLibExample.Tasks
             //Restart();
         }
 
-        protected override Task GetNewInstance(/*int interval, bool autoRestart, long restartInterval*/)
+        protected override Task GetNewInstance()
         {
-            var task = new ExampleTask()/* { Interval = interval, AutoRestart = autoRestart, RestartInterval = restartInterval }*/;
+            var task = new ExampleTask();
             task.StateChanged += new TaskStateChangedEventHandler(Task_StateChanged);
             return task;
         }

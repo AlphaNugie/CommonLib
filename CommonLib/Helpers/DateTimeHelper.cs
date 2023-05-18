@@ -75,5 +75,25 @@ namespace CommonLib.Helpers
             milli = ulong.TryParse(timeStamp, out milli) ? milli : 0;
             return TimeStampZero.AddMilliseconds(milli);
         }
+
+        /// <summary>
+        /// 根据时间戳（秒）获取当前时间
+        /// </summary>
+        /// <param name="timeStamp"></param>
+        /// <returns></returns>
+        public static DateTime GetUtcTimeByTimeStampSec(ulong timeStamp)
+        {
+            return TimeStampZero.AddSeconds(timeStamp);
+        }
+
+        /// <summary>
+        /// 根据时间戳（毫秒）获取当前时间
+        /// </summary>
+        /// <param name="timeStamp"></param>
+        /// <returns></returns>
+        public static DateTime GetUtcTimeByTimeStampMillisec(ulong timeStamp)
+        {
+            return TimeStampZero.AddMilliseconds(timeStamp);
+        }
     }
 }

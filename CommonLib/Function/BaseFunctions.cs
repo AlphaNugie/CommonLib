@@ -18,6 +18,7 @@ using System.Net;
 using CommonLib.UIControlUtil.WPF;
 using System.Runtime.InteropServices;
 using CommonLib.Helpers;
+using System.Web.UI.WebControls;
 
 namespace CommonLib.Function
 {
@@ -70,6 +71,7 @@ namespace CommonLib.Function
         {
             return GetIpAddressByAddressFamily(AddressFamily.InterNetwork, string.Empty, out _);
         }
+
         /// <summary>
         /// 获取IPV4的地址
         /// </summary>
@@ -78,6 +80,25 @@ namespace CommonLib.Function
         public static string GetIPAddressV4(string start_with)
         {
             return GetIpAddressByAddressFamily(AddressFamily.InterNetwork, start_with, out _);
+        }
+
+        /// <summary>
+        /// 获取与给定的IPV4地址相似的地址（同网段），假如给定地址为空则不过滤
+        /// </summary>
+        /// <param name="otherAddress">用于过滤地址的同网段IPV4地址，假如为空则不过滤</param>
+        /// <returns></returns>
+        public static string GetIPAddressV4Alike(string otherAddress)
+        {
+            string address;
+            if ("127.0.0.1".Equals(otherAddress) || "localhost".Equals(otherAddress))
+                address = "127.0.0.1";
+            else
+            {
+                //找出与给定IPV4地址第一个数字相同的地址
+                string[] parts = otherAddress?.Split('.');
+                address = GetIPAddressV4(parts != null && parts.Length > 0 ? parts[0] : null);
+            }
+            return address;
         }
 
         /// <summary>
@@ -122,7 +143,7 @@ namespace CommonLib.Function
         {
             IPHostEntry ipHostEntry = Dns.GetHostEntry(Environment.MachineName);
             hostName = ipHostEntry.HostName.ToString();
-            IPAddress first_ip = ipHostEntry.AddressList.Where(p => p.AddressFamily == family).Where(p => string.IsNullOrWhiteSpace(start_with) ? true : p.ToString().StartsWith(start_with)).FirstOrDefault(); //找出第一个IPV4地址
+            IPAddress first_ip = ipHostEntry.AddressList.Where(p => p.AddressFamily == family).FirstOrDefault(p => string.IsNullOrWhiteSpace(start_with) || p.ToString().StartsWith(start_with)); //找出第一个IPV4地址
             string ip = first_ip == null ? string.Empty : first_ip.ToString();
             //ipHostEntry = Dns.GetHostEntry(ip);
             hostName = ipHostEntry.HostName.ToString();

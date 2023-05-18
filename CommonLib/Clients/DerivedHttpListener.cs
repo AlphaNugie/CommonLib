@@ -214,7 +214,7 @@ namespace CommonLib.Clients
             var returnByteArr = Encoding.UTF8.GetBytes(returnObj); //设置客户端返回信息的编码
             //把处理信息返回到客户端
             try { using (var stream = response.OutputStream) { stream.Write(returnByteArr, 0, returnByteArr.Length); } }
-            catch (Exception ex) { LastErrorMessage = $"网络蹦了：{ex.ToString()}"; }
+            catch (Exception ex) { LastErrorMessage = $"网络蹦了：{ex}"; }
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace CommonLib.Clients
             }
             catch (Exception ex)
             {
-                LastErrorMessage = $"处理请求的过程中出现错误：{ex.ToString()}";
+                LastErrorMessage = $"处理请求的过程中出现错误：{ex}";
                 response.StatusDescription = LastErrorMessage;
                 response.StatusCode = 404;
                 return response.StatusDescription; //把服务端错误信息直接返回可能会导致信息不安全，此处仅供参考

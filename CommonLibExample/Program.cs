@@ -12,6 +12,8 @@ using CommonLibExample.PropertyMapper.Model;
 using CommonLibExample.Tasks;
 using MathWorks.MATLAB.NET.Arrays;
 using MatlabFunctions;
+using OpcLibrary.Core;
+using OpcLibrary.DataUtil;
 //using MatlabFunctionsNative;
 using System;
 using System.Collections.Generic;
@@ -5913,6 +5915,11 @@ namespace CommonLibExample
             //            content = string.Join("\r\n", splits);
             //            return;
             #endregion
+
+            //OpcConst.SqliteFileDir = @"D:\";
+            //OpcConst.SqliteFileName = "test1.db";
+            //var table = new DataService_Opc().GetOpcInfo(out string message);
+            //return;
 
             //ExampleTaskTest.Run();
             //return;

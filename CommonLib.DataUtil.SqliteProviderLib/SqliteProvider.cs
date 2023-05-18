@@ -96,7 +96,7 @@ namespace CommonLib.DataUtil
         #endregion
 
         /// <summary>
-        /// 设置连接字符串
+        /// 用给定的数据库文件路径和文件名称设置连接字符串
         /// </summary>
         /// <param name="fileDir">数据库文件路径，假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
         /// <param name="fileName">数据库文件名称，包括后缀</param>
@@ -108,13 +108,23 @@ namespace CommonLib.DataUtil
         }
 
         /// <summary>
-        /// 设置连接字符串
+        /// 用给定的数据库文件完整路径设置连接字符串
         /// </summary>
         /// <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
         /// <returns>返回连接字符串</returns>
         public new void SetConnStr(string filePath)
         {
             base.SetConnStr(GetConnStr(filePath));
+        }
+
+        /// <summary>
+        /// 直接用给定的字符串来设置连接字符串，而不是数据库文件路径或名称
+        /// </summary>
+        /// <param name="connStr">连接字符串本身</param>
+        /// <returns>返回连接字符串</returns>
+        public void SetConnStrDirectly(string connStr)
+        {
+            base.SetConnStr(connStr);
         }
     }
 }

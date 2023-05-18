@@ -38,16 +38,16 @@ namespace CommonLib.Events
         /// <param name="data">接收到的byte[]数组</param>
         public DataReceivedEventArgs(byte[] data)
         {
-            this.ReceivedData = data;
+            ReceivedData = data;
             if (data != null && data.Length > 0)
             {
-                this.ReceivedInfo_HexString = HexHelper.ByteArray2HexString(data);
-                this.ReceivedInfo_String = Encoding.Default.GetString(data);
+                ReceivedInfo_HexString = HexHelper.ByteArray2HexString(data);
+                ReceivedInfo_String = Encoding.Default.GetString(data);
             }
             else
             {
-                this.ReceivedInfo_HexString = string.Empty;
-                this.ReceivedInfo_String = string.Empty;
+                ReceivedInfo_HexString = string.Empty;
+                ReceivedInfo_String = string.Empty;
             }
         }
     }

@@ -93,6 +93,11 @@
             基础Sqlite数据服务类
             </summary>
         </member>
+        <member name="F:CommonLib.DataUtil.BaseDataServiceSqlite._provider">
+            <summary>
+            SQLite基础操作类的对象
+            </summary>
+        </member>
         <member name="P:CommonLib.DataUtil.BaseDataServiceSqlite.Provider">
             <summary>
             SQLite数据库操作对象
@@ -162,7 +167,7 @@
         </member>
         <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.CheckForTableColumns(System.String@)">
             <summary>
-            检查数据表的字段，假如缺少字段则增加
+            根据设置的表名及列信息检查数据表的字段，假如表不存在先新增表，然后根据给定列判断字段是否存在，不存在则新增列，最终返回操作结果
             </summary>
         </member>
         <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.TableExists(System.Data.DataTable@)">
@@ -484,7 +489,7 @@
         </member>
         <member name="M:CommonLib.DataUtil.SqliteProvider.SetConnStr(System.String,System.String)">
             <summary>
-            设置连接字符串
+            用给定的数据库文件路径和文件名称设置连接字符串
             </summary>
             <param name="fileDir">数据库文件路径，假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
             <param name="fileName">数据库文件名称，包括后缀</param>
@@ -492,9 +497,16 @@
         </member>
         <member name="M:CommonLib.DataUtil.SqliteProvider.SetConnStr(System.String)">
             <summary>
-            设置连接字符串
+            用给定的数据库文件完整路径设置连接字符串
             </summary>
             <param name="filePath">数据库文件路径+名称（包括后缀），假如为不包含盘符的相对路径（不包括..\），则添加启动路径成为绝对路径</param>
+            <returns>返回连接字符串</returns>
+        </member>
+        <member name="M:CommonLib.DataUtil.SqliteProvider.SetConnStrDirectly(System.String)">
+            <summary>
+            直接用给定的字符串来设置连接字符串，而不是数据库文件路径或名称
+            </summary>
+            <param name="connStr">连接字符串本身</param>
             <returns>返回连接字符串</returns>
         </member>
     </members>

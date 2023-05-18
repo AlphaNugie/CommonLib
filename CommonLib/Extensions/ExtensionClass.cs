@@ -16,6 +16,47 @@ namespace CommonLib.Extensions
     public static class ExtensionClass
     {
         /// <summary>
+        /// 将一组泛型序列从任意索引位置截取出4个元素
+        /// </summary>
+        /// <param name="numbers">提供的泛型序列</param>
+        /// <param name="startIndex">计算的起始索引，从此索引开始找出4个元素</param>
+        /// <typeparam name="T">提取的泛型序列的类型</typeparam>
+        /// <returns></returns>
+        internal static IEnumerable<T> Take4AfterSkip<T>(this IEnumerable<T> numbers, int startIndex = 0)
+        {
+            return numbers.TakeAfterSkip(startIndex, 4);
+        }
+        /// <summary>
+        /// 将一组泛型序列从任意索引位置截取出8个元素
+        /// </summary>
+        /// <param name="numbers">提供的泛型序列</param>
+        /// <param name="startIndex">计算的起始索引，从此索引开始找出8个元素</param>
+        /// <typeparam name="T">提取的泛型序列的类型</typeparam>
+        /// <returns></returns>
+        internal static IEnumerable<T> Take8AfterSkip<T>(this IEnumerable<T> numbers, int startIndex = 0)
+        {
+            return numbers.TakeAfterSkip(startIndex, 8);
+        }
+
+        /// <summary>
+        /// 将一组泛型序列从任意索引位置截取出任意个元素
+        /// </summary>
+        /// <param name="numbers">提供的泛型序列</param>
+        /// <param name="startIndex">计算的起始索引，从此索引开始取出任意个元素</param>
+        /// <param name="count">取出元素的数量</param>
+        /// <typeparam name="T">提取的泛型序列的类型</typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        internal static IEnumerable<T> TakeAfterSkip<T>(this IEnumerable<T> numbers, int startIndex, int count)
+        {
+            int len = numbers == null ? 0 : numbers.Count();
+            if (len < startIndex + count)
+                throw new ArgumentOutOfRangeException(nameof(numbers), $"提供的byte序列长度{numbers.Count()}不足以提供从{startIndex}开始的连续{count}个字节");
+            //截取从起始索引开始的4个字节
+            return numbers.Skip(startIndex).Take(count);
+        }
+
+        /// <summary>
         /// 按比例或按数量缩小列表内元素数量（从两侧或从起始处缩减）
         /// </summary>
         /// <typeparam name="T">列表元素的泛型类型</typeparam>

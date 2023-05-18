@@ -96,7 +96,10 @@ namespace CommonLib.DataUtil
         /// <param name="usingRemote">是否使用远程数据库（而非当前使用的数据库）</param>
         public override void InitProviderInstance(string connStr, bool usingRemote)
         {
-            _provider = !string.IsNullOrWhiteSpace(connStr) && usingRemote ? new SqliteProvider(connStr) : new SqliteProvider();
+            //_provider = !string.IsNullOrWhiteSpace(connStr) && usingRemote ? new SqliteProvider(connStr) : new SqliteProvider();
+            _provider = new SqliteProvider();
+            if (!string.IsNullOrWhiteSpace(connStr) && usingRemote)
+                _provider.SetConnStrDirectly(connStr);
         }
 
         /// <inheritdoc/>

@@ -14,10 +14,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="OpcLibrary.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="bin\Debug\netstandard2.0\OpcLibrary.dll" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CommonLib.DataUtil.SqliteProviderLib\CommonLib.DataUtil.SqliteProviderLib.csproj" />
     <ProjectReference Include="..\CommonLib\CommonLib.csproj" />
   </ItemGroup>
 
@@ -26,6 +31,9 @@
       <HintPath>..\..\..\OPC\DLL\Interop.OPCAutomation.dll</HintPath>
       <EmbedInteropTypes>true</EmbedInteropTypes>
       <Private>false</Private>
+    </Reference>
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\CommonLib.DataUtil.SqliteProviderLib\bin\Debug\System.Data.SQLite.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -46,15 +46,17 @@ namespace CommonLib.Clients
         /// </summary>
         public event NoneReceivedEventHandler OnNoneReceived;
         #endregion
+
         #region 私有成员变量
         /// <summary>
         /// UdpClient对象
         /// </summary>
         //private bool logging = false;
         private bool autoReceive = true;
-        private IPEndPoint remote_endpoint, local_endpoint;
+        //private IPEndPoint remote_endpoint, local_endpoint;
         private readonly TimerEventRaiser raiser = new TimerEventRaiser(1000);
         #endregion
+
         #region 成员属性
         /// <summary>
         /// UdpClient对象
@@ -74,11 +76,11 @@ namespace CommonLib.Clients
         /// <summary>
         /// 远程IP终结点，未连接则为空
         /// </summary>
-        public IPEndPoint RemoteEndPoint
-        {
-            get { return remote_endpoint; }
-            set { remote_endpoint = value; }
-        }
+        public IPEndPoint RemoteEndPoint { get; set; }
+        //{
+        //    get { return remote_endpoint; }
+        //    set { remote_endpoint = value; }
+        //}
 
         /// <summary>
         /// 指定的本地IP
@@ -93,11 +95,11 @@ namespace CommonLib.Clients
         /// <summary>
         /// 本地IP终结点，未初始化则为空
         /// </summary>
-        public IPEndPoint LocalEndPoint
-        {
-            get { return local_endpoint; }
-            set { local_endpoint = value; }
-        }
+        public IPEndPoint LocalEndPoint { get; set; }
+        //{
+        //    get { return local_endpoint; }
+        //    set { local_endpoint = value; }
+        //}
 
         /// <summary>
         /// 重新连接时是否保持同一个端口
@@ -196,7 +198,8 @@ namespace CommonLib.Clients
         /// </summary>
         public void SetName()
         {
-            try { Name = BaseClient.Client.GetName(out remote_endpoint, out local_endpoint); }
+            //try { Name = BaseClient.Client.GetName(out remote_endpoint, out local_endpoint); }
+            try { Name = BaseClient.Client.GetName(); }
             catch (Exception) { Name = string.Empty; }
         }
 
@@ -221,9 +224,12 @@ namespace CommonLib.Clients
             RaiseThreshold = 5000;
             RaiseInterval = 5000;
             raiser.ThresholdReached += new TimerEventRaiser.ThresholdReachedEventHandler(Raiser_ThresholdReached);
-            //if (!string.IsNullOrWhiteSpace(local_ip) && local_port > 0)
-                //BaseClient = new UdpClient(new IPEndPoint(IPAddress.Parse(local_ip), local_port));
-            BaseClient = !string.IsNullOrWhiteSpace(LocalIp) && LocalPort > 0 ? new UdpClient(new IPEndPoint(IPAddress.Parse(LocalIp), LocalPort)) : new UdpClient();
+            //BaseClient = !string.IsNullOrWhiteSpace(LocalIp) && LocalPort > 0 ? new UdpClient(new IPEndPoint(IPAddress.Parse(LocalIp), LocalPort)) : new UdpClient();
+            InitBaseClient();
+            //bool localDefined = !string.IsNullOrWhiteSpace(LocalIp) && LocalPort > 0; //本地节点被定义
+            //BaseClient = localDefined ? new UdpClient(new IPEndPoint(IPAddress.Parse(LocalIp), LocalPort)) : new UdpClient();
+            //LocalEndPoint = localDefined ? new IPEndPoint(IPAddress.Parse(LocalIp), LocalPort) : null;
+
             IsStartListening = true;
             raiser.Run();
             SetName();
@@ -269,6 +275,17 @@ namespace CommonLib.Clients
         public DerivedUdpClient() : this(true, false) { }
         #endregion
 
+        /// <summary>
+        /// 初始化本地BaseClient对象，同时更新LocalEndPoint
+        /// </summary>
+        private void InitBaseClient()
+        {
+            bool localDefined = !string.IsNullOrWhiteSpace(LocalIp) && LocalPort > 0; //本地节点被定义
+            //BaseClient = !string.IsNullOrWhiteSpace(LocalIp) && LocalPort > 0 ? new UdpClient(new IPEndPoint(IPAddress.Parse(LocalIp), LocalPort)) : new UdpClient();
+            BaseClient = localDefined ? new UdpClient(new IPEndPoint(IPAddress.Parse(LocalIp), LocalPort)) : new UdpClient();
+            LocalEndPoint = localDefined ? new IPEndPoint(IPAddress.Parse(LocalIp), LocalPort) : null;
+        }
+
         private void Raiser_ThresholdReached(object sender, ThresholdReachedEventArgs e)
         {
             OnNoneReceived?.Invoke(this, new NoneReceivedEventArgs((ulong)RaiseThreshold)); //调用超时未接收的事件委托
@@ -297,7 +314,8 @@ namespace CommonLib.Clients
         /// <returns>假如建立连接成功，返回1，否则返回0</returns>
         public int Connect(string server, int port)
         {
-            return Connect(server, port, null, 0);
+            //return Connect(server, port, null, 0);
+            return Connect(server, port, LocalIp, LocalPort);
         }
 
         /// <summary>
@@ -319,14 +337,15 @@ namespace CommonLib.Clients
                 LocalIp = localIp;
                 LocalPort = localPort;
                 if (BaseClient == null)
-                    BaseClient = !string.IsNullOrWhiteSpace(LocalIp) && LocalPort > 0 ? new UdpClient(new IPEndPoint(IPAddress.Parse(LocalIp), LocalPort)) : new UdpClient();
+                    //BaseClient = !string.IsNullOrWhiteSpace(LocalIp) && LocalPort > 0 ? new UdpClient(new IPEndPoint(IPAddress.Parse(LocalIp), LocalPort)) : new UdpClient();
+                    InitBaseClient();
                 BaseClient.Connect(ServerIp, ServerPort);
+                RemoteEndPoint = !string.IsNullOrWhiteSpace(ServerIp) && ServerPort > 0 ? new IPEndPoint(IPAddress.Parse(ServerIp), ServerPort) : null;
                 SetName(); //修改连接名称
 
                 //重置重连次数，同时调用事件委托
                 ReconnTimer = 0;
-                if (ReconnTimerChanged != null)
-                    ReconnTimerChanged.BeginInvoke(Name, ReconnTimer, null, null);
+                ReconnTimerChanged?.BeginInvoke(Name, ReconnTimer, null, null);
 
                 //BaseClient.ReceiveBufferSize = ReceiveBufferSize; //接收缓冲区的大小
                 //NetStream = BaseClient.GetStream(); //发送与接收数据的数据流对象
@@ -345,8 +364,7 @@ namespace CommonLib.Clients
             if (IsConnected)
             {
                 //调用Tcp连接事件委托
-                if (Connected != null)
-                    Connected.BeginInvoke(Name, (new EventArgs()), null, null);
+                Connected?.BeginInvoke(Name, (new EventArgs()), null, null);
                 if (Thread_Reconnect == null)
                 {
                     Auto_UdpReconnect = new AutoResetEvent(true);
@@ -391,10 +409,8 @@ namespace CommonLib.Clients
 
                         //重连次数+1，同时调用事件委托
                         ReconnTimer++;
-                        if (ReconnTimerChanged != null)
-                            ReconnTimerChanged.BeginInvoke(Name, ReconnTimer, null, null);
-                        if (Connected != null)
-                            Connected.BeginInvoke(Name, new EventArgs(), null, null);
+                        ReconnTimerChanged?.BeginInvoke(Name, ReconnTimer, null, null);
+                        Connected?.BeginInvoke(Name, new EventArgs(), null, null);
 
                         //NetStream = BaseClient.GetStream();
                         if (AutoReceive)
@@ -450,8 +466,7 @@ namespace CommonLib.Clients
                     IsConnected = false;
                     //IsConnected_Socket = false;
                     //调用连接断开事件委托
-                    if (Disconnected != null)
-                        Disconnected.BeginInvoke(Name, new EventArgs(), null, null);
+                    Disconnected?.BeginInvoke(Name, new EventArgs(), null, null);
 
                     BaseClient.Close();
                     BaseClient = null;
@@ -497,13 +512,14 @@ namespace CommonLib.Clients
             {
                 if (BaseClient == null)
                     return;
-                byte[] recdata = BaseClient.EndReceive(ar, ref remote_endpoint);
+                //byte[] recdata = BaseClient.EndReceive(ar, ref remote_endpoint);
+                IPEndPoint point = null;
+                byte[] recdata = BaseClient.EndReceive(ar, ref point);
                 //RemoteEndPoint = point;
 
                 if (recdata.Length > 0)
                 {
-                    if (DataReceived != null)
-                        DataReceived.BeginInvoke(client.Name, new Events.DataReceivedEventArgs(recdata), null, null); //异步输出数据
+                    DataReceived?.BeginInvoke(client.Name, new Events.DataReceivedEventArgs(recdata), null, null); //异步输出数据
                     raiser.Click();
                     if (ReceiveRestTime > 0)
                         Thread.Sleep(ReceiveRestTime);
@@ -529,7 +545,9 @@ namespace CommonLib.Clients
                 return;
             try
             {
-                byte[] data = BaseClient.Receive(ref remote_endpoint);
+                //byte[] data = BaseClient.Receive(ref remote_endpoint);
+                IPEndPoint point = null;
+                byte[] data = BaseClient.Receive(ref point);
                 Events.DataReceivedEventArgs args = new Events.DataReceivedEventArgs(data);
                 asc = args.ReceivedInfo_String;
                 hex = args.ReceivedInfo_HexString;
@@ -547,11 +565,23 @@ namespace CommonLib.Clients
                 Thread_Reconnect.Abort();
                 Thread_Reconnect = null;
             }
-            if (Auto_UdpReconnect != null)
-                Auto_UdpReconnect.Dispose();
+            Auto_UdpReconnect?.Dispose();
         }
 
         #region 数据发送
+        /// <summary>
+        /// UDP客户端以byte数组或16进制格式字符串发送数据
+        /// </summary>
+        /// <param name="data_origin">待发送数据，byte数组或16进制格式字符串</param>
+        /// <param name="errorMessage">返回的错误信息，假如未报错则为空</param>
+        /// <returns>返回发送结果</returns>
+        public bool SendData(object data_origin, out string errorMessage)
+        {
+            //return SendData(data_origin, RemoteEndPoint, out errorMessage);
+            //在建立连接的情况下，不要指定EndPoint，否则报错误“建立连接时无法将数据包发送给任意主机”
+            return SendData(data_origin, null, out errorMessage);
+        }
+
         /// <summary>
         /// UDP客户端以byte数组或16进制格式字符串发送数据
         /// </summary>
@@ -604,16 +634,16 @@ namespace CommonLib.Clients
             return true;
         }
 
+        #region 发送字符串
         /// <summary>
-        /// UDP客户端以byte数组或16进制格式字符串发送数据
+        /// 发送字符串
         /// </summary>
-        /// <param name="data_origin">待发送数据，byte数组或16进制格式字符串</param>
-        /// <param name="errorMessage">返回的错误信息，假如未报错则为空</param>
-        /// <returns>返回发送结果</returns>
-        public bool SendData(object data_origin, out string errorMessage)
+        /// <param name="content">字符串</param>
+        public void SendString(string content)
         {
-            //return SendData(data_origin, RemoteEndPoint, out errorMessage);
-            return SendData(data_origin, null, out errorMessage);
+            //SendString(content, RemoteEndPoint);
+            //在建立连接的情况下，不要指定EndPoint，否则报错误“建立连接时无法将数据包发送给任意主机”
+            SendString(content, null);
         }
 
         /// <summary>
@@ -641,7 +671,7 @@ namespace CommonLib.Clients
             try
             {
                 //转换为byte类型数组并发送指令
-                byte[] bytes = System.Text.Encoding.ASCII.GetBytes(content);//将字符串转换为byte数组
+                byte[] bytes = Encoding.ASCII.GetBytes(content);//将字符串转换为byte数组
                 BaseClient.Send(bytes, bytes.Length, endPoint);
             }
             catch (Exception e)
@@ -651,15 +681,7 @@ namespace CommonLib.Clients
                 throw; //如果不需要抛出异常，注释此行
             }
         }
-
-        /// <summary>
-        /// 发送字符串
-        /// </summary>
-        /// <param name="content">字符串</param>
-        public void SendString(string content)
-        {
-            SendString(content, RemoteEndPoint);
-        }
+        #endregion
         #endregion
     }
 }

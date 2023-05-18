@@ -34,9 +34,9 @@ namespace CommonLib.Clients
         /// <param name="sigma">标准差，以σ表示，σ越大，数据分布越分散，σ越小，数据分布越集中</param>
         public GaussianCalculator(double amplitude, double expected, double sigma)
         {
-            this.Amplitude = amplitude;
-            this.Expected = expected;
-            this.Sigma = sigma;
+            Amplitude = amplitude;
+            Expected = expected;
+            Sigma = sigma;
         }
 
         /// <summary>

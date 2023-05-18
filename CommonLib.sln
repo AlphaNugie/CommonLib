@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonLib.Function.OpenCVWr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLib.DataUtil.SqliteProviderLib64", "CommonLib.DataUtil.SqliteProviderLib\CommonLib.DataUtil.SqliteProviderLib64.csproj", "{0113C4E3-BDAC-41F3-ACCE-9CA8E7EDAA4D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpcLibrary.Controls", "OpcLibrary.Controls\OpcLibrary.Controls.csproj", "{D644F101-AF01-4DE6-83D3-DF33B1C729C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,14 @@ Global
 		{0113C4E3-BDAC-41F3-ACCE-9CA8E7EDAA4D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0113C4E3-BDAC-41F3-ACCE-9CA8E7EDAA4D}.Release|x64.ActiveCfg = Release|x64
 		{0113C4E3-BDAC-41F3-ACCE-9CA8E7EDAA4D}.Release|x64.Build.0 = Release|x64
+		{D644F101-AF01-4DE6-83D3-DF33B1C729C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D644F101-AF01-4DE6-83D3-DF33B1C729C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D644F101-AF01-4DE6-83D3-DF33B1C729C7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D644F101-AF01-4DE6-83D3-DF33B1C729C7}.Debug|x64.Build.0 = Debug|Any CPU
+		{D644F101-AF01-4DE6-83D3-DF33B1C729C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D644F101-AF01-4DE6-83D3-DF33B1C729C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D644F101-AF01-4DE6-83D3-DF33B1C729C7}.Release|x64.ActiveCfg = Release|Any CPU
+		{D644F101-AF01-4DE6-83D3-DF33B1C729C7}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

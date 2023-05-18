@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -41,7 +42,13 @@ namespace CommonLib.Clients
         /// 数据接收事件
         /// </summary>
         public event Events.DataReceivedEventHandler DataReceived;
+
+        /// <summary>
+        /// 持续一段时间未接收到任何数据的事件
+        /// </summary>
+        public event NoneReceivedEventHandler OnNoneReceived;
         #endregion
+
         #region 私有成员变量
         /// <summary>
         /// TcpClient对象
@@ -53,6 +60,7 @@ namespace CommonLib.Clients
         private IPEndPoint remote_endpoint, local_endpoint;
         private readonly TimerEventRaiser raiser = new TimerEventRaiser(1000);
         #endregion
+
         #region 成员属性
         /// <summary>
         /// TcpClient对象
@@ -168,6 +176,15 @@ namespace CommonLib.Clients
         public bool ReconnectWhenReceiveNone { get; set; }
 
         /// <summary>
+        /// 计时阈值，计时达到此值触发事件，单位毫秒，默认5000
+        /// </summary>
+        public int RaiseThreshold
+        {
+            get { return (int)raiser.RaiseThreshold; }
+            set { raiser.RaiseThreshold = value < 0 ? 0 : (ulong)value; }
+        }
+
+        /// <summary>
         /// 重新连接成功的次数
         /// </summary>
         public int ReconnTimer { get; private set; }
@@ -216,6 +233,7 @@ namespace CommonLib.Clients
 
         private void Raiser_ThresholdReached(object sender, ThresholdReachedEventArgs e)
         {
+            OnNoneReceived?.Invoke(this, new NoneReceivedEventArgs((ulong)RaiseThreshold)); //调用超时未接收的事件委托
             if (!ReconnectWhenReceiveNone)
                 return;
 
@@ -302,8 +320,7 @@ namespace CommonLib.Clients
 
                 //重置重连次数，同时调用事件委托
                 ReconnTimer = 0;
-                if (ReconnTimerChanged != null)
-                    ReconnTimerChanged.BeginInvoke(Name, ReconnTimer, null, null);
+                ReconnTimerChanged?.BeginInvoke(Name, ReconnTimer, null, null);
 
                 BaseClient.ReceiveBufferSize = ReceiveBufferSize; //接收缓冲区的大小
                 NetStream = BaseClient.GetStream(); //发送与接收数据的数据流对象
@@ -324,8 +341,7 @@ namespace CommonLib.Clients
             if (IsConnected)
             {
                 //调用Tcp连接事件委托
-                if (Connected != null)
-                    Connected.BeginInvoke(Name, (new EventArgs()), null, null);
+                Connected?.BeginInvoke(Name, (new EventArgs()), null, null);
                 if (Thread_TcpReconnect == null)
                 {
                     Auto_TcpReconnect = new AutoResetEvent(true);
@@ -358,8 +374,7 @@ namespace CommonLib.Clients
 
                 //重连次数+1，同时调用事件委托
                 ReconnTimer++;
-                if (ReconnTimerChanged != null)
-                    ReconnTimerChanged.BeginInvoke(Name, ReconnTimer, null, null);
+                ReconnTimerChanged?.BeginInvoke(Name, ReconnTimer, null, null);
 
                 NetStream = BaseClient.GetStream();
                 if (AutoReceive)
@@ -454,8 +469,7 @@ namespace CommonLib.Clients
                 //receivedEventArgs.ReceivedInfo = HexHelper.ByteArray2HexString
                 if (recdata.Length > 0)
                 {
-                    if (DataReceived != null)
-                        DataReceived.BeginInvoke(client.Name, new Events.DataReceivedEventArgs(recdata), null, null); //异步输出数据
+                    DataReceived?.BeginInvoke(client.Name, new Events.DataReceivedEventArgs(recdata), null, null); //异步输出数据
                     raiser.Click();
                     if (ReceiveRestTime > 0)
                         Thread.Sleep(ReceiveRestTime);
@@ -523,8 +537,7 @@ namespace CommonLib.Clients
                     IsConnected = false;
                     //IsConnected_Socket = false;
                     //调用连接断开事件委托
-                    if (Disconnected != null)
-                        Disconnected.BeginInvoke(Name, new EventArgs(), null, null);
+                    Disconnected?.BeginInvoke(Name, new EventArgs(), null, null);
 
                     BaseClient = null;
                     raiser.Stop();

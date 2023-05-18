@@ -4,6 +4,168 @@
         <name>CommonLib</name>
     </assembly>
     <members>
+        <member name="T:CommonLib.Clients.CRC32Parameters">
+            <summary>
+            CRC参数的设置，当前设置为32位的CRC。如果需要切换到其他的CRC标准，只需要简单地修改这些参数即可。
+            The CRC parameters. Currently configured for 32 bit CRC. Simply modify these to switch to another CRC standard.
+            多项式：CRC32校验是一种循环冗余校验，使用一个特定的多项式进行计算。CRC32_POLYNOMIAL常量指定了这个多项式的值。
+            初始值：CRC32校验的初始值，通常为全1，即0xFFFFFFFF。
+            最终异或值：CRC32校验计算完成后，会将计算结果与一个特定的值进行异或，以得到最终的校验值。CRC32_FINAL_XOR_VALUE常量指定了这个特定的值。
+            位宽：CRC32校验的位宽，即校验值的位数。在这个实现中，位宽为32位。
+            空值：CRC32校验中，如果要计算的数据为空，那么校验值就是CRC32_NULL常量指定的值。
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.CRC32Parameters.CRC32_POLYNOMIAL">
+            <summary>
+            CRC32校验中使用的多项式
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.CRC32Parameters.CRC32_INITIAL_REMAINDER">
+            <summary>
+            CRC32校验的初始值
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.CRC32Parameters.CRC32_FINAL_XOR_VALUE">
+            <summary>
+            CRC32校验的最终异或值
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.CRC32Parameters.CRC32_WIDTH">
+            <summary>
+            CRC32校验的位宽
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.CRC32Parameters.CRC32_NULL">
+            <summary>
+            CRC32校验的空值
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32Parameters.#ctor">
+            <summary>
+            默认构造器
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32Parameters.#ctor(System.UInt32,System.UInt32,System.UInt32,System.Int32,System.UInt32)">
+            <summary>
+            初始化CRC32计算参数的新实体
+            </summary>
+            <param name="polynomial">CRC32校验中使用的多项式</param>
+            <param name="initialRemainder">CRC32校验的初始值</param>
+            <param name="finalXorValue">CRC32校验的最终异或值</param>
+            <param name="width">CRC32校验的位宽</param>
+            <param name="nullValue">CRC32校验的空值</param>
+        </member>
+        <member name="T:CommonLib.Clients.CRC32">
+            <summary>
+            用于CRC32校验计算的实体类
+            </summary>
+        </member>
+        <member name="F:CommonLib.Clients.CRC32.mRemainder">
+            <summary>
+            数据除以生成多项式后得到的余数
+            this remainder is used in the Add() method. It is reset by GetCRC32()
+            </summary>
+        </member>
+        <member name="F:CommonLib.Clients.CRC32.sCRC32IsInitialized">
+            <summary>
+            a local flag indicating if the CRC table was initialized
+            </summary>
+        </member>
+        <member name="F:CommonLib.Clients.CRC32.sCRCTable">
+            <summary>
+            An array containing the pre-computed intermediate result for each possible byte of input. This is used to speed up the computation.
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.CRC32.CRC32Parameters">
+            <summary>
+            CRC32校验计算的参数实体
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.CRC32.Length">
+            <summary>
+            The number of bytes added so far.
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32.#ctor">
+            <summary>
+            The constructor.
+            Initialize the CRC table with default CRC32 parameters.
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32.#ctor(CommonLib.Clients.CRC32Parameters)">
+            <summary>
+            The constructor.
+            Initialize the CRC table with given CRC32 parameters.
+            </summary>
+            <param name="crc32Params">给定的CRC32参数实体，假如为空则重新初始化并使用默认值</param>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32.Finalize">
+            <summary>
+            析构函数
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32.CheckCRC32(System.UInt32)">
+            <summary>
+            验证输入的CRC32校验值，判断是否符合当前已添加的所有数值所计算出的CRC32值
+            </summary>
+            <param name="crc32">输入的待验证的CRC32校验值</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32.CheckCRC32(System.String,System.Int32)">
+            <summary>
+            验证以16进制字符串格式输入（可不包含空格）的byte序列是否符合当前参数的CRC32校验，其中CRC32校验值在数组末尾，CRC32校验值在数组中占据的长度由给定参数指定
+            </summary>
+            <param name="input">添加要参与进行校验值评估的byte序列, 以16进制字符串格式输入（可不包含空格）</param>
+            <param name="crcLen">数组内CRC32校验值占据的byte数量</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32.CheckCRC32(System.Collections.Generic.IEnumerable{System.Byte},System.Int32)">
+            <summary>
+            验证输入的byte数组是否符合当前参数的CRC32校验，其中CRC32校验值在数组末尾，CRC32校验值在数组中占据的长度由给定参数指定
+            </summary>
+            <param name="byteArray">添加要参与进行校验值评估的数值数组</param>
+            <param name="crcLen">数组内CRC32校验值占据的byte数量</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32.GetCRC32">
+            <summary>
+            Compute the current CRC32 value, which is the 32 bit CRC for data which are previously added by add().
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32.GetCRC32(System.Collections.Generic.IEnumerable{System.Byte},System.Int32)">
+            <summary>
+            Compute a 32 bit CRC for the given data array.
+            </summary>
+            <param name="theDataPtr">添加要参与进行校验值计算的数值集合</param>
+            <param name="theLength">数组内参加计算的byte数量</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32.Reflect(System.UInt32,System.Byte)">
+            <summary>
+            将输入的数值在位域上进行首尾方向上的调换（范围是从第1位到指定长度位置的位）
+            Performs a reflection on a value: swaps bit 7 with 0, 6 with 1 and so on. Reflection is a requirement to conform to the official CRC-32 standard.
+            </summary>
+            <param name="value">即将进行位域调换的值</param>
+            <param name="theBits">进行位域调换部分的位的长度</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32.Add(System.Collections.Generic.IEnumerable{System.Byte},System.Int32)">
+            <summary>
+            Add some more data to compute a 32 bit CRC of several data.
+            Note: you should not use this function to add little endian integers that are transmitted in big endian network byte order.
+            Use addInt() instead.
+            </summary>
+            <param name="theDataPtr">添加要参与进行校验值计算的数值集合</param>
+            <param name="theLength">数组内参加计算的byte数量</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.CRC32.Clear">
+            <summary>
+            重置校验后的余数到初始值
+            Reset the checksum to initial stage.
+            </summary>
+        </member>
         <member name="T:CommonLib.Clients.CustomBitConverter`1">
             <summary>
             按位转换为对应泛型（整型）值的实体类
@@ -323,6 +485,104 @@
         <member name="F:CommonLib.Clients.ResponseState.NotExisted">
             <summary>
             进程不存在
+            </summary>
+        </member>
+        <member name="T:CommonLib.Clients.DerivedHttpClient">
+            <summary>
+            HTTP发送客户端
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.OAuth(System.String)">
+            <summary>
+            验证授权
+            </summary>
+            <param name="token">用于验证授权的token</param>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.Post(System.String,System.String,CommonLib.Clients.ContentType)">
+            <summary>
+            发送POST请求，并在HTTP内容标头中指定Content-Type
+            </summary>
+            <param name="url"></param>
+            <param name="content"></param>
+            <param name="contentType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.Post(System.String,System.String)">
+            <summary>
+            发送POST请求，HTTP内容标头的Content-Type指定为FormUrlEncoded
+            </summary>
+            <param name="url"></param>
+            <param name="content"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.Post(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            发送POST请求
+            </summary>
+            <param name="url">待向其发送请求的URL地址</param>
+            <param name="content"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.Put(System.String)">
+            <summary>
+            发送PUT请求
+            </summary>
+            <param name="url">待向其发送请求的URL地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.Put(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            发送PUT请求
+            </summary>
+            <param name="url">待向其发送请求的URL地址</param>
+            <param name="content">发送的请求内容</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.Delete(System.String)">
+            <summary>
+            发送删除请求
+            </summary>
+            <param name="url">待向其发送请求的URL地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.RunTask(System.Threading.Tasks.Task{System.Net.Http.HttpResponseMessage})">
+            <summary>
+            异步执行发送消息并获取响应的任务，响应时间为5秒
+            </summary>
+            <param name="task">待执行的任务</param>
+            <returns></returns>
+            <exception cref="T:System.TimeoutException"></exception>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.FixUrl(System.String)">
+            <summary>
+            假如给出的URL没有http开头，则添加在URL前添加http://
+            </summary>
+            <param name="url"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CommonLib.Clients.ContentType">
+            <summary>
+            POST请求的Content-Type
+            </summary>
+        </member>
+        <member name="F:CommonLib.Clients.ContentType.FormUrlEncoded">
+            <summary>
+            application/x-www-form-urlencoded
+            </summary>
+        </member>
+        <member name="F:CommonLib.Clients.ContentType.Xml">
+            <summary>
+            application/xml
+            </summary>
+        </member>
+        <member name="F:CommonLib.Clients.ContentType.Json">
+            <summary>
+            application/json
+            </summary>
+        </member>
+        <member name="F:CommonLib.Clients.ContentType.FormData">
+            <summary>
+            multipart/form-data
             </summary>
         </member>
         <member name="T:CommonLib.Clients.DerivedHttpListener">
@@ -826,6 +1086,11 @@
             默认构造器，初始化一个未连接DerivedTcpClient对象，不维持本地端口
             </summary>
         </member>
+        <member name="M:CommonLib.Clients.DerivedUdpClient.InitBaseClient">
+            <summary>
+            初始化本地BaseClient对象，同时更新LocalEndPoint
+            </summary>
+        </member>
         <member name="M:CommonLib.Clients.DerivedUdpClient.Connect">
             <summary>
             与UDP服务端连接
@@ -884,6 +1149,14 @@
             终止线程
             </summary>
         </member>
+        <member name="M:CommonLib.Clients.DerivedUdpClient.SendData(System.Object,System.String@)">
+            <summary>
+            UDP客户端以byte数组或16进制格式字符串发送数据
+            </summary>
+            <param name="data_origin">待发送数据，byte数组或16进制格式字符串</param>
+            <param name="errorMessage">返回的错误信息，假如未报错则为空</param>
+            <returns>返回发送结果</returns>
+        </member>
         <member name="M:CommonLib.Clients.DerivedUdpClient.SendData(System.Object,System.String,System.Int32,System.String@)">
             <summary>
             UDP客户端以byte数组或16进制格式字符串发送数据
@@ -903,13 +1176,11 @@
             <param name="errorMessage">返回的错误信息，假如未报错则为空</param>
             <returns>返回发送结果</returns>
         </member>
-        <member name="M:CommonLib.Clients.DerivedUdpClient.SendData(System.Object,System.String@)">
+        <member name="M:CommonLib.Clients.DerivedUdpClient.SendString(System.String)">
             <summary>
-            UDP客户端以byte数组或16进制格式字符串发送数据
+            发送字符串
             </summary>
-            <param name="data_origin">待发送数据，byte数组或16进制格式字符串</param>
-            <param name="errorMessage">返回的错误信息，假如未报错则为空</param>
-            <returns>返回发送结果</returns>
+            <param name="content">字符串</param>
         </member>
         <member name="M:CommonLib.Clients.DerivedUdpClient.SendString(System.String,System.String,System.Int32)">
             <summary>
@@ -925,12 +1196,6 @@
             </summary>
             <param name="content">字符串</param>
             <param name="endPoint">远程IP终结点</param>
-        </member>
-        <member name="M:CommonLib.Clients.DerivedUdpClient.SendString(System.String)">
-            <summary>
-            发送字符串
-            </summary>
-            <param name="content">字符串</param>
         </member>
         <member name="T:CommonLib.Clients.GaussianCalculator">
             <summary>
@@ -2225,6 +2490,11 @@
             数据接收事件
             </summary>
         </member>
+        <member name="E:CommonLib.Clients.DerivedTcpClient.OnNoneReceived">
+            <summary>
+            持续一段时间未接收到任何数据的事件
+            </summary>
+        </member>
         <member name="F:CommonLib.Clients.DerivedTcpClient.baseClient">
             <summary>
             TcpClient对象
@@ -2308,6 +2578,11 @@
         <member name="P:CommonLib.Clients.DerivedTcpClient.ReconnectWhenReceiveNone">
             <summary>
             在无返回数据时是否重新连接
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.DerivedTcpClient.RaiseThreshold">
+            <summary>
+            计时阈值，计时达到此值触发事件，单位毫秒，默认5000
             </summary>
         </member>
         <member name="P:CommonLib.Clients.DerivedTcpClient.ReconnTimer">
@@ -4071,6 +4346,35 @@
             类功能扩展类
             </summary>
         </member>
+        <member name="M:CommonLib.Extensions.ExtensionClass.Take4AfterSkip``1(System.Collections.Generic.IEnumerable{``0},System.Int32)">
+            <summary>
+            将一组泛型序列从任意索引位置截取出4个元素
+            </summary>
+            <param name="numbers">提供的泛型序列</param>
+            <param name="startIndex">计算的起始索引，从此索引开始找出4个元素</param>
+            <typeparam name="T">提取的泛型序列的类型</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.ExtensionClass.Take8AfterSkip``1(System.Collections.Generic.IEnumerable{``0},System.Int32)">
+            <summary>
+            将一组泛型序列从任意索引位置截取出8个元素
+            </summary>
+            <param name="numbers">提供的泛型序列</param>
+            <param name="startIndex">计算的起始索引，从此索引开始找出8个元素</param>
+            <typeparam name="T">提取的泛型序列的类型</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.ExtensionClass.TakeAfterSkip``1(System.Collections.Generic.IEnumerable{``0},System.Int32,System.Int32)">
+            <summary>
+            将一组泛型序列从任意索引位置截取出任意个元素
+            </summary>
+            <param name="numbers">提供的泛型序列</param>
+            <param name="startIndex">计算的起始索引，从此索引开始取出任意个元素</param>
+            <param name="count">取出元素的数量</param>
+            <typeparam name="T">提取的泛型序列的类型</typeparam>
+            <returns></returns>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
         <member name="M:CommonLib.Extensions.ExtensionClass.Shrink``1(System.Collections.Generic.IEnumerable{``0},System.Double,System.Boolean)">
             <summary>
             按比例或按数量缩小列表内元素数量（从两侧或从起始处缩减）
@@ -4135,9 +4439,108 @@
             计算功能类
             </summary>
         </member>
+        <member name="M:CommonLib.Extensions.MathExtension.NormalDistribution(System.Double,System.Double,System.Double)">
+            <summary>
+            计算正态分布函数的公式，计算时使用给定的平均值μ(mu)与标准差σ(sigma)，输入x坐标，输出正太分布曲线在这个位置的y坐标值
+            https://i.postimg.cc/P5NxZ0WX/image.png
+            </summary>
+            <param name="x">x坐标值</param>
+            <param name="mean">平均值μ(mu)，分布的峰值在此处</param>
+            <param name="stdDev">标准差σ(sigma)，越大则分布的曲线越宽，反之则曲线越窄，标准差为1时为标准正态分布</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.Haversine(System.Double,System.Boolean)">
+            <summary>
+            计算输入值的半正矢，假如输入为角度，自动转换为弧度
+            </summary>
+            <param name="input">输入角度或弧度</param>
+            <param name="input_as_degree">是否为角度</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.Haversine(System.Double)">
+            <summary>
+            计算输入值的半正矢，默认输入为角度
+            </summary>
+            <param name="input">输入角度</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.Variance(System.Collections.Generic.IEnumerable{System.Double})">
+            <summary>
+            根据样本计算方差
+            </summary>
+            <param name="numbers">样本</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.Variance(System.Collections.Generic.IEnumerable{System.Double},System.Double)">
+            <summary>
+            根据样本与平均值计算方差
+            </summary>
+            <param name="numbers">样本</param>
+            <param name="average">平均值</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.Standard(System.Collections.Generic.IEnumerable{System.Double})">
+            <summary>
+            计算标准差
+            </summary>
+            <param name="numbers"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.ToBytes(System.UInt32,System.Boolean)">
+            <summary>
+            将32位无符号整数转换为byte数组（长度为4）（默认大字节在前）
+            </summary>
+            <param name="input">输入的32位无符号整数</param>
+            <param name="isBigEndian">是否大字节在前</param>
+            <returns>长度为4的字节数组</returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.ToBytes(System.UInt64,System.Boolean)">
+            <summary>
+            将64位无符号整数转换为byte数组（长度为8）（默认大字节在前）
+            </summary>
+            <param name="input">输入的64位无符号整数</param>
+            <param name="isBigEndian">是否大字节在前</param>
+            <returns>长度为8的字节数组</returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.ToInt32(System.Collections.Generic.IEnumerable{System.Byte},System.Int32,System.Boolean)">
+            <summary>
+            将一组byte序列从索引位置转换为32位有符号整数（默认大字节在前）
+            </summary>
+            <param name="numbers">提供的byte序列</param>
+            <param name="startIndex">计算的起始索引，从此索引开始找出4个字节用于转换</param>
+            <param name="isBigEndian">是否大字节在前</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.ToUInt32(System.Collections.Generic.IEnumerable{System.Byte},System.Int32,System.Boolean)">
+            <summary>
+            将一组byte序列从索引位置转换为32位无符号整数（默认大字节在前）
+            </summary>
+            <param name="numbers">提供的byte序列</param>
+            <param name="startIndex">计算的起始索引，从此索引开始找出4个字节用于转换</param>
+            <param name="isBigEndian">是否大字节在前</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.ToInt64(System.Collections.Generic.IEnumerable{System.Byte},System.Int32,System.Boolean)">
+            <summary>
+            将一组byte序列从索引位置转换为64位无符号整数（默认大字节在前）
+            </summary>
+            <param name="numbers">提供的byte序列</param>
+            <param name="startIndex">计算的起始索引，从此索引开始找出8个字节用于转换</param>
+            <param name="isBigEndian">是否大字节在前</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.ToUInt64(System.Collections.Generic.IEnumerable{System.Byte},System.Int32,System.Boolean)">
+            <summary>
+            将一组byte序列从索引位置转换为64位无符号整数（默认大字节在前）
+            </summary>
+            <param name="numbers">提供的byte序列</param>
+            <param name="startIndex">计算的起始索引，从此索引开始找出8个字节用于转换</param>
+            <param name="isBigEndian">是否大字节在前</param>
+            <returns></returns>
+        </member>
         <member name="M:CommonLib.Extensions.MathExtension.GetAngleByCoordinates(System.Double,System.Double,System.Double,System.Double)">
             <summary>
-            根据给定的顶端以及回转处坐标计算（初步的）回转角度
+            根据给定的顶端以及回转处坐标计算（初步的）回转角度（y轴正向为回转0°方位）
             </summary>
             <param name="x1">顶端X坐标</param>
             <param name="y1">顶端Y坐标</param>
@@ -4166,21 +4569,6 @@
             尝试获取值小数点后的数值位数
             </summary>
             <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:CommonLib.Extensions.MathExtension.Haversine(System.Double,System.Boolean)">
-            <summary>
-            计算输入值的半正矢，假如输入为角度，自动转换为弧度
-            </summary>
-            <param name="input">输入角度或弧度</param>
-            <param name="input_as_degree">是否为角度</param>
-            <returns></returns>
-        </member>
-        <member name="M:CommonLib.Extensions.MathExtension.Haversine(System.Double)">
-            <summary>
-            计算输入值的半正矢，默认输入为角度
-            </summary>
-            <param name="input">输入角度</param>
             <returns></returns>
         </member>
         <member name="M:CommonLib.Extensions.MathExtension.Between(System.Double,System.Double,System.Double)">
@@ -4218,28 +4606,6 @@
             <param name="number1">数值1</param>
             <param name="number2">数值2</param>
             <returns>假如在数值之间，返回true，否则返回false</returns>
-        </member>
-        <member name="M:CommonLib.Extensions.MathExtension.Variance(System.Collections.Generic.IEnumerable{System.Double})">
-            <summary>
-            根据样本计算方差
-            </summary>
-            <param name="numbers">样本</param>
-            <returns></returns>
-        </member>
-        <member name="M:CommonLib.Extensions.MathExtension.Variance(System.Collections.Generic.IEnumerable{System.Double},System.Double)">
-            <summary>
-            根据样本与平均值计算方差
-            </summary>
-            <param name="numbers">样本</param>
-            <param name="average">平均值</param>
-            <returns></returns>
-        </member>
-        <member name="M:CommonLib.Extensions.MathExtension.Standard(System.Collections.Generic.IEnumerable{System.Double})">
-            <summary>
-            计算标准差
-            </summary>
-            <param name="numbers"></param>
-            <returns></returns>
         </member>
         <member name="M:CommonLib.Extensions.MathExtension.MinExceptZero(System.Collections.Generic.IEnumerable{System.Double},System.Double)">
             <summary>
@@ -4372,6 +4738,13 @@
             获取IPV4的地址
             </summary>
             <param name="start_with">用于过滤地址的地址起始匹配条件，假如为空则不过滤</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.Functions.GetIPAddressV4Alike(System.String)">
+            <summary>
+            获取与给定的IPV4地址相似的地址（同网段），假如给定地址为空则不过滤
+            </summary>
+            <param name="otherAddress">用于过滤地址的同网段IPV4地址，假如为空则不过滤</param>
             <returns></returns>
         </member>
         <member name="M:CommonLib.Function.Functions.GetIPAddressV4(System.String@)">
@@ -5782,6 +6155,20 @@
             <returns></returns>
         </member>
         <member name="M:CommonLib.Helpers.DateTimeHelper.GetUtcTimeByTimeStampMillisec(System.String)">
+            <summary>
+            根据时间戳（毫秒）获取当前时间
+            </summary>
+            <param name="timeStamp"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Helpers.DateTimeHelper.GetUtcTimeByTimeStampSec(System.UInt64)">
+            <summary>
+            根据时间戳（秒）获取当前时间
+            </summary>
+            <param name="timeStamp"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Helpers.DateTimeHelper.GetUtcTimeByTimeStampMillisec(System.UInt64)">
             <summary>
             根据时间戳（毫秒）获取当前时间
             </summary>

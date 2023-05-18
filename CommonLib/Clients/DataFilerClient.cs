@@ -19,11 +19,11 @@ namespace CommonLib.Clients
         /// </summary>
         public ushort Wing
         {
-            get { return this.wing; }
+            get { return wing; }
             set
             {
-                this.wing = value;
-                this.Neighbours = (short)((this.DoubleWinged ? 2 : 1) * this.wing + 1);
+                wing = value;
+                Neighbours = (short)((DoubleWinged ? 2 : 1) * wing + 1);
             }
         }
 
@@ -68,10 +68,10 @@ namespace CommonLib.Clients
         /// <param name="double_winged">样本中心两侧是双翼还是单翼</param>
         public DataFilterClient(ushort wing, FilterType type, double sigma = 4.5, bool double_winged = true)
         {
-            this.Wing = wing;
-            this.Type = type;
-            this.DoubleWinged = double_winged;
-            this.GausCalc = new GaussianCalculator(1, 0, sigma);
+            Wing = wing;
+            Type = type;
+            DoubleWinged = double_winged;
+            GausCalc = new GaussianCalculator(1, 0, sigma);
         }
 
         /// <summary>
@@ -82,13 +82,13 @@ namespace CommonLib.Clients
         public List<double> GetFilteredSamples(IEnumerable<double> samples)
         {
             if (samples == null)
-                this.LastErrorMessage = "样本点为空";
+                LastErrorMessage = "样本点为空";
             //样本数若小于领域大小，退出
-            else if (samples.Count() < this.Neighbours)
-                this.LastErrorMessage = "样本数小于邻域大小";
+            else if (samples.Count() < Neighbours)
+                LastErrorMessage = "样本数小于邻域大小";
 
-            if (!string.IsNullOrWhiteSpace(this.LastErrorMessage))
-                throw new ArgumentException(this.LastErrorMessage, nameof(samples));
+            if (!string.IsNullOrWhiteSpace(LastErrorMessage))
+                throw new ArgumentException(LastErrorMessage, nameof(samples));
             
             List<double> result = new List<double>(); //储存结果的List
             var count = samples.Count();
@@ -98,19 +98,19 @@ namespace CommonLib.Clients
             {
                 element = samples.ElementAt(i);
                 //边缘的样本不处理，直接返回
-                if (i < wing || i >= count - (this.DoubleWinged ? wing : 0))
+                if (i < wing || i >= count - (DoubleWinged ? wing : 0))
                 {
                     result.Add(element);
                     continue;
                 }
-                List<double> medianSamples = this.GetNeighbourSamples(samples, i);
+                List<double> medianSamples = GetNeighbourSamples(samples, i);
 
-                if (this.Type == FilterType.Average) //均值
+                if (Type == FilterType.Average) //均值
                     element_new = medianSamples.Average();
-                else if (this.Type == FilterType.Median) //中值
-                    element_new = this.GetMedianNumber(medianSamples);
-                else if (this.Type == FilterType.Gaussian)
-                    element_new = this.GetGaussianValue(medianSamples);
+                else if (Type == FilterType.Median) //中值
+                    element_new = GetMedianNumber(medianSamples);
+                else if (Type == FilterType.Gaussian)
+                    element_new = GetGaussianValue(medianSamples);
                 result.Add(element_new);
             }
 
@@ -125,20 +125,20 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public List<double> GetNeighbourSamples(IEnumerable<double> samples, int index)
         {
-            if (samples == null || samples.Count() < this.Neighbours)
-                this.LastErrorMessage = "样本点为空";
+            if (samples == null || samples.Count() < Neighbours)
+                LastErrorMessage = "样本点为空";
             //样本数若小于领域大小，退出
-            else if (samples.Count() < this.Neighbours)
-                this.LastErrorMessage = "样本数小于邻域大小";
+            else if (samples.Count() < Neighbours)
+                LastErrorMessage = "样本数小于邻域大小";
             else if (/*index < 0 || */index >= samples.Count())
-                this.LastErrorMessage = "索引大小超出范围";
+                LastErrorMessage = "索引大小超出范围";
 
-            if (!string.IsNullOrWhiteSpace(this.LastErrorMessage))
-                throw new ArgumentException(this.LastErrorMessage);
+            if (!string.IsNullOrWhiteSpace(LastErrorMessage))
+                throw new ArgumentException(LastErrorMessage);
 
             var count = samples.Count();
             List<double> array = new List<double>();
-            for (var i = index - this.Wing; i <= index + (this.DoubleWinged ? this.Wing : 0); i++)
+            for (var i = index - Wing; i <= index + (DoubleWinged ? Wing : 0); i++)
             {
                 //当邻域范围超出左侧或右侧时，改变索引值（向右或向左找）
                 var temp = (i < 0 || i >= count) ? (i < 0 ? count + i : i - count) : i;
@@ -156,10 +156,10 @@ namespace CommonLib.Clients
         public double GetMedianNumber(IEnumerable<double> samples)
         {
             if (samples == null || samples.Count() == 0)
-                this.LastErrorMessage = "样本中没有任何元素";
+                LastErrorMessage = "样本中没有任何元素";
 
-            if (!string.IsNullOrWhiteSpace(this.LastErrorMessage))
-                throw new ArgumentException(this.LastErrorMessage, "samples");
+            if (!string.IsNullOrWhiteSpace(LastErrorMessage))
+                throw new ArgumentException(LastErrorMessage, "samples");
 
             samples = samples.OrderBy(sample => sample);
             int count = samples.Count();
@@ -178,7 +178,7 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public double GetGaussianValue(IEnumerable<double> samples)
         {
-            return this.GetGaussianValue(samples, out _);
+            return GetGaussianValue(samples, out _);
         }
 
         /// <summary>
@@ -191,16 +191,16 @@ namespace CommonLib.Clients
         {
             ratios = null;
             if (samples == null || samples.Count() == 0)
-                this.LastErrorMessage = "样本中没有任何元素";
+                LastErrorMessage = "样本中没有任何元素";
 
-            if (!string.IsNullOrWhiteSpace(this.LastErrorMessage))
-                throw new ArgumentException(this.LastErrorMessage, "samples");
+            if (!string.IsNullOrWhiteSpace(LastErrorMessage))
+                throw new ArgumentException(LastErrorMessage, "samples");
 
-            double center = (samples.Count() - 1) / (this.DoubleWinged ? 2 : 1), ratio_sum = 0, value_sum = 0;
+            double center = (samples.Count() - 1) / (DoubleWinged ? 2 : 1), ratio_sum = 0, value_sum = 0;
             ratios = new List<double>();
             for (int i = 0; i < samples.Count(); i++)
             {
-                double ratio = this.GausCalc.Calc(i - center); //高斯分布在某坐标的值（center处的值为最高点）
+                double ratio = GausCalc.Calc(i - center); //高斯分布在某坐标的值（center处的值为最高点）
                 ratio_sum += ratio;
                 value_sum += ratio * samples.ElementAt(i);
                 ratios.Add(ratio);

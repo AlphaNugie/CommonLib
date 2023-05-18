@@ -4,6 +4,257 @@
         <name>OpcLibrary</name>
     </assembly>
     <members>
+        <member name="T:OpcLibrary.Core.OpcConst">
+            <summary>
+            OPC连接、读取或写入的基础参数
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Core.OpcConst.Log">
+            <summary>
+            日志
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Core.OpcConst.SqliteFileDir">
+            <summary>
+            Sqlite文件路径，可为相对路径
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Core.OpcConst.SqliteFileName">
+            <summary>
+            Sqlite文件名称，包括后缀
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Core.OpcConst.OpcEnabled">
+            <summary>
+            是否使用OPC
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Core.OpcConst.OpcServerIp">
+            <summary>
+            OPC SERVER IP地址
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Core.OpcConst.OpcServerName">
+            <summary>
+            OPC SERVER 名称
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Core.OpcConst.Write2Plc">
+            <summary>
+            是否写入PLC
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Core.OpcConst.OpcLoopInterval">
+            <summary>
+            OPC读取与写入间隔（毫秒）
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.Core.OpcConst.WriteConsoleLog(System.String)">
+            <summary>
+            写入日志同时在控制台输出
+            </summary>
+            <param name="info"></param>
+        </member>
+        <member name="T:OpcLibrary.DataUtil.DataService_Opc">
+            <summary>
+            OpcTask任务使用的OPC数据源服务
+            </summary>
+        </member>
+        <member name="F:OpcLibrary.DataUtil.DataService_Opc.GroupDDL">
+            <summary>
+            t_plc_opcgroup表的DDL语句
+            </summary>
+        </member>
+        <member name="F:OpcLibrary.DataUtil.DataService_Opc.ItemDDL">
+            <summary>
+            t_plc_opcitem表的DDL语句
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_Opc.GetOpcInfo">
+            <summary>
+            从OPC数据源获取基础数据
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">查询时检查表及字段是否存在，不存在则新增表或字段，操作失败时抛出此异常</exception>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_Opc.GetOpcInfo(System.String@)">
+            <summary>
+            从OPC数据源获取基础数据
+            </summary>
+            <param name="message"></param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">查询时检查表及字段是否存在，不存在则新增表或字段，操作失败时抛出此异常</exception>
+        </member>
+        <member name="T:OpcLibrary.DataUtil.DataService_OpcItem">
+            <summary>
+            OPC项的数据库服务类
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.#ctor">
+            <summary>
+            构造器
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.GetTableName">
+            <inheritdoc/>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.GetColumnsMustHave">
+            <inheritdoc/>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.GetAllOpcItemRecords">
+            <summary>
+            获取所有t_plc_opcitem记录
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.GetAllOpcItemsOrderbyId">
+            <summary>
+            获取所有OPC项，按ID排序
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.GetAllOpcItems(System.String)">
+            <summary>
+            获取所有OPC项，并按特定字段排序
+            </summary>
+            <param name="orderby">排序字段，假如为空则不排序</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.GetOpcItems(System.Int32,System.String)">
+            <summary>
+            根据所属OPC组的ID获取所有OPC项，并按特定字段排序
+            </summary>
+            <param name="opcgroup_id">OPC组的ID，为0则查询所有</param>
+            <param name="orderby">排序字段，假如为空则不排序</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.GetOpcItems(System.Int32,System.String,System.String@)">
+            <summary>
+            根据所属OPC组的ID获取所有OPC项，并按特定字段排序
+            </summary>
+            <param name="opcgroup_id">OPC组的ID，为0则查询所有</param>
+            <param name="orderby">排序字段，假如为空则不排序</param>
+            <param name="message">查询时返回的消息</param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">查询时检查表及字段是否存在，不存在则新增表或字段，操作失败时抛出此异常</exception>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.DeleteOpcItemById(System.Int32)">
+            <summary>
+            根据ID删除
+            </summary>
+            <param name="id">ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.DeleteOpcItemByIds(System.Collections.Generic.IEnumerable{System.Int32})">
+            <summary>
+            根据多个ID删除
+            </summary>
+            <param name="ids">多个ID的列表</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.SaveOpcItem(OpcLibrary.Model.OpcItem)">
+            <summary>
+            保存OPC项信息
+            </summary>
+            <param name="item">OPC项对象</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.SaveOpcItems(System.Collections.Generic.IEnumerable{OpcLibrary.Model.OpcItem})">
+            <summary>
+            批量保存OPC项信息
+            </summary>
+            <param name="items">多个OPC项对象</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcItem.GetSqlString(OpcLibrary.Model.OpcItem)">
+            <summary>
+            获取OPC项SQL字符串
+            </summary>
+            <param name="item">OPC项对象</param>
+            <returns></returns>
+        </member>
+        <member name="T:OpcLibrary.Model.DataService_OpcGroup">
+            <summary>
+            OPC组的数据库服务类
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.Model.DataService_OpcGroup.#ctor">
+            <summary>
+            构造器
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.Model.DataService_OpcGroup.GetTableName">
+            <inheritdoc/>
+        </member>
+        <member name="M:OpcLibrary.Model.DataService_OpcGroup.GetColumnsMustHave">
+            <inheritdoc/>
+        </member>
+        <member name="M:OpcLibrary.Model.DataService_OpcGroup.CheckForTableColumns(System.String@)">
+            <inheritdoc/>
+        </member>
+        <member name="T:OpcLibrary.Model.OpcItem">
+            <summary>
+            OPC项对象
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Model.OpcItem.RecordId">
+            <summary>
+            记录的唯一ID，0为新增标志，-1为导入失败标志
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Model.OpcItem.ItemId">
+            <summary>
+            OPC项名称
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Model.OpcItem.OpcGroupId">
+            <summary>
+            OPC组的ID
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Model.OpcItem.FieldName">
+            <summary>
+            对应数据源类的字段名称
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Model.OpcItem.Coeff">
+            <summary>
+            值的系数，默认为0
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Model.OpcItem.Offset">
+            <summary>
+            值的偏移量，默认为0
+            </summary>
+        </member>
+        <member name="P:OpcLibrary.Model.OpcItem.Enabled">
+            <summary>
+            是否可用
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.Model.OpcItem.#ctor">
+            <summary>
+            默认构造器
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.Model.OpcItem.#ctor(System.Data.DataRow)">
+            <summary>
+            构造器，从公共变量获取属性值，再用给定的DataRow对象覆盖各属性的值
+            </summary>
+            <param name="row"></param>
+        </member>
+        <member name="M:OpcLibrary.Model.OpcItem.#ctor(System.String)">
+            <summary>
+            构造器，从导入字符串分析各项值，各项值分别为条目级别(仅使用1,0为标题)、标签名称、opc组编号、数据源实体类字段、是否启用(0/1)、系数、偏移量，各项用半角逗号分隔
+            </summary>
+            <param name="import">导入字符串</param>
+        </member>
+        <member name="M:OpcLibrary.Model.OpcItem.ToExportString">
+            <summary>
+            转换为CSV导出文件格式的字符串
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:OpcLibrary.OpcGroupInfo">
             <summary>
             OPC组信息实体类，每个OPC组信息实体对应单独的OPCGroup基本信息、标签ID Array、服务端句柄Array、客户端句柄Array以及OPC项信息List（供添加OPC项或添加OPC项后保存信息）
@@ -318,6 +569,78 @@
             </summary>
             <param name="dataSource"></param>
             <param name="nullValueHandling">当获取到的标签值为空时的处理方法</param>
+        </member>
+        <member name="T:OpcLibrary.OpcTaskBase">
+            <summary>
+            OPC读取、写入任务
+            </summary>
+        </member>
+        <member name="F:OpcLibrary.OpcTaskBase.opcHelper">
+            <summary>
+            OPC功能包装类的实体，进行具体的OPC操作
+            </summary>
+        </member>
+        <member name="F:OpcLibrary.OpcTaskBase._idsIncl">
+            <summary>
+            包含的OPC组ID，不在此范围内的ID不读取或写入，假如为空（为null或长度为0）则初始化所有OPC组
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.#ctor(System.Int32[])">
+            <summary>
+            构造器
+            </summary>
+            <param name="idsIncl">包含的OPC组ID，不在此范围内的ID不读取或写入，假如为空则初始化所有OPC组</param>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.Init">
+            <inheritdoc/>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.LoopContent">
+            <inheritdoc/>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.GetNewInstance">
+            <inheritdoc/>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.LoopUrContentBeforeRW">
+            <summary>
+            在继承的子类中，在每次循环的OPC写入与读取之前，调用自己想在循环中使用的额外方法
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.LoopUrContentAfterRW">
+            <summary>
+            在继承的子类中，在每次循环的OPC写入与读取之后，调用自己想在循环中使用的额外方法
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.GetNewOpcInstance">
+            <summary>
+            获取新OpcTask实体的方法（目前仅为任务重启使用），在这个方法中重新声明、初始化一个当前OpcTask类型的实体并返回（假如返回实体为空将不执行重启）
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.GetOpcDatasource">
+            <summary>
+            获取数据源，用于OPC读取()与写入()
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.OpcInit">
+            <summary>
+            OPC初始化
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.SetOpcGroupsDataSource">
+            <summary>
+            设置数据源
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.OpcReadValues">
+            <summary>
+            读取值
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.OpcTaskBase.OpcWriteValues">
+            <summary>
+            写入值
+            </summary>
         </member>
         <member name="T:OpcLibrary.OpcUtilHelper">
             <summary>

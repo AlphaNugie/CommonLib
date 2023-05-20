@@ -90,11 +90,6 @@ namespace OpcLibrary.DataUtil
         public DataTable GetOpcItems(int opcgroup_id, string orderby)
         {
             return GetOpcItems(opcgroup_id, orderby, out _);
-//            string sql = string.Format(@"
-//select i.*, 0 changed from t_plc_opcitem i
-//  left join t_plc_opcgroup g on g.group_id = i.opcgroup_id
-//  where {0} = 0 or g.group_id = {0} {1}", opcgroup_id, string.IsNullOrWhiteSpace(orderby) ? string.Empty : "order by i." + orderby);
-//            return Provider.Query(sql);
         }
 
         /// <summary>

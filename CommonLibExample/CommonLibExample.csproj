@@ -203,6 +203,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyMapper\PropertyMapperExample.cs" />
+    <Compile Include="SystemTask\TaskExample.cs" />
     <Compile Include="Tasks\ExampleTask.cs" />
     <Compile Include="Tasks\ExampleTaskTest.cs" />
     <EmbeddedResource Include="Forms\FormControls.resx">

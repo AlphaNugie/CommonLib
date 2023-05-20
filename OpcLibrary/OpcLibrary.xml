@@ -85,6 +85,25 @@
             <returns></returns>
             <exception cref="T:System.InvalidOperationException">查询时检查表及字段是否存在，不存在则新增表或字段，操作失败时抛出此异常</exception>
         </member>
+        <member name="T:OpcLibrary.DataUtil.DataService_OpcGroup">
+            <summary>
+            OPC组的数据库服务类
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcGroup.#ctor">
+            <summary>
+            构造器
+            </summary>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcGroup.GetTableName">
+            <inheritdoc/>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcGroup.GetColumnsMustHave">
+            <inheritdoc/>
+        </member>
+        <member name="M:OpcLibrary.DataUtil.DataService_OpcGroup.CheckForTableColumns(System.String@)">
+            <inheritdoc/>
+        </member>
         <member name="T:OpcLibrary.DataUtil.DataService_OpcItem">
             <summary>
             OPC项的数据库服务类
@@ -172,25 +191,6 @@
             </summary>
             <param name="item">OPC项对象</param>
             <returns></returns>
-        </member>
-        <member name="T:OpcLibrary.Model.DataService_OpcGroup">
-            <summary>
-            OPC组的数据库服务类
-            </summary>
-        </member>
-        <member name="M:OpcLibrary.Model.DataService_OpcGroup.#ctor">
-            <summary>
-            构造器
-            </summary>
-        </member>
-        <member name="M:OpcLibrary.Model.DataService_OpcGroup.GetTableName">
-            <inheritdoc/>
-        </member>
-        <member name="M:OpcLibrary.Model.DataService_OpcGroup.GetColumnsMustHave">
-            <inheritdoc/>
-        </member>
-        <member name="M:OpcLibrary.Model.DataService_OpcGroup.CheckForTableColumns(System.String@)">
-            <inheritdoc/>
         </member>
         <member name="T:OpcLibrary.Model.OpcItem">
             <summary>

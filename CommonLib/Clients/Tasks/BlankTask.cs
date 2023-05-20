@@ -30,10 +30,5 @@ namespace CommonLib.Clients.Tasks
         {
             throw new NotImplementedException();
         }
-
-        //protected override void RestartUrself()
-        //{
-        //    //throw new NotImplementedException();
-        //}
     }
 }

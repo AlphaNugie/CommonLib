@@ -2,9 +2,11 @@
 using OpcLibrary.Core;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Text;
 
-namespace OpcLibrary.Model
+namespace OpcLibrary.DataUtil
 {
     /// <summary>
     /// OPC组的数据库服务类
@@ -16,13 +18,13 @@ namespace OpcLibrary.Model
         /// </summary>
         public DataService_OpcGroup() : base(OpcConst.SqliteFileDir, OpcConst.SqliteFileName) { }
 
-/// <inheritdoc/>
+        /// <inheritdoc/>
         protected override string GetTableName()
         {
             return "t_plc_opcgroup";
         }
 
-/// <inheritdoc/>
+        /// <inheritdoc/>
         protected override List<SqliteColumnMapping> GetColumnsMustHave()
         {
             return new List<SqliteColumnMapping>()
@@ -34,16 +36,24 @@ namespace OpcLibrary.Model
             };
         }
 
-/// <inheritdoc/>
+        /// <inheritdoc/>
         public override bool CheckForTableColumns(out string message)
         {
             if (!base.CheckForTableColumns(out message))
                 return false;
-            string[] sqls = new string[]
-            {
-                string.Format("insert into {0} (group_name, group_type) values ('OPC_GROUP_READ', 1)", TableName),
-                string.Format("insert into {0} (group_name, group_type) values ('OPC_GROUP_WRITE', 2)", TableName),
-            };
+            var groupNames = _provider.Query("select * from " + TableName).Rows.Cast<DataRow>().Select(row => row["group_name"].ToString()).ToList();
+            var sqls = new List<string>();
+            if (!groupNames.Contains("OPC_GROUP_READ"))
+                sqls.Add(string.Format("insert into {0} (group_name, group_type) values ('OPC_GROUP_READ', 1)", TableName));
+            if (!groupNames.Contains("OPC_GROUP_WRITE"))
+                sqls.Add(string.Format("insert into {0} (group_name, group_type) values ('OPC_GROUP_WRITE', 1)", TableName));
+            if (sqls.Count == 0)
+                return true;
+            //string[] sqls = new string[]
+            //{
+            //    string.Format("insert into {0} (group_name, group_type) values ('OPC_GROUP_READ', 1)", TableName),
+            //    string.Format("insert into {0} (group_name, group_type) values ('OPC_GROUP_WRITE', 2)", TableName),
+            //};
             bool result = _provider.ExecuteSqlTrans(sqls);
             if (!result)
                 message = _provider.ErrorMessage;

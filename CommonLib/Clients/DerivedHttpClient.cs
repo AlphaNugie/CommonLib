@@ -15,6 +15,25 @@ namespace CommonLib.Clients
     public class DerivedHttpClient
     {
         private/* static*/ readonly HttpClient client = new HttpClient();
+        
+        /// <summary>
+        /// 执行任务时的等待时间（毫秒，超过此时间报Timeout异常）
+        /// </summary>
+        public int Timeout { get; set; }
+
+        /// <summary>
+        /// 默认构造器
+        /// </summary>
+        public DerivedHttpClient() : this(5000) { }
+
+        /// <summary>
+        /// 用给定的等待时间（毫秒）初始化
+        /// </summary>
+        /// <param name="timeout">执行任务时的等待时间（毫秒，超过此时间报Timeout异常）</param>
+        public DerivedHttpClient(int timeout)
+        {
+            Timeout = timeout;
+        }
 
         /// <summary>
         /// 验证授权
@@ -25,7 +44,11 @@ namespace CommonLib.Clients
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-
+        /// <summary>
+        /// 发送GET请求
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public/* static*/ string Get(string url)
         {
             url = FixUrl(url);
@@ -198,7 +221,8 @@ namespace CommonLib.Clients
         private/* static*/ string RunTask(Task<HttpResponseMessage> task)
         {
             bool intime; //是否在响应时间内完成
-            try { intime = task.Wait(5000); }
+            //try { intime = task.Wait(5000); }
+            try { intime = task.Wait(Timeout); }
             catch (Exception e)
             {
                 while (e.InnerException != null)

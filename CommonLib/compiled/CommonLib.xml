@@ -492,11 +492,34 @@
             HTTP发送客户端
             </summary>
         </member>
+        <member name="P:CommonLib.Clients.DerivedHttpClient.Timeout">
+            <summary>
+            执行任务时的等待时间（毫秒，超过此时间报Timeout异常）
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.#ctor">
+            <summary>
+            默认构造器
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.#ctor(System.Int32)">
+            <summary>
+            用给定的等待时间（毫秒）初始化
+            </summary>
+            <param name="timeout">执行任务时的等待时间（毫秒，超过此时间报Timeout异常）</param>
+        </member>
         <member name="M:CommonLib.Clients.DerivedHttpClient.OAuth(System.String)">
             <summary>
             验证授权
             </summary>
             <param name="token">用于验证授权的token</param>
+        </member>
+        <member name="M:CommonLib.Clients.DerivedHttpClient.Get(System.String)">
+            <summary>
+            发送GET请求
+            </summary>
+            <param name="url"></param>
+            <returns></returns>
         </member>
         <member name="M:CommonLib.Clients.DerivedHttpClient.Post(System.String,System.String,CommonLib.Clients.ContentType)">
             <summary>
@@ -637,7 +660,7 @@
         </member>
         <member name="P:CommonLib.Clients.DerivedHttpListener.WebExplorerMessage">
             <summary>
-            网页浏览器访问的返回信息
+            网页浏览器访问（POST之外方式，比如GET）的返回信息
             </summary>
         </member>
         <member name="P:CommonLib.Clients.DerivedHttpListener.LastErrorMessage">
@@ -705,11 +728,6 @@
         <member name="F:CommonLib.Clients.DerivedTcpListener.clientList">
             <summary>
             客户端列表
-            </summary>
-        </member>
-        <member name="F:CommonLib.Clients.DerivedTcpListener.clientDict">
-            <summary>
-            客户端字典
             </summary>
         </member>
         <member name="P:CommonLib.Clients.DerivedTcpListener.BaseListener">
@@ -2582,7 +2600,12 @@
         </member>
         <member name="P:CommonLib.Clients.DerivedTcpClient.RaiseThreshold">
             <summary>
-            计时阈值，计时达到此值触发事件，单位毫秒，默认5000
+            超时未接收到数据的计时阈值，计时达到此值时触发事件，单位毫秒，默认5000
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.DerivedTcpClient.NoneReceivedThreshold">
+            <summary>
+            超时未接收到数据的计时阈值，计时达到此值时触发事件，单位毫秒，默认5000
             </summary>
         </member>
         <member name="P:CommonLib.Clients.DerivedTcpClient.ReconnTimer">
@@ -2593,11 +2616,6 @@
         <member name="P:CommonLib.Clients.DerivedTcpClient.Thread_TcpReconnect">
             <summary>
             监听TCP服务端，并在连接断开后试着重新连接
-            </summary>
-        </member>
-        <member name="P:CommonLib.Clients.DerivedTcpClient.Auto_TcpReconnect">
-            <summary>
-            控制TCP重连线程的AutoResetEvent，初始状态为非终止
             </summary>
         </member>
         <member name="M:CommonLib.Clients.DerivedTcpClient.SetName">
@@ -2924,7 +2942,7 @@
         </member>
         <member name="M:CommonLib.DataUtil.BaseDataServiceBatis`1.ProviderExecuteSql(System.String)">
             <summary>
-            执行Provider的
+            执行Provider的ExecuteSql方法
             </summary>
             <param name="sqlString"></param>
             <returns></returns>
@@ -3140,6 +3158,11 @@
               </SqlMaps>
             </SqlMapping>
             ]]>
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.BatisLike.DefaultMapperPath">
+            <summary>
+            Mapper文件的目录
             </summary>
         </member>
         <member name="P:CommonLib.DataUtil.BatisLike.MapperPath">
@@ -4341,6 +4364,17 @@
             <param name="type">给定的类型实体</param>
             <returns></returns>
         </member>
+        <member name="M:CommonLib.Extensions.Reflection.ReflectionExtension.GetTypesInNamespace(System.Reflection.Assembly,System.String,System.Boolean,System.String,System.Type)">
+            <summary>
+            在命名空间中查找类
+            </summary>
+            <param name="assembly">程序集对象</param>
+            <param name="nameSpace">命名空间全名（或一部分），区分大小写</param>
+            <param name="subSpaceIncl">是否查找子命名空间</param>
+            <param name="typeNameIncl">查找时限定类名的一部分，假如为空则不限定</param>
+            <param name="baseType">查找类时限定的从中继承的类（仅检查类型名称及命名空间是否相同），假如为空则不限定</param>
+            <returns></returns>
+        </member>
         <member name="T:CommonLib.Extensions.ExtensionClass">
             <summary>
             类功能扩展类
@@ -4439,6 +4473,33 @@
             计算功能类
             </summary>
         </member>
+        <member name="M:CommonLib.Extensions.MathExtension.GetAveragedCircleNumbers(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Double}},System.Double@,System.Double@,System.Double@)">
+            <summary>
+            在给出的若干对XY坐标集合的集合中，找出14对XY坐标，排除收尾2对（剔除异常点），在剩下12个点中，找出相邻的3个点，根据XY坐标确定圆心的XY坐标和半径长度 <para/>如此按顺序执行10次，计算这10次测到的圆心XY坐标和半径长度的平均值并输出
+            </summary>
+            <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合的集合</param>
+            <param name="centrex">圆心X坐标</param>
+            <param name="centrey">圆心Y坐标</param>
+            <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.GetCircleNumbers(System.Collections.Generic.IEnumerable{System.Double},System.Double@,System.Double@,System.Double@)">
+            <summary>
+            根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度，其中圆上3点的坐标由一个包含6个double数值的集合提供，按顺序分别为3个点的XY坐标
+            </summary>
+            <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合</param>
+            <param name="centrex">圆心X坐标</param>
+            <param name="centrey">圆心Y坐标</param>
+            <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.GetCircleNumbers(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Double}},System.Double@,System.Double@,System.Double@)">
+            <summary>
+            根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度，其中圆上3点的坐标由一个包含3对double数值集合的集合提供，按顺序分别为3个点的XY坐标
+            </summary>
+            <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合的集合</param>
+            <param name="centrex">圆心X坐标</param>
+            <param name="centrey">圆心Y坐标</param>
+            <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+        </member>
         <member name="M:CommonLib.Extensions.MathExtension.NormalDistribution(System.Double,System.Double,System.Double)">
             <summary>
             计算正态分布函数的公式，计算时使用给定的平均值μ(mu)与标准差σ(sigma)，输入x坐标，输出正太分布曲线在这个位置的y坐标值
@@ -4536,6 +4597,13 @@
             <param name="numbers">提供的byte序列</param>
             <param name="startIndex">计算的起始索引，从此索引开始找出8个字节用于转换</param>
             <param name="isBigEndian">是否大字节在前</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.GetAzimuthThatsInRange(System.Double)">
+            <summary>
+            根据输入的方位角计算出保持在合理的范围之内（-180°到180°之间）的方位角的值并返回，假如超过180°则减360°，小于-180°则加360°，循环计算直到进入范围为止
+            </summary>
+            <param name="angle">待进行计算的输入方位角</param>
             <returns></returns>
         </member>
         <member name="M:CommonLib.Extensions.MathExtension.GetAngleByCoordinates(System.Double,System.Double,System.Double,System.Double)">
@@ -4644,6 +4712,31 @@
             <param name="peak_offset">原始数据在数值上的位移</param>
             <returns></returns>
         </member>
+        <member name="T:CommonLib.Function.MathUtil">
+            <summary>
+            数学计算功能类
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.MathUtil.GetCircleNumbers(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double@,System.Double@,System.Double@)">
+            <summary>
+            根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度
+            </summary>
+            <param name="x1">第1点的X坐标</param>
+            <param name="y1">第1点的Y坐标</param>
+            <param name="x2">第2点的X坐标</param>
+            <param name="y2">第2点的Y坐标</param>
+            <param name="x3">第3点的X坐标</param>
+            <param name="y3">第3点的Y坐标</param>
+            <param name="centrex">圆心X坐标</param>
+            <param name="centrey">圆心Y坐标</param>
+            <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+        </member>
+        <member name="M:CommonLib.Function.MathUtil.KeepAzimuthInRange(System.Double@)">
+            <summary>
+            使输入的方位角保持在合理的范围之内（-180°到180°之间，包含-180°，不包含180°），假如超过180°则减360°，小于-180°则加360°，循环计算直到进入范围为止
+            </summary>
+            <param name="angle">待修改的输入方位角</param>
+        </member>
         <member name="T:CommonLib.Function.ReflectionUtil">
             <summary>
             反射功能类（程序集、类型等）
@@ -4726,6 +4819,15 @@
             <summary>
             基础的、公用的操作
             </summary>
+        </member>
+        <member name="M:CommonLib.Function.Functions.GetIntegerListByString(System.String,System.Char,System.Char)">
+            <summary>
+            根据给定的整数序列描述字符串（形如“-5,-3~-1,3,6~10”）输出整数序列
+            </summary>
+            <param name="descp">整数序列的描述字符串（形如“-5,-3~-1,3,6~10”）</param>
+            <param name="splitChar">描述数字分隔关系的字符，默认为,</param>
+            <param name="intervalChar">描述区间起始结束关系的字符，默认为~（为避免负数不要使用-）</param>
+            <returns></returns>
         </member>
         <member name="M:CommonLib.Function.Functions.GetIPAddressV4">
             <summary>

@@ -8,18 +8,21 @@ using System.Threading.Tasks;
 
 namespace CommonLibExample.SystemTask
 {
+    /// <summary>
+    /// System.Threading.Tasks.Task任务的例子
+    /// </summary>
     internal class TaskExample
     {
         /// <summary>
-        /// 进行异步写入操作
+        /// 进行异步操作
         /// </summary>
         /// <returns></returns>
-        private Task<string> OpcWriteAsync()
+        private Task<string> DoSomethingAsync()
         {
             TaskCompletionSource<string> taskCompletionSource = new TaskCompletionSource<string>();
             try
             {
-                //进行写入操作
+                //进行一些操作
                 string result = "成功";
                 taskCompletionSource.TrySetResult(result);
             }
@@ -52,6 +55,17 @@ namespace CommonLibExample.SystemTask
             {
                 return task.Result;
             }
+        }
+
+        /// <summary>
+        /// 执行例子
+        /// </summary>
+        public static void RunExample()
+        {
+            var example = new TaskExample();
+            var task = example.DoSomethingAsync();
+            string result = example.RunTask(task);
+            Console.WriteLine(result);
         }
     }
 }

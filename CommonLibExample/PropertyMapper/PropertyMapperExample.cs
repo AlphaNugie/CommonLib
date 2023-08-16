@@ -13,6 +13,15 @@ namespace CommonLibExample.PropertyMapper
     {
         public static StudentSource StudentSource;
         public static Student Student;
+        public static SourceInherit SourceInherit;
+        public static TargetInherit TargetInherit;
+
+        public static void CopyToMethodInheritTest()
+        {
+            SourceInherit = new SourceInherit() { Name = "A", NameNew = "B", NameOld = "C", Number = 4, Value = "Test" };
+            TargetInherit = new TargetInherit();
+            SourceInherit.CopyPropertyValueTo(ref TargetInherit);
+        }
 
         public static void CopyToMethodTest()
         {

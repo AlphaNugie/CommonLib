@@ -116,6 +116,7 @@
     <Compile Include="Events\RoutineStatusChangedEventArgs.cs" />
     <Compile Include="Extensions\Property\PropertyMapperExtension.cs" />
     <Compile Include="Extensions\Reflection\ReflectionExtension.cs" />
+    <Compile Include="Function\MathUtil.cs" />
     <Compile Include="Function\ReflectionUtil.cs" />
     <Compile Include="Function\BaseFunctions.cs" />
     <Compile Include="Clients\ConnClient.cs" />

@@ -1,10 +1,12 @@
-﻿using System;
+﻿using CommonLib.Function;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.SessionState;
 
 namespace CommonLib.Extensions
 {
@@ -14,6 +16,80 @@ namespace CommonLib.Extensions
     public static class MathExtension
     {
         #region 常用数学公式/参数计算
+        /// <summary>
+        /// 在给出的若干对XY坐标集合的集合中，找出14对XY坐标，排除收尾2对（剔除异常点），在剩下12个点中，找出相邻的3个点，根据XY坐标确定圆心的XY坐标和半径长度 <para/>如此按顺序执行10次，计算这10次测到的圆心XY坐标和半径长度的平均值并输出
+        /// </summary>
+        /// <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合的集合</param>
+        /// <param name="centrex">圆心X坐标</param>
+        /// <param name="centrey">圆心Y坐标</param>
+        /// <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+        public static void GetAveragedCircleNumbers(this IEnumerable<IEnumerable<double>> pairsOfCoors, out double centrex, out double centrey, out double radius)
+        {
+            centrex = centrey = radius = 0;
+            if (pairsOfCoors == null || pairsOfCoors.Count() < 14) return;
+            //筛选出一对对坐标，数量至少为14对（将圆弧分割为13等分），并计算没等分包含的坐标对数量
+            List<IEnumerable<double>> pairs = pairsOfCoors.Where(pair => pair != null && pair.Count() >= 2).ToList();
+            if (pairs.Count < 14) return;
+            int step = (pairs.Count - 1) / 13;
+            List<double> centrexs = new List<double>(), centreys = new List<double>(), radiuses = new List<double>();
+            //排除14个点的头尾2点，剩下12个点，以相邻3个点为窗口，依次计算圆心坐标以及半径长（可计算10次），计算完求10次的平均值
+            for (int i = 1; i <= 10; i++)
+            {
+                List<IEnumerable<double>> doubles = new List<IEnumerable<double>>() { pairs.ElementAt(i * step), pairs.ElementAt((i + 1) * step), pairs.ElementAt((i + 2) * step) };
+                doubles.GetCircleNumbers(out double cx, out double cy, out double r);
+                centrexs.Add(cx);
+                centreys.Add(cy);
+                radiuses.Add(r);
+            }
+            centrex = centrexs.Average();
+            centrex = centreys.Average();
+            radius = radiuses.Average();
+        }
+
+        /// <summary>
+        /// 根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度，其中圆上3点的坐标由一个包含6个double数值的集合提供，按顺序分别为3个点的XY坐标
+        /// </summary>
+        /// <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合</param>
+        /// <param name="centrex">圆心X坐标</param>
+        /// <param name="centrey">圆心Y坐标</param>
+        /// <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+        public static void GetCircleNumbers(this IEnumerable<double> pairsOfCoors, out double centrex, out double centrey, out double radius)
+        {
+            centrex = centrey = radius = 0;
+            if (pairsOfCoors == null || pairsOfCoors.Count() < 6) return;
+            double
+                x1 = pairsOfCoors.ElementAt(0),
+                y1 = pairsOfCoors.ElementAt(1),
+                x2 = pairsOfCoors.ElementAt(2),
+                y2 = pairsOfCoors.ElementAt(3),
+                x3 = pairsOfCoors.ElementAt(4),
+                y3 = pairsOfCoors.ElementAt(5);
+            MathUtil.GetCircleNumbers(x1, y1, x2, y2, x3, y3, out centrex, out centrey, out radius);
+        }
+
+        /// <summary>
+        /// 根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度，其中圆上3点的坐标由一个包含3对double数值集合的集合提供，按顺序分别为3个点的XY坐标
+        /// </summary>
+        /// <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合的集合</param>
+        /// <param name="centrex">圆心X坐标</param>
+        /// <param name="centrey">圆心Y坐标</param>
+        /// <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+        public static void GetCircleNumbers(this IEnumerable<IEnumerable<double>> pairsOfCoors, out double centrex, out double centrey, out double radius)
+        {
+            centrex = centrey = radius = 0;
+            if (pairsOfCoors == null || pairsOfCoors.Count() < 3) return;
+            List<IEnumerable<double>> pairs = pairsOfCoors.Where(pair => pair != null && pair.Count() >= 2).ToList();
+            if (pairs.Count < 3) return;
+            double
+                x1 = pairs[0].ElementAt(0),
+                y1 = pairs[0].ElementAt(1),
+                x2 = pairs[1].ElementAt(0),
+                y2 = pairs[1].ElementAt(1),
+                x3 = pairs[2].ElementAt(0),
+                y3 = pairs[2].ElementAt(1);
+            MathUtil.GetCircleNumbers(x1, y1, x2, y2, x3, y3, out centrex, out centrey, out radius);
+        }
+
         /// <summary>
         /// 计算正态分布函数的公式，计算时使用给定的平均值μ(mu)与标准差σ(sigma)，输入x坐标，输出正太分布曲线在这个位置的y坐标值
         /// https://i.postimg.cc/P5NxZ0WX/image.png
@@ -96,6 +172,7 @@ namespace CommonLib.Extensions
         }
         #endregion
 
+        #region 整型与byte序列互转
         /// <summary>
         /// 将32位无符号整数转换为byte数组（长度为4）（默认大字节在前）
         /// </summary>
@@ -224,6 +301,34 @@ namespace CommonLib.Extensions
             //BitConverter方法的输入参数中，小字节在前（索引为0的方向），因此转换前按需求换向
             enums = isBigEndian ? enums.Reverse() : enums;
             return BitConverter.ToUInt64(enums.ToArray(), 0);
+        }
+        #endregion
+
+        ///// <summary>
+        ///// 使输入的方位角保持在合理的范围之内（-180°到180°之间，包含-180°，不包含180°），假如超过180°则减360°，小于-180°则加360°，循环计算直到进入范围为止
+        ///// </summary>
+        ///// <param name="angle">待修改的输入方位角</param>
+        //[Obsolete]
+        //public static void KeepAzimuthInRange(ref double angle)
+        //{
+        //    MathUtil.KeepAzimuthInRange(ref angle);
+        //    ////假如为180°，修改为-180°，确保同一个位置不会出现2种值
+        //    //if (angle == 180)
+        //    //    angle = -180;
+        //    ////假如绝对值大于180，则向当前值符号相反的方向修正360°，直到在范围内为止
+        //    //while (Math.Abs(angle) > 180)
+        //    //    angle -= 360 * Math.Sign(angle);
+        //}
+
+        /// <summary>
+        /// 根据输入的方位角计算出保持在合理的范围之内（-180°到180°之间）的方位角的值并返回，假如超过180°则减360°，小于-180°则加360°，循环计算直到进入范围为止
+        /// </summary>
+        /// <param name="angle">待进行计算的输入方位角</param>
+        /// <returns></returns>
+        public static double GetAzimuthThatsInRange(this double angle)
+        {
+            MathUtil.KeepAzimuthInRange(ref angle);
+            return angle;
         }
 
         /// <summary>

@@ -55,18 +55,24 @@ namespace CommonLib.DataUtil
         /// <summary>
         /// Mapper文件的目录
         /// </summary>
-        public static string MapperPath { get; set; } = FileSystemHelper.StartupPath + FileSystemHelper.DirSeparator + ConfigurationManager.AppSettings["SqlMapperFolder"];
+        public static string DefaultMapperPath { get; set; } = FileSystemHelper.StartupPath + FileSystemHelper.DirSeparator + ConfigurationManager.AppSettings["SqlMapperFolder"];
+
+        /// <summary>
+        /// Mapper文件的目录
+        /// </summary>
+        //public /*static */string MapperPath { get; set; } = FileSystemHelper.StartupPath + FileSystemHelper.DirSeparator + ConfigurationManager.AppSettings["SqlMapperFolder"];
+        public /*static */string MapperPath { get; set; } = DefaultMapperPath;
 
         /// <summary>
         /// Mapper文件名称
         /// </summary>
         public string MapperName
         {
-            get { return this.mapperName; }
+            get { return mapperName; }
             set
             {
-                this.mapperName = value;
-                this.PropertyMappers = this.GetPropertyMappers(this.mapperName + ".PropertyMap");
+                mapperName = value;
+                PropertyMappers = GetPropertyMappers(mapperName + ".PropertyMap");
             }
         }
 
@@ -86,8 +92,8 @@ namespace CommonLib.DataUtil
         /// <param name="mapperName">Mapper文件名称</param>
         public BatisLike(string mapperName)
         {
-            this.MapperName = mapperName;
-            //this.PropertyMappers = this.GetPropertyMappers(this.MapperName + ".PropertyMap");
+            MapperName = mapperName;
+            //PropertyMappers = GetPropertyMappers(MapperName + ".PropertyMap");
         }
 
         /// <summary>
@@ -98,11 +104,11 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public string GetSqlStringBySqlMapKey(string sqlMapKey, Dictionary<string, object> dict)
         {
-            string sqlString = this.GetSql(this.MapperName + "." + sqlMapKey); //获取源字符串
-            sqlString = this.ConvertSqlStringByKeyValue(sqlString, dict); //处理
-            //string sqlString = this.GetSqlStringBySqlMapKey(sqlMapKey);
+            string sqlString = GetSql(MapperName + "." + sqlMapKey); //获取源字符串
+            sqlString = ConvertSqlStringByKeyValue(sqlString, dict); //处理
+            //string sqlString = GetSqlStringBySqlMapKey(sqlMapKey);
             //if (dict != null && dict.Keys.Count > 0)
-            //    sqlString = this.ConvertSqlStringByKeyValue(sqlString, dict);
+            //    sqlString = ConvertSqlStringByKeyValue(sqlString, dict);
             return sqlString;
         }
 
@@ -115,11 +121,11 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public string GetSqlStringBySqlMapKey<T>(string sqlMapKey, T obj)
         {
-            string sqlString = this.GetSql(this.MapperName + "." + sqlMapKey); //获取源字符串
-            sqlString = this.ConvertSqlStringByObject<T>(sqlString, obj); //处理
-            //string sqlString = this.GetSqlStringBySqlMapKey(sqlMapKey);
+            string sqlString = GetSql(MapperName + "." + sqlMapKey); //获取源字符串
+            sqlString = ConvertSqlStringByObject<T>(sqlString, obj); //处理
+            //string sqlString = GetSqlStringBySqlMapKey(sqlMapKey);
             //if (obj != null)
-            //    sqlString = this.ConvertSqlStringByObject<T>(sqlString, obj);
+            //    sqlString = ConvertSqlStringByObject<T>(sqlString, obj);
             return sqlString;
         }
 
@@ -130,8 +136,8 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public string GetSqlStringBySqlMapKey(string sqlMapKey)
         {
-            return this.GetSqlStringBySqlMapKey(sqlMapKey, null);
-            //return this.GetSql(this.MapperName + "." + sqlMapKey);
+            return GetSqlStringBySqlMapKey(sqlMapKey, null);
+            //return GetSql(MapperName + "." + sqlMapKey);
         }
 
         ///// <summary>
@@ -141,8 +147,8 @@ namespace CommonLib.DataUtil
         ///// <returns>返回查询语句</returns>
         //public string GetQueryString(Dictionary<string, object> dict)
         //{
-        //    //return this.ConvertSqlStringByKeyValue(this.GetSql(this.MapperName + ".Get"), dict);
-        //    return this.GetSqlStringBySqlMapKey("Get", dict);
+        //    //return ConvertSqlStringByKeyValue(GetSql(MapperName + ".Get"), dict);
+        //    return GetSqlStringBySqlMapKey("Get", dict);
         //}
 
         /// <summary>
@@ -173,8 +179,8 @@ namespace CommonLib.DataUtil
                     keyTail = "Delete";
                     break;
             }
-            //string sqlString = this.ConvertSqlStringByObject<T>(this.GetSql(this.MapperName + keyTail), obj);
-            string sqlString = this.GetSqlStringBySqlMapKey(keyTail, obj);
+            //string sqlString = ConvertSqlStringByObject<T>(GetSql(MapperName + keyTail), obj);
+            string sqlString = GetSqlStringBySqlMapKey(keyTail, obj);
             return sqlString;
         }
 
@@ -185,8 +191,8 @@ namespace CommonLib.DataUtil
         ///// <returns>返回删除语句</returns>
         //public string GetDeleteString(Dictionary<string, object> dict)
         //{
-        //    //return this.ConvertSqlStringByKeyValue(this.GetSql(this.MapperName + ".Delete"), dict);
-        //    return this.GetSqlStringBySqlMapKey("Delete", dict);
+        //    //return ConvertSqlStringByKeyValue(GetSql(MapperName + ".Delete"), dict);
+        //    return GetSqlStringBySqlMapKey("Delete", dict);
         //}
 
         ///// <summary>
@@ -197,8 +203,8 @@ namespace CommonLib.DataUtil
         ///// <returns>返回逻辑删除字符串</returns>
         //public string GetSetEnableString<T>(T obj)
         //{
-        //    //return this.ConvertSqlStringByObject<T>(this.GetSql(this.MapperName + ".SetEnableById"), obj);
-        //    return this.GetSqlStringBySqlMapKey("SetEnableById", obj);
+        //    //return ConvertSqlStringByObject<T>(GetSql(MapperName + ".SetEnableById"), obj);
+        //    return GetSqlStringBySqlMapKey("SetEnableById", obj);
         //}
 
         /// <summary>
@@ -233,20 +239,21 @@ namespace CommonLib.DataUtil
                     jdbcType = param.Contains(",jdbcType=") ? param.Substring(param.IndexOf('=') + 1, endIndex - param.IndexOf('=') - 1) : string.Empty;
 
                     //根据对象属性名称找出属性类型，并根据类型决定属性存储方式(值)
+                    //属性值
+                    object realParamObj = dict.ContainsKey(keyName) ? dict[keyName] : null;
+                    ////假如属性为空
+                    //if (realParam_obj == null)
+                    //    realParam = jdbcType.Equals("VARCHAR") ? string.Empty : "null"; //根据转换类型是否为VARCHAR决定储存的值
+                    //else
+                    //    realParam = realParam_obj.ToString();
+                    ////假如欲转换为VARCHAR或属性类型为string，字符串前后添加单引号，并替换参数
+                    //realParam = string.Format(jdbcType.Equals("VARCHAR") ? "'{0}'" : "{0}", realParam);
+                    //假如属性值为空，则存储值为字符串"null"，否则为实际值的字符串形式
+                    bool isNull = realParamObj == null;
+                    realParam = isNull ? "null" : realParamObj.ToString();
 
-                    ////假如键不存在，抛出异常
-                    //if (!dict.ContainsKey(keyName))
-                    //    throw new KeyNotFoundException(string.Format("字典中不存在键{0}", keyName));
-
-                    object realParam_obj = dict.ContainsKey(keyName) ? dict[keyName] : null; //属性值
-                    //假如属性为空
-                    if (realParam_obj == null)
-                        realParam = jdbcType.Equals("VARCHAR") ? string.Empty : "null"; //根据转换类型是否为VARCHAR决定储存的值
-                    else
-                        realParam = realParam_obj.ToString();
-
-                    //假如欲转换为VARCHAR或属性类型为string，字符串前后添加单引号，并替换参数
-                    realParam = string.Format(jdbcType.Equals("VARCHAR") ? "'{0}'" : "{0}", realParam);
+                    //假如欲转换为VARCHAR或属性类型为string（且值不为空），则字符串前后添加单引号，并替换参数
+                    realParam = string.Format(jdbcType.Equals("VARCHAR") && !isNull ? "'{0}'" : "{0}", realParam);
                     sqlString = sqlString.Replace(param, realParam);
                 }
             }
@@ -339,7 +346,7 @@ namespace CommonLib.DataUtil
             try
             {
                 string[] sqlLayers = key.Split('.');
-                XmlNode xmlNode = this.ReadMapping(sqlLayers[0]);
+                XmlNode xmlNode = ReadMapping(sqlLayers[0]);
                 if (xmlNode == null || !xmlNode.HasChildNodes)
                     return sqlString;
                 XmlNodeList list = xmlNode.SelectNodes("Sql"); //获取SqlMapper下的所有Sql XmlNode节点（即SQL语句）
@@ -373,7 +380,7 @@ namespace CommonLib.DataUtil
             try
             {
                 string[] sqlLayers = key.Split('.');
-                XmlNode xmlNode = this.ReadMapping(sqlLayers[0]);
+                XmlNode xmlNode = ReadMapping(sqlLayers[0]);
                 if (xmlNode == null || !xmlNode.HasChildNodes)
                     return mappers;
                 XmlNodeList list = xmlNode.SelectNodes("ResultMap"); //获取SqlMapper下的所有ResultMap XmlNode节点
@@ -399,7 +406,7 @@ namespace CommonLib.DataUtil
         /// <returns>Mapping节点下的sqlMap</returns>
         private XmlNode ReadMapping(string key)
         {
-            string fileName = MapperPath + FileSystemHelper.DirSeparator + this.MapperName + ".xml";
+            string fileName = MapperPath + FileSystemHelper.DirSeparator + MapperName + ".xml";
             XmlDocument Xdoc = new XmlDocument();
             Xdoc.Load(fileName);
             XmlNodeList list = Xdoc.SelectNodes("SqlMapping/SqlMaps");
@@ -422,10 +429,10 @@ namespace CommonLib.DataUtil
         public T ConvertObjectByDataRow<T>(DataRow dataRow) where T : BaseModel/* where T : Record*/
         {
             T obj = Activator.CreateInstance<T>();
-            if (this.PropertyMappers == null || this.PropertyMappers.Length == 0)
+            if (PropertyMappers == null || PropertyMappers.Length == 0)
                 return obj;
 
-            foreach (PropertyMapper mapper in this.PropertyMappers)
+            foreach (PropertyMapper mapper in PropertyMappers)
             {
                 PropertyInfo property = obj.GetType().GetProperty(mapper.PropertyName);
                 if (property == null)
@@ -475,7 +482,7 @@ namespace CommonLib.DataUtil
             //if (dataTable == null || dataTable.Rows.Count == 0)
             //    return new List<T>();
             if (dataTable != null && dataTable.Rows.Count != 0)
-                list = dataTable.Rows.Cast<DataRow>().Select(dataRow => this.ConvertObjectByDataRow<T>(dataRow)).ToList();
+                list = dataTable.Rows.Cast<DataRow>().Select(dataRow => ConvertObjectByDataRow<T>(dataRow)).ToList();
             if (dataTable != null)
                 dataTable.Dispose();
             return list;

@@ -1,8 +1,10 @@
-﻿using System;
+﻿using CommonLib.Extensions.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -117,6 +119,19 @@ namespace CommonLib.DataUtil
         }
 
         /// <summary>
+        /// 获取所有记录，并按特定字段排序
+        /// </summary>
+        /// <param name="orderby">排序字段，假如为空则不排序</param>
+        /// <returns></returns>
+        public DataTable GetAllRecords(string orderby)
+        {
+            return _provider.GetAllRecords(TableName, orderby);
+            //string sql = string.Format("select t.*, 0 changed from {0} t {1}", TableName, string.IsNullOrWhiteSpace(orderby) ? string.Empty : "order by t." + orderby);
+            //return Provider.Query(sql);
+        }
+
+        #region CheckForTableColumns
+        /// <summary>
         /// 检查数据表的字段，假如缺少字段则增加
         /// </summary>
         public virtual bool CheckForTableColumns()
@@ -165,15 +180,36 @@ namespace CommonLib.DataUtil
         }
 
         /// <summary>
-        /// 获取所有记录，并按特定字段排序
+        /// 查找指定命名空间下继承BaseDataServiceBatisSqlite的符合给定条件的所有子类，并执行其中的CheckForTableColumns方法（无参）
         /// </summary>
-        /// <param name="orderby">排序字段，假如为空则不排序</param>
-        /// <returns></returns>
-        public DataTable GetAllRecords(string orderby)
+        /// <param name="nameSpace">命名空间全名（或一部分），区分大小写</param>
+        /// <param name="subSpaceIncl">是否查找子命名空间</param>
+        /// <param name="typeNameIncl">查找时限定类名的一部分，假如为空则不限定</param>
+        ///// <param name="baseType">查找类时限定的从中继承的类（仅检查类型名称及命名空间是否相同），假如为空则不限定</param>
+        public static void CallMethodForWholeShebang_CheckForTableColumns(string nameSpace, bool subSpaceIncl = false, string typeNameIncl = null/*, Type baseType = null*/)
         {
-            return _provider.GetAllRecords(TableName, orderby);
-            //string sql = string.Format("select t.*, 0 changed from {0} t {1}", TableName, string.IsNullOrWhiteSpace(orderby) ? string.Empty : "order by t." + orderby);
-            //return Provider.Query(sql);
+            var serviceTypes = Assembly.GetEntryAssembly().GetTypesInNamespace(nameSpace, subSpaceIncl, typeNameIncl, typeof(BaseDataServiceSqlite));
+            if (serviceTypes != null && serviceTypes.Length > 0)
+            {
+                foreach (var type in serviceTypes)
+                {
+                    var obj = Activator.CreateInstance(type);
+                    MethodInfo checkMethod = type.GetMethod("CheckForTableColumns", Type.EmptyTypes);
+                    checkMethod.Invoke(obj, null);
+                }
+            }
         }
+
+        /// <summary>
+        /// 查找与当前类相同命名空间下继承BaseDataServiceBatisSqlite的符合给定条件的所有子类，并执行其中的CheckForTableColumns方法（无参）
+        /// </summary>
+        /// <param name="subSpaceIncl">是否查找子命名空间</param>
+        /// <param name="typeNameIncl">查找时限定类名的一部分，假如为空则不限定</param>
+        public void CallMethodForWholeShebang_CheckForTableColumns(bool subSpaceIncl = false, string typeNameIncl = null)
+        {
+            var type = GetType();
+            CallMethodForWholeShebang_CheckForTableColumns(type.Namespace, subSpaceIncl, typeNameIncl);
+        }
+        #endregion
     }
 }

@@ -123,7 +123,8 @@ namespace CommonLib.Extensions
         /// <returns>假如处于连接状态，返回true，否则返回false</returns>
         public static bool IsSocketConnected(this TcpClient client)
         {
-            return client != null && client.Client != null && client.Client.IsSocketConnected();
+            try { return client != null && client.Client != null && client.Client.IsSocketConnected(); }
+            catch (Exception) { return false; }
         }
 
         /// <summary>
@@ -132,7 +133,8 @@ namespace CommonLib.Extensions
         /// <returns>假如处于连接状态，返回true，否则返回false</returns>
         public static bool IsSocketConnected(this UdpClient client)
         {
-            return client != null && client.Client != null && client.Client.IsSocketConnected();
+            try { return client != null && client.Client != null && client.Client.IsSocketConnected(); }
+            catch (Exception) { return false; }
         }
 
         /// <summary>
@@ -141,7 +143,9 @@ namespace CommonLib.Extensions
         /// <returns>假如处于连接状态，返回true，否则返回false</returns>
         public static bool IsSocketConnected(this Socket socket)
         {
-            return (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected;
+            //try { return (!socket.Poll(1000, SelectMode.SelectRead) || socket.Available != 0) && socket.Connected; }
+            try { return socket != null && socket.Connected && (socket.Available != 0 || !socket.Poll(1000, SelectMode.SelectRead)); }
+            catch (Exception) { return false;}
         }
 
         /// <summary>

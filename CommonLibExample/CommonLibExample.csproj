@@ -198,10 +198,14 @@
     <Compile Include="PropertyMapper\Model\City.cs" />
     <Compile Include="PropertyMapper\Model\Enums.cs" />
     <Compile Include="PropertyMapper\Model\School.cs" />
+    <Compile Include="PropertyMapper\Model\Source.cs" />
+    <Compile Include="PropertyMapper\Model\SourceInherit.cs" />
     <Compile Include="PropertyMapper\Model\Student.cs" />
     <Compile Include="PropertyMapper\Model\StudentSource.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyMapper\Model\Target.cs" />
+    <Compile Include="PropertyMapper\Model\TargetInherit.cs" />
     <Compile Include="PropertyMapper\PropertyMapperExample.cs" />
     <Compile Include="SystemTask\TaskExample.cs" />
     <Compile Include="Tasks\ExampleTask.cs" />

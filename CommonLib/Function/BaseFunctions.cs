@@ -19,6 +19,8 @@ using CommonLib.UIControlUtil.WPF;
 using System.Runtime.InteropServices;
 using CommonLib.Helpers;
 using System.Web.UI.WebControls;
+using System.Drawing.Design;
+using CommonLib.Extensions;
 
 namespace CommonLib.Function
 {
@@ -63,6 +65,39 @@ namespace CommonLib.Function
     /// </summary>
     public static class Functions
     {
+        /// <summary>
+        /// 根据给定的整数序列描述字符串（形如“-5,-3~-1,3,6~10”）输出整数序列
+        /// </summary>
+        /// <param name="descp">整数序列的描述字符串（形如“-5,-3~-1,3,6~10”）</param>
+        /// <param name="splitChar">描述数字分隔关系的字符，默认为,</param>
+        /// <param name="intervalChar">描述区间起始结束关系的字符，默认为~（为避免负数不要使用-）</param>
+        /// <returns></returns>
+        public static List<int> GetIntegerListByString(string descp, char splitChar = ',', char intervalChar = '~')
+        {
+            var list = new List<int>();
+            if (string.IsNullOrWhiteSpace(descp))
+                goto END;
+            //string[] splits1 = descp.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] splits1 = descp.Split(new char[] { splitChar }, StringSplitOptions.RemoveEmptyEntries);
+            if (splits1 == null || splits1.Length == 0)
+                goto END;
+            foreach (var split in splits1)
+            {
+                //string[] splits2 = split.Split(new char[] { '~' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] splits2 = split.Split(new char[] { intervalChar }, StringSplitOptions.RemoveEmptyEntries);
+                if (!int.TryParse(splits2[0], out int start))
+                    continue;
+                int end = splits2.Length >= 2 && int.TryParse(splits2[1], out end) ? end : start;
+                if (end < start)
+                    MathExtension.Swap(ref start, ref end);
+                for (int i = start; i <= end; i++)
+                    list.Add(i);
+            }
+            //list.Sort();
+        END:
+            return list;
+        }
+
         /// <summary>
         /// 获取IPV4的地址
         /// </summary>

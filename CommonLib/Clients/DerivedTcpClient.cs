@@ -58,7 +58,7 @@ namespace CommonLib.Clients
         private int receiveBufferSize = 32768;
         private bool autoReceive = true;
         private IPEndPoint remote_endpoint, local_endpoint;
-        private readonly TimerEventRaiser raiser = new TimerEventRaiser(1000);
+        private readonly TimerEventRaiser _noRcvrRaiser = new TimerEventRaiser(1000); //超时未接收触发器
         #endregion
 
         #region 成员属性
@@ -176,12 +176,22 @@ namespace CommonLib.Clients
         public bool ReconnectWhenReceiveNone { get; set; }
 
         /// <summary>
-        /// 计时阈值，计时达到此值触发事件，单位毫秒，默认5000
+        /// 超时未接收到数据的计时阈值，计时达到此值时触发事件，单位毫秒，默认5000
         /// </summary>
+        [Obsolete]
         public int RaiseThreshold
         {
-            get { return (int)raiser.RaiseThreshold; }
-            set { raiser.RaiseThreshold = value < 0 ? 0 : (ulong)value; }
+            get { return (int)_noRcvrRaiser.RaiseThreshold; }
+            set { _noRcvrRaiser.RaiseThreshold = value < 0 ? 0 : (ulong)value; }
+        }
+
+        /// <summary>
+        /// 超时未接收到数据的计时阈值，计时达到此值时触发事件，单位毫秒，默认5000
+        /// </summary>
+        public int NoneReceivedThreshold
+        {
+            get { return (int)_noRcvrRaiser.RaiseThreshold; }
+            set { _noRcvrRaiser.RaiseThreshold = value < 0 ? 0 : (ulong)value; }
         }
 
         /// <summary>
@@ -194,10 +204,10 @@ namespace CommonLib.Clients
         /// </summary>
         private Thread Thread_TcpReconnect { get; set; }
 
-        /// <summary>
-        /// 控制TCP重连线程的AutoResetEvent，初始状态为非终止
-        /// </summary>
-        private AutoResetEvent Auto_TcpReconnect { get; set; }
+        ///// <summary>
+        ///// 控制TCP重连线程的AutoResetEvent，初始状态为非终止
+        ///// </summary>
+        //private AutoResetEvent Auto_TcpReconnect { get; set; }
         #endregion
 
         /// <summary>
@@ -225,15 +235,15 @@ namespace CommonLib.Clients
             LastErrorMessage = string.Empty;
             Name = string.Empty;
             ReceiveRestTime = 0;
-
-            raiser.RaiseThreshold = 10000;
-            raiser.RaiseInterval = 5000;
-            raiser.ThresholdReached += new ThresholdReachedEventHandler(Raiser_ThresholdReached);
+            //超时未接收数据的触发器
+            _noRcvrRaiser.RaiseThreshold = 10000;
+            _noRcvrRaiser.RaiseInterval = 5000;
+            _noRcvrRaiser.ThresholdReached += new ThresholdReachedEventHandler(NoneReceived_ThresholdReached);
         }
 
-        private void Raiser_ThresholdReached(object sender, ThresholdReachedEventArgs e)
+        private void NoneReceived_ThresholdReached(object sender, ThresholdReachedEventArgs e)
         {
-            OnNoneReceived?.Invoke(this, new NoneReceivedEventArgs((ulong)RaiseThreshold)); //调用超时未接收的事件委托
+            OnNoneReceived?.Invoke(this, new NoneReceivedEventArgs((ulong)NoneReceivedThreshold)); //调用超时未接收的事件委托
             if (!ReconnectWhenReceiveNone)
                 return;
 
@@ -324,7 +334,7 @@ namespace CommonLib.Clients
 
                 BaseClient.ReceiveBufferSize = ReceiveBufferSize; //接收缓冲区的大小
                 NetStream = BaseClient.GetStream(); //发送与接收数据的数据流对象
-                raiser.Run();
+                _noRcvrRaiser.Run();
             }
             catch (Exception e)
             {
@@ -344,13 +354,13 @@ namespace CommonLib.Clients
                 Connected?.BeginInvoke(Name, (new EventArgs()), null, null);
                 if (Thread_TcpReconnect == null)
                 {
-                    Auto_TcpReconnect = new AutoResetEvent(true);
+                    //Auto_TcpReconnect = new AutoResetEvent(true);
                     Thread_TcpReconnect = new Thread(new ThreadStart(TcpAutoReconnect)) { IsBackground = true };
                     //Thread_TcpReconnect.IsBackground = true;
                     Thread_TcpReconnect.Start();
                 }
-                else
-                    Auto_TcpReconnect.Set();
+                //else
+                //    Auto_TcpReconnect.Set();
                 if (AutoReceive)
                     NetStream.BeginRead(Buffer, 0, Buffer.Length, new AsyncCallback(TcpCallBack), this);
             }
@@ -399,7 +409,8 @@ namespace CommonLib.Clients
 
                 //假如属性提示未连接，则TCP重连线程挂起
                 if (!IsConnected)
-                    Auto_TcpReconnect.WaitOne();
+                    //Auto_TcpReconnect.WaitOne(); //会造成“已关闭Safe Handle”错误，原因未知，暂时停用
+                    continue;
                 //假如属性提示已连接但实际上连接已断开，尝试重连
                 //else if (IsConnected && !IsSocketConnected())
                 else if (IsConnected && !IsConnected_Socket)
@@ -470,7 +481,7 @@ namespace CommonLib.Clients
                 if (recdata.Length > 0)
                 {
                     DataReceived?.BeginInvoke(client.Name, new Events.DataReceivedEventArgs(recdata), null, null); //异步输出数据
-                    raiser.Click();
+                    _noRcvrRaiser.Click();
                     if (ReceiveRestTime > 0)
                         Thread.Sleep(ReceiveRestTime);
                     if (AutoReceive)
@@ -511,7 +522,7 @@ namespace CommonLib.Clients
         {
             Thread_TcpReconnect.Abort();
             Thread_TcpReconnect = null;
-            Auto_TcpReconnect.Dispose();
+            //Auto_TcpReconnect.Dispose();
         }
 
         /// <summary>
@@ -540,7 +551,7 @@ namespace CommonLib.Clients
                     Disconnected?.BeginInvoke(Name, new EventArgs(), null, null);
 
                     BaseClient = null;
-                    raiser.Stop();
+                    _noRcvrRaiser.Stop();
                 }
             }
             catch (Exception e)

@@ -83,10 +83,30 @@
         <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.ProviderQuery(System.String)">
             <inheritdoc/>
         </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.CheckForTableColumns">
+            <summary>
+            检查数据表的字段，假如缺少字段则增加
+            </summary>
+        </member>
         <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.CheckForTableColumns(System.String@)">
             <summary>
             检查数据表的字段，假如缺少字段则增加
             </summary>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.CallMethodForWholeShebang_CheckForTableColumns(System.String,System.Boolean,System.String)">
+            <summary>
+            查找指定命名空间下继承BaseDataServiceBatisSqlite的符合给定条件的所有子类，并执行其中的CheckForTableColumns方法（无参）
+            </summary>
+            <param name="nameSpace">命名空间全名（或一部分），区分大小写</param>
+            <param name="subSpaceIncl">是否查找子命名空间</param>
+            <param name="typeNameIncl">查找时限定类名的一部分，假如为空则不限定</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceBatisSqlite`1.CallMethodForWholeShebang_CheckForTableColumns(System.Boolean,System.String)">
+            <summary>
+            查找与当前类相同命名空间下继承BaseDataServiceBatisSqlite的符合给定条件的所有子类，并执行其中的CheckForTableColumns方法（无参）
+            </summary>
+            <param name="subSpaceIncl">是否查找子命名空间</param>
+            <param name="typeNameIncl">查找时限定类名的一部分，假如为空则不限定</param>
         </member>
         <member name="T:CommonLib.DataUtil.BaseDataServiceSqlite">
             <summary>
@@ -160,6 +180,13 @@
             <param name="message"></param>
             <returns></returns>
         </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.GetAllRecords(System.String)">
+            <summary>
+            获取所有记录，并按特定字段排序
+            </summary>
+            <param name="orderby">排序字段，假如为空则不排序</param>
+            <returns></returns>
+        </member>
         <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.CheckForTableColumns">
             <summary>
             检查数据表的字段，假如缺少字段则增加
@@ -191,12 +218,20 @@
             <param name="message"></param>
             <returns></returns>
         </member>
-        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.GetAllRecords(System.String)">
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.CallMethodForWholeShebang_CheckForTableColumns(System.String,System.Boolean,System.String)">
             <summary>
-            获取所有记录，并按特定字段排序
+            查找指定命名空间下继承BaseDataServiceBatisSqlite的符合给定条件的所有子类，并执行其中的CheckForTableColumns方法（无参）
             </summary>
-            <param name="orderby">排序字段，假如为空则不排序</param>
-            <returns></returns>
+            <param name="nameSpace">命名空间全名（或一部分），区分大小写</param>
+            <param name="subSpaceIncl">是否查找子命名空间</param>
+            <param name="typeNameIncl">查找时限定类名的一部分，假如为空则不限定</param>
+        </member>
+        <member name="M:CommonLib.DataUtil.BaseDataServiceSqlite.CallMethodForWholeShebang_CheckForTableColumns(System.Boolean,System.String)">
+            <summary>
+            查找与当前类相同命名空间下继承BaseDataServiceBatisSqlite的符合给定条件的所有子类，并执行其中的CheckForTableColumns方法（无参）
+            </summary>
+            <param name="subSpaceIncl">是否查找子命名空间</param>
+            <param name="typeNameIncl">查找时限定类名的一部分，假如为空则不限定</param>
         </member>
         <member name="T:CommonLib.DataUtil.SqliteColumnMapping">
             <summary>

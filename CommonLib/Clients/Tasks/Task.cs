@@ -313,8 +313,7 @@ namespace CommonLib.Clients.Tasks
                 }
                 catch (Exception e) { _errorMessage = string.Format("{0}: {1}", GetType().Name, e.Message); }
                 //任务每循环一次完毕事件
-                if (ContentLooped != null)
-                    ContentLooped.BeginInvoke(this, new TaskContentLoopedEventArgs(LoopCounter, _errorMessage), null, null);
+                ContentLooped?.BeginInvoke(this, new TaskContentLoopedEventArgs(LoopCounter, _errorMessage), null, null);
                 FlushLogs();
                 PrintErrorMessage();
                 if (AutoRestart && RestartInterval > Interval && _stopwatch.ElapsedMilliseconds >= RestartInterval)
@@ -324,11 +323,9 @@ namespace CommonLib.Clients.Tasks
                 }
             }
             //任务停止事件
-            if (StateChanged != null)
-                StateChanged.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
+            StateChanged?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
             //任务停止事件（重启用）
-            if (StateChangedAfterRestart != null)
-                StateChangedAfterRestart.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
+            StateChangedAfterRestart?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
         }
         #endregion
 

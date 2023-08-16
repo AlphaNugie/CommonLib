@@ -40,9 +40,9 @@ namespace CommonLib.Function
 
         #region 私有成员
         private const uint DEFAULT_INTERVAL = 1000, DEFAULT_RAISE_THRESHOLD = 5000;
-        private readonly Timer timer = new Timer();
-        private uint interval = DEFAULT_INTERVAL, /*counter, raise_threshold = DEFAULT_RAISE_THRESHOLD, */raised_counter, raise_interval = DEFAULT_RAISE_THRESHOLD;
-        private ulong counter, raise_threshold = DEFAULT_RAISE_THRESHOLD;
+        private readonly Timer _timer = new Timer();
+        private uint _interval = DEFAULT_INTERVAL, /*_raisedTimes, */_raiseInterval = DEFAULT_RAISE_THRESHOLD;
+        private ulong /*_counter, */_raiseThreshold = DEFAULT_RAISE_THRESHOLD;
         #endregion
 
         #region 属性
@@ -51,11 +51,11 @@ namespace CommonLib.Function
         /// </summary>
         public uint Interval
         {
-            get { return interval; }
+            get { return _interval; }
             set
             {
-                interval = value > 0 ? value : DEFAULT_INTERVAL; //为0则赋值为默认值
-                timer.Interval = interval;
+                _interval = value > 0 ? value : DEFAULT_INTERVAL; //为0则赋值为默认值
+                _timer.Interval = _interval;
             }
         }
 
@@ -64,43 +64,43 @@ namespace CommonLib.Function
         /// </summary>
         public uint RaiseInterval
         {
-            //未曾触发事件时触发间隔以触发阈值为准
-            //get { return raised_counter == 0 ? raise_threshold : raise_interval; }
-            get { return raise_interval; }
-            set { raise_interval = value > 0 ? value : DEFAULT_RAISE_THRESHOLD; }
+            get { return _raiseInterval; }
+            set { _raiseInterval = value > 0 ? value : DEFAULT_RAISE_THRESHOLD; }
         }
 
         /// <summary>
         /// 计时器，计时间隔的累加，大于触发间隔后不再累加
         /// </summary>
-        public ulong Counter
-        {
-            get { return counter; }
-            private set
-            {
-                ////计时长度大于触发间隔后不再累加
-                //if (value <= RaiseInterval)
-                    counter = value;
-            }
-        }
+        public ulong Counter { get;set; }
+        //{
+        //    get { return _counter; }
+        //    private set
+        //    {
+        //        ////计时长度大于触发间隔后不再累加
+        //        //if (value <= RaiseInterval)
+        //            _counter = value;
+        //    }
+        //}
 
         /// <summary>
         /// 计时达到阈值的次数
         /// </summary>
-        public uint RaisedTimes
-        {
-            get { return raised_counter; }
-            private set { raised_counter = value; }
-        }
+        public uint RaisedTimes { get; private set; }
+        //{
+        //    get { return _raisedTimes; }
+        //    private set { _raisedTimes = value; }
+        //}
 
         /// <summary>
         /// 计时阈值，计时达到此值触发事件，单位毫秒，默认5000
         /// </summary>
         public ulong RaiseThreshold
         {
-            //get { return raise_threshold; }
-            get { return raise_threshold + raised_counter * raise_interval; }
-            set { raise_threshold = value > 0 ? value : DEFAULT_RAISE_THRESHOLD; }
+            //get { return _raiseThreshold; }
+            //假如不重置，计时器将一直累加，每次判断的阈值都加上触发的次数x触发间隔，已达到每两次触发之间至少有一个触发间隔的时间长度的效果
+            //get { return _raiseThreshold + _raisedTimes * _raiseInterval; }
+            get { return _raiseThreshold + RaisedTimes * _raiseInterval; }
+            set { _raiseThreshold = value > 0 ? value : DEFAULT_RAISE_THRESHOLD; }
         }
         #endregion
 
@@ -112,7 +112,7 @@ namespace CommonLib.Function
         public TimerEventRaiser(uint interval)
         {
             Interval = interval;
-            timer.Elapsed += new ElapsedEventHandler(TimerElapsed);
+            _timer.Elapsed += new ElapsedEventHandler(TimerElapsed);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace CommonLib.Function
         /// </summary>
         public void Run()
         {
-            timer.Start();
+            _timer.Start();
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace CommonLib.Function
         /// </summary>
         public void Stop()
         {
-            timer.Stop();
+            _timer.Stop();
             Reset();
         }
 
@@ -144,7 +144,9 @@ namespace CommonLib.Function
         /// </summary>
         public void Reset()
         {
-            counter = 0;
+            //_counter = 0;
+            //_raisedTimes = 0;
+            Counter = 0;
             RaisedTimes = 0;
         }
 
@@ -153,8 +155,8 @@ namespace CommonLib.Function
         /// </summary>
         public void Raise()
         {
-            if (ThresholdReached != null)
-                ThresholdReached.BeginInvoke(this, new ThresholdReachedEventArgs(counter, ++RaisedTimes), null, null);
+            //ThresholdReached?.BeginInvoke(this, new ThresholdReachedEventArgs(_counter, ++_raisedTimes), null, null);
+            ThresholdReached?.BeginInvoke(this, new ThresholdReachedEventArgs(Counter, ++RaisedTimes), null, null);
             //counter = 0;
         }
 
@@ -165,8 +167,7 @@ namespace CommonLib.Function
         public void Click(string message)
         {
             Reset();
-            if (Clicked != null)
-                Clicked.BeginInvoke(this, new ClickedEventArgs(message), null, null);
+            Clicked?.BeginInvoke(this, new ClickedEventArgs(message), null, null);
         }
 
         /// <summary>
@@ -185,10 +186,15 @@ namespace CommonLib.Function
         /// <param name="e"></param>
         public void TimerElapsed(object sender, ElapsedEventArgs e)
         {
-            Counter += Interval;
-            //if (counter >= RaiseThreshold && counter >= RaiseInterval)
-            if (counter >= RaiseThreshold)
+            //_counter += _interval;
+            //if (_counter >= RaiseThreshold)
+            //    Raise();
+            Counter += _interval;
+            if (Counter >= RaiseThreshold)
                 Raise();
+            ////假如不重置，计时器将一直累加，每次判断的阈值都加上触发的次数x触发间隔，已达到每两次触发之间至少有一个触发间隔的时间长度的效果
+            //if (_counter >= _raiseThreshold + _raisedTimes * _raiseInterval)
+            //    Raise();
         }
     }
 

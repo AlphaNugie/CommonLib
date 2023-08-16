@@ -32,10 +32,10 @@ namespace CommonLib.Clients
         /// </summary>
         private List<TcpClient> clientList = new List<TcpClient>();
 
-        /// <summary>
-        /// 客户端字典
-        /// </summary>
-        private Dictionary<string, TcpClient> clientDict = new Dictionary<string, TcpClient>();
+        ///// <summary>
+        ///// 客户端字典
+        ///// </summary>
+        //private Dictionary<string, TcpClient> clientDict = new Dictionary<string, TcpClient>();
         #endregion
 
         #region 属性
@@ -74,14 +74,14 @@ namespace CommonLib.Clients
         /// </summary>
         public int ReceiveBufferSize
         {
-            get { return this.receiveBufferSize; }
+            get { return receiveBufferSize; }
             set
             {
-                this.receiveBufferSize = value;
-                if (this.receiveBufferSize > 0)
+                receiveBufferSize = value;
+                if (receiveBufferSize > 0)
                 {
-                    this.BaseListener.Server.ReceiveBufferSize = this.receiveBufferSize;
-                    this.Buffer = new byte[this.receiveBufferSize];
+                    BaseListener.Server.ReceiveBufferSize = receiveBufferSize;
+                    Buffer = new byte[receiveBufferSize];
                 }
             }
         }
@@ -96,8 +96,8 @@ namespace CommonLib.Clients
         /// </summary>
         public List<TcpClient> ClientList
         {
-            get { return this.clientList; }
-            private set { this.clientList = value; }
+            get { return clientList; }
+            private set { clientList = value; }
         }
 
         //public Dictionary<string>
@@ -115,9 +115,9 @@ namespace CommonLib.Clients
         /// <param name="port">端口号</param>
         public DerivedTcpListener(string ipAddress, int port)
         {
-            this.ServerIp = ipAddress;
-            this.ServerPort = port;
-            this.Start();
+            ServerIp = ipAddress;
+            ServerPort = port;
+            Start();
         }
         
         /// <summary>
@@ -125,12 +125,12 @@ namespace CommonLib.Clients
         /// </summary>
         public void SetName()
         {
-            this.Name = this.ServerIp + ":" + this.ServerPort;
+            Name = ServerIp + ":" + ServerPort;
             //try
             //{
-            //    IPEndPoint local = (IPEndPoint)this.BaseListener.Server.LocalEndPoint;
-            //    this.Name = local.ToString();
-            //    this.Name = this.ServerIp + ":" + this.ServerPort;
+            //    IPEndPoint local = (IPEndPoint)BaseListener.Server.LocalEndPoint;
+            //    Name = local.ToString();
+            //    Name = ServerIp + ":" + ServerPort;
             //}
             //catch { }
         }
@@ -140,18 +140,18 @@ namespace CommonLib.Clients
         /// </summary>
         public bool Start()
         {
-            this.Stop();
+            Stop();
             try
             {
-                this.BaseListener = new TcpListener(new IPEndPoint(IPAddress.Parse(this.ServerIp), this.ServerPort));
-                this.ReceiveBufferSize = 2048;
-                this.BaseListener.Start();
-                this.SetName();
-                this.BaseListener.BeginAcceptTcpClient(new AsyncCallback(this.TcpClientAcceptCallBack), this.BaseListener); //开始异步接受TCP客户端的连接
+                BaseListener = new TcpListener(new IPEndPoint(IPAddress.Parse(ServerIp), ServerPort));
+                ReceiveBufferSize = 2048;
+                BaseListener.Start();
+                SetName();
+                BaseListener.BeginAcceptTcpClient(new AsyncCallback(TcpClientAcceptCallBack), BaseListener); //开始异步接受TCP客户端的连接
             }
             catch (Exception e)
             {
-                this.LastErrorMessage = e.Message;
+                LastErrorMessage = e.Message;
                 throw;
             }
             return true;
@@ -164,14 +164,12 @@ namespace CommonLib.Clients
         {
             try
             {
-                if (this.ClientList != null)
-                    this.ClientList.ForEach(client => client.Close());
-                if (this.BaseListener != null)
-                    this.BaseListener.Stop();
+                ClientList?.ForEach(client => client.Close());
+                BaseListener?.Stop();
             }
             catch (Exception e)
             {
-                this.LastErrorMessage = "服务端停止失败：" + e.Message;
+                LastErrorMessage = "服务端停止失败：" + e.Message;
                 //return false;
                 throw;
             }
@@ -191,17 +189,17 @@ namespace CommonLib.Clients
         {
             TcpListener listener = (TcpListener)asyncResult.AsyncState;
             TcpClient client = listener.EndAcceptTcpClient(asyncResult);
-            this.ClientList.Add(client);
+            ClientList.Add(client);
 
             try
             {
                 NetworkStream stream = client.GetStream();
-                stream.BeginRead(this.Buffer, 0, this.ReceiveBufferSize, new AsyncCallback(this.SocketCallBack), client);
+                stream.BeginRead(Buffer, 0, ReceiveBufferSize, new AsyncCallback(SocketCallBack), client);
             }
             catch (Exception ex)
             {
-                //this.LastErrorMessage = string.Format("从TCP客户端{0}异步获取数据时出错: {1}", client.ToString());
-                FileClient.WriteExceptionInfo(ex, string.Format("从Tcp客户端异步获取数据时出错：IP{0}，端口{1}", this.ServerIp, this.ServerPort), true);
+                //LastErrorMessage = string.Format("从TCP客户端{0}异步获取数据时出错: {1}", client.ToString());
+                FileClient.WriteExceptionInfo(ex, string.Format("从Tcp客户端异步获取数据时出错：IP{0}，端口{1}", ServerIp, ServerPort), true);
             }
         }
 
@@ -218,18 +216,17 @@ namespace CommonLib.Clients
             {
                 byte[] recdata = new byte[ns.EndRead(ar)];
                 Array.Copy(client.Buffer, recdata, recdata.Length);
-                //this.receivedEventArgs.ReceivedData = recdata;
-                //this.receivedEventArgs.ReceivedInfo = HexHelper.ByteArray2HexString
+                //receivedEventArgs.ReceivedData = recdata;
+                //receivedEventArgs.ReceivedInfo = HexHelper.ByteArray2HexString
                 if (recdata.Length > 0)
                 {
-                    if (this.DataReceived != null)
-                        this.DataReceived.BeginInvoke(client.Name, new CommonLib.Events.DataReceivedEventArgs(recdata), null, null); //异步输出数据
+                    DataReceived?.BeginInvoke(client.Name, new DataReceivedEventArgs(recdata), null, null); //异步输出数据
                     ns.BeginRead(client.Buffer, 0, client.Buffer.Length, new AsyncCallback(SocketCallBack), client);
                 }
             }
             catch (Exception ex)
             {
-                FileClient.WriteExceptionInfo(ex, string.Format("从TcpServer获取数据的过程中出错：IP地址{0}，端口{1}", this.ServerIp, this.ServerPort), true);
+                FileClient.WriteExceptionInfo(ex, string.Format("从TcpServer获取数据的过程中出错：IP地址{0}，端口{1}", ServerIp, ServerPort), true);
             }
         }
 
@@ -238,7 +235,7 @@ namespace CommonLib.Clients
         /// </summary>
         ~DerivedTcpListener()
         {
-            this.BaseListener.Stop();
+            BaseListener.Stop();
         }
     }
 }

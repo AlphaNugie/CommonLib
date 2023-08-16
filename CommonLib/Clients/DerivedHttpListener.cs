@@ -68,7 +68,7 @@ namespace CommonLib.Clients
         public string ResponseDescription { get; set; }
 
         /// <summary>
-        /// 网页浏览器访问的返回信息
+        /// 网页浏览器访问（POST之外方式，比如GET）的返回信息
         /// </summary>
         public string WebExplorerMessage { get; set; }
 

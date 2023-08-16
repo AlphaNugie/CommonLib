@@ -9,6 +9,7 @@ using CommonLib.UIControlUtil.ControlTemplates;
 using CommonLibExample.MathNet;
 using CommonLibExample.PropertyMapper;
 using CommonLibExample.PropertyMapper.Model;
+using CommonLibExample.SystemTask;
 using CommonLibExample.Tasks;
 using MathWorks.MATLAB.NET.Arrays;
 using MatlabFunctions;
@@ -5915,6 +5916,25 @@ namespace CommonLibExample
             //            content = string.Join("\r\n", splits);
             //            return;
             #endregion
+
+            #region PropertyMapper
+            //PropertyMapperExample.CopyToMethodInheritTest();
+            ////PropertyMapperExample.CopyToMethodTest();
+            ////PropertyMapperExample.CopyFromMethodTest();
+            //return;
+            #endregion
+
+            //var str = "-3,-10~-7,4,11~7";
+            //var list = Functions.GetIntegerListByString(str);
+            //return;
+
+            //int i = 0;
+            //Task task = Task.Run(() => { i = 10; });
+            //Thread.Sleep(1000);
+            //return;
+
+            //TaskExample.RunExample();
+            //return;
 
             //OpcConst.SqliteFileDir = @"D:\";
             //OpcConst.SqliteFileName = "test1.db";

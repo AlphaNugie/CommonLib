@@ -26,6 +26,11 @@ namespace CommonLib.DataUtil
         protected BatisLike batisLike;
 
         #region 公共属性
+        ///// <summary>
+        ///// Batis操作类
+        ///// </summary>
+        //public BatisLike BatisLike { get { return batisLike; } protected set { batisLike = value; } }
+
         /// <summary>
         /// 类型名称
         /// </summary>
@@ -85,7 +90,7 @@ namespace CommonLib.DataUtil
         public abstract DataTable ProviderQuery(string sqlString);
 
         /// <summary>
-        /// 执行Provider的
+        /// 执行Provider的ExecuteSql方法
         /// </summary>
         /// <param name="sqlString"></param>
         /// <returns></returns>

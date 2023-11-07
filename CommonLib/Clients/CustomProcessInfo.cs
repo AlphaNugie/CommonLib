@@ -7,6 +7,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -119,6 +120,11 @@ namespace CommonLib.Clients
             get { return _hMainWnd; }
             private set { _hMainWnd = (int)value != 0 ? value : _hMainWnd; }
         }
+
+        /// <summary>
+        /// 用于读取应用程序错误输出的流
+        /// </summary>
+        public StreamReader StandardErrorReader { get; set; }
         #endregion
 
         #region 构造器
@@ -217,7 +223,15 @@ namespace CommonLib.Clients
             if (process == null)
                 state = ResponseState.NotExisted;
             else
+            {
+                //var streamReader = StandardErrorReader;
+                //if (streamReader != null)
+                //{
+                //    var error = streamReader.ReadLine();
+                //    //var error = streamReader.ReadToEnd();
+                //}
                 state = process.Responding ? ResponseState.Responding : ResponseState.NotResponding;
+            }
             return state == ResponseState.Responding;
         }
 
@@ -236,28 +250,51 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="arguments">启动该进程时传递的命令行参数</param>
         /// <param name="killOthers">启动时是否关闭进程的其它实例</param>
-        public void Startup(string arguments, bool killOthers = false)
+        /// <returns>假如启动成功，则返回true，否则返回false</returns>
+        public bool Startup(string arguments, bool killOthers = false)
         {
+            bool result = false;
             //if (!string.IsNullOrWhiteSpace(FullName))
             //    try { Process.Start(FullName, arguments); } catch (Exception) { } //启动进程，附带命令行参数 
             if (string.IsNullOrWhiteSpace(FullName))
-                return;
+                goto END;
             if (killOthers)
                 Shutdown();
-            //启动进程，附带命令行参数（假如不为空）
-            try { var process = !string.IsNullOrWhiteSpace(arguments) ? Process.Start(FullName, arguments) : Process.Start(FullName); }
+            ////启动进程，附带命令行参数（假如不为空）
+            //try { var process = !string.IsNullOrWhiteSpace(arguments) ? Process.Start(FullName, arguments) : Process.Start(FullName); }
+            //进程启动的参数，附带命令行参数（假如不为空）
+            var startInfo = !string.IsNullOrWhiteSpace(arguments) ? new ProcessStartInfo(FullName, arguments) : new ProcessStartInfo(FullName);
+            #region 假如需要重新定向输出的错误信息，则取消注释
+            //startInfo.UseShellExecute = false;
+            ////重定向StandardError流，以准备读取程序输出的错误
+            //startInfo.RedirectStandardError = true;
+            #endregion
+            try
+            {
+                var process = Process.Start(startInfo);
+                if (process == null)
+                    goto END;
+                process.ErrorDataReceived += new DataReceivedEventHandler(Process_ErrorDataReceived);
+                result = true;
+            }
             catch (Exception) { }
+            END:
+            return result;
+        }
+
+        private void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            var data = e.Data;
         }
 
         /// <summary>
         /// 启动进程
         /// </summary>
         /// <param name="killOthers">启动时是否关闭进程的其它实例</param>
-        public void Startup(bool killOthers = false)
+        /// <returns>假如启动成功，则返回true，否则返回false</returns>
+        public bool Startup(bool killOthers = false)
         {
-            //if (!string.IsNullOrWhiteSpace(FullName))
-            //    try { Process.Start(FullName); } catch (Exception) { }
-            Startup(null, killOthers);
+            return Startup(null, killOthers);
         }
 
         /// <summary>

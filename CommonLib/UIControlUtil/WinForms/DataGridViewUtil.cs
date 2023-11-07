@@ -114,7 +114,7 @@ namespace CommonLib.UIControlUtil
         /// <summary>
         /// 获取DataGridView的所有选中行，不受SelectionMode影响
         /// </summary>
-        /// <param name="gridView"></param>
+        /// <param name="gridView">当前DataGridView</param>
         /// <returns></returns>
         public static List<DataGridViewRow> GetSelectedRows(this DataGridView gridView)
         {
@@ -127,6 +127,61 @@ namespace CommonLib.UIControlUtil
             gridViewRows.AddRange(gridView.SelectedCells.Cast<DataGridViewCell>().Where(gridViewCell => !gridViewRows.Any(row => row.Index == gridViewCell.RowIndex)).Select(gridViewCell => gridViewCell.OwningRow));
             END:
             return gridViewRows;
+        }
+
+        /// <summary>
+        /// 根据给定索引获取DataGridView的某一行，假如超出范围（小于0或大于等于总行数）则返回空
+        /// </summary>
+        /// <param name="gridView">当前DataGridView</param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static DataGridViewRow GetRowByIndex(this DataGridView gridView, int index)
+        {
+            return gridView == null || index < 0 || index >= gridView.Rows.Count ? null : gridView.Rows[index];
+        }
+
+        /// <summary>
+        /// 在当前DataGridView中根据行索引选中给定的行
+        /// </summary>
+        /// <param name="gridView">当前DataGridView</param>
+        /// <param name="index">给定行的索引，假如超出范围（小于0或大于等于总行数）则不继续向下进行任何操作</param>
+        /// <param name="fullRowSelect">设置SelectionMode为FullRowSelect，假如为null或false则不设置</param>
+        /// <param name="multiSelect">设置是否允许多选，假如为null则不设置</param>
+        /// <returns></returns>
+        public static bool SetRowSelected(this DataGridView gridView, int index, bool? fullRowSelect = null, bool? multiSelect = null)
+        {
+            return gridView == null || index < 0 || index >= gridView.Rows.Count ? false : SetRowSelected(gridView, gridView.GetRowByIndex(index), fullRowSelect, multiSelect);
+        }
+
+        /// <summary>
+        /// 在当前DataGridView中选中给定的行
+        /// </summary>
+        /// <param name="gridView">当前DataGridView</param>
+        /// <param name="viewRow">给定行对象，假如为空则不继续向下进行任何操作</param>
+        /// <param name="fullRowSelect">设置SelectionMode为FullRowSelect，假如为null或false则不设置</param>
+        /// <param name="multiSelect">设置是否允许多选，假如为null则不设置</param>
+        /// <returns></returns>
+        public static bool SetRowSelected(this DataGridView gridView, DataGridViewRow viewRow, bool? fullRowSelect = null, bool? multiSelect = null)
+        {
+            if (gridView == null || viewRow == null || viewRow.DataGridView == null) return false;
+            //选中当前行
+            viewRow.Selected = true;
+            //获取第一个可见列及其名称（假如至少有一列可见）
+            var column = gridView.Columns.GetFirstColumn(DataGridViewElementStates.Visible);
+            if (column == null) return false;
+            //选择当前行的第一个可见单元格，选中单元格后滚动条将自动移动到当前行位置（设置不可见的单元格，程序将跳出）
+            if (fullRowSelect != null && fullRowSelect.Value) gridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            if (multiSelect != null) gridView.MultiSelect = multiSelect.Value;
+            gridView.CurrentCell = viewRow.Cells[column.Name];
+            ////每行恢复默认背景色，然后将当前行颜色改变
+            //foreach (DataGridViewRow row in dataGridView_Meters.Rows)
+            //{
+            //    row.DefaultCellStyle.BackColor = Color.White;
+            //    row.DefaultCellStyle.ForeColor = Color.Black;
+            //}
+            //viewRow.DefaultCellStyle.BackColor = Color.Orange;
+            //viewRow.DefaultCellStyle.ForeColor = Color.White;
+            return true;
         }
     }
 }

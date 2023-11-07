@@ -84,6 +84,11 @@ namespace CommonLib.DataUtil
         #endregion
 
         /// <summary>
+        /// 查询后的记录排序<para/>在底层方法BatisLike.ConvertObjectListByDataTable方法中赋值
+        /// </summary>
+        public int Rownumber { get; set; }
+
+        /// <summary>
         /// 显示的名称
         /// </summary>
         public string ViewName { get; set; }

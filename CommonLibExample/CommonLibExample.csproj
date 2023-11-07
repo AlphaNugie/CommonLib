@@ -86,6 +86,9 @@
     <Reference Include="ScanUtilityLibrary">
       <HintPath>..\..\..\SCANNING\ScanUtilityLibrary\ScanUtilityLibrary\bin\Debug\ScanUtilityLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="SocketHelper">
+      <HintPath>..\..\..\_Old_Assembly\SocketHelper\SocketHelper\bin\Debug\SocketHelper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -121,6 +124,12 @@
     </Compile>
     <Compile Include="Forms\FormSineWaves.Designer.cs">
       <DependentUpon>FormSineWaves.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormTests.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormTests.Designer.cs">
+      <DependentUpon>FormTests.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FormTextBoxes.cs">
       <SubType>Form</SubType>
@@ -210,6 +219,10 @@
     <Compile Include="SystemTask\TaskExample.cs" />
     <Compile Include="Tasks\ExampleTask.cs" />
     <Compile Include="Tasks\ExampleTaskTest.cs" />
+    <Compile Include="Tasks\ExampleTask_RestartWhileFrozen.cs" />
+    <Compile Include="Tasks\HttpListenserTask.cs" />
+    <Compile Include="Tasks\TcpServerTask.cs" />
+    <Compile Include="Test\AppCrashTest.cs" />
     <EmbeddedResource Include="Forms\FormControls.resx">
       <DependentUpon>FormControls.cs</DependentUpon>
     </EmbeddedResource>
@@ -218,6 +231,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormSineWaves.resx">
       <DependentUpon>FormSineWaves.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormTests.resx">
+      <DependentUpon>FormTests.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormTextBoxes.resx">
       <DependentUpon>FormTextBoxes.cs</DependentUpon>
@@ -281,6 +297,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommonLib.AppCrash\CommonLib.AppCrash.csproj">
+      <Project>{ca81337f-0797-47a0-99c4-ae2573763bfe}</Project>
+      <Name>CommonLib.AppCrash</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CommonLib.DataUtil.OracleProviderLib\CommonLib.DataUtil.OracleProviderLib.csproj">
       <Project>{f5c04513-a6e1-4835-9533-d5fdcdb90ff8}</Project>
       <Name>CommonLib.DataUtil.OracleProviderLib</Name>

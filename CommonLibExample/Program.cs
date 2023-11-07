@@ -1,4 +1,5 @@
 ﻿using CommonLib.Clients;
+using CommonLib.Clients.Tasks;
 using CommonLib.DataUtil;
 using CommonLib.Extensions;
 using CommonLib.Extensions.Property;
@@ -25,7 +26,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
 
@@ -5924,6 +5924,15 @@ namespace CommonLibExample
             //return;
             #endregion
 
+            //var list = MathUtil.GetNumberPairsByString("doesn't make any sense", ';');
+            //double input = 5;
+            //bool inrange = input.Between(list, true);
+            //list = new List<double[]> { new double[] { -99, -15 }, new double[] { 13, 110 } };
+            //inrange = input.Between(list, true);
+            //list = new List<double[]> { new double[] { -9, 15 }, new double[] { 43, 410 } };
+            //inrange = input.Between(list, true);
+            //return;
+
             //var str = "-3,-10~-7,4,11~7";
             //var list = Functions.GetIntegerListByString(str);
             //return;
@@ -6098,11 +6107,44 @@ namespace CommonLibExample
             //int i = "13".ConvertType<int>();
             #endregion
 
+            InitTasks();
             //START:
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledException_Raising); //未捕获异常触发事件
+            //任务
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FormMain());
         }
+
+        /// <summary>
+        /// 任务初始化
+        /// </summary>
+        private static void InitTasks()
+        {
+            var list = new List<Task>()
+            {
+                new HttpListenserTask(),
+                new TcpServerTask(),
+            };
+            list.ForEach(task =>
+            {
+                task.Initialize();
+                task.Run();
+            });
+        }
+
+        #region 事件
+        /// <summary>
+        /// 未捕获异常触发事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private static void UnhandledException_Raising(object sender, UnhandledExceptionEventArgs args)
+        {
+            Exception e = (Exception)args.ExceptionObject;
+            FileClient.WriteFailureInfo(new string[] { string.Format("未处理异常被触发，运行时是否即将终止：{0}，错误信息：{1}", args.IsTerminating, e.Message), e.StackTrace, e.TargetSite.ToString() }, "UnhandledException", "unhandled " + DateTime.Now.ToString("yyyy-MM-dd"));
+        }
+        #endregion
     }
 
     //public class TempClass

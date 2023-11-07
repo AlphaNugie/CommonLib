@@ -539,7 +539,9 @@ namespace CommonLib.Extensions.Property
                     object targetValue = sourceProperty.PropertyType == targetPropertyType ? sourceValue : Converter.Convert(targetPropertyType, sourceValue);
                     //不带索引直接判断为属性赋值，否则判断数组的类型（目前仅支持数组暂不支持List或集合等）
                     if (noIndices)
-                        targetProperty.SetValue(upperLevelTarget, targetValue);
+                        //假如赋值失败，直接跳过
+                        try { targetProperty.SetValue(upperLevelTarget, targetValue); }
+                        catch (Exception) { continue; }
                     else
                         //TODO 在泛型List、数组或集合之中，CopyPropertyValueTo方法目前仅支持向数组中的元素赋值
                         ReflectionUtil.SetValueMethod.Invoke(midLevelTarget, new object[] { targetValue, indices[0] });

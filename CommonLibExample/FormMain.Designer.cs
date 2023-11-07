@@ -41,6 +41,9 @@
             this.button_KeepBusy = new System.Windows.Forms.Button();
             this.button_Exception = new System.Windows.Forms.Button();
             this.button_Controls = new System.Windows.Forms.Button();
+            this.button_OutOfMemoryException = new System.Windows.Forms.Button();
+            this.button_AppCrash = new System.Windows.Forms.Button();
+            this.button_RunTests = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // notifyIcon_Main
@@ -176,11 +179,46 @@
             this.button_Controls.UseVisualStyleBackColor = true;
             this.button_Controls.Click += new System.EventHandler(this.Button_Controls_Click);
             // 
+            // button_OutOfMemoryException
+            // 
+            this.button_OutOfMemoryException.BackColor = System.Drawing.Color.Salmon;
+            this.button_OutOfMemoryException.Location = new System.Drawing.Point(128, 390);
+            this.button_OutOfMemoryException.Name = "button_OutOfMemoryException";
+            this.button_OutOfMemoryException.Size = new System.Drawing.Size(67, 48);
+            this.button_OutOfMemoryException.TabIndex = 3;
+            this.button_OutOfMemoryException.Text = "OutOfMemoryException";
+            this.button_OutOfMemoryException.UseVisualStyleBackColor = false;
+            this.button_OutOfMemoryException.Click += new System.EventHandler(this.Button_OutOfMemoryException_Click);
+            // 
+            // button_AppCrash
+            // 
+            this.button_AppCrash.BackColor = System.Drawing.Color.Orange;
+            this.button_AppCrash.Location = new System.Drawing.Point(201, 390);
+            this.button_AppCrash.Name = "button_AppCrash";
+            this.button_AppCrash.Size = new System.Drawing.Size(52, 48);
+            this.button_AppCrash.TabIndex = 3;
+            this.button_AppCrash.Text = "AppCrash";
+            this.button_AppCrash.UseVisualStyleBackColor = false;
+            this.button_AppCrash.Click += new System.EventHandler(this.Button_AppCrash_Click);
+            // 
+            // button_RunTests
+            // 
+            this.button_RunTests.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_RunTests.Location = new System.Drawing.Point(225, 165);
+            this.button_RunTests.Name = "button_RunTests";
+            this.button_RunTests.Size = new System.Drawing.Size(170, 40);
+            this.button_RunTests.TabIndex = 0;
+            this.button_RunTests.Text = "测试";
+            this.button_RunTests.UseVisualStyleBackColor = true;
+            this.button_RunTests.Click += new System.EventHandler(this.Button_RunTests_Click);
+            // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(820, 450);
+            this.Controls.Add(this.button_OutOfMemoryException);
+            this.Controls.Add(this.button_AppCrash);
             this.Controls.Add(this.button_Exception);
             this.Controls.Add(this.button_KeepBusy);
             this.Controls.Add(this.button_CustomMessageBox);
@@ -189,6 +227,7 @@
             this.Controls.Add(this.button_DatabaseTest);
             this.Controls.Add(this.button_ExitWindows);
             this.Controls.Add(this.button_Opc);
+            this.Controls.Add(this.button_RunTests);
             this.Controls.Add(this.button_Controls);
             this.Controls.Add(this.button_Filters);
             this.Controls.Add(this.button_TimerEventRaiser);
@@ -215,6 +254,9 @@
         private System.Windows.Forms.Button button_KeepBusy;
         private System.Windows.Forms.Button button_Exception;
         private System.Windows.Forms.Button button_Controls;
+        private System.Windows.Forms.Button button_OutOfMemoryException;
+        private System.Windows.Forms.Button button_AppCrash;
+        private System.Windows.Forms.Button button_RunTests;
     }
 }
 

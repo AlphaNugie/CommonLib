@@ -1,4 +1,5 @@
 ﻿using CommonLib.Function;
+using CommonLib.Function.MathUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,78 +18,217 @@ namespace CommonLib.Extensions
     {
         #region 常用数学公式/参数计算
         /// <summary>
-        /// 在给出的若干对XY坐标集合的集合中，找出14对XY坐标，排除收尾2对（剔除异常点），在剩下12个点中，找出相邻的3个点，根据XY坐标确定圆心的XY坐标和半径长度 <para/>如此按顺序执行10次，计算这10次测到的圆心XY坐标和半径长度的平均值并输出
+        /// 在给出的点对象集合中，以3个点为一组，每组确定一个二维或三维空间中圆的圆心XYZ坐标（二维空间中Z为0）和半径长度 <para/>如此按顺序执行若干次（等于点数量除以3并向下取整），计算圆心XYZ坐标（二维空间中Z为0）和半径长度的平均值并返回圆形对象
         /// </summary>
-        /// <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合的集合</param>
-        /// <param name="centrex">圆心X坐标</param>
-        /// <param name="centrey">圆心Y坐标</param>
-        /// <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
-        public static void GetAveragedCircleNumbers(this IEnumerable<IEnumerable<double>> pairsOfCoors, out double centrex, out double centrey, out double radius)
+        /// <param name="points">圆上每点的点对象的集合</param>
+        /// <param name="dimension">要解出圆形信息的空间维度类型</param>
+        /// <returns></returns>
+        public static Circle GetAveragedCircleNumbers(this IEnumerable<Point3D> points, Dimensions dimension = Dimensions.Three)
         {
-            centrex = centrey = radius = 0;
-            if (pairsOfCoors == null || pairsOfCoors.Count() < 14) return;
-            //筛选出一对对坐标，数量至少为14对（将圆弧分割为13等分），并计算没等分包含的坐标对数量
-            List<IEnumerable<double>> pairs = pairsOfCoors.Where(pair => pair != null && pair.Count() >= 2).ToList();
-            if (pairs.Count < 14) return;
-            int step = (pairs.Count - 1) / 13;
-            List<double> centrexs = new List<double>(), centreys = new List<double>(), radiuses = new List<double>();
-            //排除14个点的头尾2点，剩下12个点，以相邻3个点为窗口，依次计算圆心坐标以及半径长（可计算10次），计算完求10次的平均值
-            for (int i = 1; i <= 10; i++)
+            Circle result = new Circle();
+            if (points == null) goto END;
+            List<Point3D> groups = points.Where(point => point != null).ToList();
+            //保证至少有3个点，以3个点为1组（组内相邻点索引位置的差值为组的数量）
+            if (groups.Count < 3) goto END;
+            int groupCount = groups.Count / 3;
+            List<Circle> circles = new List<Circle>();
+            //每一组的内部索引
+            var groupIndexes = new int[] { 0, 1, 2 };
+            //从索引是0的位置开始循环，每次步进1个索引位置、执行次数为3点1组的数量（下面的循环），每次循环内部找出每组3个点的索引值及该索引处的点对象
+            for (int i = 0; i <= groupCount - 1; i++)
             {
-                List<IEnumerable<double>> doubles = new List<IEnumerable<double>>() { pairs.ElementAt(i * step), pairs.ElementAt((i + 1) * step), pairs.ElementAt((i + 2) * step) };
-                doubles.GetCircleNumbers(out double cx, out double cy, out double r);
-                centrexs.Add(cx);
-                centreys.Add(cy);
-                radiuses.Add(r);
+                var trinity = groupIndexes.Select(j => groups.ElementAt(i + groupCount * j)); //这一步计算组内每个点的索引值并取出点对象
+                var circle = dimension == Dimensions.Three ? trinity.Get3DCircle() : trinity.Get2DCircle(); //解出所在圆信息
+                circles.Add(circle);
             }
-            centrex = centrexs.Average();
-            centrex = centreys.Average();
-            radius = radiuses.Average();
+            result = circles.Average();
+        END:
+            return result;
         }
 
-        /// <summary>
-        /// 根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度，其中圆上3点的坐标由一个包含6个double数值的集合提供，按顺序分别为3个点的XY坐标
-        /// </summary>
-        /// <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合</param>
-        /// <param name="centrex">圆心X坐标</param>
-        /// <param name="centrey">圆心Y坐标</param>
-        /// <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
-        public static void GetCircleNumbers(this IEnumerable<double> pairsOfCoors, out double centrex, out double centrey, out double radius)
-        {
-            centrex = centrey = radius = 0;
-            if (pairsOfCoors == null || pairsOfCoors.Count() < 6) return;
-            double
-                x1 = pairsOfCoors.ElementAt(0),
-                y1 = pairsOfCoors.ElementAt(1),
-                x2 = pairsOfCoors.ElementAt(2),
-                y2 = pairsOfCoors.ElementAt(3),
-                x3 = pairsOfCoors.ElementAt(4),
-                y3 = pairsOfCoors.ElementAt(5);
-            MathUtil.GetCircleNumbers(x1, y1, x2, y2, x3, y3, out centrex, out centrey, out radius);
-        }
+        #region 三维空间中圆上3点计算圆心坐标与半径长度
+        ///// <summary>
+        ///// 在给出的若干对XY坐标集合的集合中，找出16对XY坐标，排除收尾2对（剔除异常点），在剩下14个点中，找出相邻的3个点，根据XY坐标确定圆心的XY坐标和半径长度 <para/>如此按顺序执行12次，计算这12次测到的圆心XY坐标和半径长度的平均值并输出
+        ///// </summary>
+        ///// <param name="groupsOfCoors">圆上每点一对XY坐标的数值集合的集合</param>
+        ///// <param name="centrex">圆心X坐标</param>
+        ///// <param name="centrey">圆心Y坐标</param>
+        ///// <param name="centrez">圆心Z坐标</param>
+        ///// <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+        //public static void GetAveragedCircleNumbers3d(this IEnumerable<IEnumerable<double>> groupsOfCoors, out double centrex, out double centrey, out double centrez, out double radius)
+        //{
+        //    centrex = centrey = centrez = radius = 0;
+        //    if (groupsOfCoors == null) return;
+        //    //筛选出所有成组的坐标（数量至少为3并没有NaN）
+        //    List<IEnumerable<double>> groups = groupsOfCoors.Where(group => group != null && group.Count() >= 3 && !group.Any(member => double.IsNaN(member))).ToList();
+        //    //保证至少有3个点，以3个点为1组（组内相邻点索引位置的差值为组的数量）
+        //    if (groups.Count < 3) return;
+        //    int groupCount = groups.Count / 3;
+        //    List<double> centrexs = new List<double>(), centreys = new List<double>(), centrezs = new List<double>(), radiuses = new List<double>();
+        //    //每一组的内部索引
+        //    var groupIndexes = new int[] { 0, 1, 2 };
+        //    //从索引是0的位置开始循环，每次步进1个索引位置、执行次数为组的数量（下面的循环），每次循环内部找出每组3个点的索引值及该索引处的点对象
+        //    for (int i = 0; i <= groupCount - 1; i++)
+        //    {
+        //        var doubles = groupIndexes.Select(j => groups.ElementAt(i + groupCount * j)).ToList(); //这一步计算组内每个点的索引值并取出点对象
+        //        var c = CircleCalculator.Do(new Point3D(doubles[0]), new Point3D(doubles[1]), new Point3D(doubles[2]));
+        //        centrexs.Add(c.X);
+        //        centreys.Add(c.Y);
+        //        centrezs.Add(c.Z);
+        //        radiuses.Add(c.Radius);
+        //    }
+        //    centrex = centrexs.Average();
+        //    centrey = centreys.Average();
+        //    centrez = centrezs.Average();
+        //    radius = radiuses.Average();
+        //}
 
         /// <summary>
-        /// 根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度，其中圆上3点的坐标由一个包含3对double数值集合的集合提供，按顺序分别为3个点的XY坐标
+        /// 在给出的点对象集合中，以3个点为一组，每组确定一个三维空间中圆的圆心XYZ坐标和半径长度 <para/>如此按顺序执行若干次（等于点数量除以3并向下取整），计算圆心XYZ坐标和半径长度的平均值并返回圆形对象
         /// </summary>
-        /// <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合的集合</param>
-        /// <param name="centrex">圆心X坐标</param>
-        /// <param name="centrey">圆心Y坐标</param>
-        /// <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
-        public static void GetCircleNumbers(this IEnumerable<IEnumerable<double>> pairsOfCoors, out double centrex, out double centrey, out double radius)
+        /// <param name="points">圆上每点的点对象的集合</param>
+        /// <returns></returns>
+        public static Circle GetAveragedCircleNumbers3D(this IEnumerable<Point3D> points)
         {
-            centrex = centrey = radius = 0;
-            if (pairsOfCoors == null || pairsOfCoors.Count() < 3) return;
-            List<IEnumerable<double>> pairs = pairsOfCoors.Where(pair => pair != null && pair.Count() >= 2).ToList();
-            if (pairs.Count < 3) return;
-            double
-                x1 = pairs[0].ElementAt(0),
-                y1 = pairs[0].ElementAt(1),
-                x2 = pairs[1].ElementAt(0),
-                y2 = pairs[1].ElementAt(1),
-                x3 = pairs[2].ElementAt(0),
-                y3 = pairs[2].ElementAt(1);
-            MathUtil.GetCircleNumbers(x1, y1, x2, y2, x3, y3, out centrex, out centrey, out radius);
+            return points.GetAveragedCircleNumbers(Dimensions.Three);
+            //Circle result = new Circle();
+            //if (points == null) goto END;
+            //List<Point3D> groups = points.Where(point => point != null).ToList();
+            ////保证至少有3个点，以3个点为1组（组内相邻点索引位置的差值为组的数量）
+            //if (groups.Count < 3) goto END;
+            //int groupCount = groups.Count / 3;
+            //List<Circle> circles = new List<Circle>();
+            ////每一组的内部索引
+            //var groupIndexes = new int[] { 0, 1, 2 };
+            ////从索引是0的位置开始循环，每次步进1个索引位置、执行次数为3点1组的数量（下面的循环），每次循环内部找出每组3个点的索引值及该索引处的点对象
+            //for (int i = 0; i <= groupCount - 1; i++)
+            //{
+            //    var trinity = groupIndexes.Select(j => groups.ElementAt(i + groupCount * j)); //这一步计算组内每个点的索引值并取出点对象
+            //    var circle = trinity.Get3DCircle(); //解出所在圆信息
+            //    circles.Add(circle);
+            //}
+            //result = circles.Average();
+            //END:
+            //return result;
         }
+        #endregion
+
+        #region 二维空间中圆上3点计算圆心坐标与半径长度
+        ///// <summary>
+        ///// 在给出的若干对XY坐标集合的集合中，找出16对XY坐标，排除收尾2对（剔除异常点），在剩下14个点中，找出相邻的3个点，根据XY坐标确定圆心的XY坐标和半径长度 <para/>如此按顺序执行12次，计算这12次测到的圆心XY坐标和半径长度的平均值并输出
+        ///// </summary>
+        ///// <param name="groupsOfCoors">圆上每点一对XY坐标的数值集合的集合</param>
+        ///// <param name="centrex">圆心X坐标</param>
+        ///// <param name="centrey">圆心Y坐标</param>
+        ///// <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+        //public static void GetAveragedCircleNumbers(this IEnumerable<IEnumerable<double>> groupsOfCoors, out double centrex, out double centrey, out double radius)
+        //{
+        //    centrex = centrey = radius = 0;
+        //    if (groupsOfCoors == null) return;
+        //    //筛选出所有成对的坐标（数量至少为2并没有NaN）
+        //    List<IEnumerable<double>> groups = groupsOfCoors.Where(group => group != null && group.Count() >= 2 && !group.Any(member => double.IsNaN(member))).ToList();
+        //    //保证至少有3个点，以3个点为1组（组内相邻点索引位置的差值为组的数量）
+        //    if (groups.Count < 3) return;
+        //    int groupCount = groups.Count / 3;
+        //    List<double> centrexs = new List<double>(), centreys = new List<double>(), radiuses = new List<double>();
+        //    //每一组的内部索引
+        //    var groupIndexes = new int[] { 0, 1, 2 };
+        //    //从索引是0的位置开始循环，每次步进1个索引位置、执行次数为3点1组的数量（下面的循环），每次循环内部找出每组3个点的索引值及该索引处的点对象
+        //    for (int i = 0; i <= groupCount - 1; i++)
+        //    {
+        //        var doubles = groupIndexes.Select(j => groups.ElementAt(i + groupCount * j)); //这一步计算组内每个点的索引值并取出点对象
+        //        doubles.GetCircleNumbers(out double cx, out double cy, out double r);
+        //        centrexs.Add(cx);
+        //        centreys.Add(cy);
+        //        radiuses.Add(r);
+        //    }
+        //    #region 对List排序并排除最大的以及最小的10%元素（对结果影响不大且影响性能）
+        //    ////假如组数量不小于10，则按升序排列并缩减元素数量到80%
+        //    //if (groupCount >= 10)
+        //    //{
+        //    //    centrexs = centrexs.OrderBy(v => v).Shrink(0.8, true).ToList();
+        //    //    centreys = centreys.OrderBy(v => v).Shrink(0.8, true).ToList();
+        //    //    radiuses = radiuses.OrderBy(v => v).Shrink(0.8, true).ToList();
+        //    //}
+        //    #endregion
+        //    centrex = centrexs.Average();
+        //    centrey = centreys.Average();
+        //    radius = radiuses.Average();
+        //}
+
+        /// <summary>
+        /// 在给出的点对象集合中，以3个点为一组，每组确定一个二维空间中圆的圆心XY坐标和半径长度 <para/>如此按顺序执行若干次（等于点数量除以3并向下取整），计算圆心XY坐标和半径长度的平均值并返回圆形对象
+        /// </summary>
+        /// <param name="points">圆上每点的点对象的集合</param>
+        /// <returns></returns>
+        public static Circle GetAveragedCircleNumbers2D(this IEnumerable<Point3D> points)
+        {
+            return points.GetAveragedCircleNumbers(Dimensions.Two);
+            //Circle result = new Circle();
+            //if (points == null) goto END;
+            //List<Point3D> groups = points.Where(point => point != null).ToList();
+            ////保证至少有3个点，以3个点为1组（组内相邻点索引位置的差值为组的数量）
+            //if (groups.Count < 3) goto END;
+            //int groupCount = groups.Count / 3;
+            //List<Circle> circles = new List<Circle>();
+            ////每一组的内部索引
+            //var groupIndexes = new int[] { 0, 1, 2 };
+            ////从索引是0的位置开始循环，每次步进1个索引位置、执行次数为3点1组的数量（下面的循环），每次循环内部找出每组3个点的索引值及该索引处的点对象
+            //for (int i = 0; i <= groupCount - 1; i++)
+            //{
+            //    var trinity = groupIndexes.Select(j => groups.ElementAt(i + groupCount * j)); //这一步计算组内每个点的索引值并取出点对象
+            //    var circle = trinity.Get2DCircle(); //解出所在圆信息
+            //    circles.Add(circle);
+            //}
+            //result = circles.Average();
+            //END:
+            //return result;
+        }
+
+        ///// <summary>
+        ///// 根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度，其中圆上3点的坐标由一个包含6个double数值的集合提供，按顺序分别为3个点的XY坐标
+        ///// </summary>
+        ///// <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合</param>
+        ///// <param name="centrex">圆心X坐标</param>
+        ///// <param name="centrey">圆心Y坐标</param>
+        ///// <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+        //public static void GetCircleNumbers(this IEnumerable<double> pairsOfCoors, out double centrex, out double centrey, out double radius)
+        //{
+        //    centrex = centrey = radius = 0;
+        //    if (pairsOfCoors == null || pairsOfCoors.Count() < 6) return;
+        //    double
+        //        x1 = pairsOfCoors.ElementAt(0),
+        //        y1 = pairsOfCoors.ElementAt(1),
+        //        x2 = pairsOfCoors.ElementAt(2),
+        //        y2 = pairsOfCoors.ElementAt(3),
+        //        x3 = pairsOfCoors.ElementAt(4),
+        //        y3 = pairsOfCoors.ElementAt(5);
+        //    MathUtil.GetCircleNumbers(x1, y1, x2, y2, x3, y3, out centrex, out centrey, out radius);
+        //}
+
+        ///// <summary>
+        ///// 根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度，其中圆上3点的坐标由一个包含3对double数值集合的集合提供，按顺序分别为3个点的XY坐标
+        ///// </summary>
+        ///// <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合的集合</param>
+        ///// <param name="centrex">圆心X坐标</param>
+        ///// <param name="centrey">圆心Y坐标</param>
+        ///// <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+        //public static void GetCircleNumbers(this IEnumerable<IEnumerable<double>> pairsOfCoors, out double centrex, out double centrey, out double radius)
+        //{
+        //    centrex = centrey = radius = 0;
+        //    if (pairsOfCoors == null) return;
+        //    List<IEnumerable<double>> pairs = pairsOfCoors.Where(pair => pair != null && pair.Count() >= 2).ToList();
+        //    if (pairs.Count < 3) return;
+        //    double
+        //        x1 = pairs[0].ElementAt(0),
+        //        y1 = pairs[0].ElementAt(1),
+        //        x2 = pairs[1].ElementAt(0),
+        //        y2 = pairs[1].ElementAt(1),
+        //        x3 = pairs[2].ElementAt(0),
+        //        y3 = pairs[2].ElementAt(1);
+        //    MathUtil.GetCircleNumbers(x1, y1, x2, y2, x3, y3, out centrex, out centrey, out radius);
+        //}
+        #endregion
 
         /// <summary>
         /// 计算正态分布函数的公式，计算时使用给定的平均值μ(mu)与标准差σ(sigma)，输入x坐标，输出正太分布曲线在这个位置的y坐标值
@@ -332,27 +472,29 @@ namespace CommonLib.Extensions
         }
 
         /// <summary>
-        /// 根据给定的顶端以及回转处坐标计算（初步的）回转角度（y轴正向为回转0°方位）
+        /// （使用MathUtil版本）根据给定的顶端以及回转处坐标计算（初步的）回转角度（y轴正向为回转0°方位）
         /// </summary>
         /// <param name="x1">顶端X坐标</param>
         /// <param name="y1">顶端Y坐标</param>
         /// <param name="xa">回转处X坐标</param>
         /// <param name="ya">回转处Y坐标</param>
         /// <returns></returns>
+        [Obsolete]
         public static double GetAngleByCoordinates(double x1, double y1, double xa, double ya)
         {
-            //两点距离，加上一个极小值防止为0
-            double xdiff = x1 - xa, ydiff = y1 - ya, dist = Math.Sqrt(Math.Pow(xdiff, 2) + Math.Pow(ydiff, 2)) + 1e-20;
-            //初步角度，值区间为[-90, 90]
-            double angle = Math.Asin(xdiff / dist) * 180 / Math.PI;
-            //假如y坐标差为负值，则需要相对X轴做对称
-            if (ydiff < 0)
-                angle = 180 * (xdiff > 0 ? 1 : -1) - angle;
-            return angle;
+            ////两点距离，加上一个极小值防止为0
+            //double xdiff = x1 - xa, ydiff = y1 - ya, dist = Math.Sqrt(Math.Pow(xdiff, 2) + Math.Pow(ydiff, 2)) + 1e-20;
+            ////初步角度，值区间为[-90, 90]
+            //double angle = Math.Asin(xdiff / dist) * 180 / Math.PI;
+            ////假如y坐标差为负值，则需要相对X轴做对称
+            //if (ydiff < 0)
+            //    angle = 180 * (xdiff > 0 ? 1 : -1) - angle;
+            //return angle;
+            return MathUtil.GetAngleByCoordinates(x1, y1, xa, ya);
         }
 
         /// <summary>
-        /// 对两个值类型的值进行交换
+        /// （使用Swap）对两个值类型的值进行交换
         /// </summary>
         /// <typeparam name="T">要交换的值的类型</typeparam>
         /// <param name="t1">值1</param>
@@ -412,6 +554,24 @@ namespace CommonLib.Extensions
         //    //return Math.Acos(1 - 2 * h) * earth_radius; //根据反余弦计算
         //    return Math.Asin(Math.Sqrt(h)) * 2 * earth_radius; //根据反正弦计算
         //}
+
+        /// <summary>
+        /// 判断一个双精度浮点数是否落在给定的若干个区间范围中的任意一个（包括等于），假如区间范围为空（不存在任何有效的区间范围），则返回默认值
+        /// </summary>
+        /// <param name="input">待判断的数字</param>
+        /// <param name="ranges">给定的若干个区间范围</param>
+        /// <param name="def">当区间范围为空时返回的默认值</param>
+        /// <returns>假如在数值之间，返回true，否则返回false</returns>
+        public static bool Between(this double input, IEnumerable<IEnumerable<double>> ranges, bool def = false)
+        {
+            if (ranges == null)
+                return def;
+            ranges = ranges.Where(range => range != null  && range.Count() >= 2).ToList();
+            if (ranges.Count() == 0)
+                return def;
+            //对于每一组区间范围，进行一次范围比较，然后返回比较结果中的最大值：假如有任意一次满足则为true，否则为false
+            return ranges.Select(range => input.Between(range.ElementAt(0), range.ElementAt(1))).Max();
+        }
 
         /// <summary>
         /// 判断一个双精度浮点数是否在两个数值之间（或等于）

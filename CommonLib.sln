@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLib.DataUtil.SqlitePr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpcLibrary.Controls", "OpcLibrary.Controls\OpcLibrary.Controls.csproj", "{D644F101-AF01-4DE6-83D3-DF33B1C729C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLib.AppCrash", "CommonLib.AppCrash\CommonLib.AppCrash.csproj", "{CA81337F-0797-47A0-99C4-AE2573763BFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,6 +133,14 @@ Global
 		{D644F101-AF01-4DE6-83D3-DF33B1C729C7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D644F101-AF01-4DE6-83D3-DF33B1C729C7}.Release|x64.ActiveCfg = Release|Any CPU
 		{D644F101-AF01-4DE6-83D3-DF33B1C729C7}.Release|x64.Build.0 = Release|Any CPU
+		{CA81337F-0797-47A0-99C4-AE2573763BFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA81337F-0797-47A0-99C4-AE2573763BFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA81337F-0797-47A0-99C4-AE2573763BFE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CA81337F-0797-47A0-99C4-AE2573763BFE}.Debug|x64.Build.0 = Debug|Any CPU
+		{CA81337F-0797-47A0-99C4-AE2573763BFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA81337F-0797-47A0-99C4-AE2573763BFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA81337F-0797-47A0-99C4-AE2573763BFE}.Release|x64.ActiveCfg = Release|Any CPU
+		{CA81337F-0797-47A0-99C4-AE2573763BFE}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

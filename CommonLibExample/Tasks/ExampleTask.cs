@@ -8,6 +8,12 @@ namespace CommonLibExample.Tasks
 {
     public class ExampleTask : Task
     {
+        public ExampleTask() : base() { }
+
+        public ExampleTask(int interval = 1000, bool autoRestart = false, long restartInterval = 0, bool restartWhileFrozen = false) : base(interval, autoRestart, restartInterval, restartWhileFrozen)
+        {
+        }
+
         public override void Init()
         {
         }

@@ -23,6 +23,11 @@ namespace CommonLib.Clients.Tasks
         private List<string> _taskLogsBuffer = new List<string>(); //日志存放缓冲区，每次循环可以直接向里添加（Add）而不必清除（Clear）
         protected string _errorMessage = string.Empty;
         private readonly Stopwatch _stopwatch = new Stopwatch();
+        private readonly ValueDiffStorage<bool> _valDiffRstrtWhlFrzn = new ValueDiffStorage<bool>();
+        //超时事件的重复触发时间间隔设为较大数值，否则多于1次执行重启方法会报错（StateChangedAfterRestart多于1次订阅）
+        //private readonly TimerEventRaiser _eventRaiser = new TimerEventRaiser(1000) { RaiseInterval = _solidTimeout * 3 };
+        private readonly TimerEventRaiser _eventRaiser = new TimerEventRaiser(1000) { RaiseInterval = uint.MaxValue };
+        private const int _solidTimeout = 30000; //固定的失去响应超时时间（毫秒），与任务循环执行间隔（毫秒）的固定倍数比较，较大者作为最后的超时时间
 
         #region 事件
         /// <summary>
@@ -80,10 +85,19 @@ namespace CommonLib.Clients.Tasks
         /// </summary>
         public bool AllowPrintTaskLog { get; set; }
 
+        private int _interval;
         /// <summary>
         /// 任务循环运行间隔（毫秒）
         /// </summary>
-        public int Interval { get; set; }
+        public int Interval
+        {
+            get { return _interval; }
+            set
+            {
+                _interval = value;
+                _eventRaiser.RaiseThreshold = (ulong)Math.Max(_interval * 2.5, _solidTimeout);
+            }
+        }
 
         /// <summary>
         /// 是否已初始化
@@ -101,14 +115,23 @@ namespace CommonLib.Clients.Tasks
         public bool RunOnlyOnce { get; set; }
 
         /// <summary>
-        /// 是否在循环的过程中每隔一段时间自动重新启动
+        /// 是否在循环的过程中自动重新启动，假如设置为true，则任务将在以下情况下重启：<para/>设置的“任务重新启动时间间隔”（RestartInterval）大于“循环执行时间间隔”（Interval）<para/>设置“是否在任务失去响应后重新启动”（RestartWhileFrozen）为true
         /// </summary>
         public bool AutoRestart { get; set; }
 
         /// <summary>
-        /// 任务重新启动的时间间隔（毫秒），仅在任务开始运行后计量，假如不大于任务循环执行的时间间隔则不启用自动重启
+        /// 任务重新启动的时间间隔（毫秒），仅在任务开始运行后计量，假如未启用自动重启（AutoRestart）或不大于任务循环执行的时间间隔（Interval）则不启用自动重启
         /// </summary>
         public long RestartInterval { get; set; }
+
+        /// <summary>
+        /// 是否在任务失去响应后（循环执行停止并持续打到一段时间长度）重新启动，仅在启用自动重启（AutoRestart）时生效<para/>设置后即时任务不运行依然将重启
+        /// </summary>
+        public bool RestartWhileFrozen
+        {
+            get { return _valDiffRstrtWhlFrzn.CurrentValue; }
+            set { _valDiffRstrtWhlFrzn.CurrentValue = value; }
+        }
 
         /// <summary>
         /// 任务重启次数
@@ -132,24 +155,60 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 初始化Task类，默认任务执行间隔1000毫秒，不自动重启，初始状态为暂停
         /// </summary>
-        protected Task() : this(1000, false, 0) { }
+        protected Task() : this(1000, false, -1, false) { }
 
         /// <summary>
-        /// 初始化Task类，使用给定的任务执行间隔、是否自动重启、重启时间间隔的设置，初始状态为暂停
+        /// 初始化Task类，使用给定的任务执行间隔、是否自动重启、重启时间间隔的设置，失去响应后不重启，初始状态为暂停
         /// </summary>
-        /// <param name="interval"></param>
-        /// <param name="autoRestart"></param>
-        /// <param name="restartInterval"></param>
-        protected Task(int interval = 1000, bool autoRestart = false, long restartInterval = 0)
+        /// <param name="interval">任务循环执行间隔（毫秒），需大于0，默认为1000</param>
+        /// <param name="autoRestart">是否自动重启，启用后将在达到条件后重启（重启时间间隔与失去响应后重启）</param>
+        /// <param name="restartInterval">重新启动的时间间隔（毫秒）</param>
+        protected Task(int interval = 1000, bool autoRestart = false, long restartInterval = 0) : this(interval, autoRestart, restartInterval, false) { }
+
+        /// <summary>
+        /// 初始化Task类，使用给定的任务执行间隔、是否自动重启、是否在失去响应后重启的设置，重启时间间隔禁用，初始状态为暂停
+        /// </summary>
+        /// <param name="interval">任务循环执行间隔（毫秒），需大于0，默认为1000</param>
+        /// <param name="autoRestart">是否自动重启，启用后将在达到条件后重启（重启时间间隔与失去响应后重启）</param>
+        /// <param name="restartWhileFrozen">是否在失去响应后重启</param>
+        protected Task(int interval = 1000, bool autoRestart = false, bool restartWhileFrozen = false) : this(interval, autoRestart, -1, restartWhileFrozen) { }
+
+        /// <summary>
+        /// 初始化Task类，使用给定的任务执行间隔、是否自动重启、重启时间间隔、是否在失去响应后重启的设置，初始状态为暂停
+        /// </summary>
+        /// <param name="interval">任务循环执行间隔（毫秒），需大于0，默认为1000</param>
+        /// <param name="autoRestart">是否自动重启，启用后将在达到条件后重启（重启时间间隔与失去响应后重启）</param>
+        /// <param name="restartInterval">重新启动的时间间隔（毫秒）</param>
+        /// <param name="restartWhileFrozen">是否在失去响应后重启</param>
+        protected Task(int interval = 1000, bool autoRestart = false, long restartInterval = 0, bool restartWhileFrozen = false)
         {
+            if (interval <= 0)
+                throw new ArgumentException("任务循环执行间隔小于或等于0", nameof(interval));
+            _valDiffRstrtWhlFrzn.ValueChangedEvent += new Events.ValueChangedEventHandler<bool>(ValDiffRstrtWhlFrzn_ValueChangedEvent);
+            _eventRaiser.ThresholdReached += new TimerEventRaiser.ThresholdReachedEventHandler(EventRaiser_ThresholdReached);
             Interval = interval;
             AutoRestart = autoRestart;
             RestartInterval = restartInterval;
+            RestartWhileFrozen = restartWhileFrozen;
             AllowPrintTaskLog = true;
             Pause();
             //Init();
             ThreadLoop = new Thread(new ThreadStart(Loop)) { IsBackground = true };
             ThreadLoop.Start();
+        }
+
+        private void ValDiffRstrtWhlFrzn_ValueChangedEvent(object sender, Events.ValueChangedEventArgs<bool> eventArgs)
+        {
+            if (eventArgs.CurrValue)
+                _eventRaiser.Run();
+            else
+                _eventRaiser.Stop();
+        }
+
+        private void EventRaiser_ThresholdReached(object sender, ThresholdReachedEventArgs e)
+        {
+            if (AutoRestart)
+                Restart();
         }
 
         #region 资源释放
@@ -177,7 +236,7 @@ namespace CommonLib.Clients.Tasks
             //_auto.Dispose(); //与Close方法效果相同
             _stopwatch.Stop();
 
-            //List为引用类型，由垃圾回收器自动管理内存，不需要手动释放，只需要在存储大量数据时手动将其置为null，以便更快地释放内存
+            //↓↓↓List为引用类型，由垃圾回收器自动管理内存，不需要手动释放，只需要在存储大量数据时手动将其置为null，以便更快地释放内存
             //_taskLogsBuffer.Clear();
             //_taskLogsBuffer = null;
             //if (TaskLogs != null)
@@ -229,13 +288,39 @@ namespace CommonLib.Clients.Tasks
         }
 
         /// <summary>
-        /// 任务停止
+        /// 任务停止——温和的停止方法，设置停止信号，等待循环进程自己结束，但假如循环阻塞则无能为力:(
         /// </summary>
         public void Stop()
         {
             Run();
             _ended = true;
             _stopwatch.Reset();
+        }
+
+        /// <summary>
+        /// 任务停止——强制的停止方法，设置停止信号，但不等待循环结束而直接终结线程，并手动触发循环停止后的事件
+        /// </summary>
+        public void StopWithForce()
+        {
+            Stop();
+            //强制终止一下线程
+            if (ThreadLoop != null)
+            {
+                ThreadLoop.Abort();
+                ThreadLoop = null;
+            }
+            TriggerEventsAfterBeingStopped();
+        }
+
+        /// <summary>
+        /// 触发循环线程停止后才会使用的事件
+        /// </summary>
+        private void TriggerEventsAfterBeingStopped()
+        {
+            //任务停止事件
+            StateChanged?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
+            //任务停止事件（重启用）
+            StateChangedAfterRestart?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
         }
 
         /////
@@ -268,13 +353,15 @@ namespace CommonLib.Clients.Tasks
                 task.Interval = Interval;
                 task.AutoRestart = AutoRestart;
                 task.RestartInterval = RestartInterval;
+                task.RestartWhileFrozen = RestartWhileFrozen;
                 task.RestartCounter = RestartCounter + 1; //重启计数+1
                 Dispose();
                 //RestartUrself();
                 task.Initialize();
                 task.Run();
             });
-            Stop();
+            //Stop();
+            StopWithForce();
         }
         #endregion
 
@@ -295,6 +382,7 @@ namespace CommonLib.Clients.Tasks
             while (!(_ended || (LoopCounter++ > 0 && RunOnlyOnce)))
             {
                 Thread.Sleep(Interval);
+                _eventRaiser.Click();
                 if (_paused)
                     _auto.WaitOne();
                 //任务启动事件
@@ -322,10 +410,11 @@ namespace CommonLib.Clients.Tasks
                     Restart();
                 }
             }
-            //任务停止事件
-            StateChanged?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
-            //任务停止事件（重启用）
-            StateChangedAfterRestart?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
+            ////任务停止事件
+            //StateChanged?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
+            ////任务停止事件（重启用）
+            //StateChangedAfterRestart?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
+            TriggerEventsAfterBeingStopped();
         }
         #endregion
 

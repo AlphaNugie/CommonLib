@@ -35,6 +35,7 @@ namespace CommonLib.Function
                 int original = numbers.ElementAt(invalid.index); //在源数列中对应的原始值
                 throw new ArgumentOutOfRangeException(nameof(numbers), invalid.value, $"源数列中索引{invalid.index}处的值{original}加上校正值后变为{invalid.value}，超出了8位无符号整型的值区间[0,255]");
             }
+            //只获取不为0的字节，以去除结尾\0符号
             byte[] bytes = array.Where(p => p.value != 0).Select(p => (byte)p.value).ToArray();
             result = Encoding.GetEncoding("GB2312").GetString(bytes);
             #region 替换方法：URL解码

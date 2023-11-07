@@ -174,7 +174,12 @@
         </member>
         <member name="P:CommonLib.Clients.CustomBitConverter`1.Bits">
             <summary>
-            比特位的数组，从低位开始排列
+            比特位（布尔）的数组，从低位开始排列，赋值时会修改对应的比特位（数值）数组的元素
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.CustomBitConverter`1.BitNums">
+            <summary>
+            比特位（数值0/1）的数组，从低位开始排列
             </summary>
         </member>
         <member name="P:CommonLib.Clients.CustomBitConverter`1.Binary">
@@ -202,10 +207,10 @@
         </member>
         <member name="M:CommonLib.Clients.CustomBitConverter`1.SetBit(System.Boolean,System.Int32)">
             <summary>
-            设置对应索引位置比特位的值，低位索引位置为0，假如索引位置不存在则不进行任何操作
+            设置对应索引位置比特位的值（低位索引位置为0），假如索引位置不存在则不进行任何操作
             </summary>
-            <param name="value">设置的比特位的值</param>
-            <param name="index">比特位的索引，从低位开始</param>
+            <param name="value">设置的比特位的值，true或false</param>
+            <param name="index">比特位的索引，从低位开始（低位索引位置为0）</param>
         </member>
         <member name="M:CommonLib.Clients.CustomBitConverter`1.GetValue">
             <summary>
@@ -215,10 +220,9 @@
         </member>
         <member name="M:CommonLib.Clients.CustomBitConverter`1.GetValue(System.Int32,System.Int32)">
             <summary>
-            获取从比特转来的整型值
-            获取从比特序列中任意索引处开始、长度若干的子比特序列转换而来的整型值
+            获取从比特序列中任意索引处开始（低位索引位置为0）、长度若干的子比特序列转换而来的整型值
             </summary>
-            <param name="index">子比特序列开始的索引位置</param>
+            <param name="index">子比特序列开始的索引位置，从低位开始（低位索引位置为0）</param>
             <param name="length">子比特序列的长度</param>
             <returns></returns>
         </member>
@@ -389,6 +393,11 @@
             上一个不为空的关联进程主窗口的窗口句柄
             </summary>
         </member>
+        <member name="P:CommonLib.Clients.CustomProcessInfo.StandardErrorReader">
+            <summary>
+            用于读取应用程序错误输出的流
+            </summary>
+        </member>
         <member name="M:CommonLib.Clients.CustomProcessInfo.#ctor(System.Data.DataRow)">
             <summary>
             根据数据行对象进程初始化
@@ -448,12 +457,14 @@
             </summary>
             <param name="arguments">启动该进程时传递的命令行参数</param>
             <param name="killOthers">启动时是否关闭进程的其它实例</param>
+            <returns>假如启动成功，则返回true，否则返回false</returns>
         </member>
         <member name="M:CommonLib.Clients.CustomProcessInfo.Startup(System.Boolean)">
             <summary>
             启动进程
             </summary>
             <param name="killOthers">启动时是否关闭进程的其它实例</param>
+            <returns>假如启动成功，则返回true，否则返回false</returns>
         </member>
         <member name="M:CommonLib.Clients.CustomProcessInfo.Shutdown">
             <summary>
@@ -2130,12 +2141,17 @@
         </member>
         <member name="P:CommonLib.Clients.Tasks.Task.AutoRestart">
             <summary>
-            是否在循环的过程中每隔一段时间自动重新启动
+            是否在循环的过程中自动重新启动，假如设置为true，则任务将在以下情况下重启：<para/>设置的“任务重新启动时间间隔”（RestartInterval）大于“循环执行时间间隔”（Interval）<para/>设置“是否在任务失去响应后重新启动”（RestartWhileFrozen）为true
             </summary>
         </member>
         <member name="P:CommonLib.Clients.Tasks.Task.RestartInterval">
             <summary>
-            任务重新启动的时间间隔（毫秒），仅在任务开始运行后计量，假如不大于任务循环执行的时间间隔则不启用自动重启
+            任务重新启动的时间间隔（毫秒），仅在任务开始运行后计量，假如未启用自动重启（AutoRestart）或不大于任务循环执行的时间间隔（Interval）则不启用自动重启
+            </summary>
+        </member>
+        <member name="P:CommonLib.Clients.Tasks.Task.RestartWhileFrozen">
+            <summary>
+            是否在任务失去响应后（循环执行停止并持续打到一段时间长度）重新启动，仅在启用自动重启（AutoRestart）时生效<para/>设置后即时任务不运行依然将重启
             </summary>
         </member>
         <member name="P:CommonLib.Clients.Tasks.Task.RestartCounter">
@@ -2150,11 +2166,28 @@
         </member>
         <member name="M:CommonLib.Clients.Tasks.Task.#ctor(System.Int32,System.Boolean,System.Int64)">
             <summary>
-            初始化Task类，使用给定的任务执行间隔、是否自动重启、重启时间间隔的设置，初始状态为暂停
+            初始化Task类，使用给定的任务执行间隔、是否自动重启、重启时间间隔的设置，失去响应后不重启，初始状态为暂停
             </summary>
-            <param name="interval"></param>
-            <param name="autoRestart"></param>
-            <param name="restartInterval"></param>
+            <param name="interval">任务循环执行间隔（毫秒），需大于0，默认为1000</param>
+            <param name="autoRestart">是否自动重启，启用后将在达到条件后重启（重启时间间隔与失去响应后重启）</param>
+            <param name="restartInterval">重新启动的时间间隔（毫秒）</param>
+        </member>
+        <member name="M:CommonLib.Clients.Tasks.Task.#ctor(System.Int32,System.Boolean,System.Boolean)">
+            <summary>
+            初始化Task类，使用给定的任务执行间隔、是否自动重启、是否在失去响应后重启的设置，重启时间间隔禁用，初始状态为暂停
+            </summary>
+            <param name="interval">任务循环执行间隔（毫秒），需大于0，默认为1000</param>
+            <param name="autoRestart">是否自动重启，启用后将在达到条件后重启（重启时间间隔与失去响应后重启）</param>
+            <param name="restartWhileFrozen">是否在失去响应后重启</param>
+        </member>
+        <member name="M:CommonLib.Clients.Tasks.Task.#ctor(System.Int32,System.Boolean,System.Int64,System.Boolean)">
+            <summary>
+            初始化Task类，使用给定的任务执行间隔、是否自动重启、重启时间间隔、是否在失去响应后重启的设置，初始状态为暂停
+            </summary>
+            <param name="interval">任务循环执行间隔（毫秒），需大于0，默认为1000</param>
+            <param name="autoRestart">是否自动重启，启用后将在达到条件后重启（重启时间间隔与失去响应后重启）</param>
+            <param name="restartInterval">重新启动的时间间隔（毫秒）</param>
+            <param name="restartWhileFrozen">是否在失去响应后重启</param>
         </member>
         <member name="M:CommonLib.Clients.Tasks.Task.Dispose">
             <summary>
@@ -2183,7 +2216,17 @@
         </member>
         <member name="M:CommonLib.Clients.Tasks.Task.Stop">
             <summary>
-            任务停止
+            任务停止——温和的停止方法，设置停止信号，等待循环进程自己结束，但假如循环阻塞则无能为力:(
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.Tasks.Task.StopWithForce">
+            <summary>
+            任务停止——强制的停止方法，设置停止信号，但不等待循环结束而直接终结线程，并手动触发循环停止后的事件
+            </summary>
+        </member>
+        <member name="M:CommonLib.Clients.Tasks.Task.TriggerEventsAfterBeingStopped">
+            <summary>
+            触发循环线程停止后才会使用的事件
             </summary>
         </member>
         <member name="M:CommonLib.Clients.Tasks.Task.GetNewInstance">
@@ -3091,6 +3134,11 @@
         <member name="P:CommonLib.DataUtil.BaseModel.UpdateTime">
             <summary>
             更新时间
+            </summary>
+        </member>
+        <member name="P:CommonLib.DataUtil.BaseModel.Rownumber">
+            <summary>
+            查询后的记录排序<para/>在底层方法BatisLike.ConvertObjectListByDataTable方法中赋值
             </summary>
         </member>
         <member name="P:CommonLib.DataUtil.BaseModel.ViewName">
@@ -4473,32 +4521,27 @@
             计算功能类
             </summary>
         </member>
-        <member name="M:CommonLib.Extensions.MathExtension.GetAveragedCircleNumbers(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Double}},System.Double@,System.Double@,System.Double@)">
+        <member name="M:CommonLib.Extensions.MathExtension.GetAveragedCircleNumbers(System.Collections.Generic.IEnumerable{CommonLib.Function.MathUtils.Point3D},CommonLib.Function.MathUtils.Dimensions)">
             <summary>
-            在给出的若干对XY坐标集合的集合中，找出14对XY坐标，排除收尾2对（剔除异常点），在剩下12个点中，找出相邻的3个点，根据XY坐标确定圆心的XY坐标和半径长度 <para/>如此按顺序执行10次，计算这10次测到的圆心XY坐标和半径长度的平均值并输出
+            在给出的点对象集合中，以3个点为一组，每组确定一个二维或三维空间中圆的圆心XYZ坐标（二维空间中Z为0）和半径长度 <para/>如此按顺序执行若干次（等于点数量除以3并向下取整），计算圆心XYZ坐标（二维空间中Z为0）和半径长度的平均值并返回圆形对象
             </summary>
-            <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合的集合</param>
-            <param name="centrex">圆心X坐标</param>
-            <param name="centrey">圆心Y坐标</param>
-            <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+            <param name="points">圆上每点的点对象的集合</param>
+            <param name="dimension">要解出圆形信息的空间维度类型</param>
+            <returns></returns>
         </member>
-        <member name="M:CommonLib.Extensions.MathExtension.GetCircleNumbers(System.Collections.Generic.IEnumerable{System.Double},System.Double@,System.Double@,System.Double@)">
+        <member name="M:CommonLib.Extensions.MathExtension.GetAveragedCircleNumbers3D(System.Collections.Generic.IEnumerable{CommonLib.Function.MathUtils.Point3D})">
             <summary>
-            根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度，其中圆上3点的坐标由一个包含6个double数值的集合提供，按顺序分别为3个点的XY坐标
+            在给出的点对象集合中，以3个点为一组，每组确定一个三维空间中圆的圆心XYZ坐标和半径长度 <para/>如此按顺序执行若干次（等于点数量除以3并向下取整），计算圆心XYZ坐标和半径长度的平均值并返回圆形对象
             </summary>
-            <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合</param>
-            <param name="centrex">圆心X坐标</param>
-            <param name="centrey">圆心Y坐标</param>
-            <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+            <param name="points">圆上每点的点对象的集合</param>
+            <returns></returns>
         </member>
-        <member name="M:CommonLib.Extensions.MathExtension.GetCircleNumbers(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Double}},System.Double@,System.Double@,System.Double@)">
+        <member name="M:CommonLib.Extensions.MathExtension.GetAveragedCircleNumbers2D(System.Collections.Generic.IEnumerable{CommonLib.Function.MathUtils.Point3D})">
             <summary>
-            根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度，其中圆上3点的坐标由一个包含3对double数值集合的集合提供，按顺序分别为3个点的XY坐标
+            在给出的点对象集合中，以3个点为一组，每组确定一个二维空间中圆的圆心XY坐标和半径长度 <para/>如此按顺序执行若干次（等于点数量除以3并向下取整），计算圆心XY坐标和半径长度的平均值并返回圆形对象
             </summary>
-            <param name="pairsOfCoors">提供圆上3点XY坐标的数值集合的集合</param>
-            <param name="centrex">圆心X坐标</param>
-            <param name="centrey">圆心Y坐标</param>
-            <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+            <param name="points">圆上每点的点对象的集合</param>
+            <returns></returns>
         </member>
         <member name="M:CommonLib.Extensions.MathExtension.NormalDistribution(System.Double,System.Double,System.Double)">
             <summary>
@@ -4608,7 +4651,7 @@
         </member>
         <member name="M:CommonLib.Extensions.MathExtension.GetAngleByCoordinates(System.Double,System.Double,System.Double,System.Double)">
             <summary>
-            根据给定的顶端以及回转处坐标计算（初步的）回转角度（y轴正向为回转0°方位）
+            （使用MathUtil版本）根据给定的顶端以及回转处坐标计算（初步的）回转角度（y轴正向为回转0°方位）
             </summary>
             <param name="x1">顶端X坐标</param>
             <param name="y1">顶端Y坐标</param>
@@ -4618,7 +4661,7 @@
         </member>
         <member name="M:CommonLib.Extensions.MathExtension.Exchange``1(``0@,``0@)">
             <summary>
-            对两个值类型的值进行交换
+            （使用Swap）对两个值类型的值进行交换
             </summary>
             <typeparam name="T">要交换的值的类型</typeparam>
             <param name="t1">值1</param>
@@ -4638,6 +4681,15 @@
             </summary>
             <param name="value"></param>
             <returns></returns>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.Between(System.Double,System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Double}},System.Boolean)">
+            <summary>
+            判断一个双精度浮点数是否落在给定的若干个区间范围中的任意一个（包括等于），假如区间范围为空（不存在任何有效的区间范围），则返回默认值
+            </summary>
+            <param name="input">待判断的数字</param>
+            <param name="ranges">给定的若干个区间范围</param>
+            <param name="def">当区间范围为空时返回的默认值</param>
+            <returns>假如在数值之间，返回true，否则返回false</returns>
         </member>
         <member name="M:CommonLib.Extensions.MathExtension.Between(System.Double,System.Double,System.Double)">
             <summary>
@@ -4712,30 +4764,412 @@
             <param name="peak_offset">原始数据在数值上的位移</param>
             <returns></returns>
         </member>
+        <member name="T:CommonLib.Function.MathUtils.Circle">
+            <summary>
+            三维空间中二维圆形实体类
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Circle.X">
+            <summary>
+            圆心X坐标
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Circle.Y">
+            <summary>
+            圆心Y坐标
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Circle.Z">
+            <summary>
+            圆心Z坐标
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Circle.Radius">
+            <summary>
+            半径长度
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Circle.#ctor">
+            <summary>
+            默认构造器
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Circle.#ctor(System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            用给定的圆心XYZ坐标以及半径长度初始化
+            </summary>
+            <param name="x">圆心X坐标</param>
+            <param name="y">圆心Y坐标</param>
+            <param name="z">圆心Z坐标</param>
+            <param name="radius">半径长度</param>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Circle.ToString">
+            <summary>
+            转换为字符串
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CommonLib.Function.MathUtils.CircleExtension">
+            <summary>
+            圆形扩展类
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.CircleExtension.Average(System.Collections.Generic.IEnumerable{CommonLib.Function.MathUtils.Circle})">
+            <summary>
+            计算多个圆形对象的XYZ坐标以及半径平均值
+            </summary>
+            <param name="circles">圆形对象集合</param>
+            <returns></returns>
+        </member>
+        <member name="T:CommonLib.Function.MathUtils.CircleCalculator">
+            <summary>
+            圆形计算工具
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.CircleCalculator.Get3DCircle(System.Collections.Generic.IEnumerable{CommonLib.Function.MathUtils.Point3D})">
+            <summary>
+            三维空间中，由给定的点对象集合内圆上3点的XYZ坐标计算圆心坐标与半径长度
+            </summary>
+            <param name="points">给定的点对象集合</param>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.CircleCalculator.Get3DCircle(CommonLib.Function.MathUtils.Point3D,CommonLib.Function.MathUtils.Point3D,CommonLib.Function.MathUtils.Point3D)">
+            <summary>
+            三维空间中，由圆上3点的XYZ坐标计算圆心坐标与半径长度
+            </summary>
+            <param name="p1">点1</param>
+            <param name="p2">点2</param>
+            <param name="p3">点3</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.CircleCalculator.Get2DCircle(System.Collections.Generic.IEnumerable{CommonLib.Function.MathUtils.Point3D})">
+            <summary>
+            二维空间中，由给定的点对象集合内圆上3点的XY坐标计算圆心坐标与半径长度
+            </summary>
+            <param name="points">给定的点对象集合</param>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.CircleCalculator.Get2DCircle(CommonLib.Function.MathUtils.Point3D,CommonLib.Function.MathUtils.Point3D,CommonLib.Function.MathUtils.Point3D)">
+            <summary>
+            二维空间中，由圆上3点的XY坐标计算圆心坐标与半径长度
+            </summary>
+            <param name="p1">点1</param>
+            <param name="p2">点2</param>
+            <param name="p3">点3</param>
+        </member>
+        <member name="T:CommonLib.Function.MathUtils.Dimensions">
+            <summary>
+            维度数量
+            </summary>
+        </member>
+        <member name="F:CommonLib.Function.MathUtils.Dimensions.Two">
+            <summary>
+            二维空间
+            </summary>
+        </member>
+        <member name="F:CommonLib.Function.MathUtils.Dimensions.Three">
+            <summary>
+            三维空间
+            </summary>
+        </member>
+        <member name="T:CommonLib.Function.MathUtils.Point3D">
+            <summary>
+            三维空间中坐标点对象
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Point3D.X">
+            <summary>
+            X坐标
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Point3D.Y">
+            <summary>
+            Y坐标
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Point3D.Z">
+            <summary>
+            Z坐标
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Point3D.#ctor">
+            <summary>
+            默认构造器
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Point3D.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            用给定的XYZ坐标初始化
+            </summary>
+            <param name="x">X坐标</param>
+            <param name="y">Y坐标</param>
+            <param name="z">Z坐标</param>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Point3D.#ctor(System.Collections.Generic.IEnumerable{System.Double})">
+            <summary>
+            用给定数值集合初始化，集合内元素分别为XYZ坐标，假如数量不足则赋值优先顺序为X/Y/Z
+            </summary>
+            <param name="coors">给定XYZ坐标的数值集合</param>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Point3D.op_Subtraction(CommonLib.Function.MathUtils.Point3D,CommonLib.Function.MathUtils.Point3D)">
+            <summary>
+            两点相减，得到从一点开始、另一点结束的向量
+            </summary>
+            <param name="p2"></param>
+            <param name="p1"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Point3D.op_Subtraction(CommonLib.Function.MathUtils.Point3D,CommonLib.Function.MathUtils.Vector3D)">
+            <summary>
+            一点减去向量，得到另一点，后者在向量起点，前者在向量终点
+            </summary>
+            <param name="p2"></param>
+            <param name="v"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Point3D.op_Addition(CommonLib.Function.MathUtils.Point3D,CommonLib.Function.MathUtils.Vector3D)">
+            <summary>
+            一点与向量相加，得到另一点，后者在向量终点，前者在向量起点
+            </summary>
+            <param name="p1"></param>
+            <param name="v"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Point3D.op_Addition(CommonLib.Function.MathUtils.Vector3D,CommonLib.Function.MathUtils.Point3D)">
+            <summary>
+            一点与向量相加，得到另一点，后者在向量终点，前者在向量起点
+            </summary>
+            <param name="p1"></param>
+            <param name="v"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Point3D.ToString">
+            <summary>
+            转换为字符串
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Point3D.GetPointsInFileContent(System.String)">
+            <summary>
+            读取给定文件路径的文件内容，每行转换为包含XYZ坐标信息的点对象（数字间用tab制表符、半角逗号或空格分隔）、每个点对象再作为一个集合并返回
+            <para/>假如某行除分隔符外有非数字，则该行将被忽略
+            </summary>
+            <param name="filePath">读取坐标信息的文件的完整文件路径</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException"></exception>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Point3D.GetPointsInFileContent(System.String,System.Collections.Generic.List{System.Double[]}@)">
+            <summary>
+            读取给定文件路径的文件内容，每行转换为包含XYZ坐标信息的点对象（数字间用tab制表符、半角逗号或空格分隔）、每个点对象再作为一个集合并返回
+            <para/>假如某行除分隔符外有非数字，则该行将被忽略
+            </summary>
+            <param name="filePath">读取坐标信息的文件的完整文件路径</param>
+            <param name="groupsOfNumbers">从文件内容中转换的XY坐标数组的列表</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException"></exception>
+            <returns></returns>
+        </member>
+        <member name="T:CommonLib.Function.MathUtils.Vector3D">
+            <summary>
+            三维空间中向量实体类
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Vector3D.X">
+            <summary>
+            X方向分量
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Vector3D.Y">
+            <summary>
+            Y方向分量
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Vector3D.Z">
+            <summary>
+            Z方向分量
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Vector3D.Length">
+            <summary>
+            向量的模（长度）
+            </summary>
+        </member>
+        <member name="P:CommonLib.Function.MathUtils.Vector3D.LengthSquared">
+            <summary>
+            向量模（长度）的平方
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Vector3D.#ctor">
+            <summary>
+            默认构造器
+            </summary>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Vector3D.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            用给定XYZ方向分量值初始化
+            </summary>
+            <param name="x">X方向分量</param>
+            <param name="y">Y方向分量</param>
+            <param name="z">Z方向分量</param>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Vector3D.op_Multiply(System.Double,CommonLib.Function.MathUtils.Vector3D)">
+            <summary>
+            常数与向量相乘
+            </summary>
+            <param name="scalar">与向量相乘的常数（标量）</param>
+            <param name="vector">与常数（标量）相乘的向量</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Vector3D.op_Multiply(CommonLib.Function.MathUtils.Vector3D,System.Double)">
+            <summary>
+            向量与常数相乘
+            </summary>
+            <param name="scalar">与向量相乘的常数（标量）</param>
+            <param name="vector">与常数（标量）相乘的向量</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Vector3D.op_Division(CommonLib.Function.MathUtils.Vector3D,System.Double)">
+            <summary>
+            将向量用常数去除
+            </summary>
+            <param name="scalar">与向量相乘的常数（标量）</param>
+            <param name="vector">与常数（标量）相乘的向量</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Vector3D.op_Subtraction(CommonLib.Function.MathUtils.Vector3D,CommonLib.Function.MathUtils.Vector3D)">
+            <summary>
+            向量之间相减
+            </summary>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Vector3D.op_Multiply(CommonLib.Function.MathUtils.Vector3D,CommonLib.Function.MathUtils.Vector3D)">
+            <summary>
+            向量之间叉乘（交换位置会影响计算结果）
+            </summary>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtils.Vector3D.ToString">
+            <summary>
+            转换为字符串
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:CommonLib.Function.MathUtil">
             <summary>
             数学计算功能类
             </summary>
         </member>
-        <member name="M:CommonLib.Function.MathUtil.GetCircleNumbers(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double@,System.Double@,System.Double@)">
+        <member name="M:CommonLib.Function.MathUtil.GetAveragedCircleNumbers(System.String,CommonLib.Function.MathUtils.Dimensions)">
             <summary>
-            根据圆上3个点的XY坐标确定圆心的XY坐标和半径长度
+            读取给定文件路径的文件内容，每行转换为一组XY坐标的数组（数字间用tab制表符、半角逗号或空格分隔）、每个数组再作一个集合，用这些集合中的坐标计算圆心XY坐标和半径长度的平均值并输出
+            <para/>假如某行除分隔符外有非数字，则该行将被忽略，同时假设这些坐标都在某个圆上或附近
             </summary>
-            <param name="x1">第1点的X坐标</param>
-            <param name="y1">第1点的Y坐标</param>
-            <param name="x2">第2点的X坐标</param>
-            <param name="y2">第2点的Y坐标</param>
-            <param name="x3">第3点的X坐标</param>
-            <param name="y3">第3点的Y坐标</param>
-            <param name="centrex">圆心X坐标</param>
-            <param name="centrey">圆心Y坐标</param>
-            <param name="radius">圆周半径长度，单位与坐标轴单位相同</param>
+            <param name="filePath">读取XY坐标内容的文件的完整文件路径</param>
+            <param name="dimension">要解出圆形信息的空间维度类型</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException"></exception>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtil.GetAveragedCircleNumbers(System.String,CommonLib.Function.MathUtils.Dimensions,System.Collections.Generic.List{System.Double[]}@)">
+            <summary>
+            读取给定文件路径的文件内容，每行转换为一组XY坐标的数组（数字间用tab制表符、半角逗号或空格分隔）、每个数组再作一个集合，用这些集合中的坐标计算圆心XY坐标和半径长度的平均值并输出
+            <para/>假如某行除分隔符外有非数字，则该行将被忽略，同时假设这些坐标都在某个圆上或附近
+            </summary>
+            <param name="filePath">读取XY坐标内容的文件的完整文件路径</param>
+            <param name="dimension">要解出圆形信息的空间维度类型</param>
+            <param name="groupsOfCoors">从文件内容中转换的XY坐标数组的列表</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException"></exception>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtil.GetAveragedCircleNumbers3d(System.String)">
+            <summary>
+            读取给定文件路径的文件内容，每行转换为一组XY坐标的数组（数字间用tab制表符、半角逗号或空格分隔）、每个数组再作一个集合，用这些集合中的坐标计算圆心XY坐标和半径长度的平均值并输出
+            <para/>假如某行除分隔符外有非数字，则该行将被忽略，同时假设这些坐标都在某个圆上或附近
+            </summary>
+            <param name="filePath">读取XY坐标内容的文件的完整文件路径</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException"></exception>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtil.GetAveragedCircleNumbers3d(System.String,System.Collections.Generic.List{System.Double[]}@)">
+            <summary>
+            读取给定文件路径的文件内容，每行转换为一组XY坐标的数组（数字间用tab制表符、半角逗号或空格分隔）、每个数组再作一个集合，用这些集合中的坐标计算圆心XY坐标和半径长度的平均值并输出
+            <para/>假如某行除分隔符外有非数字，则该行将被忽略，同时假设这些坐标都在某个圆上或附近
+            </summary>
+            <param name="filePath">读取XY坐标内容的文件的完整文件路径</param>
+            <param name="groupsOfCoors">从文件内容中转换的XY坐标数组的列表</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException"></exception>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtil.GetAveragedCircleNumbers(System.String)">
+            <summary>
+            读取给定文件路径的文件内容，每行转换为一组XY坐标的数组（数字间用tab制表符、半角逗号或空格分隔）、每个数组再作一个集合，用这些集合中的坐标计算圆心XY坐标和半径长度的平均值并输出
+            <para/>假如某行除分隔符外有非数字，则该行将被忽略，同时假设这些坐标都在某个圆上或附近
+            </summary>
+            <param name="filePath">读取XY坐标内容的文件的完整文件路径</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException"></exception>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtil.GetAveragedCircleNumbers(System.String,System.Collections.Generic.List{System.Double[]}@)">
+            <summary>
+            读取给定文件路径的文件内容，每行转换为一组XY坐标的数组（数字间用tab制表符、半角逗号或空格分隔）、每个数组再作一个集合，用这些集合中的坐标计算圆心XY坐标和半径长度的平均值并输出
+            <para/>假如某行除分隔符外有非数字，则该行将被忽略，同时假设这些坐标都在某个圆上或附近
+            </summary>
+            <param name="filePath">读取XY坐标内容的文件的完整文件路径</param>
+            <param name="groupsOfCoors">从文件内容中转换的XY坐标数组的列表</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException"></exception>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtil.GetNumberPairsByString(System.String,System.Char,System.Char)">
+            <summary>
+            根据给定的数值区间范围描述字符串（形如“-3.4~-1.2, 6.772~10.838”）输出成对的区间范围
+            </summary>
+            <param name="descp">数值区间范围的描述字符串（形如“-3.4~-1.2, 6.772~10.838”）</param>
+            <param name="splitChar">描述数字分隔关系的字符，默认为“,”</param>
+            <param name="intervalChar">描述区间起始结束关系的连接字符，默认为~（为避免负数不要使用-）</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtil.GetIntegerListByString(System.String,System.Char,System.Char)">
+            <summary>
+            根据给定的整数序列描述字符串（形如“-5, -3~-1, 3, 6~10”）输出整数序列
+            </summary>
+            <param name="descp">整数序列的描述字符串（形如“-5, -3~-1, 3, 6~10”）</param>
+            <param name="splitChar">描述数字分隔关系的字符，默认为“,”</param>
+            <param name="intervalChar">描述区间起始结束关系的字符，默认为~（为避免负数不要使用-）</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.MathUtil.GetNumbersInFileContent(System.String)">
+            <summary>
+            读取给定文件路径的文件内容，每行转换为包含若干数字的数组（数字间用tab制表符、半角逗号或空格分隔）、每个数组再作为一个集合并返回
+            <para/>假如某行除分隔符外有非数字，则该行将被忽略
+            </summary>
+            <param name="filePath">读取数值内容的文件的完整文件路径</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException"></exception>
+            <returns></returns>
         </member>
         <member name="M:CommonLib.Function.MathUtil.KeepAzimuthInRange(System.Double@)">
             <summary>
             使输入的方位角保持在合理的范围之内（-180°到180°之间，包含-180°，不包含180°），假如超过180°则减360°，小于-180°则加360°，循环计算直到进入范围为止
             </summary>
             <param name="angle">待修改的输入方位角</param>
+        </member>
+        <member name="M:CommonLib.Function.MathUtil.GetAngleByCoordinates(System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            根据给定的顶端以及回转处坐标计算（初步的）回转角度（y轴正向为回转0°方位）
+            </summary>
+            <param name="x1">顶端X坐标</param>
+            <param name="y1">顶端Y坐标</param>
+            <param name="xa">回转处X坐标</param>
+            <param name="ya">回转处Y坐标</param>
+            <returns></returns>
         </member>
         <member name="T:CommonLib.Function.ReflectionUtil">
             <summary>
@@ -6726,7 +7160,35 @@
             <summary>
             获取DataGridView的所有选中行，不受SelectionMode影响
             </summary>
-            <param name="gridView"></param>
+            <param name="gridView">当前DataGridView</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.UIControlUtil.DataGridViewExtentionClass.GetRowByIndex(System.Windows.Forms.DataGridView,System.Int32)">
+            <summary>
+            根据给定索引获取DataGridView的某一行，假如超出范围（小于0或大于等于总行数）则返回空
+            </summary>
+            <param name="gridView">当前DataGridView</param>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.UIControlUtil.DataGridViewExtentionClass.SetRowSelected(System.Windows.Forms.DataGridView,System.Int32,System.Nullable{System.Boolean},System.Nullable{System.Boolean})">
+            <summary>
+            在当前DataGridView中根据行索引选中给定的行
+            </summary>
+            <param name="gridView">当前DataGridView</param>
+            <param name="index">给定行的索引，假如超出范围（小于0或大于等于总行数）则不继续向下进行任何操作</param>
+            <param name="fullRowSelect">设置SelectionMode为FullRowSelect，假如为null或false则不设置</param>
+            <param name="multiSelect">设置是否允许多选，假如为null则不设置</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.UIControlUtil.DataGridViewExtentionClass.SetRowSelected(System.Windows.Forms.DataGridView,System.Windows.Forms.DataGridViewRow,System.Nullable{System.Boolean},System.Nullable{System.Boolean})">
+            <summary>
+            在当前DataGridView中选中给定的行
+            </summary>
+            <param name="gridView">当前DataGridView</param>
+            <param name="viewRow">给定行对象，假如为空则不继续向下进行任何操作</param>
+            <param name="fullRowSelect">设置SelectionMode为FullRowSelect，假如为null或false则不设置</param>
+            <param name="multiSelect">设置是否允许多选，假如为null则不设置</param>
             <returns></returns>
         </member>
         <member name="M:CommonLib.UIControlUtil.TabControlUtil.ShowForm(System.Windows.Forms.TabControl,System.Windows.Forms.Form)">

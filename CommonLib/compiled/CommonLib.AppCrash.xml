@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CommonLib.AppCrash</name>
+    </assembly>
+    <members>
+        <member name="T:CommonLib.AppCrash.AppCrashTest">
+            <summary>
+            使用此类测试程序崩溃效果
+            </summary>
+        </member>
+        <member name="P:CommonLib.AppCrash.AppCrashTest.TcpThread">
+            <summary>
+            Tcp客户端连接线程
+            </summary>
+        </member>
+        <member name="M:CommonLib.AppCrash.AppCrashTest.#ctor">
+            <summary>
+            构造器
+            </summary>
+        </member>
+        <member name="M:CommonLib.AppCrash.AppCrashTest.RunAsync">
+            <summary>
+            尝试异步运行以制造程序崩溃
+            </summary>
+        </member>
+        <member name="M:CommonLib.AppCrash.AppCrashTest.Run">
+            <summary>
+            尝试运行以制造程序崩溃
+            </summary>
+        </member>
+        <member name="M:CommonLib.AppCrash.AppCrashTest.ThrowOutOfMemoryException">
+            <summary>
+            抛出OutOfMemory异常
+            </summary>
+        </member>
+    </members>
+</doc>

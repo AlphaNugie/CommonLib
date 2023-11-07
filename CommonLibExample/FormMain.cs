@@ -1,4 +1,5 @@
-﻿using CommonLib.UIControlUtil.ControlTemplates;
+﻿using CommonLib.AppCrash;
+using CommonLib.UIControlUtil.ControlTemplates;
 using CommonLibExample.Forms;
 using System;
 using System.Collections.Generic;
@@ -68,6 +69,11 @@ namespace CommonLibExample
             new FormCustomMessageBox().Show();
         }
 
+        private void Button_Controls_Click(object sender, EventArgs e)
+        {
+            new FormControls().Show();
+        }
+
         private void Button_Busy_Click(object sender, EventArgs e)
         {
             while (true)
@@ -79,17 +85,28 @@ namespace CommonLibExample
         private string _test = "test";
         private void Button_Exception_Click(object sender, EventArgs e)
         {
-            //throw new Exception();
-            while (true)
-            {
-                _test += _test;
-                Thread.Sleep(10);
-            }
+            //while (true)
+            //{
+            //    _test += _test;
+            //    Thread.Sleep(10);
+            //}
+            _test = null;
+            _test.StartsWith("1");
         }
 
-        private void Button_Controls_Click(object sender, EventArgs e)
+        private void Button_OutOfMemoryException_Click(object sender, EventArgs e)
         {
-            new FormControls().Show();
+            throw new OutOfMemoryException("触发新的异常");
+        }
+
+        private void Button_AppCrash_Click(object sender, EventArgs e)
+        {
+            new AppCrashTest().RunAsync();
+        }
+
+        private void Button_RunTests_Click(object sender, EventArgs e)
+        {
+            new FormTests().Show();
         }
     }
 }

@@ -299,13 +299,8 @@ namespace CommonLib.DataUtil
                     propName = param.Substring(startIndex + 1, midIndex - startIndex - 1);
                     jdbcType = param.Contains(",jdbcType=") ? param.Substring(param.IndexOf('=') + 1, endIndex - param.IndexOf('=') - 1) : string.Empty;
 
-                    //根据对象属性名称找出属性类型，并根据类型决定属性存储方式(值)
-                    PropertyInfo property = obj.GetType().GetProperty(propName);
-
-                    //假如属性为空（不存在），则抛出类成员不存在异常
-                    if (property == null)
-                        throw new MissingMemberException(string.Format("{0}类中不存在属性{1}", obj.GetType().ToString(), propName));
-
+                    //根据对象属性名称找出属性类型，并根据类型决定属性存储方式(值)，假如property为null则抛出错误
+                    PropertyInfo property = obj.GetType().GetProperty(propName) ?? throw new MissingMemberException(string.Format("{0}类中不存在属性{1}", obj.GetType().ToString(), propName));
                     object realParam_obj = property.GetValue(obj); //属性值
                     //假如属性为空
                     if (realParam_obj == null)
@@ -481,10 +476,20 @@ namespace CommonLib.DataUtil
             List<T> list = new List<T>();
             //if (dataTable == null || dataTable.Rows.Count == 0)
             //    return new List<T>();
+            int rownum = 1;
             if (dataTable != null && dataTable.Rows.Count != 0)
-                list = dataTable.Rows.Cast<DataRow>().Select(dataRow => ConvertObjectByDataRow<T>(dataRow)).ToList();
-            if (dataTable != null)
-                dataTable.Dispose();
+                //list = dataTable.Rows.Cast<DataRow>().Select(dataRow => ConvertObjectByDataRow<T>(dataRow)).ToList();
+                list = dataTable.Rows.Cast<DataRow>().Select(dataRow =>
+                {
+                    var obj = ConvertObjectByDataRow<T>(dataRow);
+                    obj.Rownumber = rownum++;
+                    return obj;
+                }).ToList();
+            dataTable?.Dispose();
+            ////更新记录的排序序号
+            //if (list != null && list.Count > 0)
+            //    for (int i = 1; i <= list.Count; i++)
+            //        list[i - 1].Rownumber = i;
             return list;
         }
     }

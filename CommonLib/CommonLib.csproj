@@ -116,7 +116,11 @@
     <Compile Include="Events\RoutineStatusChangedEventArgs.cs" />
     <Compile Include="Extensions\Property\PropertyMapperExtension.cs" />
     <Compile Include="Extensions\Reflection\ReflectionExtension.cs" />
+    <Compile Include="Function\MathUtils\Circle.cs" />
+    <Compile Include="Function\MathUtils\CircleCalculator.cs" />
+    <Compile Include="Function\MathUtils\Point3D.cs" />
     <Compile Include="Function\MathUtil.cs" />
+    <Compile Include="Function\MathUtils\Vector3D.cs" />
     <Compile Include="Function\ReflectionUtil.cs" />
     <Compile Include="Function\BaseFunctions.cs" />
     <Compile Include="Clients\ConnClient.cs" />

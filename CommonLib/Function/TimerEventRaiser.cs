@@ -97,7 +97,7 @@ namespace CommonLib.Function
         public ulong RaiseThreshold
         {
             //get { return _raiseThreshold; }
-            //假如不重置，计时器将一直累加，每次判断的阈值都加上触发的次数x触发间隔，已达到每两次触发之间至少有一个触发间隔的时间长度的效果
+            //假如不重置，计时器将一直累加，每次判断的阈值都加上触发的次数x触发间隔，以达到每两次触发之间至少有一个触发间隔的时间长度的效果
             //get { return _raiseThreshold + _raisedTimes * _raiseInterval; }
             get { return _raiseThreshold + RaisedTimes * _raiseInterval; }
             set { _raiseThreshold = value > 0 ? value : DEFAULT_RAISE_THRESHOLD; }

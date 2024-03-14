@@ -33,7 +33,7 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="System.Data.SQLite">
-      <HintPath>..\CommonLib.DataUtil.SqliteProviderLib\bin\Debug\System.Data.SQLite.dll</HintPath>
+      <HintPath>..\..\..\DLL\System.Data.SQLite.dll</HintPath>
     </Reference>
   </ItemGroup>
 

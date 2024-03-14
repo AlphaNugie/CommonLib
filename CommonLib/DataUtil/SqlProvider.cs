@@ -110,7 +110,7 @@ Password = {4};";
         ///// <returns>返回结果集</returns>
         //public DataSet MultiQuery(string[] sqlStrings)
         //{
-        //    return this.MultiQuery<SqlConnection, SqlDataAdapter>(this.ConnStr, sqlStrings);
+        //    return MultiQuery<SqlConnection, SqlDataAdapter>(ConnStr, sqlStrings);
         //}
 
         ///// <summary>
@@ -120,7 +120,7 @@ Password = {4};";
         ///// <returns>返回数据集</returns>
         //public DataSet MultiQuery(string sqlStrings)
         //{
-        //    return this.MultiQuery<SqlConnection, SqlDataAdapter>(this.ConnStr, sqlStrings);
+        //    return MultiQuery<SqlConnection, SqlDataAdapter>(ConnStr, sqlStrings);
         //}
 
         ///// <summary>
@@ -130,7 +130,7 @@ Password = {4};";
         ///// <returns>返回数据表</returns>
         //public DataTable Query(string sqlString)
         //{
-        //    return this.Query<SqlConnection, SqlDataAdapter>(this.ConnStr, sqlString);
+        //    return Query<SqlConnection, SqlDataAdapter>(ConnStr, sqlString);
         //}
 
         ///// <summary>
@@ -140,7 +140,7 @@ Password = {4};";
         ///// <returns>返回影响的记录行数</returns>
         //public int ExecuteSql(string sqlString)
         //{
-        //    return this.ExecuteSql<SqlConnection, SqlCommand>(this.ConnStr, sqlString);
+        //    return ExecuteSql<SqlConnection, SqlCommand>(ConnStr, sqlString);
         //}
 
         ///// <summary>
@@ -151,7 +151,7 @@ Password = {4};";
         ///// <returns>假如执行成功，返回true</returns>
         //public bool ExecuteSqlTrans(IEnumerable<string> sqlStrings, IsolationLevel level)
         //{
-        //    return this.ExecuteSqlTrans<SqlConnection, SqlCommand, SqlTransaction>(this.ConnStr, sqlStrings, level);
+        //    return ExecuteSqlTrans<SqlConnection, SqlCommand, SqlTransaction>(ConnStr, sqlStrings, level);
         //}
 
         ///// <summary>
@@ -161,7 +161,7 @@ Password = {4};";
         ///// <returns>假如执行成功，返回true</returns>
         //public bool ExecuteSqlTrans(IEnumerable<string> sqlStrings)
         //{
-        //    return this.ExecuteSqlTrans<SqlConnection, SqlCommand, SqlTransaction>(this.ConnStr, sqlStrings);
+        //    return ExecuteSqlTrans<SqlConnection, SqlCommand, SqlTransaction>(ConnStr, sqlStrings);
         //}
 
         ///// <summary>
@@ -171,7 +171,7 @@ Password = {4};";
         ///// <returns>假如执行成功，返回true</returns>
         //public bool ExecuteSqlTrans(string sqlStrings)
         //{
-        //    return this.ExecuteSqlTrans<SqlConnection, SqlCommand, SqlTransaction>(this.ConnStr, sqlStrings);
+        //    return ExecuteSqlTrans<SqlConnection, SqlCommand, SqlTransaction>(ConnStr, sqlStrings);
         //}
 
         ///// <summary>
@@ -182,7 +182,7 @@ Password = {4};";
         ///// <returns></returns>
         //public int RunProcedure(string procedureName, IDataParameter[] parameters)
         //{
-        //    return this.RunProcedure<SqlConnection, SqlCommand>(this.ConnStr, procedureName, parameters);
+        //    return RunProcedure<SqlConnection, SqlCommand>(ConnStr, procedureName, parameters);
         //}
         #endregion
     }

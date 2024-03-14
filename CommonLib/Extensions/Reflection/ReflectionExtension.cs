@@ -13,6 +13,32 @@ namespace CommonLib.Extensions.Reflection
     public static class ReflectionExtension
     {
         /// <summary>
+        /// 克隆一个新的对象出来，完全复制所有属性值（属性需同时支持读写）
+        /// <para/>注意：引用类型将只复制引用
+        /// </summary>
+        /// <typeparam name="T">待克隆对象的类型</typeparam>
+        /// <param name="obj">待克隆对象</param>
+        /// <returns></returns>
+        /// <exception cref="MissingMethodException">克隆对象的目标类型缺少无参构造器</exception>
+        public static T Clone<T>(this T obj)
+        {
+            Type type = typeof(T);
+            T newObj;
+            //初始化一个目标类型的对象
+            try { newObj = (T)Activator.CreateInstance(type); }
+            catch (MissingMethodException e) { throw new MissingMethodException(string.Format($"待克隆的目标类型{type.Name}缺少默认的无参构造器"), e); }
+            var props = type.GetProperties();
+            foreach (var prop in props)
+            {
+                //仅支持可读写的属性
+                if (!prop.CanRead || !prop.CanWrite)
+                    continue;
+                prop.SetValue(newObj, prop.GetValue(obj));
+            }
+            return newObj;
+        }
+
+        /// <summary>
         /// 获取类型的默认值，假如类型对象不为空且为值类型则构造一个实例，否则返回null
         /// </summary>
         /// <param name="type">给定的类型实体</param>

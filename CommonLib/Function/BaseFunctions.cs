@@ -72,7 +72,7 @@ namespace CommonLib.Function
         /// <param name="splitChar">描述数字分隔关系的字符，默认为,</param>
         /// <param name="intervalChar">描述区间起始结束关系的字符，默认为~（为避免负数不要使用-）</param>
         /// <returns></returns>
-        [Obsolete]
+        [Obsolete("应使用MathUtil下的静态方法")]
         public static List<int> GetIntegerListByString(string descp, char splitChar = ',', char intervalChar = '~')
         {
             return MathUtil.GetIntegerListByString(descp, splitChar, intervalChar);

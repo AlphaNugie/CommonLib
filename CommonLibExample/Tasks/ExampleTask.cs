@@ -14,11 +14,11 @@ namespace CommonLibExample.Tasks
         {
         }
 
-        public override void Init()
+        protected override void Init()
         {
         }
 
-        public override void LoopContent()
+        protected override void LoopContent()
         {
             //Restart();
         }

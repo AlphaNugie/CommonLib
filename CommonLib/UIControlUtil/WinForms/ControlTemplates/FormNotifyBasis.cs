@@ -12,8 +12,8 @@ namespace CommonLib.UIControlUtil.ControlTemplates
 {
     /// <summary>
     /// 带有通知区域图标与隐藏功能的窗体，假如新窗体继承自此窗体，则需要在新窗体的FormClosing事件中（假如有的话）加上如下代码
-    /// if (e.CloseReason == CloseReason.UserClosing)
-    ///     return;
+    /// <para/>if (e.CloseReason == CloseReason.UserClosing)
+    /// <para/>    return;
     /// </summary>
     public partial class FormNotifyBasis : Form
     {

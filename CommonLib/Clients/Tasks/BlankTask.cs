@@ -16,12 +16,12 @@ namespace CommonLib.Clients.Tasks
         /// </summary>
         public BlankTask() : base() { }
 
-        public override void Init()
+        protected override void Init()
         {
             //throw new NotImplementedException();
         }
 
-        public override void LoopContent()
+        protected override void LoopContent()
         {
             //throw new NotImplementedException();
         }

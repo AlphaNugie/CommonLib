@@ -64,7 +64,12 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 任务循环线程
         /// </summary>
-        public Thread ThreadLoop { get; private set; }
+        protected Thread ThreadLoop { get; private set; }
+
+        /// <summary>
+        /// 任务的当前状态
+        /// </summary>
+        public ServiceState State { get; private set; }
 
         /// <summary>
         /// 错误消息
@@ -78,7 +83,7 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 任务日志
         /// </summary>
-        public List<string> TaskLogs { get; private set; }
+        protected List<string> TaskLogs { get; private set; }
 
         /// <summary>
         /// 是否打印任务日志
@@ -102,12 +107,12 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 是否已初始化
         /// </summary>
-        public bool Initialized { get; set; }
+        public bool Initialized { get; private set; }
 
         /// <summary>
         /// 任务循环次数
         /// </summary>
-        public ulong LoopCounter { get; set; }
+        public ulong LoopCounter { get; private set; }
 
         /// <summary>
         /// 是否为一次性任务
@@ -186,6 +191,7 @@ namespace CommonLib.Clients.Tasks
                 throw new ArgumentException("任务循环执行间隔小于或等于0", nameof(interval));
             _valDiffRstrtWhlFrzn.ValueChangedEvent += new Events.ValueChangedEventHandler<bool>(ValDiffRstrtWhlFrzn_ValueChangedEvent);
             _eventRaiser.ThresholdReached += new TimerEventRaiser.ThresholdReachedEventHandler(EventRaiser_ThresholdReached);
+            State = ServiceState.Idle;
             Interval = interval;
             AutoRestart = autoRestart;
             RestartInterval = restartInterval;
@@ -261,7 +267,8 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 任务初始化（不会保留添加的任务日志或进行其它任何其它操作）
         /// </summary>
-        public abstract void Init();
+        //public abstract void Init();
+        protected abstract void Init();
 
         /// <summary>
         /// 任务运行
@@ -270,7 +277,9 @@ namespace CommonLib.Clients.Tasks
         {
             _paused = false;
             _stopwatch.Start();
-            _auto.Set();
+            //假如AutoResetEvent对象未被释放，再进行对其对象的操作
+            if (!_auto.SafeWaitHandle.IsClosed)
+                _auto.Set();
         }
 
         public void RunOnceNStop()
@@ -300,7 +309,8 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 任务停止——强制的停止方法，设置停止信号，但不等待循环结束而直接终结线程，并手动触发循环停止后的事件
         /// </summary>
-        public void StopWithForce()
+        /// <param name="restarting">是否设置了重新启动</param>
+        public void StopWithForce(bool restarting = false)
         {
             Stop();
             //强制终止一下线程
@@ -309,18 +319,34 @@ namespace CommonLib.Clients.Tasks
                 ThreadLoop.Abort();
                 ThreadLoop = null;
             }
-            TriggerEventsAfterBeingStopped();
+            TriggerEventsAfterBeingStopped(restarting);
         }
+
+        //public void TestEvents()
+        //{
+        //    bool nul = StateChanged == null;
+        //    var o = StateChanged.Target;
+        //    var m = StateChanged.Method;
+        //}
 
         /// <summary>
         /// 触发循环线程停止后才会使用的事件
         /// </summary>
-        private void TriggerEventsAfterBeingStopped()
+        /// <param name="restarting">是否设置了重新启动</param>
+        private void TriggerEventsAfterBeingStopped(bool restarting = false)
         {
             //任务停止事件
-            StateChanged?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
+            //StateChanged?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
+            var state = restarting ? ServiceState.Restarted : ServiceState.Stopped;
+            TriggerStateChangedEvent(state);
             //任务停止事件（重启用）
-            StateChangedAfterRestart?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Stopped, RestartCounter), null, null);
+            StateChangedAfterRestart?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, state, RestartCounter), null, null);
+        }
+
+        private void TriggerStateChangedEvent(ServiceState state)
+        {
+            State = state;
+            StateChanged?.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, State, RestartCounter), null, null);
         }
 
         /////
@@ -341,27 +367,56 @@ namespace CommonLib.Clients.Tasks
         /// </summary>
         public void Restart()
         {
+            ////假如已进入重启过程中，则不再重复执行
+            //if (State == ServiceState.Restarting)
+            //假如不是启动状态，则不进行重新启动
+            if (State == ServiceState.Restarting || State == ServiceState.Restarted)
+                return;
+            TriggerStateChangedEvent(ServiceState.Restarting);
             //用委托添加一个状态改变事件，然后再终止任务，这个事件会等到整个循环体完全结束之后再执行
             //StateChanged += new TaskStateChangedEventHandler(delegate (object obj, TaskStateChangedEventArgs args)
-            StateChangedAfterRestart += new TaskStateChangedEventHandler(delegate (object obj, TaskStateChangedEventArgs args)
-            {
-                if (args.State == ServiceState.Started)
-                    return;
-                var task = GetNewInstance(/*Interval, AutoRestart, RestartInterval*/);
-                if (task == null)
-                    return;
-                task.Interval = Interval;
-                task.AutoRestart = AutoRestart;
-                task.RestartInterval = RestartInterval;
-                task.RestartWhileFrozen = RestartWhileFrozen;
-                task.RestartCounter = RestartCounter + 1; //重启计数+1
-                Dispose();
-                //RestartUrself();
-                task.Initialize();
-                task.Run();
-            });
+            //StateChangedAfterRestart += new TaskStateChangedEventHandler(delegate (object obj, TaskStateChangedEventArgs args)
+            //{
+            //    if (args.State == ServiceState.Started)
+            //        return;
+            //    var task = GetNewInstance(/*Interval, AutoRestart, RestartInterval*/);
+            //    if (task == null)
+            //        return;
+            //    task.Interval = Interval;
+            //    task.AutoRestart = AutoRestart;
+            //    task.RestartInterval = RestartInterval;
+            //    task.RestartWhileFrozen = RestartWhileFrozen;
+            //    task.RestartCounter = RestartCounter + 1; //重启计数+1
+            //    Dispose();
+            //    //RestartUrself();
+            //    task.Initialize();
+            //    task.Run();
+            //});
+            //先取消订阅防止重复订阅
+            StateChangedAfterRestart -= new TaskStateChangedEventHandler(Task_StateChangedAfterRestart);
+            StateChangedAfterRestart += new TaskStateChangedEventHandler(Task_StateChangedAfterRestart);
             //Stop();
-            StopWithForce();
+            StopWithForce(restarting: true);
+        }
+
+        private void Task_StateChangedAfterRestart(object sender, TaskStateChangedEventArgs e)
+        {
+            //if (e.State == ServiceState.Started)
+            //    return;
+            if (e.State != ServiceState.Restarted)
+                return;
+            var task = GetNewInstance(/*Interval, AutoRestart, RestartInterval*/);
+            if (task == null)
+                return;
+            task.Interval = Interval;
+            task.AutoRestart = AutoRestart;
+            task.RestartInterval = RestartInterval;
+            task.RestartWhileFrozen = RestartWhileFrozen;
+            task.RestartCounter = RestartCounter + 1; //重启计数+1
+            Dispose();
+            //RestartUrself();
+            task.Initialize();
+            task.Run();
         }
         #endregion
 
@@ -369,12 +424,14 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 循环体内部内容
         /// </summary>
-        public abstract void LoopContent();
+        //public abstract void LoopContent();
+        protected abstract void LoopContent();
 
         /// <summary>
         /// 循环体
         /// </summary>
-        public void Loop()
+        //public void Loop()
+        private void Loop()
         {
             ////结束条件：结束标志为true，或任务只运行1次且已经运行1次
             //while (!(_ended || (RunOnlyOnce && LoopCounter++ > 0)))
@@ -382,12 +439,20 @@ namespace CommonLib.Clients.Tasks
             while (!(_ended || (LoopCounter++ > 0 && RunOnlyOnce)))
             {
                 Thread.Sleep(Interval);
-                _eventRaiser.Click();
+                //_eventRaiser.Click();
                 if (_paused)
-                    _auto.WaitOne();
+                {
+                    //假如AutoResetEvent对象未被释放，再进行对其对象的操作
+                    if (!_auto.SafeWaitHandle.IsClosed)
+                        _auto.WaitOne();
+                    else
+                        continue;
+                }
+                _eventRaiser.Click();
                 //任务启动事件
                 if (StateChanged != null && LoopCounter == 1)
-                    StateChanged.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, ServiceState.Started, RestartCounter), null, null);
+                    //StateChanged.BeginInvoke(this, new TaskStateChangedEventArgs(LoopCounter, State = ServiceState.Started, RestartCounter), null, null);
+                    TriggerStateChangedEvent(ServiceState.Started);
                 //清空日志缓冲区
                 if (_taskLogsBuffer == null)
                     _taskLogsBuffer = new List<string>();
@@ -470,6 +535,15 @@ namespace CommonLib.Clients.Tasks
                 if (!string.IsNullOrWhiteSpace(log))
                     Console.WriteLine(log);
             });
+        }
+
+        /// <summary>
+        /// 获取所有任务日志
+        /// </summary>
+        /// <returns>以字符串数字形式返回，假如没有日志将返回空数组</returns>
+        public string[] GetTaskLogs()
+        {
+            return TaskLogs == null || TaskLogs.Count == 0 ? new string[0] : TaskLogs.ToArray();
         }
 
         /// <summary>

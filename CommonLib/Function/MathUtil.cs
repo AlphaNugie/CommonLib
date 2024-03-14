@@ -42,7 +42,7 @@ namespace CommonLib.Function
         public static Circle GetAveragedCircleNumbers(string filePath, Dimensions dimension, out List<double[]> groupsOfCoors)
         {
             groupsOfCoors = new List<double[]>();
-            try { groupsOfCoors = GetNumbersInFileContent(filePath); }
+            try { groupsOfCoors = GetNumberArraysInFileContent(filePath); }
             catch (ArgumentException e) { throw e; }
             catch (DirectoryNotFoundException e) { throw e; }
             var points = groupsOfCoors.Where(group => group != null && group.Count() >= 3 && !group.Any(member => double.IsNaN(member))).Select(group => new Point3D(group[0], group[1], group[2])).ToList();
@@ -207,7 +207,21 @@ namespace CommonLib.Function
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="DirectoryNotFoundException"></exception>
         /// <returns></returns>
+        [Obsolete("请转用GetNumberArraysInFileContent方法")]
         public static List<double[]> GetNumbersInFileContent(string filePath)
+        {
+            return GetNumberArraysInFileContent(filePath);
+        }
+
+        /// <summary>
+        /// 读取给定文件路径的文件内容，每行转换为包含若干数字的数组（数字间用tab制表符、半角逗号或空格分隔）、每个数组再作为一个集合并返回
+        /// <para/>假如某行除分隔符外有非数字，则该行将被忽略
+        /// </summary>
+        /// <param name="filePath">读取数值内容的文件的完整文件路径</param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="DirectoryNotFoundException"></exception>
+        /// <returns></returns>
+        public static List<double[]> GetNumberArraysInFileContent(string filePath)
         {
             string[] lines;
             //var groupsOfNumbers = new List<double[]>();
@@ -215,13 +229,80 @@ namespace CommonLib.Function
             catch (ArgumentException e) { throw e; }
             catch (DirectoryNotFoundException e) { throw e; }
             //var lines = File.ReadAllLines(filePath);
-            var groupsOfNumbers = lines.Select(line => {
+            return GetNumberArraysInStringArray(lines);
+            //if (lines == null || lines.Length == 0)
+            //    return new List<double[]>();
+            //var groupsOfNumbers = lines.Select(line => {
+            //    //把每一行用tab制表符、半角逗号或空格分割并转换为数字（非数字则转为NaN）数组
+            //    return line.Split(new char[] { '\t', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(part => {
+            //        return double.TryParse(part, out double num) ? num : double.NaN;
+            //    }).ToArray();
+            //}).Where(group => !group.Any(member => double.IsNaN(member))).ToList(); //排除非数字
+            //return groupsOfNumbers;
+        }
+
+        /// <summary>
+        /// 读取给定的字符串，每行转换为包含若干数字的数组（数字间用tab制表符、半角逗号或空格分隔）、每个数组再作为一个集合并返回
+        /// <para/>假如某行除分隔符外有非数字，则该行将被忽略
+        /// </summary>
+        /// <param name="content">读取数值内容的字符串</param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="DirectoryNotFoundException"></exception>
+        /// <returns></returns>
+        public static List<double[]> GetNumberArraysInString(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return new List<double[]>();
+            var lines = content.Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+            return GetNumberArraysInStringArray(lines);
+        }
+
+        /// <summary>
+        /// 读取给定的字符串数组，每行转换为包含若干数字的数组（数字间用tab制表符、半角逗号或空格分隔）、每个数组再作为一个集合并返回
+        /// <para/>假如某行除分隔符外有非数字，则该行将被忽略
+        /// </summary>
+        /// <param name="lines">读取数值内容的字符串数组</param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="DirectoryNotFoundException"></exception>
+        /// <returns></returns>
+        public static List<double[]> GetNumberArraysInStringArray(string[] lines)
+        {
+            if (lines == null || lines.Length == 0)
+                return new List<double[]>();
+            var groupsOfNumbers = lines
+                //排除空字符串
+                .Where(line => !string.IsNullOrWhiteSpace(line))
                 //把每一行用tab制表符、半角逗号或空格分割并转换为数字（非数字则转为NaN）数组
-                return line.Split(new char[] { '\t', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(part => {
-                    return double.TryParse(part, out double num) ? num : double.NaN;
-                }).ToArray();
-            }).Where(group => !group.Any(member => double.IsNaN(member))).ToList(); //排除非数字
+                .Select(line => {
+                    return line.Split(new char[] { '\t', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(part => double.TryParse(part, out double num) ? num : double.NaN).ToArray();
+                })
+                //排除包含非数字的数组
+                .Where(group => !group.Any(member => double.IsNaN(member))).ToList();
             return groupsOfNumbers;
+        }
+        #endregion
+
+        #region 数值转换为文本
+        /// <summary>
+        /// 根据给定的成对的区间范围，输出数值区间范围描述字符串（形如“-3.4~-1.2, 6.772~10.838”）
+        /// </summary>
+        /// <param name="list">数值区间范围的描述字符串（形如“-3.4~-1.2, 6.772~10.838”）</param>
+        /// <param name="splitChar">描述数字分隔关系的字符，默认为“,”</param>
+        /// <param name="intervalChar">描述区间起始结束关系的连接字符，默认为~（为避免负数不要使用-）</param>
+        /// <returns></returns>
+        public static string GetStringByNumberPairs(List<double[]> list, char splitChar = ',', char intervalChar = '~')
+        {
+            string output = string.Empty;
+            if (list == null || list.Count == 0)
+                goto END;
+            output = string.Join(splitChar + " ",
+                //描述区间关系的数组长度至少为2
+                list.Where(pair => pair != null && pair.Length >= 2)
+                .Select(pair => string.Join(intervalChar.ToString(), pair))
+                );
+        END:
+            return output;
         }
         #endregion
 

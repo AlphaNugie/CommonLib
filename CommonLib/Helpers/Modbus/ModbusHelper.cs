@@ -78,12 +78,12 @@ namespace CommonLib.Function.Modbus
         /// </summary>
         public byte[] DataContent
         {
-            get { return this.content; }
+            get { return content; }
             set
             {
-                this.content = value;
-                if (this.content != null && this.content.Length > 0)
-                    this.DataContent_HexString = HexHelper.ByteArray2HexString(this.content);
+                content = value;
+                if (content != null && content.Length > 0)
+                    DataContent_HexString = HexHelper.ByteArray2HexString(content);
             }
         }
 
@@ -98,7 +98,7 @@ namespace CommonLib.Function.Modbus
         /// <param name="input">输入数据</param>
         public CommandResolved(string input)
         {
-            this.ResolveCommand(input);
+            ResolveCommand(input);
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace CommonLib.Function.Modbus
         /// <param name="input">输入数据</param>
         public CommandResolved(byte[] input)
         {
-            this.ResolveCommand(input);
+            ResolveCommand(input);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace CommonLib.Function.Modbus
         /// <param name="hex">返回的16进制字符串</param>
         public void ResolveCommand(string hex)
         {
-            this.ResolveCommand(HexHelper.HexString2Bytes(hex));
+            ResolveCommand(HexHelper.HexString2Bytes(hex));
         }
 
         /// <summary>
@@ -125,24 +125,24 @@ namespace CommonLib.Function.Modbus
         /// <param name="array">返回的byte数组</param>
         public void ResolveCommand(byte[] array)
         {
-            this.FunctionCode = FunctionCode.None;
-            this.ErrorCode = ErrorCode.None;
-            this.CheckPassed = false;
+            FunctionCode = FunctionCode.None;
+            ErrorCode = ErrorCode.None;
+            CheckPassed = false;
 
             if (array == null || array.Length < 5)
                 return;
 
-            this.MeterAddress = array[0]; //表地址
+            MeterAddress = array[0]; //表地址
             bool no_error = array[1] <= 0x80; //是否发生错误
-            this.FunctionCode = (FunctionCode) (no_error ? array[1] : array[1] - 0x80); //发生错误时，第二位为0x80+功能码
-            this.ErrorCode = no_error ? ErrorCode.None : (ErrorCode)array[2]; //错误码
-            this.DataContentLength = no_error ? array[2] : 0; //数据长度
-            this.CheckPassed = HexHelper.ValidateCommandCRC16(array); //是否通过校验
+            FunctionCode = (FunctionCode) (no_error ? array[1] : array[1] - 0x80); //发生错误时，第二位为0x80+功能码
+            ErrorCode = no_error ? ErrorCode.None : (ErrorCode)array[2]; //错误码
+            DataContentLength = no_error ? array[2] : 0; //数据长度
+            CheckPassed = HexHelper.ValidateCommandCRC16(array); //是否通过校验
             //假如发生错误、校验未通过或处于某种未知原因导致长度过短，则不再继续执行
-            if (this.ErrorCode != ErrorCode.None || !this.CheckPassed || array.Length == 5)
+            if (ErrorCode != ErrorCode.None || !CheckPassed || array.Length == 5)
                 return;
 
-            this.DataContent = array.Skip(3).Take(array.Length - 5).ToArray();
+            DataContent = array.Skip(3).Take(array.Length - 5).ToArray();
         }
     }
 

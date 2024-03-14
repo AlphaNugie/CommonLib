@@ -33,21 +33,21 @@ namespace CommonLib.UIControlUtil
         /// <summary>
         /// 控件线程安全访问（注意：当空间窗体句柄未创建时将不执行任何操作）
         /// .Net2.0中线程安全访问控件扩展方法，可以获取返回值，可能还有其它问题
-        /// CrossThreadCalls.SafeInvoke(this.statusStrip1, new CrossThreadCalls.TaskDelegate(delegate()
+        /// CrossThreadCalls.SafeInvoke(statusStrip1, new CrossThreadCalls.TaskDelegate(delegate()
         /// {
         ///    tssStatus.Text = "开始任务...";
         /// }));
-        /// CrossThreadCalls.SafeInvoke(this.rtxtChat, new CrossThreadCalls.TaskDelegate(delegate()
+        /// CrossThreadCalls.SafeInvoke(rtxtChat, new CrossThreadCalls.TaskDelegate(delegate()
         /// {
         ///     rtxtChat.AppendText("测试中");
         /// }));
         /// 参考：http://wenku.baidu.com/view/f0b3ac4733687e21af45a9f9.html
         /// .Net3.5用Lambda简化跨线程访问窗体控件,避免重复的delegate,Invoke
-        /// this.statusStrip1.SafeInvoke(() =>
+        /// statusStrip1.SafeInvoke(() =>
         /// {
         ///     tsStatus.Text = "开始任务....";
         /// });
-        /// this.rtxtChat.SafeInvoke(() =>
+        /// rtxtChat.SafeInvoke(() =>
         /// {
         ///     rtxtChat.AppendText("测试中");
         /// });

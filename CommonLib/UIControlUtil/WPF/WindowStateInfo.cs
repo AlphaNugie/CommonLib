@@ -58,7 +58,7 @@ namespace CommonLib.UIControlUtil.WPF
         /// <param name="name">窗口信息名称</param>
         public WindowStateInfo(string name)
         {
-            this.Name = name;
+            Name = name;
         }
 
         /// <summary>

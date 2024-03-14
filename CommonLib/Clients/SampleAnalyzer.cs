@@ -27,7 +27,7 @@ namespace CommonLib.Clients
         /// <param name="sample_length"></param>
         public SampleAnalyzer(int sample_length)
         {
-            this.SectionLength = sample_length <= 0 ? 1 : sample_length;
+            SectionLength = sample_length <= 0 ? 1 : sample_length;
         }
 
         /// <summary>
@@ -38,19 +38,19 @@ namespace CommonLib.Clients
         public List<double> GetSectionExtremeValues(IEnumerable<double> list)
         {
             if (list == null || list.Count() == 0)
-                this.LastErrorMessage = "样本为空";
+                LastErrorMessage = "样本为空";
 
-            if (!string.IsNullOrWhiteSpace(this.LastErrorMessage))
-                throw new ArgumentException(this.LastErrorMessage, "list");
+            if (!string.IsNullOrWhiteSpace(LastErrorMessage))
+                throw new ArgumentException(LastErrorMessage, "list");
 
-            int groupNumber = (int)Math.Ceiling((double)list.Count() / this.SectionLength);
+            int groupNumber = (int)Math.Ceiling((double)list.Count() / SectionLength);
             List<double> result = new List<double>();
             for (int i = 0; i < groupNumber; i++)
             {
                 double extreme = 0;
-                for (int j = 0; j < this.SectionLength; j++)
+                for (int j = 0; j < SectionLength; j++)
                 {
-                    int index = i * this.SectionLength + j;
+                    int index = i * SectionLength + j;
                     //假如已遍历完所有元素，脱出循环
                     if (index >= list.Count())
                         break;

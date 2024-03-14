@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -119,6 +120,25 @@ namespace CommonLib.Function
         /// 以默认的计时间隔初始化
         /// </summary>
         public TimerEventRaiser() : this(DEFAULT_INTERVAL) { }
+        #endregion
+
+        #region 资源释放
+        /// <summary>
+        /// 释放当前实例所使用的所有资源
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+            _timer.Stop();
+            _timer.Dispose();
+        }
         #endregion
 
         #region 方法

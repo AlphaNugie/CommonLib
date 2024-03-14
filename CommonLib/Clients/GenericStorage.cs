@@ -37,12 +37,12 @@ namespace CommonLib.Clients
         /// </summary>
         public int Index
         {
-            get { return this._index; }
+            get { return _index; }
             set
             {
-                int max_index = this.Count - 1;
-                this._index = value.Between(-1, max_index) ? value : this._index;
-                this.CurrentContent = this._index == -1 ? default : this.Queue.ElementAt(max_index - this._index);
+                int max_index = Count - 1;
+                _index = value.Between(-1, max_index) ? value : _index;
+                CurrentContent = _index == -1 ? default : Queue.ElementAt(max_index - _index);
             }
         }
 
@@ -63,9 +63,9 @@ namespace CommonLib.Clients
         /// <param name="max">最大容量，大于0，否则使用默认容量</param>
         public GenericStorage(int max)
         {
-            this.MaxCapacity = max > 0 ? max : DEFAULT_MAX_CAPACITY;
-            this.Queue = new Queue<T>(this.MaxCapacity);
-            this.Index = -1;
+            MaxCapacity = max > 0 ? max : DEFAULT_MAX_CAPACITY;
+            Queue = new Queue<T>(MaxCapacity);
+            Index = -1;
         }
 
         /// <summary>
@@ -79,10 +79,10 @@ namespace CommonLib.Clients
         /// <param name="instance">待压入指令</param>
         public void Push(T instance)
         {
-            this.Queue.Enqueue(instance);
-            if (this.Queue.Count > this.MaxCapacity)
-                this.Queue.Dequeue();
-            this.Index = -1;
+            Queue.Enqueue(instance);
+            if (Queue.Count > MaxCapacity)
+                Queue.Dequeue();
+            Index = -1;
         }
 
         /// <summary>
@@ -90,8 +90,8 @@ namespace CommonLib.Clients
         /// </summary>
         public void FillEmptyShells()
         {
-            for (int i = 0; i < this.MaxCapacity; i++)
-                this.Push(default);
+            for (int i = 0; i < MaxCapacity; i++)
+                Push(default);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public T Current()
         {
-            return this.CurrentContent;
+            return CurrentContent;
         }
 
         /// <summary>
@@ -118,8 +118,8 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public T Previous()
         {
-            this.Index++;
-            return this.Current();
+            Index++;
+            return Current();
         }
 
         /// <summary>
@@ -128,8 +128,8 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public T Next()
         {
-            this.Index--;
-            return this.Current();
+            Index--;
+            return Current();
         }
 
         /// <summary>
@@ -138,8 +138,8 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public T First()
         {
-            this.Index = 0;
-            return this.Current();
+            Index = 0;
+            return Current();
         }
 
         /// <summary>
@@ -148,8 +148,8 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public T Last()
         {
-            this.Index = this.Count - 1;
-            return this.Current();
+            Index = Count - 1;
+            return Current();
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public T ElementAt(int index)
         {
-            return this.Queue == null ? default : this.Queue.ElementAtOrDefault(index);
+            return Queue == null ? default : Queue.ElementAtOrDefault(index);
         }
     }
 }

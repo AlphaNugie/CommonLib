@@ -11,14 +11,14 @@ namespace CommonLibExample.Tasks
     {
         private readonly SocketTcpServer _server = new SocketTcpServer();
 
-        public override void Init()
+        protected override void Init()
         {
             _server.ServerIp = "127.0.0.1";
             _server.ServerPort = 44333;
             _server.Start();
         }
 
-        public override void LoopContent()
+        protected override void LoopContent()
         {
             _server.SendData(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), StringType.Normal);
         }

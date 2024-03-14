@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommonLib.Enums;
 using CommonLib.Events;
+using CommonLib.Extensions.Reflection;
 using CommonLib.Function;
 
 namespace CommonLib.DataUtil
@@ -36,12 +37,9 @@ namespace CommonLib.DataUtil
         ///// </summary>
         //private readonly IdChangedEventArgs eventArgs = new IdChangedEventArgs();
 
+        #region 属性
         #region 数据库通用字段
-        /// <summary>
-        /// 记录的唯一编号
-        /// </summary>
         private int _id;
-
         /// <summary>
         /// 记录的唯一编号
         /// </summary>
@@ -107,6 +105,7 @@ namespace CommonLib.DataUtil
         /// 上一个错误信息
         /// </summary>
         public string LastErrorMessage { get; set; }
+        #endregion
 
         /// <summary>
         /// 构造器

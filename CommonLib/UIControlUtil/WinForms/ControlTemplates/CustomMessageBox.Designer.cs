@@ -28,78 +28,78 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CustomMessageBox));
-            this.lblMessageText = new System.Windows.Forms.Label();
-            this.pnlShowMessage = new System.Windows.Forms.Panel();
-            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.SuspendLayout();
+            lblMessageText = new System.Windows.Forms.Label();
+            pnlShowMessage = new System.Windows.Forms.Panel();
+            imageList1 = new System.Windows.Forms.ImageList(components);
+            pictureBox1 = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(pictureBox1)).BeginInit();
+            SuspendLayout();
             // 
             // lblMessageText
             // 
-            this.lblMessageText.BackColor = System.Drawing.Color.Transparent;
-            this.lblMessageText.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMessageText.Location = new System.Drawing.Point(85, 11);
-            this.lblMessageText.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblMessageText.Name = "lblMessageText";
-            this.lblMessageText.Size = new System.Drawing.Size(378, 30);
-            this.lblMessageText.TabIndex = 0;
-            this.lblMessageText.Text = "label1";
+            lblMessageText.BackColor = System.Drawing.Color.Transparent;
+            lblMessageText.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            lblMessageText.Location = new System.Drawing.Point(85, 11);
+            lblMessageText.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            lblMessageText.Name = "lblMessageText";
+            lblMessageText.Size = new System.Drawing.Size(378, 30);
+            lblMessageText.TabIndex = 0;
+            lblMessageText.Text = "label1";
             // 
             // pnlShowMessage
             // 
-            this.pnlShowMessage.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.pnlShowMessage.BackColor = System.Drawing.Color.Transparent;
-            this.pnlShowMessage.Location = new System.Drawing.Point(86, 60);
-            this.pnlShowMessage.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.pnlShowMessage.Name = "pnlShowMessage";
-            this.pnlShowMessage.Size = new System.Drawing.Size(387, 47);
-            this.pnlShowMessage.TabIndex = 1;
+            pnlShowMessage.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            pnlShowMessage.BackColor = System.Drawing.Color.Transparent;
+            pnlShowMessage.Location = new System.Drawing.Point(86, 60);
+            pnlShowMessage.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            pnlShowMessage.Name = "pnlShowMessage";
+            pnlShowMessage.Size = new System.Drawing.Size(387, 47);
+            pnlShowMessage.TabIndex = 1;
             // 
             // imageList1
             // 
-            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
-            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList1.Images.SetKeyName(0, "Error");
-            this.imageList1.Images.SetKeyName(1, "Information");
-            this.imageList1.Images.SetKeyName(2, "Question");
-            this.imageList1.Images.SetKeyName(3, "Warning");
+            imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+            imageList1.TransparentColor = System.Drawing.Color.Transparent;
+            imageList1.Images.SetKeyName(0, "Error");
+            imageList1.Images.SetKeyName(1, "Information");
+            imageList1.Images.SetKeyName(2, "Question");
+            imageList1.Images.SetKeyName(3, "Warning");
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(15, 13);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(32, 32);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox1.TabIndex = 2;
-            this.pictureBox1.TabStop = false;
+            pictureBox1.Location = new System.Drawing.Point(15, 13);
+            pictureBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new System.Drawing.Size(32, 32);
+            pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            pictureBox1.TabIndex = 2;
+            pictureBox1.TabStop = false;
             // 
             // CustomMessageBox
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(477, 110);
-            this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.pnlShowMessage);
-            this.Controls.Add(this.lblMessageText);
-            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "CustomMessageBox";
-            this.Opacity = 0.98D;
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.FontChanged += new System.EventHandler(this.CustomMessageBox_FontChanged);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            AutoSize = true;
+            ClientSize = new System.Drawing.Size(477, 110);
+            Controls.Add(pictureBox1);
+            Controls.Add(pnlShowMessage);
+            Controls.Add(lblMessageText);
+            Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "CustomMessageBox";
+            Opacity = 0.98D;
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            FontChanged += new System.EventHandler(CustomMessageBox_FontChanged);
+            ((System.ComponentModel.ISupportInitialize)(pictureBox1)).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 

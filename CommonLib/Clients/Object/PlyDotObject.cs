@@ -36,8 +36,8 @@ namespace CommonLib.Clients.Object
         /// </summary>
         public string CustomedInfo
         {
-            get { return this.custominfo; }
-            set { this.custominfo = value == null ? string.Empty : value.Trim(); }
+            get { return custominfo; }
+            set { custominfo = value == null ? string.Empty : value.Trim(); }
         }
 
         /// <summary>
@@ -45,13 +45,13 @@ namespace CommonLib.Clients.Object
         /// </summary>
         public Color Color
         {
-            get { return this.color; }
+            get { return color; }
             set
             {
-                this.color = value;
-                this.red = this.color.R;
-                this.green = this.color.G;
-                this.blue = this.color.B;
+                color = value;
+                red = color.R;
+                green = color.G;
+                blue = color.B;
             }
         }
 
@@ -60,11 +60,11 @@ namespace CommonLib.Clients.Object
         /// </summary>
         public byte Red
         {
-            get { return this.red; }
+            get { return red; }
             set
             {
-                this.red = value;
-                this.color = Color.FromArgb(this.red, this.green, this.blue);
+                red = value;
+                color = Color.FromArgb(red, green, blue);
             }
         }
 
@@ -73,11 +73,11 @@ namespace CommonLib.Clients.Object
         /// </summary>
         public byte Green
         {
-            get { return this.green; }
+            get { return green; }
             set
             {
-                this.green = value;
-                this.color = Color.FromArgb(this.red, this.green, this.blue);
+                green = value;
+                color = Color.FromArgb(red, green, blue);
             }
         }
 
@@ -86,11 +86,11 @@ namespace CommonLib.Clients.Object
         /// </summary>
         public byte Blue
         {
-            get { return this.blue; }
+            get { return blue; }
             set
             {
-                this.blue = value;
-                this.color = Color.FromArgb(this.red, this.green, this.blue);
+                blue = value;
+                color = Color.FromArgb(red, green, blue);
             }
         }
 
@@ -105,12 +105,12 @@ namespace CommonLib.Clients.Object
         /// <param name="blue">蓝</param>
         public PlyDotObject (double x, double y, double z, byte red, byte green, byte blue)
         {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            this.Red = red;
-            this.Green = green;
-            this.Blue = blue;
+            X = x;
+            Y = y;
+            Z = z;
+            Red = red;
+            Green = green;
+            Blue = blue;
         }
 
         /// <summary>

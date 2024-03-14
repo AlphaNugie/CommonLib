@@ -28,12 +28,12 @@ namespace CommonLib.Clients
         ///// </summary>
         //public int Index
         //{
-        //    get { return this._index; }
+        //    get { return _index; }
         //    set
         //    {
-        //        int max_index = this.CommandQueue.Count - 1;
-        //        this._index = value.Between(-1, max_index) ? value : this._index;
-        //        this.CurrentCommand = this._index == -1 ? string.Empty : this.CommandQueue.ElementAt(max_index - this._index);
+        //        int max_index = CommandQueue.Count - 1;
+        //        _index = value.Between(-1, max_index) ? value : _index;
+        //        CurrentCommand = _index == -1 ? string.Empty : CommandQueue.ElementAt(max_index - _index);
         //    }
         //}
 
@@ -54,10 +54,10 @@ namespace CommonLib.Clients
         /// <param name="max">最大容量，大于0，否则使用默认容量</param>
         public CommandStorage(int max) : base(max) { }
         //{
-        //    this.MaxCapacity = max > 0 ? max : _default_max_capacity;
-        //    this.CommandQueue = new Queue<string>(this.MaxCapacity);
-        //    this.Index = -1;
-        //    //this.CurrentCommand = string.Empty;
+        //    MaxCapacity = max > 0 ? max : _default_max_capacity;
+        //    CommandQueue = new Queue<string>(MaxCapacity);
+        //    Index = -1;
+        //    //CurrentCommand = string.Empty;
         //}
 
         /// <summary>
@@ -71,10 +71,10 @@ namespace CommonLib.Clients
         ///// <param name="command">待压入指令</param>
         //public void PushCommand(string command)
         //{
-        //    this.CommandQueue.Enqueue(command);
-        //    if (this.CommandQueue.Count > this.MaxCapacity)
-        //        this.CommandQueue.Dequeue();
-        //    this.Index = -1;
+        //    CommandQueue.Enqueue(command);
+        //    if (CommandQueue.Count > MaxCapacity)
+        //        CommandQueue.Dequeue();
+        //    Index = -1;
         //}
 
         ///// <summary>
@@ -83,8 +83,8 @@ namespace CommonLib.Clients
         ///// <returns></returns>
         //public string LastCommand()
         //{
-        //    this.Index++;
-        //    return this.CurrentCommand;
+        //    Index++;
+        //    return CurrentCommand;
         //}
 
         ///// <summary>
@@ -93,8 +93,8 @@ namespace CommonLib.Clients
         ///// <returns></returns>
         //public string NextCommand()
         //{
-        //    this.Index--;
-        //    return this.CurrentCommand;
+        //    Index--;
+        //    return CurrentCommand;
         //}
     }
 }

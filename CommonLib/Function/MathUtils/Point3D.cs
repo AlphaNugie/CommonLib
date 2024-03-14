@@ -138,7 +138,7 @@ namespace CommonLib.Function.MathUtils
         public static List<Point3D> GetPointsInFileContent(string filePath, out List<double[]> groupsOfNumbers)
         {
             groupsOfNumbers = new List<double[]>();
-            try { groupsOfNumbers = MathUtil.GetNumbersInFileContent(filePath); }
+            try { groupsOfNumbers = MathUtil.GetNumberArraysInFileContent(filePath); }
             catch (ArgumentException e) { throw e; }
             catch (DirectoryNotFoundException e) { throw e; }
             //var lines = File.ReadAllLines(filePath);

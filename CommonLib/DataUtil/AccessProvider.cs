@@ -39,9 +39,9 @@ namespace CommonLib.DataUtil
         /// </summary>
         public AccessProvider()
         {
-            this.DbName = "AccessDatabase.mdb"; //数据库名称
-            this.DbFilePath = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.DirSeparator + this.DbName; //带文件名的文件路径
-            this.ConnStr = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + this.DbFilePath; //拼接Access连接字符串
+            DbName = "AccessDatabase.mdb"; //数据库名称
+            DbFilePath = AppDomain.CurrentDomain.BaseDirectory + FileSystemHelper.DirSeparator + DbName; //带文件名的文件路径
+            ConnStr = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + DbFilePath; //拼接Access连接字符串
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace CommonLib.DataUtil
                 return null;
 
             sqlString = sqlString.Trim(' ', ';'); //去除字符串前后的空格与分号，否则报错（ORA-00911: 无效字符）
-            using (OleDbConnection conn = new OleDbConnection(this.ConnStr))
+            using (OleDbConnection conn = new OleDbConnection(ConnStr))
                 using (OleDbDataAdapter adapter = new OleDbDataAdapter(sqlString, conn))
                 {
                     DataTable dataTable = new DataTable();
@@ -85,7 +85,7 @@ namespace CommonLib.DataUtil
         /// <returns>返回影响的记录行数</returns>
         public int ExecuteSql(string sqlString)
         {
-            using (OleDbConnection conn = new OleDbConnection(this.ConnStr))
+            using (OleDbConnection conn = new OleDbConnection(ConnStr))
                 //去除SQL语句前后的空格与分号
                 using (OleDbCommand command = new OleDbCommand(sqlString.Trim(' ', ';'), conn))
                 {

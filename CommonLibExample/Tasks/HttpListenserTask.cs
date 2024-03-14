@@ -11,7 +11,7 @@ namespace CommonLibExample.Tasks
     {
         private readonly DerivedHttpListener _listener = new DerivedHttpListener();
 
-        public override void Init()
+        protected override void Init()
         {
             _listener.IpAddress = "127.0.0.1";
             _listener.Port = 44332;
@@ -19,7 +19,7 @@ namespace CommonLibExample.Tasks
             _listener.Start();
         }
 
-        public override void LoopContent()
+        protected override void LoopContent()
         {
             Interval = 100;
             _listener.WebExplorerMessage = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");

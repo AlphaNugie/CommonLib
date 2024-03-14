@@ -29,8 +29,11 @@ namespace CommonLib.Clients
         #endregion
         #region 私有成员变量
         private readonly TimerEventRaiser _raiser = new TimerEventRaiser(1000);
-        public const string RESPONSE_OK = "OK";
+        private readonly Encoding _encoding = Encoding.Default; //使用的编码方式
         #endregion
+
+        public const string RESPONSE_OK = "OK";
+
         #region 属性
         /// <summary>
         /// HttpListener对象
@@ -86,15 +89,22 @@ namespace CommonLib.Clients
         /// <summary>
         /// 以默认端口号初始化HTTP监听服务端
         /// </summary>
-        public DerivedHttpListener() : this(null, 0, null) { }
+        public DerivedHttpListener() : this(null, 0, null, Encoding.Default) { }
 
         /// <summary>
-        /// 以指定端口号初始化HTTP监听服务端
+        /// 以默认端口号初始化HTTP监听服务端，同时指定数据流与字符串之间的解码、编码方式
+        /// </summary>
+        /// <param name="encoding">数据流与字符串之间的解码、编码方式</param>
+        public DerivedHttpListener(Encoding encoding) : this(null, 0, null, encoding) { }
+
+        /// <summary>
+        /// 以指定端口号初始化HTTP监听服务端，同时指定数据流与字符串之间的解码、编码方式
         /// </summary>
         /// <param name="ip">监听服务的地址</param>
         /// <param name="port">假如端口号不大于0，以默认端口号启动</param>
         /// <param name="suffix">地址后缀</param>
-        public DerivedHttpListener(string ip, int port, string suffix)
+        /// <param name="encoding">数据流与字符串之间的解码、编码方式</param>
+        public DerivedHttpListener(string ip, int port, string suffix, Encoding encoding)
         {
             if (!string.IsNullOrWhiteSpace(ip))
                 IpAddress = ip;
@@ -111,6 +121,7 @@ namespace CommonLib.Clients
             _raiser.RaiseThreshold = 10000;
             _raiser.RaiseInterval = 5000;
             _raiser.ThresholdReached += new ThresholdReachedEventHandler(Raiser_ThresholdReached);
+            _encoding = encoding;
         }
 
         private void Raiser_ThresholdReached(object sender, ThresholdReachedEventArgs e)
@@ -208,10 +219,12 @@ namespace CommonLib.Clients
             //context.Response.AppendHeader("Access-Control-Allow-Method", "post"); //后台跨域请求设置，通常设置为配置文件
             response.ContentType = "text/plain;charset=UTF-8"; //告诉客户端返回的ContentType类型为纯文本格式，编码为UTF-8
             response.AddHeader("Content-type", "text/plain"); //添加响应头信息
-            response.ContentEncoding = Encoding.UTF8;
+            //response.ContentEncoding = Encoding.UTF8;
+            response.ContentEncoding = _encoding;
             //定义返回客户端的信息，当请求为POST方式时返回处理过的信息，否则判断可能为网页访问、返回指定消息
             string returnObj = request.HttpMethod == "POST" && request.InputStream != null ? HandleRequest(request, response) : WebExplorerMessage;
-            var returnByteArr = Encoding.UTF8.GetBytes(returnObj); //设置客户端返回信息的编码
+            //var returnByteArr = Encoding.UTF8.GetBytes(returnObj); //设置客户端返回信息的编码
+            var returnByteArr = _encoding.GetBytes(returnObj); //设置客户端返回信息的编码
             //把处理信息返回到客户端
             try { using (var stream = response.OutputStream) { stream.Write(returnByteArr, 0, returnByteArr.Length); } }
             catch (Exception ex) { LastErrorMessage = $"网络蹦了：{ex}"; }
@@ -242,7 +255,7 @@ namespace CommonLib.Clients
                 //处理byte序列的长度
                 if (byteList.Count > len)
                     byteList.RemoveRange(len, byteList.Count - len);
-                DataReceived?.BeginInvoke(this, new DataReceivedEventArgs(byteList.ToArray()), null, null);
+                DataReceived?.BeginInvoke(this, new DataReceivedEventArgs(byteList.ToArray(), _encoding), null, null);
                 _raiser.Click();
                 //data = Encoding.UTF8.GetString(byteList.ToArray(), 0, len);
             }
@@ -293,8 +306,8 @@ namespace CommonLib.Clients
     //{
     //    public Data(int id, string name)
     //    {
-    //        this.ID = id;
-    //        this.Name = name;
+    //        ID = id;
+    //        Name = name;
     //    }
     //    public int ID { get; set; }
 

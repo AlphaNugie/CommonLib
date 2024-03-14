@@ -217,6 +217,11 @@
             对应数据源类的字段名称
             </summary>
         </member>
+        <member name="P:OpcLibrary.Model.OpcItem.Enabled">
+            <summary>
+            是否可用
+            </summary>
+        </member>
         <member name="P:OpcLibrary.Model.OpcItem.Coeff">
             <summary>
             值的系数，默认为0
@@ -227,9 +232,9 @@
             值的偏移量，默认为0
             </summary>
         </member>
-        <member name="P:OpcLibrary.Model.OpcItem.Enabled">
+        <member name="P:OpcLibrary.Model.OpcItem.Changed">
             <summary>
-            是否可用
+            记录值是否有变化
             </summary>
         </member>
         <member name="M:OpcLibrary.Model.OpcItem.#ctor">
@@ -254,6 +259,21 @@
             转换为CSV导出文件格式的字符串
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:OpcLibrary.Model.OpcItem.Equals(OpcLibrary.Model.OpcItem)">
+            <summary>
+            判断是否与另一个实例相同
+            <para/>（在2个实例均不为空时）引用相同，或当opc组的ID均为1时（读取）标签名称、对应的数据源实体类字段名称相同，或当opc组的ID大于1时（写入）仅标签名称相同
+            </summary>
+            <param name="other">另外一个实例</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:OpcLibrary.Model.OpcItem.Copy(OpcLibrary.Model.OpcItem)">
+            <summary>
+            从另一个实例复制粘贴值（不包括RecordId，Changed属性）
+            </summary>
+            <param name="other"></param>
         </member>
         <member name="T:OpcLibrary.OpcGroupInfo">
             <summary>

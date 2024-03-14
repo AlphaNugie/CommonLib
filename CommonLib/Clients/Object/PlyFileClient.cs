@@ -39,8 +39,8 @@ end_header
         /// </summary>
         public string FormatVersion
         {
-            get { return this.version; }
-            set { this.version = value; }
+            get { return version; }
+            set { version = value; }
         }
 
         /// <summary>
@@ -48,8 +48,8 @@ end_header
         /// </summary>
         public string Comment
         {
-            get { return this.comment; }
-            set { this.comment = value; }
+            get { return comment; }
+            set { comment = value; }
         }
 
         /// <summary>
@@ -57,8 +57,8 @@ end_header
         /// </summary>
         public int VertextCount
         {
-            get { return this.vertext_count; }
-            set { this.vertext_count = value; }
+            get { return vertext_count; }
+            set { vertext_count = value; }
         }
 
         /// <summary>
@@ -71,8 +71,8 @@ end_header
         /// </summary>
         public string CustomedHeaderInfo
         {
-            get { return this.customed; }
-            set { this.customed = value == null ? string.Empty : value.Trim(); }
+            get { return customed; }
+            set { customed = value == null ? string.Empty : value.Trim(); }
         }
 
         /// <summary>
@@ -80,11 +80,11 @@ end_header
         /// </summary>
         public string Path
         {
-            get { return this.path; }
+            get { return path; }
             set
             {
-                this.path = value;
-                this.SetFullFilePath();
+                path = value;
+                SetFullFilePath();
             }
         }
 
@@ -93,11 +93,11 @@ end_header
         /// </summary>
         public string FileName
         {
-            get { return this.filename; }
+            get { return filename; }
             set
             {
-                this.filename = value;
-                this.SetFullFilePath();
+                filename = value;
+                SetFullFilePath();
             }
         }
 
@@ -111,9 +111,9 @@ end_header
         /// </summary>
         private void SetFullFilePath()
         {
-            if (!this.Path.Contains(FileSystemHelper.VolumeSeparator))
-                this.Path = FileSystemHelper.StartupPath + FileSystemHelper.TrimFilePath(this.Path);
-            this.FullFilePath = this.Path + FileSystemHelper.DirSeparator + this.FileName + ".ply";
+            if (!Path.Contains(FileSystemHelper.VolumeSeparator))
+                Path = FileSystemHelper.StartupPath + FileSystemHelper.TrimFilePath(Path);
+            FullFilePath = Path + FileSystemHelper.DirSeparator + FileName + ".ply";
         }
 
         /// <summary>
@@ -135,10 +135,10 @@ end_header
         /// <param name="overriding">每次写入是否覆盖</param>
         public PlyFileClient(string version, string comment, bool colored, bool overriding)
         {
-            this.FormatVersion = version;
-            this.Comment = comment;
-            this.Colored = colored;
-            this.Overriding = overriding;
+            FormatVersion = version;
+            Comment = comment;
+            Colored = colored;
+            Overriding = overriding;
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ end_header
         /// <returns></returns>
         public int SaveVertexes()
         {
-            return this.SaveVertexes(this.DotList);
+            return SaveVertexes(DotList);
         }
 
         /// <summary>
@@ -172,24 +172,24 @@ end_header
         /// <returns></returns>
         public int SaveVertexes(IEnumerable<string> dots)
         {
-            if (string.IsNullOrWhiteSpace(this.FileName))
+            if (string.IsNullOrWhiteSpace(FileName))
                 return 1;
             if (dots == null || dots.Count() == 0)
                 return 2;
 
-            //if (!this.Path.Contains(Base.VolumeSeparator))
-            //    this.Path = Base.StartupPath + Functions.TrimFilePath(this.Path);
-            //this.FullFilePath = this.Path + Base.DirSeparator + this.FileName + ".ply";
-            this.customed = ("\r\n" + this.customed.Trim('\r', '\n')).TrimEnd('\r', '\n'); //确保头部定制属性只有最前面一处换行（假如不为空）
-            this.header = string.Format(this.header_format, this.FormatVersion, this.Comment, dots.Count(), this.Colored ? this.colored : string.Empty, this.customed);
-            if (!Directory.Exists(this.Path))
-                Directory.CreateDirectory(this.Path);
-            File.WriteAllText(this.FullFilePath, this.header, Encoding.ASCII);
+            //if (!Path.Contains(Base.VolumeSeparator))
+            //    Path = Base.StartupPath + Functions.TrimFilePath(Path);
+            //FullFilePath = Path + Base.DirSeparator + FileName + ".ply";
+            customed = ("\r\n" + customed.Trim('\r', '\n')).TrimEnd('\r', '\n'); //确保头部定制属性只有最前面一处换行（假如不为空）
+            header = string.Format(header_format, FormatVersion, Comment, dots.Count(), Colored ? colored : string.Empty, customed);
+            if (!Directory.Exists(Path))
+                Directory.CreateDirectory(Path);
+            File.WriteAllText(FullFilePath, header, Encoding.ASCII);
             //假如文件存在，添加文本，否则创建文件并写入(编码方式为ASCII)
-            if (File.Exists(this.FullFilePath) && !this.Overriding)
-                File.AppendAllLines(this.FullFilePath, dots, Encoding.ASCII);
+            if (File.Exists(FullFilePath) && !Overriding)
+                File.AppendAllLines(FullFilePath, dots, Encoding.ASCII);
             else
-                File.WriteAllLines(this.FullFilePath, dots, Encoding.ASCII);
+                File.WriteAllLines(FullFilePath, dots, Encoding.ASCII);
 
             return 0;
         }
@@ -203,7 +203,7 @@ end_header
         public int SaveVertexes(IEnumerable<PlyDotObject> dotlist)
         {
             IEnumerable<string> dots = dotlist == null || dotlist.Count() == 0 ? null : dotlist.Select(dot => string.Format("{0} {1} {2} {3} {4} {5} {6}", Math.Round(dot.X), Math.Round(dot.Y), Math.Round(dot.Z), dot.Red, dot.Green, dot.Blue, dot.CustomedInfo));
-            return this.SaveVertexes(dots);
+            return SaveVertexes(dots);
         }
     }
 }

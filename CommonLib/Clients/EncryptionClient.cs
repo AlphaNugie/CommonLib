@@ -49,10 +49,10 @@ namespace CommonLib.Clients
         /// <param name="aesIv">AES加密向量</param>
         public EncryptionClient(string desKey, string desIv, string aesKey, string aesIv)
         {
-            this.DesKey_64 = desKey;
-            this.DesIV_64 = desIv;
-            this.AesKey_64 = aesKey;
-            this.AesIV_64 = aesIv;
+            DesKey_64 = desKey;
+            DesIV_64 = desIv;
+            AesKey_64 = aesKey;
+            AesIV_64 = aesIv;
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace CommonLib.Clients
         /// <returns>加密成功返回加密后的字符串，失败返回源串</returns>
         public string EncryptAES(string encryptString)
         {
-            return EncryptAES(encryptString, this.AesKey_64, this.AesIV_64);
+            return EncryptAES(encryptString, AesKey_64, AesIV_64);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public string DecryptAES(string decryptString)
         {
-            return DecryptAES(decryptString, this.AesKey_64, this.AesIV_64);
+            return DecryptAES(decryptString, AesKey_64, AesIV_64);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace CommonLib.Clients
         /// <returns>加密成功返回加密后的字符串，失败返回源串</returns>
         public string EncryptDES(string encryptString)
         {
-            return EncryptDES(encryptString, this.DesKey_64, this.DesIV_64);
+            return EncryptDES(encryptString, DesKey_64, DesIV_64);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public string DecryptDES(string decryptString)
         {
-            return DecryptDES(decryptString, this.DesKey_64, this.DesIV_64);
+            return DecryptDES(decryptString, DesKey_64, DesIV_64);
         }
 
         #region static

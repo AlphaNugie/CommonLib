@@ -1,3 +1,13 @@
+# CommonLib.DataUtil.SqliteProviderLibAnyCpu
+## 生成位置
+bin\Debug-AnyCpu
+## 引用注意事项
+下载sqlite时选择非混合编译（不带“bundle”字样）的包，在项目中引用非混合编译的System.Data.SQLite.dll
+同时将32位和64位的SQLite.Interop.dll复制到项目根目录下的x86和x64文件夹内，SQLite.Interop.dll的属性设置为“一直复制”或“较新时复制”
+
+# OpcLibraryAnyCpu
+引用CommonLib.DataUtil.SqliteProviderLibAnyCpu的版本，框架调整为.net framework 4.5，将OpcLibrary与OpcLibrary.Controls合并
+
 # CommonLib.DataUtil.OracleProvider
 ## 调用存储过程返回结果集
 包头

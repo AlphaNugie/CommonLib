@@ -1,4 +1,5 @@
 ﻿using CommonLib.Clients;
+using CommonLib.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -52,6 +53,25 @@ namespace OpcLibrary.Core
         /// OPC读取与写入间隔（毫秒）
         /// </summary>
         public static int OpcLoopInterval { get; set; }
+
+        private static string _schemaFile;
+        /// <summary>
+        /// 数据源内各变量值的描述文件的完整路径（文件内容以JSON格式提供，为避免中文乱码请使用UTF-8编码）
+        /// </summary>
+        public static string SchemaFile
+        {
+            get { return _schemaFile; }
+            set
+            {
+                //假如给出的路径为空则不赋值
+                if (string.IsNullOrWhiteSpace(value))
+                    return;
+                //假如为不包含盘符分隔符则添加启动路径
+                else if (!value.Contains(FileSystemHelper.VolumeSeparator))
+                    value = FileSystemHelper.StartupPath + value;
+                _schemaFile = value;
+            }
+        }
         #endregion
 
         /// <summary>

@@ -23,6 +23,7 @@ namespace OpcLibrary.Controls.Forms
     /// <summary>
     /// 与OpcLibrary.OpcTaskBase配套的OPC项配置窗口，使用与OpcTaskBase匹配的数据源
     /// </summary>
+    [Obsolete("请使用OpcLibraryAnyCpu.dll")]
     public partial class FormOpcConfig : Form
     {
         private readonly DataService_OpcItem _dataService = new DataService_OpcItem(); //数据库服务类

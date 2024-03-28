@@ -8,6 +8,7 @@ namespace OpcLibrary.Core
     /// <summary>
     /// OPC连接、读取或写入的基础参数
     /// </summary>
+    [Obsolete("请使用OpcLibraryAnyCpu.dll")]
     public static class OpcConst
     {
         //private static readonly LogClient _log = new LogClient("logs", "intercomm", "executable.log", false, true);

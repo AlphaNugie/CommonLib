@@ -10,6 +10,7 @@ namespace OpcLibrary
     /// <summary>
     /// OPC功能包装类
     /// </summary>
+    [Obsolete("请使用OpcLibraryAnyCpu.dll")]
     public class OpcUtilHelper
     {
         #region 私有变量

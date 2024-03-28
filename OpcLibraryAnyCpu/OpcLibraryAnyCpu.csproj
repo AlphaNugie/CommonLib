@@ -79,6 +79,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\Debug-AnyCpu\x64\SQLite.Interop.dll" />
+    <Content Include="bin\Debug-AnyCpu\x86\SQLite.Interop.dll" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -93,6 +95,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug $(SolutionDir)CommonLib\compiled\AnyCpu</PostBuildEvent>
+    <PostBuildEvent>xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug-AnyCpu $(SolutionDir)CommonLib\compiled\AnyCpu</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -90,18 +93,28 @@ namespace CommonLib.UIControlUtil.ControlTemplates
         }
 
         /// <summary>
-        /// 退出
+        /// 退出，同时根据给定参数决定是否重新启动
         /// </summary>
-        public void Exit()
+        /// <param name="restart">是否在退出后重新启动</param>
+        public void Exit(bool restart = false)
         {
-            //if (MessageBox.Show("是否退出程序？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
-            if (MessageBox.Show($"是否退出{Text}？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
+            //if (MessageBox.Show($"是否退出{Text}？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
+            if (MessageBox.Show($"是否{(restart ? "重启" : "退出")}{Text}？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
                 return;
 
             notifyIcon_Main.Visible = false;
             Close();
+            if (restart)
+                Process.Start(Process.GetCurrentProcess().MainModule.FileName);
             Environment.Exit(0);
-            //Application.Exit();
+        }
+
+        /// <summary>
+        /// 重新启动
+        /// </summary>
+        public void Restart()
+        {
+            Exit(restart: true);
         }
         #endregion
 

@@ -4723,27 +4723,48 @@
             <param name="input">输入角度</param>
             <returns></returns>
         </member>
-        <member name="M:CommonLib.Extensions.MathExtension.Variance(System.Collections.Generic.IEnumerable{System.Double})">
-            <summary>
-            根据样本计算方差
-            </summary>
-            <param name="numbers">样本</param>
-            <returns></returns>
-        </member>
         <member name="M:CommonLib.Extensions.MathExtension.Variance(System.Collections.Generic.IEnumerable{System.Double},System.Double)">
             <summary>
-            根据样本与平均值计算方差
+            根据样本集与平均值计算方差，假如样本集不包含任何元素，则默认方差为0
             </summary>
             <param name="numbers">样本</param>
             <param name="average">平均值</param>
+            <returns>返回计算的方差，假如样本集不包含任何元素，则默认返回0</returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.Variance(System.Collections.Generic.IEnumerable{System.Double})">
+            <summary>
+            根据样本集计算方差，假如样本集不包含任何元素，则默认方差为0
+            </summary>
+            <param name="numbers">样本</param>
+            <returns>返回计算的方差，假如样本集不包含任何元素，则默认返回0</returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.Variance``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Double})">
+            <summary>
+            根据样本计算方差，计算方差的值可以通过给定的转换函数从样本元素中投影出来
+            </summary>
+            <param name="sources">样本，样本中的每个元素可以通过提供的转换函数投影到最终计算方差的数值上</param>
+            <param name="selector">应用于每个元素的转换函数</param>
             <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
         </member>
         <member name="M:CommonLib.Extensions.MathExtension.Standard(System.Collections.Generic.IEnumerable{System.Double})">
             <summary>
             计算标准差
             </summary>
-            <param name="numbers"></param>
+            <param name="numbers">样本</param>
             <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:CommonLib.Extensions.MathExtension.Standard``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Double})">
+            <summary>
+            根据样本计算标准差，计算标准差的值可以通过给定的转换函数从样本元素中投影出来
+            </summary>
+            <param name="sources">样本，样本中的每个元素可以通过提供的转换函数投影到最终计标准差的数值上</param>
+            <param name="selector">应用于每个元素的转换函数</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
         </member>
         <member name="M:CommonLib.Extensions.MathExtension.ToBytes(System.UInt32,System.Boolean)">
             <summary>
@@ -6020,16 +6041,15 @@
             <param name="filePath">INI文件路径</param>
             <param name="length">INI配置项内容默认长度</param>
         </member>
-        <member name="M:CommonLib.Function.IniFileHelper.ReadData(System.String,System.String,System.String,System.Int32,System.String)">
+        <member name="M:CommonLib.Function.IniFileHelper.ReadData(System.String,System.String)">
             <summary>
             读取INI文件内容
             </summary>
             <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
             <param name="key">每条配置的关键字（形如Key = Value）</param>
-            <param name="noText">没有该项配置的情况所反馈的信息</param>
-            <param name="length">配置项内容最大长度</param>
-            <param name="iniFilePath">INI配置文件路径</param>
             <returns>返回配置文件内容</returns>
+            <exception cref="T:System.IO.FileNotFoundException"></exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
         <member name="M:CommonLib.Function.IniFileHelper.ReadData(System.String,System.String,System.String,System.Int32)">
             <summary>
@@ -6040,50 +6060,241 @@
             <param name="noText">没有该项配置的情况所反馈的信息</param>
             <param name="length">配置项内容最大长度</param>
             <returns>返回配置文件内容</returns>
+            <exception cref="T:System.IO.FileNotFoundException"></exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
-        <member name="M:CommonLib.Function.IniFileHelper.ReadData(System.String,System.String)">
+        <member name="M:CommonLib.Function.IniFileHelper.ReadData(System.String,System.String,System.String,System.Int32,System.String)">
             <summary>
             读取INI文件内容
             </summary>
             <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
             <param name="key">每条配置的关键字（形如Key = Value）</param>
-            <returns>返回配置文件内容</returns>
-        </member>
-        <member name="M:CommonLib.Function.IniFileHelper.ReadInt(System.String,System.String,System.Int32,System.String)">
-            <summary>
-            读取INI文件内的整型数据
-            </summary>
-            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
-            <param name="key">每条配置的关键字（形如Key = Value）</param>
-            <param name="def">没有该项配置的默认值</param>
+            <param name="noText">没有该项配置的情况所反馈的信息</param>
+            <param name="length">配置项内容最大长度</param>
             <param name="iniFilePath">INI配置文件路径</param>
             <returns>返回配置文件内容</returns>
+            <exception cref="T:System.IO.FileNotFoundException"></exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
-        <member name="M:CommonLib.Function.IniFileHelper.ReadInt(System.String,System.String,System.Int32)">
+        <member name="M:CommonLib.Function.IniFileHelper.ReadBool(System.String,System.String)">
             <summary>
-            读取INI文件内的整型数据
+            读取INI文件内的布尔型变量，当配置项不存在时返回false
             </summary>
             <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
             <param name="key">每条配置的关键字（形如Key = Value）</param>
-            <param name="def">没有该项配置的默认值</param>
-            <returns>返回配置文件内容</returns>
+            <returns>返回转换后的布尔型变量</returns>
+            <exception cref="T:System.IO.FileNotFoundException"></exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+            <exception cref="T:System.FormatException"></exception>
+            <exception cref="T:System.OverflowException"></exception>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.ReadBool(System.String,System.String,System.Boolean)">
+            <summary>
+            读取INI文件内的布尔型变量，当配置项不存在时返回给定的默认值
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="def">没有该项配置时的默认值</param>
+            <returns>返回转换后的布尔型变量</returns>
+            <exception cref="T:System.IO.FileNotFoundException"></exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+            <exception cref="T:System.FormatException"></exception>
+            <exception cref="T:System.OverflowException"></exception>
         </member>
         <member name="M:CommonLib.Function.IniFileHelper.ReadInt(System.String,System.String)">
             <summary>
-            读取INI文件内的整型数据
+            读取INI文件内的32位有符号整型数据(Int32)，当配置项不存在时返回0
             </summary>
             <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
             <param name="key">每条配置的关键字（形如Key = Value）</param>
-            <returns>返回配置文件内容</returns>
+            <returns>返回转换后的32位有符号整型数据(Int32)</returns>
+            <exception cref="T:System.IO.FileNotFoundException"></exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+            <exception cref="T:System.FormatException"></exception>
+            <exception cref="T:System.OverflowException"></exception>
         </member>
-        <member name="M:CommonLib.Function.IniFileHelper.WriteData(System.String,System.String,System.String,System.String)">
+        <member name="M:CommonLib.Function.IniFileHelper.ReadInt(System.String,System.String,System.Int32)">
             <summary>
-            写INI配置文件
+            读取INI文件内的32位有符号整型数据(Int32)，当配置项不存在时返回给定的默认值
             </summary>
             <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
             <param name="key">每条配置的关键字（形如Key = Value）</param>
-            <param name="value">配置待写入的值</param>
-            <param name="iniFilePath">INI配置文件路径</param>
+            <param name="def">没有该项配置时的默认值</param>
+            <returns>返回转换后的32位有符号整型数据(Int32)</returns>
+            <exception cref="T:System.IO.FileNotFoundException"></exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+            <exception cref="T:System.FormatException"></exception>
+            <exception cref="T:System.OverflowException"></exception>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.ReadDecimal(System.String,System.String)">
+            <summary>
+            读取INI文件内的10进制浮点数(Decimal)，当配置项不存在时返回0
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <returns>返回转换后的10进制浮点数(Decimal)</returns>
+            <exception cref="T:System.IO.FileNotFoundException"></exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+            <exception cref="T:System.FormatException"></exception>
+            <exception cref="T:System.OverflowException"></exception>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.ReadDecimal(System.String,System.String,System.Decimal)">
+            <summary>
+            读取INI文件内的10进制浮点数(Decimal)，当配置项不存在时返回给定的默认值
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="def">没有该项配置时的默认值</param>
+            <returns>返回转换后的10进制浮点数(Decimal)</returns>
+            <exception cref="T:System.IO.FileNotFoundException"></exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+            <exception cref="T:System.FormatException"></exception>
+            <exception cref="T:System.OverflowException"></exception>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.ReadDouble(System.String,System.String)">
+            <summary>
+            读取INI文件内的双精度浮点数(Double)，当配置项不存在时返回0
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <returns>返回转换后的双精度浮点数(Double)</returns>
+            <exception cref="T:System.IO.FileNotFoundException"></exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+            <exception cref="T:System.FormatException"></exception>
+            <exception cref="T:System.OverflowException"></exception>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.ReadDouble(System.String,System.String,System.Double)">
+            <summary>
+            读取INI文件内的双精度浮点数(Double)，当配置项不存在时返回给定的默认值
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="def">没有该项配置时的默认值</param>
+            <returns>返回转换后的双精度浮点数(Double)</returns>
+            <exception cref="T:System.IO.FileNotFoundException"></exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+            <exception cref="T:System.FormatException"></exception>
+            <exception cref="T:System.OverflowException"></exception>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.TryReadBool(System.String,System.String,System.Boolean@)">
+            <summary>
+            读取INI文件的配置项并尝试转换为bool变量（配置项值为1时为true，为非1的整数时为false），转换结果由以out符号修饰的参数返回
+            <para/>假如配置项存在但无法转为整型数值，则转换失败；假如配置项不存在，视为转换成功，但转换结果默认为false
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
+            <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.TryReadBool(System.String,System.String,System.Boolean,System.Boolean@)">
+            <summary>
+            读取INI文件的配置项并尝试转换为bool变量（配置项值为1时为true，为非1的整数时为false），转换结果由以out符号修饰的参数返回
+            <para/>假如配置项存在但无法转为整型数值，则转换失败；假如配置项不存在，视为转换成功，但转换结果为给定的默认值
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="def">（假如没有找到配置项时的）默认转换结果</param>
+            <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
+            <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.TryReadInt(System.String,System.String,System.Int32@)">
+            <summary>
+            读取INI文件的配置项并尝试转换为32位有符号整型变量(Int32)，转换结果由以out符号修饰的参数返回
+            <para/>假如配置项存在但无法转为整型数值，则转换失败；假如配置项不存在，视为转换成功，但转换结果默认为0
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
+            <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.TryReadInt(System.String,System.String,System.Int32,System.Int32@)">
+            <summary>
+            读取INI文件的配置项并尝试转换为32位有符号整型变量(Int32)，转换结果由以out符号修饰的参数返回
+            <para/>假如配置项存在但无法转为整型数值，则转换失败；假如配置项不存在，视为转换成功，但转换结果为给定的默认值
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="def">（假如没有找到配置项时的）默认转换结果</param>
+            <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
+            <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.TryReadDecimal(System.String,System.String,System.Decimal@)">
+            <summary>
+            读取INI文件的配置项并尝试转换为10进制浮点数(Decimal)，转换结果由以out符号修饰的参数返回
+            <para/>假如配置项存在但无法转为整型数值，则转换失败；假如配置项不存在，视为转换成功，但转换结果默认为0
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
+            <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.TryReadDecimal(System.String,System.String,System.Int32,System.Decimal@)">
+            <summary>
+            读取INI文件的配置项并尝试转换为10进制浮点数(Decimal)，转换结果由以out符号修饰的参数返回
+            <para/>假如配置项存在但无法转为整型数值，则转换失败；假如配置项不存在，视为转换成功，但转换结果为给定的默认值
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="def">（假如没有找到配置项时的）默认转换结果</param>
+            <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
+            <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.TryReadDouble(System.String,System.String,System.Double@)">
+            <summary>
+            读取INI文件的配置项并尝试转换为双精度浮点数(Double)，转换结果由以out符号修饰的参数返回
+            <para/>假如配置项存在但无法转为双精度浮点数，则转换失败；假如配置项不存在，视为转换成功，但转换结果默认为0
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
+            <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.TryReadDouble(System.String,System.String,System.Double,System.Double@)">
+            <summary>
+            读取INI文件的配置项并尝试转换为双精度浮点数(Double)，转换结果由以out符号修饰的参数返回
+            <para/>假如配置项存在但无法转为双精度浮点数，则转换失败；假如配置项不存在，视为转换成功，但转换结果为给定的默认值
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="def">（假如没有找到配置项时的）默认转换结果</param>
+            <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
+            <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.WriteDouble(System.String,System.String,System.Double,System.String)">
+            <summary>
+            按指定的格式将双精度浮点数(Double)写INI配置文件，格式默认为null
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="value">待写入的值</param>
+            <param name="format">写入的格式，如"0.000"可保留3位小数，假如不需要任何格式则为null</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.WriteInt(System.String,System.String,System.Int32)">
+            <summary>
+            将32位有符号整型值(Int32)写INI配置文件
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="value">待写入的值</param>
+            <returns>假如操作成功，返回true，否则返回false</returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.WriteDecimal(System.String,System.String,System.Decimal)">
+            <summary>
+            将10进制浮点数(Decimal)写INI配置文件
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="value">待写入的值</param>
+            <returns>假如操作成功，返回true，否则返回false</returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.WriteBool(System.String,System.String,System.Boolean)">
+            <summary>
+            将布尔值写INI配置文件
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="value">待写入的值</param>
             <returns>假如操作成功，返回true，否则返回false</returns>
         </member>
         <member name="M:CommonLib.Function.IniFileHelper.WriteData(System.String,System.String,System.String)">
@@ -6093,6 +6304,16 @@
             <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
             <param name="key">每条配置的关键字（形如Key = Value）</param>
             <param name="value">配置待写入的值</param>
+            <returns>假如操作成功，返回true，否则返回false</returns>
+        </member>
+        <member name="M:CommonLib.Function.IniFileHelper.WriteData(System.String,System.String,System.String,System.String)">
+            <summary>
+            写INI配置文件
+            </summary>
+            <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+            <param name="key">每条配置的关键字（形如Key = Value）</param>
+            <param name="value">配置待写入的值</param>
+            <param name="iniFilePath">INI配置文件路径</param>
             <returns>假如操作成功，返回true，否则返回false</returns>
         </member>
         <member name="M:CommonLib.Function.IniFileHelper.WritePrivateProfileString(System.String,System.String,System.String,System.String)">
@@ -7052,9 +7273,15 @@
             显示窗口
             </summary>
         </member>
-        <member name="M:CommonLib.UIControlUtil.ControlTemplates.FormNotifyBasis.Exit">
+        <member name="M:CommonLib.UIControlUtil.ControlTemplates.FormNotifyBasis.Exit(System.Boolean)">
             <summary>
-            退出
+            退出，同时根据给定参数决定是否重新启动
+            </summary>
+            <param name="restart">是否在退出后重新启动</param>
+        </member>
+        <member name="M:CommonLib.UIControlUtil.ControlTemplates.FormNotifyBasis.Restart">
+            <summary>
+            重新启动
             </summary>
         </member>
         <member name="M:CommonLib.UIControlUtil.ControlTemplates.FormNotifyBasis.ToolStripMenu_NotifyExit_Click(System.Object,System.EventArgs)">

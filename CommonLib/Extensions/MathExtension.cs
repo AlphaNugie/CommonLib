@@ -266,50 +266,99 @@ namespace CommonLib.Extensions
         /// <returns></returns>
         public static double Haversine(this double input) { return Haversine(input, true); }
 
+        #region 方差与标准差
         /// <summary>
-        /// 根据样本计算方差
+        /// 根据样本集与平均值计算方差，假如样本集不包含任何元素，则默认方差为0
         /// </summary>
         /// <param name="numbers">样本</param>
-        /// <returns></returns>
+        /// <param name="average">平均值</param>
+        /// <returns>返回计算的方差，假如样本集不包含任何元素，则默认返回0</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        ///// <exception cref="InvalidOperationException"></exception>
+        ///// <exception cref="ArgumentException"></exception>
+        public static double Variance(this IEnumerable<double> numbers, double average)
+        {
+            //if (numbers == null)
+            //    throw new ArgumentNullException(nameof(numbers), "样本集的对象为空引用");
+            //假如样本集不包含任何元素，则默认方差为0
+            if (numbers.Count() == 0)
+                return 0;
+
+            //↓↓↓下面2种计算方式完全一样，只是第2种写法更简洁
+            //double result = numbers.Select(number => Math.Pow(number - average, 2)).Average(); //方差
+            double result = numbers.Average(number => Math.Pow(number - average, 2)); //方差
+            return result;
+        }
+
+        /// <summary>
+        /// 根据样本集计算方差，假如样本集不包含任何元素，则默认方差为0
+        /// </summary>
+        /// <param name="numbers">样本</param>
+        /// <returns>返回计算的方差，假如样本集不包含任何元素，则默认返回0</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        ///// <exception cref="InvalidOperationException"></exception>
+        ///// <exception cref="ArgumentException"></exception>
         public static double Variance(this IEnumerable<double> numbers)
         {
-            if (numbers == null || numbers.Count() == 0)
-                throw new ArgumentException("参数不包含任何元素!");
+            //if (numbers == null)
+            //    throw new ArgumentNullException(nameof(numbers), "样本集的对象为空引用");
+            //假如样本集不包含任何元素，则默认方差为0
+            if (numbers.Count() == 0)
+                return 0;
 
-            //double average = numbers.Average(); //平均值
-            //double result = numbers.Select(number => Math.Pow(number - average, 2)).Average(); //方差
-            //return result;
             return Variance(numbers, numbers.Average());
         }
 
         /// <summary>
-        /// 根据样本与平均值计算方差
+        /// 根据样本计算方差，计算方差的值可以通过给定的转换函数从样本元素中投影出来
         /// </summary>
-        /// <param name="numbers">样本</param>
-        /// <param name="average">平均值</param>
+        /// <param name="sources">样本，样本中的每个元素可以通过提供的转换函数投影到最终计算方差的数值上</param>
+        /// <param name="selector">应用于每个元素的转换函数</param>
         /// <returns></returns>
-        public static double Variance(this IEnumerable<double> numbers, double average)
+        /// <exception cref="ArgumentNullException"></exception>
+        public static double Variance<TSource>(this IEnumerable<TSource> sources, Func<TSource, double> selector)
         {
-            if (numbers == null || numbers.Count() == 0)
-                throw new ArgumentException("参数不包含任何元素!");
+            //if (sources == null || sources.Count() == 0)
+            //    throw new ArgumentException("参数不包含任何元素!");
 
-            //double average = numbers.Average(); //平均值
-            double result = numbers.Select(number => Math.Pow(number - average, 2)).Average(); //方差
-            return result;
+            IEnumerable<double> numbers = sources.Select(selector); //首先将参与计算的值从样本中投影出来
+            //double average = numbers.Average(); //计算平均值
+            //double result = numbers.Average(number => Math.Pow(number - average, 2)); //计算方差，等效于Select(number => ...).Average()
+            //return result;
+            return numbers.Variance();
         }
 
         /// <summary>
         /// 计算标准差
         /// </summary>
-        /// <param name="numbers"></param>
+        /// <param name="numbers">样本</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        ///// <exception cref="InvalidOperationException"></exception>
+        ///// <exception cref="ArgumentException"></exception>
         public static double Standard(this IEnumerable<double> numbers)
         {
-            if (numbers == null || numbers.Count() == 0)
-                throw new ArgumentException("参数不包含任何元素!");
+            //if (numbers == null || numbers.Count() == 0)
+            //    throw new ArgumentException("参数不包含任何元素!");
 
-            return Math.Sqrt(Variance(numbers));
+            return Math.Sqrt(numbers.Variance());
         }
+
+        /// <summary>
+        /// 根据样本计算标准差，计算标准差的值可以通过给定的转换函数从样本元素中投影出来
+        /// </summary>
+        /// <param name="sources">样本，样本中的每个元素可以通过提供的转换函数投影到最终计标准差的数值上</param>
+        /// <param name="selector">应用于每个元素的转换函数</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static double Standard<TSource>(this IEnumerable<TSource> sources, Func<TSource, double> selector)
+        {
+            //if (sources == null || sources.Count() == 0)
+            //    throw new ArgumentException("参数不包含任何元素!");
+
+            return Math.Sqrt(Variance(sources, selector));
+        }
+        #endregion
         #endregion
 
         #region 整型与byte序列互转

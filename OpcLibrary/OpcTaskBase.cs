@@ -15,6 +15,7 @@ namespace OpcLibrary
     /// <summary>
     /// OPC读取、写入任务
     /// </summary>
+    [Obsolete("请使用OpcLibraryAnyCpu.dll")]
     public abstract class OpcTaskBase : Task
     {
         /// <summary>

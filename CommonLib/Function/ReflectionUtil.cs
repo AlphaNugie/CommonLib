@@ -54,6 +54,9 @@ namespace CommonLib.Function
         public static Type GetGenericType(this Type entityType)
         {
             Type genericType = null;
+            //var assemply = Assembly.GetExecutingAssembly();
+            //assemply = Assembly.Load("IntercommConsole.OpcOnly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
+            //assemply = Assembly.GetEntryAssembly();
             if (entityType == null)
                 goto END;
             Type[] genericTypes = entityType.GenericTypeArguments;
@@ -62,7 +65,13 @@ namespace CommonLib.Function
                 genericType = genericTypes[0];
             //假如是数组
             else if (entityType.FullName.EndsWith("[]"))
-                genericType = Type.GetType(entityType.FullName.TrimEnd('[', ']'));
+            {
+                string fullName = entityType.FullName.TrimEnd('[', ']');
+                genericType = Type.GetType(fullName);
+                //假如找不到数组基类型，则在入口可执行程序所在的程序集中查找
+                if (genericType == null)
+                    genericType = Assembly.GetEntryAssembly().GetType(fullName);
+            }
             END:
             return genericType;
         }

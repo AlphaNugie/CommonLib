@@ -70,6 +70,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseDataService.cs" />
+    <Compile Include="BaseDataServiceOracle.cs" />
+    <Compile Include="OracleColumnMapping.cs" />
+    <Compile Include="OracleEnums.cs" />
+    <Compile Include="OracleExtension.cs" />
     <Compile Include="OracleProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

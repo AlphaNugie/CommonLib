@@ -1,6 +1,8 @@
-﻿using CommonLib.Helpers;
+﻿using CommonLib.Extensions.Reflection;
+using CommonLib.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Policy;
@@ -11,6 +13,8 @@ namespace CommonLib.Function
 {
     /// <summary>
     /// INI配置文件操作类
+    /// <para/>假如泛型T为bool量，则无法满足IFormattable的约束
+    /// <para/>假如泛型T可为null，则无法满足IComparable, IConvertible, IComparable[T], IEquatable[T]的约束
     /// </summary>
     public class IniFileHelper
     {
@@ -54,32 +58,32 @@ namespace CommonLib.Function
 
         #region 读取
         #region ReadData
-        /// <summary>
-        /// 读取INI文件内容
-        /// </summary>
-        /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
-        /// <param name="key">每条配置的关键字（形如Key = Value）</param>
-        /// <returns>返回配置文件内容</returns>
-        /// <exception cref="FileNotFoundException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public string ReadData(string section, string key)
-        {
-            return ReadData(section, key, string.Empty, 1024, FilePath);
-        }
+        ///// <summary>
+        ///// 读取INI文件内容
+        ///// </summary>
+        ///// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+        ///// <param name="key">每条配置的关键字（形如Key = Value）</param>
+        ///// <returns>返回配置文件内容</returns>
+        ///// <exception cref="FileNotFoundException"></exception>
+        ///// <exception cref="ArgumentOutOfRangeException"></exception>
+        //public string ReadData(string section, string key)
+        //{
+        //    return ReadData(section, key, string.Empty, 1024, FilePath);
+        //}
 
         /// <summary>
         /// 读取INI文件内容
         /// </summary>
         /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
         /// <param name="key">每条配置的关键字（形如Key = Value）</param>
-        /// <param name="noText">没有该项配置的情况所反馈的信息</param>
+        /// <param name="def">没有该项配置的默认值</param>
         /// <param name="length">配置项内容最大长度</param>
         /// <returns>返回配置文件内容</returns>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public string ReadData(string section, string key, string noText, int length)
+        public string ReadData(string section, string key, string def = "", int length = 1024)
         {
-            return ReadData(section, key, noText, length, FilePath);
+            return ReadData(section, key, def, length, FilePath);
         }
 
         /// <summary>
@@ -87,13 +91,13 @@ namespace CommonLib.Function
         /// </summary>
         /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
         /// <param name="key">每条配置的关键字（形如Key = Value）</param>
-        /// <param name="noText">没有该项配置的情况所反馈的信息</param>
+        /// <param name="def">没有该项配置的默认值</param>
         /// <param name="length">配置项内容最大长度</param>
         /// <param name="iniFilePath">INI配置文件路径</param>
         /// <returns>返回配置文件内容</returns>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static string ReadData(string section, string key, string noText, int length, string iniFilePath)
+        public static string ReadData(string section, string key, string def, int length, string iniFilePath)
         {
             //if (!File.Exists(iniFilePath) || string.IsNullOrWhiteSpace(key) || length <= 0)
             //    return string.Empty;
@@ -108,8 +112,110 @@ namespace CommonLib.Function
 
             StringBuilder builder = new StringBuilder(length);
             //string noText = key + " not found";
-            GetPrivateProfileString(section, key, noText, builder, length, iniFilePath);
+            GetPrivateProfileString(section, key, def, builder, length, iniFilePath);
             return builder.ToString();
+        }
+        #endregion
+
+        #region ReadValue
+        /// <summary>
+        /// 读取INI文件内特定类型的数值，当配置项不存在时返回特定类型的默认值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+        /// <param name="key">每条配置的关键字（形如Key = Value）</param>
+        /// <returns>返回转换后的特定类型值</returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="InvalidCastException"></exception>
+        /// <exception cref="FormatException"></exception>
+        /// <exception cref="OverflowException"></exception>
+        public T ReadValue<T>(string section, string key) //where T : IComparable, IConvertible, IComparable<T>, IEquatable<T>
+        {
+            return ReadValue<T>(section, key, default);
+        }
+
+        /// <summary>
+        /// 读取INI文件内特定类型的数值，当配置项不存在时返回给定的默认值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+        /// <param name="key">每条配置的关键字（形如Key = Value）</param>
+        /// <param name="def">没有该项配置时的默认值</param>
+        /// <returns>返回转换后的特定类型值</returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="InvalidCastException"></exception>
+        /// <exception cref="FormatException"></exception>
+        /// <exception cref="OverflowException"></exception>
+        public T ReadValue<T>(string section, string key, T def) //where T : IComparable, IConvertible, IComparable<T>, IEquatable<T>
+        {
+            var data = ReadData(section, key);
+            ////假如没有找到配置项，则返回默认值，否则返回转换为目标类型之后的值
+            //return string.IsNullOrWhiteSpace(data) ? def : data.ConvertType(def);
+            //假如没有找到配置项，则返回默认值
+            if (string.IsNullOrWhiteSpace(data))
+                return def;
+            //假如目标类型为bool值，则首先转换为整型，否则转换会失败
+            object source = typeof(T) == typeof(bool) ? (object)int.Parse(data) : data;
+            return source.ConvertType(def);
+        }
+        #endregion
+
+        #region TryReadValue
+        /// <summary>
+        /// 读取INI文件的配置项并尝试转换为特定类型的数值，转换结果由以out符号修饰的参数返回
+        /// <para/>假如配置项存在但无法转为特定类型，则转换失败；假如配置项不存在，视为转换成功，但转换结果为给定类型的默认值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+        /// <param name="key">每条配置的关键字（形如Key = Value）</param>
+        /// <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
+        /// <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        ///// <exception cref="InvalidCastException"></exception>
+        ///// <exception cref="FormatException"></exception>
+        ///// <exception cref="OverflowException"></exception>
+        public bool TryReadValue<T>(string section, string key, out T parsed) //where T : IComparable, IConvertible, IComparable<T>, IEquatable<T>
+        {
+            return TryReadValue(section, key, default, out parsed);
+        }
+
+        /// <summary>
+        /// 读取INI文件的配置项并尝试转换为特定类型的数值，转换结果由以out符号修饰的参数返回
+        /// <para/>假如配置项存在但无法转为特定类型，则转换失败；假如配置项不存在，视为转换成功，但转换结果为给定的默认值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+        /// <param name="key">每条配置的关键字（形如Key = Value）</param>
+        /// <param name="def">（假如没有找到配置项时的）默认转换结果</param>
+        /// <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
+        /// <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        ///// <exception cref="InvalidCastException"></exception>
+        ///// <exception cref="FormatException"></exception>
+        ///// <exception cref="OverflowException"></exception>
+        public bool TryReadValue<T>(string section, string key, T def, out T parsed) //where T : IComparable, IConvertible, IComparable<T>, IEquatable<T>
+        {
+            bool result = true;
+            parsed = def;
+            var data = ReadData(section, key);
+            //假如没有找到配置项，则视为转换成功、转换值直接返回默认值
+            if (string.IsNullOrWhiteSpace(data))
+                goto END;
+            //try { parsed = data.ConvertType(def); }
+            //假如无法转换为目标类型值，则视为转换失败
+            try
+            {
+                //假如目标类型为bool值，则首先转换为整型，否则转换会失败
+                object source = typeof(T) == typeof(bool) ? (object)int.Parse(data) : data;
+                parsed = source.ConvertType(def);
+            }
+            catch (Exception) { result = false; }
+        END:
+            return result;
         }
         #endregion
 
@@ -124,6 +230,7 @@ namespace CommonLib.Function
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
+        [Obsolete("请使用ReadValue<T>方法")]
         public bool ReadBool(string section, string key)
         {
             //考虑到当配置项不存在时转换结果将由输入的整型默认值决定，输入默认值0使转换结果为false
@@ -142,6 +249,7 @@ namespace CommonLib.Function
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
+        [Obsolete("请使用ReadValue<T>方法")]
         public bool ReadBool(string section, string key, bool def)
         {
             //考虑到当配置项不存在时转换结果将由输入的整型默认值决定，则需要默认转换结果为true时输入默认值1，否则输入默认值0
@@ -161,6 +269,7 @@ namespace CommonLib.Function
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
+        [Obsolete("请使用ReadValue<T>方法")]
         public int ReadInt(string section, string key)
         {
             return ReadInt(section, key, 0/*, FilePath*/);
@@ -177,6 +286,7 @@ namespace CommonLib.Function
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
+        [Obsolete("请使用ReadValue<T>方法")]
         public int ReadInt(string section, string key, int def)
         {
             var data = ReadData(section, key);
@@ -196,6 +306,7 @@ namespace CommonLib.Function
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
+        [Obsolete("请使用ReadValue<T>方法")]
         public decimal ReadDecimal(string section, string key)
         {
             return ReadDecimal(section, key, 0/*, FilePath*/);
@@ -212,6 +323,7 @@ namespace CommonLib.Function
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
+        [Obsolete("请使用ReadValue<T>方法")]
         public decimal ReadDecimal(string section, string key, decimal def)
         {
             var data = ReadData(section, key);
@@ -231,6 +343,7 @@ namespace CommonLib.Function
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
+        [Obsolete("请使用ReadValue<T>方法")]
         public double ReadDouble(string section, string key)
         {
             return ReadDouble(section, key, 0);
@@ -247,6 +360,7 @@ namespace CommonLib.Function
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
+        [Obsolete("请使用ReadValue<T>方法")]
         public double ReadDouble(string section, string key, double def)
         {
             var data = ReadData(section, key);
@@ -264,6 +378,7 @@ namespace CommonLib.Function
         /// <param name="key">每条配置的关键字（形如Key = Value）</param>
         /// <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
         /// <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        [Obsolete("请使用TryReadValue<T>方法")]
         public bool TryReadBool(string section, string key, out bool parsed)
         {
             return TryReadBool(section, key, false, out parsed);
@@ -278,6 +393,7 @@ namespace CommonLib.Function
         /// <param name="def">（假如没有找到配置项时的）默认转换结果</param>
         /// <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
         /// <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        [Obsolete("请使用TryReadValue<T>方法")]
         public bool TryReadBool(string section, string key, bool def, out bool parsed)
         {
             //假如无法转换为整型则转换失败
@@ -316,6 +432,7 @@ namespace CommonLib.Function
         /// <param name="key">每条配置的关键字（形如Key = Value）</param>
         /// <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
         /// <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        [Obsolete("请使用TryReadValue<T>方法")]
         public bool TryReadInt(string section, string key, out int parsed)
         {
             return TryReadInt(section, key, 0, out parsed);
@@ -330,6 +447,7 @@ namespace CommonLib.Function
         /// <param name="def">（假如没有找到配置项时的）默认转换结果</param>
         /// <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
         /// <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        [Obsolete("请使用TryReadValue<T>方法")]
         public bool TryReadInt(string section, string key, int def, out int parsed)
         {
             bool result = TryReadDouble(section, key, def, out double valued);
@@ -347,6 +465,7 @@ namespace CommonLib.Function
         /// <param name="key">每条配置的关键字（形如Key = Value）</param>
         /// <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
         /// <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        [Obsolete("请使用TryReadValue<T>方法")]
         public bool TryReadDecimal(string section, string key, out decimal parsed)
         {
             return TryReadDecimal(section, key, 0, out parsed);
@@ -361,6 +480,7 @@ namespace CommonLib.Function
         /// <param name="def">（假如没有找到配置项时的）默认转换结果</param>
         /// <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
         /// <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        [Obsolete("请使用TryReadValue<T>方法")]
         public bool TryReadDecimal(string section, string key, int def, out decimal parsed)
         {
             bool result = TryReadDouble(section, key, def, out double valued);
@@ -378,6 +498,7 @@ namespace CommonLib.Function
         /// <param name="key">每条配置的关键字（形如Key = Value）</param>
         /// <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
         /// <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        [Obsolete("请使用TryReadValue<T>方法")]
         public bool TryReadDouble(string section, string key, out double parsed)
         {
             return TryReadDouble(section, key, 0, out parsed);
@@ -392,6 +513,7 @@ namespace CommonLib.Function
         /// <param name="def">（假如没有找到配置项时的）默认转换结果</param>
         /// <param name="parsed">返回的转换结果，只有在转换成功时才可使用</param>
         /// <returns>假如配置项存在但转换失败，将返回false；假如配置项不存在，则返回true</returns>
+        [Obsolete("请使用TryReadValue<T>方法")]
         public bool TryReadDouble(string section, string key, double def, out double parsed)
         {
             bool result = true;
@@ -419,8 +541,34 @@ namespace CommonLib.Function
         /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
         /// <param name="key">每条配置的关键字（形如Key = Value）</param>
         /// <param name="value">待写入的值</param>
+        /// <param name="format">写入的格式(仅double有效)，如"0.000"可保留3位小数，假如不需要任何格式则为null</param>
+        /// <returns></returns>
+        public bool WriteValue<T>(string section, string key, T value, string format = null) //where T : IComparable, IConvertible, IComparable<T>, IEquatable<T>
+        {
+            string towrite;
+            format = string.IsNullOrWhiteSpace(format) ? null : format;
+            //单精度、双精度浮点数使用格式转换
+            if (value is double d)
+                towrite = d.ToString(format);
+            else if (value is float f)
+                towrite = f.ToString(format);
+            //bool值使用1/0的字符串形式
+            else if (value is bool b)
+                towrite = b ? "1" : "0";
+            else
+                towrite = value.ConvertType<string>();
+            return WriteData(section, key, towrite);
+        }
+
+        /// <summary>
+        /// 按指定的格式将双精度浮点数(Double)写INI配置文件，格式默认为null
+        /// </summary>
+        /// <param name="section">内容区域（用中括号[ ] 括起的部分）</param>
+        /// <param name="key">每条配置的关键字（形如Key = Value）</param>
+        /// <param name="value">待写入的值</param>
         /// <param name="format">写入的格式，如"0.000"可保留3位小数，假如不需要任何格式则为null</param>
         /// <returns></returns>
+        [Obsolete("请使用WriteValue<T>方法")]
         public bool WriteDouble(string section, string key, double value, string format = null)
         {
             return WriteData(section, key, value.ToString(string.IsNullOrWhiteSpace(format) ? null : format));
@@ -433,6 +581,7 @@ namespace CommonLib.Function
         /// <param name="key">每条配置的关键字（形如Key = Value）</param>
         /// <param name="value">待写入的值</param>
         /// <returns>假如操作成功，返回true，否则返回false</returns>
+        [Obsolete("请使用WriteValue<T>方法")]
         public bool WriteInt(string section, string key, int value)
         {
             return WriteData(section, key, value.ToString());
@@ -445,6 +594,7 @@ namespace CommonLib.Function
         /// <param name="key">每条配置的关键字（形如Key = Value）</param>
         /// <param name="value">待写入的值</param>
         /// <returns>假如操作成功，返回true，否则返回false</returns>
+        [Obsolete("请使用WriteValue<T>方法")]
         public bool WriteDecimal(string section, string key, decimal value)
         {
             return WriteData(section, key, value.ToString());
@@ -457,6 +607,7 @@ namespace CommonLib.Function
         /// <param name="key">每条配置的关键字（形如Key = Value）</param>
         /// <param name="value">待写入的值</param>
         /// <returns>假如操作成功，返回true，否则返回false</returns>
+        [Obsolete("请使用WriteValue<T>方法")]
         public bool WriteBool(string section, string key, bool value)
         {
             return WriteData(section, key, value ? "1" : "0");

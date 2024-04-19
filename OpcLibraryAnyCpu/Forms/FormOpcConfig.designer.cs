@@ -37,6 +37,17 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.dataGridView_Main = new System.Windows.Forms.DataGridView();
+            this.Column_RecordId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_ItemId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_OpcGroupId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_FieldName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_Enabled = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Column_Coeff = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_Offset = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_GetValue = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.Column_ItemValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_Changed = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_WriteValue = new System.Windows.Forms.DataGridViewButtonColumn();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.button_Refresh = new System.Windows.Forms.Button();
             this.button_Add = new System.Windows.Forms.Button();
@@ -50,17 +61,6 @@
             this.openFileDialog_DbFile = new System.Windows.Forms.OpenFileDialog();
             this.openFileDialog_CsvFile = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog_CsvFile = new System.Windows.Forms.SaveFileDialog();
-            this.Column_RecordId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_ItemId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_OpcGroupId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_FieldName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_Enabled = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Column_Coeff = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_Offset = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_GetValue = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.Column_ItemValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_Changed = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_WriteValue = new System.Windows.Forms.DataGridViewButtonColumn();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Main)).BeginInit();
@@ -182,6 +182,104 @@
             this.dataGridView_Main.TabIndex = 25;
             this.dataGridView_Main.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_Main_CellContentClick);
             this.dataGridView_Main.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellValueChanged);
+            // 
+            // Column_RecordId
+            // 
+            this.Column_RecordId.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Column_RecordId.DataPropertyName = "RecordId";
+            this.Column_RecordId.HeaderText = "ID";
+            this.Column_RecordId.MinimumWidth = 6;
+            this.Column_RecordId.Name = "Column_RecordId";
+            this.Column_RecordId.ReadOnly = true;
+            this.Column_RecordId.Width = 46;
+            // 
+            // Column_ItemId
+            // 
+            this.Column_ItemId.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Column_ItemId.DataPropertyName = "ItemId";
+            this.Column_ItemId.HeaderText = "标签名称";
+            this.Column_ItemId.MinimumWidth = 6;
+            this.Column_ItemId.Name = "Column_ItemId";
+            this.Column_ItemId.Width = 81;
+            // 
+            // Column_OpcGroupId
+            // 
+            this.Column_OpcGroupId.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Column_OpcGroupId.DataPropertyName = "OpcGroupId";
+            this.Column_OpcGroupId.HeaderText = "OPC组";
+            this.Column_OpcGroupId.MinimumWidth = 6;
+            this.Column_OpcGroupId.Name = "Column_OpcGroupId";
+            this.Column_OpcGroupId.Width = 70;
+            // 
+            // Column_FieldName
+            // 
+            this.Column_FieldName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Column_FieldName.DataPropertyName = "FieldName";
+            this.Column_FieldName.HeaderText = "数据源类字段";
+            this.Column_FieldName.MinimumWidth = 6;
+            this.Column_FieldName.Name = "Column_FieldName";
+            this.Column_FieldName.Width = 105;
+            // 
+            // Column_Enabled
+            // 
+            this.Column_Enabled.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Column_Enabled.DataPropertyName = "Enabled";
+            this.Column_Enabled.FalseValue = "false";
+            this.Column_Enabled.HeaderText = "是否启用";
+            this.Column_Enabled.MinimumWidth = 6;
+            this.Column_Enabled.Name = "Column_Enabled";
+            this.Column_Enabled.TrueValue = "true";
+            this.Column_Enabled.Width = 62;
+            // 
+            // Column_Coeff
+            // 
+            this.Column_Coeff.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Column_Coeff.DataPropertyName = "Coeff";
+            this.Column_Coeff.HeaderText = "系数";
+            this.Column_Coeff.MinimumWidth = 6;
+            this.Column_Coeff.Name = "Column_Coeff";
+            this.Column_Coeff.Width = 57;
+            // 
+            // Column_Offset
+            // 
+            this.Column_Offset.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Column_Offset.DataPropertyName = "Offset";
+            this.Column_Offset.HeaderText = "偏移量";
+            this.Column_Offset.MinimumWidth = 6;
+            this.Column_Offset.Name = "Column_Offset";
+            this.Column_Offset.Width = 69;
+            // 
+            // Column_GetValue
+            // 
+            this.Column_GetValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Column_GetValue.HeaderText = "读取";
+            this.Column_GetValue.MinimumWidth = 6;
+            this.Column_GetValue.Name = "Column_GetValue";
+            this.Column_GetValue.Width = 38;
+            // 
+            // Column_ItemValue
+            // 
+            this.Column_ItemValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Column_ItemValue.HeaderText = "值";
+            this.Column_ItemValue.MinimumWidth = 6;
+            this.Column_ItemValue.Name = "Column_ItemValue";
+            this.Column_ItemValue.Width = 45;
+            // 
+            // Column_Changed
+            // 
+            this.Column_Changed.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Column_Changed.DataPropertyName = "Changed";
+            this.Column_Changed.HeaderText = "是否改变";
+            this.Column_Changed.MinimumWidth = 6;
+            this.Column_Changed.Name = "Column_Changed";
+            this.Column_Changed.Visible = false;
+            // 
+            // Column_WriteValue
+            // 
+            this.Column_WriteValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Column_WriteValue.HeaderText = "写入";
+            this.Column_WriteValue.Name = "Column_WriteValue";
+            this.Column_WriteValue.Width = 38;
             // 
             // flowLayoutPanel1
             // 
@@ -311,105 +409,6 @@
             this.saveFileDialog_CsvFile.RestoreDirectory = true;
             this.saveFileDialog_CsvFile.ShowHelp = true;
             this.saveFileDialog_CsvFile.Title = "导出记录到文件";
-            // 
-            // Column_RecordId
-            // 
-            this.Column_RecordId.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Column_RecordId.DataPropertyName = "RecordId";
-            this.Column_RecordId.HeaderText = "ID";
-            this.Column_RecordId.MinimumWidth = 6;
-            this.Column_RecordId.Name = "Column_RecordId";
-            this.Column_RecordId.ReadOnly = true;
-            this.Column_RecordId.Width = 46;
-            // 
-            // Column_ItemId
-            // 
-            this.Column_ItemId.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Column_ItemId.DataPropertyName = "ItemId";
-            this.Column_ItemId.HeaderText = "标签名称";
-            this.Column_ItemId.MinimumWidth = 6;
-            this.Column_ItemId.Name = "Column_ItemId";
-            this.Column_ItemId.Width = 81;
-            // 
-            // Column_OpcGroupId
-            // 
-            this.Column_OpcGroupId.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Column_OpcGroupId.DataPropertyName = "OpcGroupId";
-            this.Column_OpcGroupId.HeaderText = "OPC组";
-            this.Column_OpcGroupId.MinimumWidth = 6;
-            this.Column_OpcGroupId.Name = "Column_OpcGroupId";
-            this.Column_OpcGroupId.Width = 70;
-            // 
-            // Column_FieldName
-            // 
-            this.Column_FieldName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Column_FieldName.DataPropertyName = "FieldName";
-            this.Column_FieldName.HeaderText = "数据源类字段";
-            this.Column_FieldName.MinimumWidth = 6;
-            this.Column_FieldName.Name = "Column_FieldName";
-            this.Column_FieldName.Width = 105;
-            // 
-            // Column_Enabled
-            // 
-            this.Column_Enabled.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Column_Enabled.DataPropertyName = "Enabled";
-            this.Column_Enabled.FalseValue = "false";
-            this.Column_Enabled.HeaderText = "是否启用";
-            this.Column_Enabled.MinimumWidth = 6;
-            this.Column_Enabled.Name = "Column_Enabled";
-            this.Column_Enabled.TrueValue = "true";
-            this.Column_Enabled.Width = 62;
-            // 
-            // Column_Coeff
-            // 
-            this.Column_Coeff.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Column_Coeff.DataPropertyName = "Coeff";
-            this.Column_Coeff.HeaderText = "系数";
-            this.Column_Coeff.MinimumWidth = 6;
-            this.Column_Coeff.Name = "Column_Coeff";
-            this.Column_Coeff.Width = 57;
-            // 
-            // Column_Offset
-            // 
-            this.Column_Offset.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Column_Offset.DataPropertyName = "Offset";
-            this.Column_Offset.HeaderText = "偏移量";
-            this.Column_Offset.MinimumWidth = 6;
-            this.Column_Offset.Name = "Column_Offset";
-            this.Column_Offset.Width = 69;
-            // 
-            // Column_GetValue
-            // 
-            this.Column_GetValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Column_GetValue.HeaderText = "读取";
-            this.Column_GetValue.MinimumWidth = 6;
-            this.Column_GetValue.Name = "Column_GetValue";
-            this.Column_GetValue.Width = 38;
-            // 
-            // Column_ItemValue
-            // 
-            this.Column_ItemValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Column_ItemValue.HeaderText = "值";
-            this.Column_ItemValue.MinimumWidth = 6;
-            this.Column_ItemValue.Name = "Column_ItemValue";
-            this.Column_ItemValue.Width = 45;
-            // 
-            // Column_Changed
-            // 
-            this.Column_Changed.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Column_Changed.DataPropertyName = "Changed";
-            this.Column_Changed.HeaderText = "是否改变";
-            this.Column_Changed.MinimumWidth = 6;
-            this.Column_Changed.Name = "Column_Changed";
-            this.Column_Changed.Visible = false;
-            this.Column_Changed.Width = 81;
-            // 
-            // Column_WriteValue
-            // 
-            this.Column_WriteValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Column_WriteValue.HeaderText = "写入";
-            this.Column_WriteValue.Name = "Column_WriteValue";
-            this.Column_WriteValue.Width = 38;
             // 
             // FormOpcConfig
             // 

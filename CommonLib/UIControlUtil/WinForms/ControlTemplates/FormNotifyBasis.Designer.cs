@@ -28,71 +28,81 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-            notifyIcon_Main = new System.Windows.Forms.NotifyIcon(components);
-            contextMenuStrip_Main = new System.Windows.Forms.ContextMenuStrip(components);
-            toolStripMenu_Show = new System.Windows.Forms.ToolStripMenuItem();
-            toolStripMenu_Hide = new System.Windows.Forms.ToolStripMenuItem();
-            toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            toolStripMenu_NotifyExit = new System.Windows.Forms.ToolStripMenuItem();
-            contextMenuStrip_Main.SuspendLayout();
-            SuspendLayout();
+            this.components = new System.ComponentModel.Container();
+            this.notifyIcon_Main = new System.Windows.Forms.NotifyIcon(this.components);
+            this.contextMenuStrip_Main = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenu_Show = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenu_Hide = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripMenu_NotifyExit = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenu_Restart = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip_Main.SuspendLayout();
+            this.SuspendLayout();
             // 
             // notifyIcon_Main
             // 
-            notifyIcon_Main.ContextMenuStrip = contextMenuStrip_Main;
-            notifyIcon_Main.Visible = true;
-            notifyIcon_Main.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(NotifyIcon_Main_MouseDoubleClick);
+            this.notifyIcon_Main.ContextMenuStrip = this.contextMenuStrip_Main;
+            this.notifyIcon_Main.Visible = true;
+            this.notifyIcon_Main.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon_Main_MouseDoubleClick);
             // 
             // contextMenuStrip_Main
             // 
-            contextMenuStrip_Main.ImageScalingSize = new System.Drawing.Size(20, 20);
-            contextMenuStrip_Main.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            toolStripMenu_Show,
-            toolStripMenu_Hide,
-            toolStripSeparator5,
-            toolStripMenu_NotifyExit});
-            contextMenuStrip_Main.Name = "contextMenuStrip1";
-            contextMenuStrip_Main.Size = new System.Drawing.Size(109, 82);
+            this.contextMenuStrip_Main.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenuStrip_Main.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenu_Show,
+            this.toolStripMenu_Hide,
+            this.toolStripSeparator5,
+            this.toolStripMenu_Restart,
+            this.toolStripMenu_NotifyExit});
+            this.contextMenuStrip_Main.Name = "contextMenuStrip1";
+            this.contextMenuStrip_Main.Size = new System.Drawing.Size(181, 120);
             // 
             // toolStripMenu_Show
             // 
-            toolStripMenu_Show.Name = "toolStripMenu_Show";
-            toolStripMenu_Show.Size = new System.Drawing.Size(108, 24);
-            toolStripMenu_Show.Text = "显示";
-            toolStripMenu_Show.Click += new System.EventHandler(ToolStripMenu_Show_Click);
+            this.toolStripMenu_Show.Name = "toolStripMenu_Show";
+            this.toolStripMenu_Show.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenu_Show.Text = "显示";
+            this.toolStripMenu_Show.Click += new System.EventHandler(this.ToolStripMenu_Show_Click);
             // 
             // toolStripMenu_Hide
             // 
-            toolStripMenu_Hide.Name = "toolStripMenu_Hide";
-            toolStripMenu_Hide.Size = new System.Drawing.Size(108, 24);
-            toolStripMenu_Hide.Text = "隐藏";
-            toolStripMenu_Hide.Click += new System.EventHandler(ToolStripMenu_Hide_Click);
+            this.toolStripMenu_Hide.Name = "toolStripMenu_Hide";
+            this.toolStripMenu_Hide.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenu_Hide.Text = "隐藏";
+            this.toolStripMenu_Hide.Click += new System.EventHandler(this.ToolStripMenu_Hide_Click);
             // 
             // toolStripSeparator5
             // 
-            toolStripSeparator5.Name = "toolStripSeparator5";
-            toolStripSeparator5.Size = new System.Drawing.Size(105, 6);
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(177, 6);
             // 
             // toolStripMenu_NotifyExit
             // 
-            toolStripMenu_NotifyExit.Name = "toolStripMenu_NotifyExit";
-            toolStripMenu_NotifyExit.Size = new System.Drawing.Size(108, 24);
-            toolStripMenu_NotifyExit.Text = "退出";
-            toolStripMenu_NotifyExit.Click += new System.EventHandler(ToolStripMenu_NotifyExit_Click);
+            this.toolStripMenu_NotifyExit.Name = "toolStripMenu_NotifyExit";
+            this.toolStripMenu_NotifyExit.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenu_NotifyExit.Text = "退出";
+            this.toolStripMenu_NotifyExit.Click += new System.EventHandler(this.ToolStripMenu_NotifyExit_Click);
+            // 
+            // toolStripMenu_Restart
+            // 
+            this.toolStripMenu_Restart.Name = "toolStripMenu_Restart";
+            this.toolStripMenu_Restart.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenu_Restart.Text = "重新启动";
+            this.toolStripMenu_Restart.Click += new System.EventHandler(this.ToolStripMenu_Restart_Click);
             // 
             // FormNotifyBasis
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
-            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(800, 450);
-            Name = "FormNotifyBasis";
-            Text = "FormNotifyBasis";
-            FormClosing += new System.Windows.Forms.FormClosingEventHandler(Form_FormClosing);
-            TextChanged += new System.EventHandler(FormNotifyBasis_TextChanged);
-            Resize += new System.EventHandler(FormNotifyBasis_Resize);
-            contextMenuStrip_Main.ResumeLayout(false);
-            ResumeLayout(false);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(600, 360);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Name = "FormNotifyBasis";
+            this.Text = "FormNotifyBasis";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_FormClosing);
+            this.TextChanged += new System.EventHandler(this.FormNotifyBasis_TextChanged);
+            this.Resize += new System.EventHandler(this.FormNotifyBasis_Resize);
+            this.contextMenuStrip_Main.ResumeLayout(false);
+            this.ResumeLayout(false);
 
         }
 
@@ -103,5 +113,6 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenu_NotifyExit;
         protected System.Windows.Forms.NotifyIcon notifyIcon_Main;
         protected System.Windows.Forms.ContextMenuStrip contextMenuStrip_Main;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenu_Restart;
     }
 }

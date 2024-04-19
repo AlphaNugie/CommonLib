@@ -191,9 +191,10 @@ namespace CommonLib.Clients
 
             try
             {
-                //检测目录是否存在，不存在则创建
-                if (!Directory.Exists(Path))
-                    Directory.CreateDirectory(Path);
+                FileSystemHelper.CheckForDirectory(path);
+                ////检测目录是否存在，不存在则创建
+                //if (!Directory.Exists(Path))
+                //    Directory.CreateDirectory(Path);
 
                 UpdateFilePath(path, FileName);
                 string filePath = fileNameWithDate ? FilePath_WithDate : FilePath;
@@ -269,9 +270,10 @@ namespace CommonLib.Clients
                 //else if (string.IsNullOrWhiteSpace(fileExtension))
                 //    filePath += TEXT_FILE_SUFFIX;
 
-                //检测目录是否存在，不存在则创建
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
+                FileSystemHelper.CheckForDirectory(path);
+                ////检测目录是否存在，不存在则创建
+                //if (!Directory.Exists(path))
+                //    Directory.CreateDirectory(path);
 
                 //假如文件存在，添加文本，否则创建文件并写入(编码方式为UTF-8)
                 if (File.Exists(filePath) && !overriding)
@@ -549,9 +551,10 @@ namespace CommonLib.Clients
             path += string.IsNullOrWhiteSpace(subDir) ? string.Empty : (FileSystemHelper.DirSeparator + subDir);
             string filePath = string.Format(@"{0}{1}{2}.xml", path, FileSystemHelper.DirSeparator, fileName); //包含文件名的路径
 
-            //检测目录是否存在，不存在则创建
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
+            FileSystemHelper.CheckForDirectory(path);
+            ////检测目录是否存在，不存在则创建
+            //if (!Directory.Exists(path))
+            //    Directory.CreateDirectory(path);
 
             //假如XML文件存在，添加数据，否则创建并添加
             if (File.Exists(filePath))

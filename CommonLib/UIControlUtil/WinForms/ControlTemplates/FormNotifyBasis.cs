@@ -127,6 +127,11 @@ namespace CommonLib.UIControlUtil.ControlTemplates
             ShowWindow();
         }
 
+        private void ToolStripMenu_Restart_Click(object sender, EventArgs e)
+        {
+            Restart();
+        }
+
         /// <summary>
         /// 提示栏退出
         /// </summary>

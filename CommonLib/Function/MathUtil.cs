@@ -174,6 +174,7 @@ namespace CommonLib.Function
         /// <param name="splitChar">描述数字分隔关系的字符，默认为“,”</param>
         /// <param name="intervalChar">描述区间起始结束关系的字符，默认为~（为避免负数不要使用-）</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static List<int> GetIntegerListByString(string descp, char splitChar = ',', char intervalChar = '~')
         {
             var list = new List<int>();
@@ -303,6 +304,143 @@ namespace CommonLib.Function
                 );
         END:
             return output;
+        }
+        #endregion
+
+        #region 计算各点间平均距离 / 排除离散点
+        /// <summary>
+        /// 从双精度浮点数(double)的集合中排除与其它值相差太大的值，同时需给定采样的比例（或数量）以及离群值的过滤系数
+        /// </summary>
+        /// <param name="points">待处理的双精度浮点数(double)集合</param>
+        /// <param name="discarded">存放被过滤掉的双精度浮点数(double)的集合</param>
+        /// <param name="dist_ex_count">计算每个值距其它值的平均差距时，所保留的值数量，假如大于0小于1，则为比例（假如小于等于0则强制设置数量为1）</param>
+        /// <param name="removalCoeff">离群值的过滤系数，标准值为1，越小越严格，小于等于0将过滤掉所有点</param>
+        /// <returns>返回计算出的各点间平均距离</returns>
+        public static double RemoveDistantPoints(ref List<double> points, ref List<double> discarded, double dist_ex_count, double removalCoeff)
+        {
+            return RemoveDistantPoints(ref points, ref discarded, d => new double[] { d }, 1, dist_ex_count, removalCoeff);
+        }
+
+        /// <summary>
+        /// 从一些样本的集合中排除离散的样本，判断依据是距其它样本的平均距离，用于计算此距离的坐标（以double数组的形式）可以通过给定的转换函数从样本元素中投影出来，同时需给定采样的比例（或数量）以及离群点的过滤系数
+        /// </summary>
+        /// <param name="points">待处理的样本集合，样本中的每个元素可以通过提供的转换函数投影到最终计算平均距离的数值坐标上（以double数组的形式）</param>
+        /// <param name="discarded">存放被过滤掉的样本的集合</param>
+        /// <param name="selector">应用于每个元素的转换函数</param>
+        /// <param name="dimension">点所在空间的维度，至少为1</param>
+        /// <param name="dist_ex_count">计算每个点距其它所有点的平均距离时，所保留的样本点的数量，假如大于0小于1，则为比例（假如小于等于0则强制设置数量为1）</param>
+        /// <param name="removalCoeff">离群点过滤系数，标准值为1，越小越严格，小于等于0将过滤掉所有点</param>
+        /// <returns>返回计算出的各点间平均距离</returns>
+        public static double RemoveDistantPoints<TSource>(ref List<TSource> points, ref List<TSource> discarded, Func<TSource, double[]> selector, int dimension, double dist_ex_count, double removalCoeff)
+        {
+            var innerPoints = points.Select(selector);
+            double distAvr = removalCoeff * innerPoints.GetAverageDistance(dimension, dist_ex_count, out Dictionary<int, double> dict);
+            if (discarded == null)
+                discarded = new List<TSource>();
+            //points.RemoveAll(p => p.DistToOthers > dist_avr);
+            for (int i = points.Count - 1; i >= 0; i--)
+            {
+                var p = points[i];
+                if (dict[i] <= distAvr)
+                    continue;
+                points.Remove(p);
+                discarded.Add(p);
+            }
+            return distAvr;
+        }
+
+        /// <summary>
+        /// 从一些点的集合中排除离散的点，判断依据是距其它点的平均距离，点的坐标以double数组的形式给出，同时需给定采样的比例（或数量）以及离群点的过滤系数
+        /// </summary>
+        /// <param name="points">待处理的点集合，每个元素代表点的坐标，以double数组的形式给出</param>
+        /// <param name="dimension">点所在空间的维度，至少为1</param>
+        /// <param name="dist_ex_count">计算每个点距其它所有点的平均距离时，所保留的样本点的数量，假如大于0小于1，则为比例（假如小于等于0则强制设置数量为1）</param>
+        /// <param name="removalCoeff">离群点过滤系数，标准值为1，越小越严格，小于等于0将过滤掉所有点</param>
+        /// <returns>返回计算出的各点间平均距离</returns>
+        public static double RemoveDistantPoints(ref List<double[]> points, int dimension, double dist_ex_count, double removalCoeff)
+        {
+            var list = new List<double[]>();
+            return RemoveDistantPoints(ref points, ref list, dimension, dist_ex_count, removalCoeff);
+        }
+
+        ///// <summary>
+        ///// 从一些点的集合中排除离散的点，判断依据是距其它点的平均距离，点的坐标以double数组的形式给出，同时需给定采样的比例（或数量）以及离群点的过滤系数
+        ///// </summary>
+        ///// <param name="points">待处理的点集合</param>
+        ///// <param name="discarded">存放被过滤掉的点的集合</param>
+        ///// <param name="dimension">点所在空间的维度，至少为1</param>
+        ///// <param name="dist_ex_count">计算每个点距其它所有点的平均距离时，所保留的样本点的数量，假如大于0小于1，则为比例（假如小于等于0则强制设置数量为1）</param>
+        ///// <param name="removalCoeff">离群点过滤系数，标准值为1，越小越严格，小于等于0将过滤掉所有点</param>
+        ///// <returns>返回计算出的各点间平均距离</returns>
+        //public static double RemoveDistantPoints(ref List<double[]> points, ref List<double[]> discarded, int dimension, double dist_ex_count, double removalCoeff)
+        //{
+        //    double distAvr = 0;
+        //    //至少需要3个点，而且维度至少为1，否则不需要排除
+        //    int count;
+        //    if (dimension < 1 || points == null || (count = points.Count()) < 3)
+        //        goto END;
+        //    if (discarded == null)
+        //        discarded = new List<double[]>();
+        //    //某一个点距离其它所有点的距离是样本池，计算从这个样本池中采样的数量，假如大于0小于1按比例计算，否则按绝对数量计算（至少为1）
+        //    int ex_count = dist_ex_count > 0 && dist_ex_count < 1 ? (int)((count - 1) * dist_ex_count) : (int)dist_ex_count;
+        //    ex_count = ex_count <= 0 ? 1 : ex_count;
+        //    Dictionary<double[], double> dict = new Dictionary<double[], double>();
+        //    List<int> dimensions = GetIntegerListByString("1~" + dimension);
+        //    //List<double> distances = new List<double>();
+        //    foreach (var pi in points)
+        //    {
+        //        if (pi == null || pi.Length < dimension) continue;
+        //        List<double> listDists = new List<double>();
+        //        foreach (var pj in points)
+        //            //排除同一个点
+        //            if (pj != null && pj.Length >= dimension && pi != pj)
+        //                //计算与其它所有点的距离并储存
+        //                listDists.Add(Math.Sqrt(dimensions.Select(d => Math.Pow(pj[d] - pi[d], 2)).Sum()));
+        //        //找出排序靠前若干位的距离值并取平均值，记为单点距离平均值
+        //        listDists.Sort();
+        //        listDists = listDists.Take(ex_count).ToList();
+        //        dict.Add(pi, listDists.Average());
+        //    }
+        //    //求所有点的单点距离平均值的平均值，记为全局平均值
+        //    //double dist_avr = dict.Count == 0 ? 0 : dict.Values.Average() * removalCoeff;
+        //    distAvr = dict.Count == 0 ? 0 : dict.Values.Average() * removalCoeff;
+        //    //points.RemoveAll(p => p.DistToOthers > dist_avr);
+        //    for (int i = points.Count - 1; i >= 0; i--)
+        //    {
+        //        var p = points[i];
+        //        if (dict[p] <= distAvr)
+        //            continue;
+        //        points.Remove(p);
+        //        discarded.Add(p);
+        //    }
+        //    END:
+        //    return distAvr;
+        //}
+
+        /// <summary>
+        /// 从一些点的集合中排除离散的点，判断依据是距其它点的平均距离，点的坐标以double数组的形式给出，同时需给定采样的比例（或数量）以及离群点的过滤系数
+        /// </summary>
+        /// <param name="points">待处理的点集合，每个元素代表点的坐标，以double数组的形式给出</param>
+        /// <param name="discarded">存放被过滤掉的点的集合</param>
+        /// <param name="dimension">点所在空间的维度，至少为1</param>
+        /// <param name="dist_ex_count">计算每个点距其它所有点的平均距离时，所保留的样本点的数量，假如大于0小于1，则为比例（假如小于等于0则强制设置数量为1）</param>
+        /// <param name="removalCoeff">离群点过滤系数，标准值为1，越小越严格，小于等于0将过滤掉所有点</param>
+        /// <returns>返回计算出的各点间平均距离</returns>
+        public static double RemoveDistantPoints(ref List<double[]> points, ref List<double[]> discarded, int dimension, double dist_ex_count, double removalCoeff)
+        {
+            double distAvr = removalCoeff * points.GetAverageDistance(dimension, dist_ex_count, out Dictionary<int, double> dict);
+            if (discarded == null)
+                discarded = new List<double[]>();
+            //points.RemoveAll(p => p.DistToOthers > dist_avr);
+            for (int i = points.Count - 1; i >= 0; i--)
+            {
+                var p = points[i];
+                if (dict[i] <= distAvr)
+                    continue;
+                points.Remove(p);
+                discarded.Add(p);
+            }
+            return distAvr;
         }
         #endregion
 

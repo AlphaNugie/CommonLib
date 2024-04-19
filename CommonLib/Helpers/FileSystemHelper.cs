@@ -40,6 +40,7 @@ namespace CommonLib.Helpers
         public static string DirSeparator { get { return Path.DirectorySeparatorChar.ToString(); } }
         #endregion
 
+        #region 进程相关
         /// <summary>
         /// 杀掉所有与给定的文件对象相关的进程
         /// </summary>
@@ -127,6 +128,41 @@ namespace CommonLib.Helpers
         RET:
             return result;
         }
+        #endregion
+
+        #region 文件名操作
+        /// <summary>
+        /// 检查给定的路径（或给定的文件所在的路径）是否存在，不存在则创建
+        /// </summary>
+        /// <param name="path">路径名称，或包含路径的完整文件名称</param>
+        /// <param name="isFilePath">是否为文件路径，假如为false则一律按照路径操作</param>
+        public static void CheckForDirectory(string path, bool isFilePath = false)
+        {
+            if (isFilePath)
+            {
+                FileInfo fileInfo = new FileInfo(path);
+                path = fileInfo.DirectoryName;
+            }
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+        }
+
+        /// <summary>
+        /// 检查路径或包含路径的完整文件名，假如路径中不包含卷分隔符则在前添加启动目录
+        /// </summary>
+        /// <param name="path">路径，或包含路径的完整文件名</param>
+        /// <param name="ignoreEmptyString">是否忽略传入的空白字符串（字符串为null、空、充满空白字符），为true时直接返回空字符串，否则依然添加启动目录（此时与启动目录本身等价）</param>
+        /// <returns></returns>
+        public static string CheckForStartupPath(string path, bool ignoreEmptyString = false)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                path = string.Empty;
+            //假如路径中不包含卷分隔符，添加启动目录
+            if ((!ignoreEmptyString || !string.IsNullOrWhiteSpace(path)) && !path.Contains(VolumeSeparator))
+                //path = StartupPath + TrimFilePath(path) + DirSeparator;
+                path = StartupPath + path;
+            return path;
+        }
 
         /// <summary>
         /// 将日期添加到文件名中（文件名包含后缀）
@@ -179,11 +215,12 @@ namespace CommonLib.Helpers
                 return;
             if (string.IsNullOrWhiteSpace(path))
                 path = string.Empty;
-            path = TrimFilePath(path) + DirSeparator; //确保路径字符串末尾包含路径分隔符
-            //假如路径中不包含卷分隔符，添加根目录
-            if (!path.Contains(VolumeSeparator))
-                //path = StartupPath + TrimFilePath(path) + DirSeparator;
-                path = StartupPath + path;
+            path = CheckForStartupPath(TrimFilePath(path) + DirSeparator);
+            //path = TrimFilePath(path) + DirSeparator; //确保路径字符串末尾包含路径分隔符
+            ////假如路径中不包含卷分隔符，添加根目录
+            //if (!path.Contains(VolumeSeparator))
+            //    //path = StartupPath + TrimFilePath(path) + DirSeparator;
+            //    path = StartupPath + path;
             fileNameDate = AddDateToFileName(fileName); //带日期的文件名称
             //filePath = TrimFilePath(path) + DirSeparator + fileName; //包含文件名的路径
             //filePathDate = TrimFilePath(path) + DirSeparator + fileNameDate; //带日期的路径
@@ -201,5 +238,6 @@ namespace CommonLib.Helpers
         {
             UpdateFilePath(ref path, fileName, out _, out filePath, out _);
         }
+        #endregion
     }
 }

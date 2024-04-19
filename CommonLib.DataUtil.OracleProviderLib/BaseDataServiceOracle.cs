@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -11,42 +10,52 @@ using System.Threading.Tasks;
 namespace CommonLib.DataUtil
 {
     /// <summary>
-    /// 基础Sqlite数据服务类
+    /// 基础Oracle数据服务类
     /// </summary>
-    public abstract class BaseDataServiceSqlite
+    public abstract class BaseDataServiceOracle
     {
         /// <summary>
         /// SQLite基础操作类的对象
         /// </summary>
-        protected SqliteProvider _provider;
-        //private string _tableName;
+        protected OracleProvider _provider;
 
         #region 属性
         /// <summary>
         /// SQLite数据库操作对象
         /// </summary>
-        public SqliteProvider Provider { get => _provider; }
+        public OracleProvider Provider { get => _provider; }
 
         /// <summary>
         /// 对应表名称
         /// </summary>
-        //public string TableName { get; protected set; }
         public string TableName { get { return GetTableName(); } }
 
         /// <summary>
         /// 必须具备的字段
         /// </summary>
-        public List<SqliteColumnMapping> ColumnsMustHave { get; private set; }
+        public List<OracleColumnMapping> ColumnsMustHave { get; private set; }
         #endregion
 
         /// <summary>
-        /// 构造器
+        /// 根据给定的数据库相关信息以及默认端口号初始化
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="name"></param>
-        public BaseDataServiceSqlite(string path, string name)
+        /// <param name="hostAddress">数据库地址</param>
+        /// <param name="serviceName">数据库服务名</param>
+        /// <param name="userName">用户名称</param>
+        /// <param name="password">用户密码</param>
+        public BaseDataServiceOracle(string hostAddress, string serviceName, string userName, string password) : this(hostAddress, OracleProvider.DefaultPort, serviceName, userName, password) { }
+
+        /// <summary>
+        /// 根据给定的数据库相关信息初始化
+        /// </summary>
+        /// <param name="hostAddress">数据库地址</param>
+        /// <param name="hostPort">端口号</param>
+        /// <param name="serviceName">数据库服务名</param>
+        /// <param name="userName">用户名称</param>
+        /// <param name="password">用户密码</param>
+        public BaseDataServiceOracle(string hostAddress, int hostPort, string serviceName, string userName, string password)
         {
-            SetFilePath(path, name);
+            SetDbParams(hostAddress, hostPort, serviceName, userName, password);
             ColumnsMustHave = GetColumnsMustHave();
         }
 
@@ -58,37 +67,44 @@ namespace CommonLib.DataUtil
         /// <summary>
         /// 获取并返回包含必须存在的字段的列表
         /// </summary>
-        protected abstract List<SqliteColumnMapping> GetColumnsMustHave();
+        protected abstract List<OracleColumnMapping> GetColumnsMustHave();
 
         /// <summary>
-        /// 设置Sqlite文件的完整路径
+        /// 设置Oracle数据库的相关信息
         /// </summary>
-        /// <param name="filePath">文件路径</param>
-        /// <exception cref="ArgumentException">未指定Sqlite文件完整路径</exception>
-        public void SetFilePath(string filePath)
+        /// <param name="hostAddress">数据库地址</param>
+        /// <param name="serviceName">数据库服务名</param>
+        /// <param name="userName">用户名称</param>
+        /// <param name="password">用户密码</param>
+        /// <exception cref="ArgumentNullException">未指定Oracle文件名称</exception>
+        public void SetDbParams(string hostAddress, string serviceName, string userName, string password)
         {
-            if (string.IsNullOrWhiteSpace(filePath))
-                throw new ArgumentException(nameof(filePath), "未指定Sqlite文件完整路径");
-            if (_provider == null)
-                _provider = new SqliteProvider(filePath);
-            else
-                _provider.SetConnStr(filePath);
+            SetDbParams(hostAddress, OracleProvider.DefaultPort, serviceName, userName, password);
         }
 
         /// <summary>
-        /// 设置Sqlite文件的路径与路径下文件名称
+        /// 设置Oracle数据库的相关信息
         /// </summary>
-        /// <param name="path">文件路径</param>
-        /// <param name="name">文件名称</param>
-        /// <exception cref="ArgumentNullException">未指定Sqlite文件名称</exception>
-        public void SetFilePath(string path, string name)
+        /// <param name="hostAddress">数据库地址</param>
+        /// <param name="hostPort">端口号</param>
+        /// <param name="serviceName">数据库服务名</param>
+        /// <param name="userName">用户名称</param>
+        /// <param name="password">用户密码</param>
+        /// <exception cref="ArgumentNullException">未指定Oracle文件名称</exception>
+        public void SetDbParams(string hostAddress, int hostPort, string serviceName, string userName, string password)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name), "未指定Sqlite文件名称");
+            if (string.IsNullOrWhiteSpace(hostAddress))
+                throw new ArgumentNullException(nameof(hostAddress), "未指定数据库地址");
+            if (string.IsNullOrWhiteSpace(serviceName))
+                throw new ArgumentNullException(nameof(serviceName), "未指定数据库实例名");
+            if (string.IsNullOrWhiteSpace(userName))
+                throw new ArgumentNullException(nameof(userName), "未指定用户名");
+            if (string.IsNullOrWhiteSpace(password))
+                throw new ArgumentNullException(nameof(password), "未指定密码");
             if (_provider == null)
-                _provider = new SqliteProvider(path, name);
+                _provider = new OracleProvider(hostAddress, hostPort, serviceName, userName, password);
             else
-                _provider.SetConnStr(path, name);
+                _provider.SetConnStr(hostAddress, hostPort, serviceName, userName, password);
         }
 
         /// <summary>
@@ -96,10 +112,9 @@ namespace CommonLib.DataUtil
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public List<SqliteColumnMapping> GetAllColumnMappings(out string message)
+        public List<OracleColumnMapping> GetAllColumnMappings(out string message)
         {
             return _provider.GetColumnMappings(TableName, null, out message);
-            //return GetColumnMappings(null, out message);
         }
 
         /// <summary>
@@ -108,7 +123,7 @@ namespace CommonLib.DataUtil
         /// <param name="columnNames">给定的数据库字段列表，假如为空则获取所有字段</param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public List<SqliteColumnMapping> GetColumnMappings(IEnumerable<string> columnNames, out string message)
+        public List<OracleColumnMapping> GetColumnMappings(IEnumerable<string> columnNames, out string message)
         {
             return _provider.GetColumnMappings(TableName, columnNames, out message);
         }
@@ -121,8 +136,6 @@ namespace CommonLib.DataUtil
         public DataTable GetAllRecords(string orderby)
         {
             return _provider.GetAllRecords(TableName, orderby);
-            //string sql = string.Format("select t.*, 0 changed from {0} t {1}", TableName, string.IsNullOrWhiteSpace(orderby) ? string.Empty : "order by t." + orderby);
-            //return Provider.Query(sql);
         }
 
         #region CheckForTableColumns
@@ -132,7 +145,6 @@ namespace CommonLib.DataUtil
         public virtual bool CheckForTableColumns()
         {
             return _provider.CheckForTableColumns(TableName, ColumnsMustHave, out _);
-            //return CheckForTableColumns(out _);
         }
 
         /// <summary>
@@ -160,7 +172,6 @@ namespace CommonLib.DataUtil
         public bool CheckForTable(out DataTable table)
         {
             return _provider.CheckForTable(TableName, ColumnsMustHave, out table, out _);
-            //return CheckForTable(out table, out _);
         }
 
         /// <summary>
@@ -175,7 +186,7 @@ namespace CommonLib.DataUtil
         }
 
         /// <summary>
-        /// 查找指定命名空间下继承BaseDataServiceSqlite的符合给定条件的所有子类，并执行其中的CheckForTableColumns方法（无参）
+        /// 查找指定命名空间下继承BaseDataServiceOracle的符合给定条件的所有子类，并执行其中的CheckForTableColumns方法（无参）
         /// </summary>
         /// <param name="nameSpace">命名空间全名（或一部分），区分大小写</param>
         /// <param name="subSpaceIncl">是否查找子命名空间</param>
@@ -183,7 +194,7 @@ namespace CommonLib.DataUtil
         ///// <param name="baseType">查找类时限定的从中继承的类（仅检查类型名称及命名空间是否相同），假如为空则不限定</param>
         public static void CallMethodForWholeShebang_CheckForTableColumns(string nameSpace, bool subSpaceIncl = false, string typeNameIncl = null)
         {
-            var serviceTypes = Assembly.GetEntryAssembly().GetTypesInNamespace(nameSpace, subSpaceIncl, typeNameIncl, typeof(BaseDataServiceSqlite));
+            var serviceTypes = Assembly.GetEntryAssembly().GetTypesInNamespace(nameSpace, subSpaceIncl, typeNameIncl, typeof(BaseDataServiceOracle));
             if (serviceTypes != null && serviceTypes.Length > 0)
             {
                 foreach (var type in serviceTypes)
@@ -196,7 +207,7 @@ namespace CommonLib.DataUtil
         }
 
         /// <summary>
-        /// 查找与当前类相同命名空间下继承BaseDataServiceSqlite的符合给定条件的所有子类，并执行其中的CheckForTableColumns方法（无参）
+        /// 查找与当前类相同命名空间下继承BaseDataServiceOracle的符合给定条件的所有子类，并执行其中的CheckForTableColumns方法（无参）
         /// </summary>
         /// <param name="subSpaceIncl">是否查找子命名空间</param>
         /// <param name="typeNameIncl">查找时限定类名的一部分，假如为空则不限定</param>

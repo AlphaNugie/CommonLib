@@ -14,6 +14,7 @@ namespace CommonLib.Clients
     {
         private ushort wing = 3;
 
+        #region 属性
         /// <summary>
         /// 邻域翼展（半径），默认为3
         /// </summary>
@@ -51,6 +52,7 @@ namespace CommonLib.Clients
         /// 最新的错误信息
         /// </summary>
         public string LastErrorMessage { get; set; }
+        #endregion
 
         ///// <summary>
         ///// 构造器
@@ -66,7 +68,7 @@ namespace CommonLib.Clients
         /// <param name="type">滤波类型</param>
         /// <param name="sigma">高斯分布标准差，标准差越大，数据分布越分散，反之数据分布越集中</param>
         /// <param name="double_winged">样本中心两侧是双翼还是单翼</param>
-        public DataFilterClient(ushort wing, FilterType type, double sigma = 4.5, bool double_winged = true)
+        public DataFilterClient(ushort wing = 7, FilterType type = FilterType.Gaussian, double sigma = 4.5, bool double_winged = true)
         {
             Wing = wing;
             Type = type;
@@ -184,6 +186,16 @@ namespace CommonLib.Clients
         /// <summary>
         /// 根据高斯分布（中心样本为中心点）求各位置样本系数并加权平均
         /// </summary>
+        /// <param name="samples">键值对样本，Key为X坐标（位置），Value为Y坐标（该位置上的值）</param>
+        /// <returns></returns>
+        public double GetGaussianValue(Dictionary<double, double> samples)
+        {
+            return GetGaussianValue(samples, out _);
+        }
+
+        /// <summary>
+        /// 根据高斯分布（中心样本为中心点）求各位置样本系数并加权平均
+        /// </summary>
         /// <param name="samples">样本</param>
         /// <param name="ratios">计算结束后返回的每个样本根据高斯分布得出的系数</param>
         /// <returns></returns>
@@ -205,7 +217,67 @@ namespace CommonLib.Clients
                 value_sum += ratio * samples.ElementAt(i);
                 ratios.Add(ratio);
             }
-            return value_sum / ratio_sum;
+            //假如所有位置的系数和为0（可能是距离中心太远），则直接返回0
+            return ratio_sum == 0 ? 0 : value_sum / ratio_sum;
+        }
+
+        /// <summary>
+        /// 根据高斯分布（中心样本为中心点）求各位置样本系数并加权平均
+        /// </summary>
+        /// <param name="samples">键值对样本，Key为X坐标（位置），Value为Y坐标（该位置上的值）</param>
+        /// <param name="ratios">计算结束后返回的每个样本根据高斯分布得出的系数</param>
+        /// <returns></returns>
+        public double GetGaussianValue(Dictionary<double, double> samples, out List<double> ratios)
+        {
+            ratios = null;
+            if (samples == null) throw new ArgumentNullException(nameof(samples), "提供的样本为null");
+            if (samples.Count() == 0) throw new ArgumentException("样本中没有任何元素", nameof(samples));
+            //if (samples == null || samples.Count() == 0)
+            //    LastErrorMessage = "样本中没有任何元素";
+            //if (!string.IsNullOrWhiteSpace(LastErrorMessage))
+            //    throw new ArgumentException(LastErrorMessage, "samples");
+
+            return GetGaussianValue(samples.Cast<KeyValuePair<double, double>>(), out ratios);
+
+            //double /*center = (samples.Count() - 1) / (DoubleWinged ? 2 : 1), */ratio_sum = 0, value_sum = 0;
+            //ratios = new List<double>();
+            //foreach (var pair in samples)
+            //{
+            //    double ratio = GausCalc.Calc(pair.Key);
+            //    ratio_sum += ratio;
+            //    value_sum += ratio * pair.Value;
+            //    ratios.Add(ratio);
+            //}
+            //return value_sum / ratio_sum;
+        }
+
+        /// <summary>
+        /// 根据高斯分布（中心样本为中心点）求各位置样本系数并加权平均
+        /// </summary>
+        /// <param name="samples">键值对样本，Key为X坐标（位置），Value为Y坐标（该位置上的值）</param>
+        /// <param name="ratios">计算结束后返回的每个样本根据高斯分布得出的系数</param>
+        /// <returns></returns>
+        public double GetGaussianValue(IEnumerable<KeyValuePair<double, double>> samples, out List<double> ratios)
+        {
+            ratios = null;
+            if (samples == null) throw new ArgumentNullException(nameof(samples), "提供的样本为null");
+            if (samples.Count() == 0) throw new ArgumentException("样本中没有任何元素", nameof(samples));
+            //if (samples == null || samples.Count() == 0)
+            //    LastErrorMessage = "样本中没有任何元素";
+            //if (!string.IsNullOrWhiteSpace(LastErrorMessage))
+            //    throw new ArgumentException(LastErrorMessage, "samples");
+
+            double ratio_sum = 0, value_sum = 0;
+            ratios = new List<double>();
+            foreach (var pair in samples)
+            {
+                double ratio = GausCalc.Calc(pair.Key);
+                ratio_sum += ratio;
+                value_sum += ratio * pair.Value;
+                ratios.Add(ratio);
+            }
+            //假如所有位置的系数和为0（可能是距离中心太远），则直接返回0
+            return ratio_sum == 0 ? 0 : value_sum / ratio_sum;
         }
     }
 

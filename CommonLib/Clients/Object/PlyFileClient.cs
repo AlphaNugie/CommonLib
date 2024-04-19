@@ -182,8 +182,9 @@ end_header
             //FullFilePath = Path + Base.DirSeparator + FileName + ".ply";
             customed = ("\r\n" + customed.Trim('\r', '\n')).TrimEnd('\r', '\n'); //确保头部定制属性只有最前面一处换行（假如不为空）
             header = string.Format(header_format, FormatVersion, Comment, dots.Count(), Colored ? colored : string.Empty, customed);
-            if (!Directory.Exists(Path))
-                Directory.CreateDirectory(Path);
+            FileSystemHelper.CheckForDirectory(path);
+            //if (!Directory.Exists(Path))
+            //    Directory.CreateDirectory(Path);
             File.WriteAllText(FullFilePath, header, Encoding.ASCII);
             //假如文件存在，添加文本，否则创建文件并写入(编码方式为ASCII)
             if (File.Exists(FullFilePath) && !Overriding)

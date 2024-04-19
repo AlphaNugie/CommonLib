@@ -45,7 +45,6 @@ namespace CommonLib.DataUtil
         public static string GetConnStr(string hostAddress, int hostPort, string serviceName, string userName, string password)
         {
             return GetConnStr(ConnStrModel, hostAddress, hostPort, serviceName, userName, password);
-            //return string.Format(ConnStrModel, hostAddress, hostPort, serviceName, userName, password);
         }
 
         /// <summary>
@@ -118,6 +117,33 @@ namespace CommonLib.DataUtil
         /// <param name="password">用户密码</param>
         public OracleProvider(string hostAddress, string serviceName, string userName, string password) : base(ConnStrModel, hostAddress, DefaultPort, serviceName, userName, password) { }
         #endregion
+
+        /// <summary>
+        /// 用给定的数据库相关信息及默认端口号设置连接字符串
+        /// </summary>
+        /// <param name="hostAddress">数据库地址</param>
+        /// <param name="serviceName">数据库服务名</param>
+        /// <param name="userName">用户名称</param>
+        /// <param name="password">用户密码</param>
+        /// <returns>返回连接字符串</returns>
+        public void SetConnStr(string hostAddress, string serviceName, string userName, string password)
+        {
+            SetConnStr(GetConnStr(hostAddress, DefaultPort, serviceName, userName, password));
+        }
+
+        /// <summary>
+        /// 用给定的数据库相关信息设置连接字符串
+        /// </summary>
+        /// <param name="hostAddress">数据库地址</param>
+        /// <param name="hostPort">端口号</param>
+        /// <param name="serviceName">数据库服务名</param>
+        /// <param name="userName">用户名称</param>
+        /// <param name="password">用户密码</param>
+        /// <returns>返回连接字符串</returns>
+        public void SetConnStr(string hostAddress, int hostPort, string serviceName, string userName, string password)
+        {
+            SetConnStr(GetConnStr(hostAddress, hostPort, serviceName, userName, password));
+        }
 
         /// <summary>
         /// 使用指定的Clob内容键值对来执行Sql语句

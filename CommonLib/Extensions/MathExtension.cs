@@ -230,6 +230,7 @@ namespace CommonLib.Extensions
         //}
         #endregion
 
+        #region 正态分布
         /// <summary>
         /// 计算正态分布函数的公式，计算时使用给定的平均值μ(mu)与标准差σ(sigma)，输入x坐标，输出正太分布曲线在这个位置的y坐标值
         /// https://i.postimg.cc/P5NxZ0WX/image.png
@@ -246,7 +247,9 @@ namespace CommonLib.Extensions
             double b = Math.Pow(Math.E, -Math.Pow(x - mean, 2) / (2 * Math.Pow(stdDev, 2)));
             return a * b;
         }
+        #endregion
 
+        #region 半正矢
         /// <summary>
         /// 计算输入值的半正矢，假如输入为角度，自动转换为弧度
         /// </summary>
@@ -265,6 +268,7 @@ namespace CommonLib.Extensions
         /// <param name="input">输入角度</param>
         /// <returns></returns>
         public static double Haversine(this double input) { return Haversine(input, true); }
+        #endregion
 
         #region 方差与标准差
         /// <summary>
@@ -493,21 +497,128 @@ namespace CommonLib.Extensions
         }
         #endregion
 
-        ///// <summary>
-        ///// 使输入的方位角保持在合理的范围之内（-180°到180°之间，包含-180°，不包含180°），假如超过180°则减360°，小于-180°则加360°，循环计算直到进入范围为止
-        ///// </summary>
-        ///// <param name="angle">待修改的输入方位角</param>
-        //[Obsolete]
-        //public static void KeepAzimuthInRange(ref double angle)
-        //{
-        //    MathUtil.KeepAzimuthInRange(ref angle);
-        //    ////假如为180°，修改为-180°，确保同一个位置不会出现2种值
-        //    //if (angle == 180)
-        //    //    angle = -180;
-        //    ////假如绝对值大于180，则向当前值符号相反的方向修正360°，直到在范围内为止
-        //    //while (Math.Abs(angle) > 180)
-        //    //    angle -= 360 * Math.Sign(angle);
-        //}
+        #region Between=>判断是否在范围内
+        /// <summary>
+        /// 判断一个双精度浮点数是否落在给定的若干个区间范围中的任意一个（包括等于），假如区间范围为空（不存在任何有效的区间范围），则返回默认值
+        /// </summary>
+        /// <param name="input">待判断的数字</param>
+        /// <param name="ranges">给定的若干个区间范围</param>
+        /// <param name="def">当区间范围为空时返回的默认值</param>
+        /// <returns>假如在数值之间，返回true，否则返回false</returns>
+        public static bool Between(this double input, IEnumerable<IEnumerable<double>> ranges, bool def = false)
+        {
+            if (ranges == null)
+                return def;
+            ranges = ranges.Where(range => range != null && range.Count() >= 2).ToList();
+            if (ranges.Count() == 0)
+                return def;
+            //对于每一组区间范围，进行一次范围比较，然后返回比较结果中的最大值：假如有任意一次满足则为true，否则为false
+            return ranges.Select(range => input.Between(range.ElementAt(0), range.ElementAt(1))).Max();
+        }
+
+        /// <summary>
+        /// 判断一个双精度浮点数是否在两个数值之间（或等于）
+        /// </summary>
+        /// <param name="input">待判断的数字</param>
+        /// <param name="number1">数值1</param>
+        /// <param name="number2">数值2</param>
+        /// <returns>假如在数值之间，返回true，否则返回false</returns>
+        public static bool Between(this double input, double number1, double number2)
+        {
+            return (input >= number1 && input <= number2) || (input >= number2 && input <= number1);
+        }
+
+        /// <summary>
+        /// 判断一个32位整型数是否在两个数值之间（或等于）
+        /// </summary>
+        /// <param name="input">待判断的数字</param>
+        /// <param name="number1">数值1</param>
+        /// <param name="number2">数值2</param>
+        /// <returns>假如在数值之间，返回true，否则返回false</returns>
+        public static bool Between(this int input, double number1, double number2)
+        {
+            return Between((double)input, number1, number2);
+        }
+
+        /// <summary>
+        /// 判断一个16位整型数是否在两个数值之间（或等于）
+        /// </summary>
+        /// <param name="input">待判断的数字</param>
+        /// <param name="number1">数值1</param>
+        /// <param name="number2">数值2</param>
+        /// <returns>假如在数值之间，返回true，否则返回false</returns>
+        public static bool Between(this short input, double number1, double number2)
+        {
+            return Between((double)input, number1, number2);
+        }
+
+        /// <summary>
+        /// 判断一个字节型数是否在两个数值之间（或等于）
+        /// </summary>
+        /// <param name="input">待判断的数字</param>
+        /// <param name="number1">数值1</param>
+        /// <param name="number2">数值2</param>
+        /// <returns>假如在数值之间，返回true，否则返回false</returns>
+        public static bool Between(this byte input, double number1, double number2)
+        {
+            return Between((double)input, number1, number2);
+        }
+        #endregion
+
+        /// <summary>
+        /// 在给定的一些点的集合中，计算各点间的平均距离，判断依据是距其它点的平均距离，点的坐标以double数组的形式给出，同时需给定采样的比例（或数量）
+        /// </summary>
+        /// <param name="points">待处理的点集合</param>
+        /// <param name="dimension">点所在空间的维度，至少为1</param>
+        /// <param name="dist_ex_count">计算每个点距其它所有点的平均距离时，所保留的样本点的数量，假如大于0小于1，则为比例（假如小于等于0则强制设置数量为1）</param>
+        /// <param name="dict">键值对，储存点在集合内索引与点距其它点平均距离的对应关系</param>
+        /// <returns>返回计算出的各点间平均距离</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        ///// <param name="removalCoeff">离群点过滤系数，标准值为1，越小越严格，小于等于0将过滤掉所有点</param>
+        public static double GetAverageDistance(this IEnumerable<double[]> points, int dimension, double dist_ex_count/*, double removalCoeff*/, out Dictionary<int, double> dict)
+        {
+            double distAvr = 0;
+            //至少需要3个点，而且维度至少为1，否则不需要排除
+            if (points == null)
+                throw new ArgumentNullException(nameof(points), "提供的点集合为null");
+            if (dimension < 1)
+                throw new ArgumentOutOfRangeException(nameof(dimension), "点所在空间的维度至少为1");
+            int count;
+            dict = new Dictionary<int, double>();
+            if ((count = points.Count()) < 3)
+            {
+                //为点集合内索引0/1在键值对内添加值，防止需要时找不到抛出异常
+                dict.Add(0, 0);
+                dict.Add(1, 0);
+                goto END;
+            }
+            //某一个点距离其它所有点的距离是样本池，计算从这个样本池中采样的数量，假如大于0小于1按比例计算，否则按绝对数量计算（至少为1）
+            int ex_count = dist_ex_count > 0 && dist_ex_count < 1 ? (int)((count - 1) * dist_ex_count) : (int)dist_ex_count;
+            ex_count = ex_count <= 0 ? 1 : ex_count;
+            //Dictionary<int, double> dict = new Dictionary<int, double>();
+            List<int> dimensions = MathUtil.GetIntegerListByString("1~" + dimension); //将维度扩充为从1开始的整型序列
+            //foreach (var pi in points)
+            for (int i = 0; i < count; i++)
+            {
+                var pi = points.ElementAt(i);
+                if (pi == null || pi.Length < dimension) continue;
+                List<double> listDists = new List<double>();
+                foreach (var pj in points)
+                    //排除同一个点
+                    if (pj != null && pj.Length >= dimension && pi != pj)
+                        //计算与其它所有点的距离并储存
+                        listDists.Add(Math.Sqrt(dimensions.Select(d => Math.Pow(pj[d - 1] - pi[d - 1], 2)).Sum()));
+                //找出排序靠前若干位的距离值并取平均值，记为单点距离平均值
+                listDists.Sort();
+                listDists = listDists.Take(ex_count).ToList();
+                dict.Add(i, listDists.Average());
+            }
+            //求所有点的单点距离平均值的平均值，记为全局平均值
+            distAvr = dict.Count == 0 ? 0 : dict.Values.Average()/* * removalCoeff*/;
+        END:
+            return distAvr;
+        }
 
         /// <summary>
         /// 根据输入的方位角计算出保持在合理的范围之内（-180°到180°之间）的方位角的值并返回，假如超过180°则减360°，小于-180°则加360°，循环计算直到进入范围为止
@@ -531,14 +642,6 @@ namespace CommonLib.Extensions
         [Obsolete]
         public static double GetAngleByCoordinates(double x1, double y1, double xa, double ya)
         {
-            ////两点距离，加上一个极小值防止为0
-            //double xdiff = x1 - xa, ydiff = y1 - ya, dist = Math.Sqrt(Math.Pow(xdiff, 2) + Math.Pow(ydiff, 2)) + 1e-20;
-            ////初步角度，值区间为[-90, 90]
-            //double angle = Math.Asin(xdiff / dist) * 180 / Math.PI;
-            ////假如y坐标差为负值，则需要相对X轴做对称
-            //if (ydiff < 0)
-            //    angle = 180 * (xdiff > 0 ? 1 : -1) - angle;
-            //return angle;
             return MathUtil.GetAngleByCoordinates(x1, y1, xa, ya);
         }
 
@@ -603,72 +706,6 @@ namespace CommonLib.Extensions
         //    //return Math.Acos(1 - 2 * h) * earth_radius; //根据反余弦计算
         //    return Math.Asin(Math.Sqrt(h)) * 2 * earth_radius; //根据反正弦计算
         //}
-
-        /// <summary>
-        /// 判断一个双精度浮点数是否落在给定的若干个区间范围中的任意一个（包括等于），假如区间范围为空（不存在任何有效的区间范围），则返回默认值
-        /// </summary>
-        /// <param name="input">待判断的数字</param>
-        /// <param name="ranges">给定的若干个区间范围</param>
-        /// <param name="def">当区间范围为空时返回的默认值</param>
-        /// <returns>假如在数值之间，返回true，否则返回false</returns>
-        public static bool Between(this double input, IEnumerable<IEnumerable<double>> ranges, bool def = false)
-        {
-            if (ranges == null)
-                return def;
-            ranges = ranges.Where(range => range != null  && range.Count() >= 2).ToList();
-            if (ranges.Count() == 0)
-                return def;
-            //对于每一组区间范围，进行一次范围比较，然后返回比较结果中的最大值：假如有任意一次满足则为true，否则为false
-            return ranges.Select(range => input.Between(range.ElementAt(0), range.ElementAt(1))).Max();
-        }
-
-        /// <summary>
-        /// 判断一个双精度浮点数是否在两个数值之间（或等于）
-        /// </summary>
-        /// <param name="input">待判断的数字</param>
-        /// <param name="number1">数值1</param>
-        /// <param name="number2">数值2</param>
-        /// <returns>假如在数值之间，返回true，否则返回false</returns>
-        public static bool Between(this double input, double number1, double number2)
-        {
-            return (input >= number1 && input <= number2) || (input >= number2 && input <= number1);
-        }
-
-        /// <summary>
-        /// 判断一个32位整型数是否在两个数值之间（或等于）
-        /// </summary>
-        /// <param name="input">待判断的数字</param>
-        /// <param name="number1">数值1</param>
-        /// <param name="number2">数值2</param>
-        /// <returns>假如在数值之间，返回true，否则返回false</returns>
-        public static bool Between(this int input, double number1, double number2)
-        {
-            return Between((double)input, number1, number2);
-        }
-
-        /// <summary>
-        /// 判断一个16位整型数是否在两个数值之间（或等于）
-        /// </summary>
-        /// <param name="input">待判断的数字</param>
-        /// <param name="number1">数值1</param>
-        /// <param name="number2">数值2</param>
-        /// <returns>假如在数值之间，返回true，否则返回false</returns>
-        public static bool Between(this short input, double number1, double number2)
-        {
-            return Between((double)input, number1, number2);
-        }
-
-        /// <summary>
-        /// 判断一个字节型数是否在两个数值之间（或等于）
-        /// </summary>
-        /// <param name="input">待判断的数字</param>
-        /// <param name="number1">数值1</param>
-        /// <param name="number2">数值2</param>
-        /// <returns>假如在数值之间，返回true，否则返回false</returns>
-        public static bool Between(this byte input, double number1, double number2)
-        {
-            return Between((double)input, number1, number2);
-        }
 
         /// <summary>
         /// 获取数据集中所有不为0的数中最小的数，假如数据集为空或不存在非0的数据，则返回0

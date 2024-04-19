@@ -14,23 +14,18 @@ namespace CommonLib.Function
     /// </summary>
     public static class Converter
     {
+        #region 原Convert方法
         ///// <summary>
         ///// 泛型类型转换
         ///// </summary>
-        ///// <param name="type"></param>
+        ///// <param name="type">要转换的基础类型</param>
         ///// <param name="source">要转换的值</param>
         ///// <returns>返回转换后的实体类对象</returns>
-        //public static object ConvertType(this object source, Type type)
+        //public static object Convert(Type type, object source)
         //{
         //    //假如原数据为空（或数据库空值），返回类型的新实例
         //    if (source == null || source.GetType().Name.Equals("DBNull"))
-        //    {
-        //        //假如是值类型，生成新实例，否则返回null
-        //        if (type.IsValueType)
-        //            return Activator.CreateInstance(type);
-        //        else
-        //            return null;
-        //    }
+        //        return type.CreateDefValue();
 
         //    //泛型Nullable判断，取其中的类型
         //    if (type.IsGenericType)
@@ -39,25 +34,26 @@ namespace CommonLib.Function
         //    //反射获取TryParse方法
         //    return System.Convert.ChangeType(source, type);
         //}
+        #endregion
 
         /// <summary>
         /// 泛型类型转换
         /// </summary>
         /// <param name="type">要转换的基础类型</param>
         /// <param name="source">要转换的值</param>
+        /// <param name="def"></param>
         /// <returns>返回转换后的实体类对象</returns>
-        public static object Convert(Type type, object source)
+        /// <exception cref="ArgumentNullException">类型type可能为空</exception>
+        /// <exception cref="InvalidCastException"></exception>
+        /// <exception cref="FormatException"></exception>
+        /// <exception cref="OverflowException"></exception>
+        public static object Convert(Type type, object source, object def)
         {
-            //假如原数据为空（或数据库空值），返回类型的新实例
-            if (source == null || source.GetType().Name.Equals("DBNull"))
-            {
-                ////假如是值类型，生成新实例，否则返回null
-                //if (type.IsValueType)
-                //    return Activator.CreateInstance(type);
-                //else
-                //    return null;
-                return type.CreateDefValue();
-            }
+            if (type == null)
+                throw new ArgumentNullException(nameof(type), "待转换的目标类型为空");
+            //假如原数据为空，或空白字符串，或数据库空值，返回类型的新实例
+            if (source == null || (source is string str && string.IsNullOrWhiteSpace(str)) || source.GetType().Name.Equals("DBNull"))
+                return def;
 
             //泛型Nullable判断，取其中的类型
             if (type.IsGenericType)
@@ -65,6 +61,21 @@ namespace CommonLib.Function
 
             //反射获取TryParse方法
             return System.Convert.ChangeType(source, type);
+        }
+
+        /// <summary>
+        /// 泛型类型转换
+        /// </summary>
+        /// <param name="type">要转换的基础类型</param>
+        /// <param name="source">要转换的值</param>
+        /// <returns>返回转换后的实体类对象</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidCastException"></exception>
+        /// <exception cref="FormatException"></exception>
+        /// <exception cref="OverflowException"></exception>
+        public static object Convert(Type type, object source)
+        {
+            return Convert(type, source, type.CreateDefValue());
         }
 
         //private static readonly MethodInfo convert_type_method = typeof(Converter).GetMethod("ConvertType", new Type[] { typeof(object) });
@@ -79,9 +90,13 @@ namespace CommonLib.Function
         /// <typeparam name="T">要转换的基础类型</typeparam>
         /// <param name="source">要转换的值</param>
         /// <returns>返回转换后的实体类对象</returns>
+        /// <exception cref="InvalidCastException"></exception>
+        /// <exception cref="FormatException"></exception>
+        /// <exception cref="OverflowException"></exception>
         public static T ConvertType<T>(this object source)
         {
-            return ConvertType<T>(source, default);
+            //return ConvertType<T>(source, default);
+            return ConvertType(source, (T)typeof(T).CreateDefValue());
         }
 
         /// <summary>
@@ -91,52 +106,28 @@ namespace CommonLib.Function
         /// <param name="source">要转换的值</param>
         /// <param name="def">假如值为空的默认值</param>
         /// <returns>返回转换后的实体类对象</returns>
+        /// <exception cref="InvalidCastException"></exception>
+        /// <exception cref="FormatException"></exception>
+        /// <exception cref="OverflowException"></exception>
         public static T ConvertType<T>(this object source, T def)
         {
             //假如原数据为空（或数据库空值），返回类型的新实例
             Type type = typeof(T);
-            object value;
-            if (source == null || source.GetType().Name.Equals("DBNull"))
-            {
-                return def;
-                //value = def;
-                //return (T)value;
-            }
+            object value = Convert(type, source, def);
+            #region 原转换部分
+            //object value;
+            //if (source == null || source.GetType().Name.Equals("DBNull"))
+            //    return def;
 
-            //泛型Nullable判断，取其中的类型
-            if (type.IsGenericType)
-                type = type.GetGenericArguments()[0];
+            ////泛型Nullable判断，取其中的类型
+            //if (type.IsGenericType)
+            //    type = type.GetGenericArguments()[0];
 
-            //反射获取TryParse方法
-            value = System.Convert.ChangeType(source, type);
+            ////反射获取TryParse方法
+            //value = System.Convert.ChangeType(source, type);
+            #endregion
             return (T)value;
         }
-
-        ///// <summary>
-        ///// 将某个值转换为特定类型，假如为空，则返回默认值
-        ///// </summary>
-        ///// <typeparam name="T">转换的目标类型</typeparam>
-        ///// <param name="value">待转换值</param>
-        ///// <param name="def">默认值</param>
-        ///// <returns></returns>
-        //public static T Convert<T>(object value, T def)
-        //{
-        //    if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
-        //        value = def;
-        //    object obj = (object)value;
-        //    return (T)obj;
-        //}
-
-        ///// <summary>
-        ///// 将某个值转换为特定类型，假如为空，选择该类型默认值返回
-        ///// </summary>
-        ///// <typeparam name="T">转换的目标类型</typeparam>
-        ///// <param name="value">待转换值</param>
-        ///// <returns></returns>
-        //public static T Convert<T>(object value)
-        //{
-        //    return Convert<T>(value, default(T));
-        //}
 
         /// <summary>
         /// 将DataRow中某一列的值转换为特定类型的值，假如为空，则返回该类型默认值
@@ -145,9 +136,13 @@ namespace CommonLib.Function
         /// <param name="row">DataRow对象</param>
         /// <param name="column">列名称</param>
         /// <returns></returns>
+        /// <exception cref="InvalidCastException"></exception>
+        /// <exception cref="FormatException"></exception>
+        /// <exception cref="OverflowException"></exception>
         public static T Convert<T>(this DataRow row, string column)
         {
-            return ConvertDataRow<T>(row, column, default);
+            //return ConvertDataRow<T>(row, column, default);
+            return Convert<T>(row, column, default);
         }
 
         /// <summary>
@@ -158,9 +153,15 @@ namespace CommonLib.Function
         /// <param name="column">列名称</param>
         /// <param name="def">默认值</param>
         /// <returns></returns>
+        /// <exception cref="InvalidCastException"></exception>
+        /// <exception cref="FormatException"></exception>
+        /// <exception cref="OverflowException"></exception>
         public static T Convert<T>(this DataRow row, string column, T def)
         {
-            return ConvertDataRow(row, column, def);
+            //return ConvertDataRow(row, column, def);
+            bool flag = row == null || row.Table == null || !row.Table.Columns.Contains(column) || row[column] == DBNull.Value; //值是否为空
+            object value = flag ? null : row[column];
+            return ConvertType(value, def);
         }
 
         /// <summary>
@@ -171,14 +172,12 @@ namespace CommonLib.Function
         /// <param name="column">列名称</param>
         /// <param name="def">默认值</param>
         /// <returns></returns>
-        [Obsolete]
+        [Obsolete("请使用Convert<T>方法")]
         public static T ConvertDataRow<T>(this DataRow row, string column, T def)
         {
             bool flag = row == null || row.Table == null || !row.Table.Columns.Contains(column) || row[column] == DBNull.Value; //值是否为空
             object value = flag ? null : row[column];
             return ConvertType(value, def);
-            //object value = flag ? def : row[column];
-            //return (T)(object)value;
         }
 
         /// <summary>
@@ -188,7 +187,7 @@ namespace CommonLib.Function
         /// <param name="row">DataRow对象</param>
         /// <param name="column">列名称</param>
         /// <returns></returns>
-        [Obsolete]
+        [Obsolete("请使用Convert<T>方法")]
         public static T ConvertDataRow<T>(this DataRow row, string column)
         {
             return ConvertDataRow<T>(row, column, default);

@@ -13,6 +13,7 @@ namespace CommonLib.DataUtil
     /// </summary>
     public class SqliteColumnMapping
     {
+        #region 属性
         /// <summary>
         /// 字段名称
         /// </summary>
@@ -72,6 +73,7 @@ namespace CommonLib.DataUtil
         /// 字段架构
         /// </summary>
         public string Structure { get => GetStructure(); }
+        #endregion
 
         /// <summary>
         /// 构造器

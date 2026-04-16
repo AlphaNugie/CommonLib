@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace CommonLib.Extensions.Property
 {
@@ -190,10 +190,28 @@ namespace CommonLib.Extensions.Property
                     //if (initProp && targetProperty.GetValue(upperLevelEntity) == null)
                     //    targetProperty.SetValue(upperLevelEntity, Activator.CreateInstance(targetPropertyType));
                     //假如初始化空目标实体，且可写的同时目标属性值为空，则初始化并为当前层实体赋值（假如有下个循环，则当前层实体将成为下个循环的上层实体）
+                    //【防御性处理】当 upperLevelEntity 为 null 时（通常由上一轮索引越界/列表为空导致），
+                    //不再尝试调用 GetValue/SetValue，直接跳出循环避免抛出 TargetException
+                    if (upperLevelEntity == null)
+                    {
+                        Debug.WriteLine($"[PropertyMapper] 属性路径解析中断：属性 '{part}' 的上层实体为 null，无法继续获取属性值。完整路径片段: '{fullPart}'");
+                        targetProperty = null;
+                        break;
+                    }
                     if (initProp && targetProperty.CanWrite && targetProperty.GetValue(upperLevelEntity) == null)
                         targetProperty.SetValue(upperLevelEntity, Activator.CreateInstance(targetPropertyType));
                 }
                 catch (Exception) { break; }
+
+                //【防御性处理】再次检查 upperLevelEntity 是否为 null，
+                //防止因上述 initProp 分支中 SetValue 失败等边缘情况导致后续 GetValue 传入 null 实例
+                if (upperLevelEntity == null)
+                {
+                    Debug.WriteLine($"[PropertyMapper] 属性路径解析中断：属性 '{part}' 的上层实体在初始化后仍为 null。完整路径片段: '{fullPart}'");
+                    targetProperty = null;
+                    break;
+                }
+
                 lowerLevelEntity = targetProperty.GetValue(upperLevelEntity); //假如有下个循环，则当前层实体将成为下个循环的上层实体
                 #region 根据方括号内的索引逐层获取列表内或数组内的元素
                 //假如没有方括号索引，直接进入下一次循环
@@ -423,8 +441,29 @@ namespace CommonLib.Extensions.Property
         {
             Type genericType = null;
             midLevelEntity = currentEntity;
-            if (indices == null || indices.Count() == 0 || currentEntity == null)
+            if (indices == null || !indices.Any() || currentEntity == null)
                 goto ENDING;
+
+            //【防御性处理】检查集合是否为空或索引是否越界，
+            //提前拦截以避免后续反射调用抛出异常并将 null 向下传递
+            if (currentEntity is System.Collections.IEnumerable enumerable)
+            {
+                int count = 0;
+                foreach (var _ in enumerable) { count++; }
+                int firstIndex = indices.First();
+                if (count == 0)
+                {
+                    Debug.WriteLine($"[PropertyMapper] 索引访问失败：集合为空，无法获取索引 [{firstIndex}] 的元素。");
+                    currentEntity = null;
+                    goto ENDING;
+                }
+                if (firstIndex < 0 || firstIndex >= count)
+                {
+                    Debug.WriteLine($"[PropertyMapper] 索引越界：索引 [{firstIndex}] 超出范围（集合长度: {count}）。");
+                    currentEntity = null;
+                goto ENDING;
+                }
+            }
 
             entityType = currentEntity.GetType(); //在初次进入方法时确认实体类型
             foreach (int index in indices)

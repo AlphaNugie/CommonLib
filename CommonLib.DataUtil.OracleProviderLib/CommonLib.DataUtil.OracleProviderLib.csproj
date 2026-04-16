@@ -71,7 +71,6 @@
   <ItemGroup>
     <Compile Include="BaseDataService.cs" />
     <Compile Include="BaseDataServiceOracle.cs" />
-    <Compile Include="OracleColumnMapping.cs" />
     <Compile Include="OracleEnums.cs" />
     <Compile Include="OracleExtension.cs" />
     <Compile Include="OracleProvider.cs" />
@@ -92,6 +91,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug $(SolutionDir)CommonLib\compiled\</PostBuildEvent>
+    <PostBuildEvent>xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug $(SolutionDir)CommonLib\compiled\
+xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug D:\DLL\</PostBuildEvent>
   </PropertyGroup>
 </Project>

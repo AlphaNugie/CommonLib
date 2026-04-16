@@ -40,6 +40,11 @@ namespace CommonLib.DataUtil
         /// 字符串类型2
         /// </summary>
         VARCHAR2,
+
+        /// <summary>
+        /// 日期时间类型（精确到秒）
+        /// </summary>
+        DATETIME,
     }
 
     /// <summary>

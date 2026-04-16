@@ -21,7 +21,7 @@ namespace CommonLib.UIControlUtil.WinForms
         /// <param name="nCmdShow">0 隐藏（不关闭），1 显示</param>
         /// <returns></returns>
         [DllImport("user32.dll", EntryPoint = "ShowWindow", SetLastError = true)]
-        public static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
+        internal static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
 
         /// <summary>
         /// 显示或隐藏进程的窗体
@@ -32,20 +32,6 @@ namespace CommonLib.UIControlUtil.WinForms
         public static bool ShowWindow(this Process process, uint nCmdShow)
         {
             return process != null && ShowWindow(process.MainWindowHandle, nCmdShow);
-            //return process != null && ShowWindow(process.Handle, nCmdShow);
         }
-
-        ///// <summary>
-        ///// 显示或隐藏进程的窗体
-        ///// </summary>
-        ///// <param name="process">待操作的进程</param>
-        ///// <param name="hWnd"></param>
-        ///// <param name="nCmdShow">0 隐藏（不关闭），1 显示</param>
-        ///// <returns></returns>
-        //public static bool ShowWindow(this Process process, IntPtr hWnd, uint nCmdShow)
-        //{
-        //    return process != null && ShowWindow(hWnd, nCmdShow);
-        //    //return process != null && ShowWindow(process.Handle, nCmdShow);
-        //}
     }
 }

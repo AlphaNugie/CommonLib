@@ -54,6 +54,9 @@ namespace CommonLib.UIControlUtil
             set { Control.Height = value; }
         }
 
+        /// <summary>
+        /// 控件文本
+        /// </summary>
         public string Text
         {
             get { return Control.Text; }

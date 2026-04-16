@@ -19,11 +19,26 @@ namespace CommonLib.Function.Modbus
         /// <param name="functionCode">功能码</param>
         /// <param name="address">线圈/寄存器地址</param>
         /// <param name="quantity">地址连续量</param>
+        /// <param name="type">MODBUS通信协议的类型</param>
+        /// <param name="counter">MODBUS TCP的通信计数器</param>
         /// <returns>返回带校验码的MODBUS读命令</returns>
-        public static string GetReadCommand(byte meterAddress, FunctionCode functionCode, ushort address, ushort quantity)
+        public static string GetReadCommand(byte meterAddress, FunctionCode functionCode, ushort address, ushort quantity, ModbusType type = ModbusType.RTU, byte counter = 0)
         {
             string command = string.Format("{0} {1} {2} {3} {4} {5}", meterAddress.ToString("X2"), ((byte)functionCode).ToString("X2"), (address / 256).ToString("X2"), (address % 256).ToString("X2"), (quantity / 256).ToString("X2"), (quantity % 256).ToString("X2"));
-            return command + " " + HexHelper.GetCRC16_String(command);
+            switch (type)
+            {
+                //RTU需在末尾加上CRC32校验码
+                case ModbusType.RTU:
+                    command += " " + HexHelper.GetCRC16_String(command);
+                    break;
+                //TCP无需校验码，但需在头部加上MBAP报文头
+                case ModbusType.TCP:
+                    command = counter.ToString("X2") + " 00 00 00 00 06 " + command;
+                    break;
+            }
+            //string command = string.Format("{0} {1} {2} {3} {4} {5}", meterAddress.ToString("X2"), ((byte)functionCode).ToString("X2"), (address / 256).ToString("X2"), (address % 256).ToString("X2"), (quantity / 256).ToString("X2"), (quantity % 256).ToString("X2"));
+            //return command + " " + HexHelper.GetCRC16_String(command);
+            return command;
         }
 
         /// <summary>
@@ -32,11 +47,27 @@ namespace CommonLib.Function.Modbus
         /// <param name="meterAddress">表地址</param>
         /// <param name="functionCode">功能码</param>
         /// <param name="quantity">地址连续量</param>
+        /// <param name="type">MODBUS通信协议的类型</param>
+        /// <param name="counter">MODBUS TCP的通信计数器</param>
         /// <returns>返回MODBUS返回消息的正则表达式</returns>
-        public static string GetReceiveRegexPattern(byte meterAddress, FunctionCode functionCode, ushort quantity)
+        public static string GetReceiveRegexPattern(byte meterAddress, FunctionCode functionCode, ushort quantity, ModbusType type = ModbusType.RTU, byte counter = 0)
         {
-            //返回信息格式：[表地址16进制]<空格>[功能码16进制]<空格>[字节数量(quantity*2)16进制](<空格>[16进制][16进制])X重复次数：quantity*2+2
-            string pattern = string.Format(@"{0}\s{1}\s{2}(\s[0-9a-fA-F]<2>)<{3}>", meterAddress.ToString("X2"), ((byte)functionCode).ToString("X2"), (quantity * 2).ToString("X2"), quantity * 2 + 2).Replace('<', '{').Replace('>', '}');
+            string pattern = string.Empty;
+            switch (type)
+            {
+                case ModbusType.RTU:
+                    //末尾包含2字节的CRC32校验码
+                    pattern = string.Format(@"{0}\s{1}\s{2}(\s[0-9a-fA-F]<2>)<{3}>", meterAddress.ToString("X2"), ((byte)functionCode).ToString("X2"), (quantity * 2).ToString("X2"), quantity * 2 + 2);
+                    break;
+                case ModbusType.TCP:
+
+                    pattern = string.Format(@"{0}\s00\s00\s00\s00\s{1}\s{2}\s{3}\s{4}(\s[0-9a-fA-F]<2>)<{5}>", counter.ToString("X2"), (quantity * 2 + 3).ToString("X2"), meterAddress.ToString("X2"), ((byte)functionCode).ToString("X2"), (quantity * 2).ToString("X2"), quantity * 2);
+                    break;
+            }
+            //返回信息格式：[表地址16进制]<空格>[功能码16进制]<空格>[字节数量(quantity*2)16进制](<空格>[16进制][16进制])X重复次数：quantity*2+2(包含末尾的2字节CRC校验码)
+            //string pattern = string.Format(@"{0}\s{1}\s{2}(\s[0-9a-fA-F]<2>)<{3}>", meterAddress.ToString("X2"), ((byte)functionCode).ToString("X2"), (quantity * 2).ToString("X2"), quantity * 2 + 2).Replace('<', '{').Replace('>', '}');
+            //return pattern;
+            pattern = pattern.Replace('<', '{').Replace('>', '}');
             return pattern;
         }
     }
@@ -64,7 +95,7 @@ namespace CommonLib.Function.Modbus
         public ErrorCode ErrorCode { get; set; }
 
         /// <summary>
-        /// 校验码验证是否通过
+        /// 校验码验证是否通过（仅RTU有效，TCP始终为true）
         /// </summary>
         public bool CheckPassed { get; set; }
 
@@ -96,54 +127,110 @@ namespace CommonLib.Function.Modbus
         /// 构造器
         /// </summary>
         /// <param name="input">输入数据</param>
-        public CommandResolved(string input)
+        /// <param name="type">MODBUS通信协议的类型</param>
+        public CommandResolved(byte[] input = null, ModbusType type = ModbusType.RTU)
         {
-            ResolveCommand(input);
+            ResolveCommand(input, type);
         }
 
         /// <summary>
         /// 构造器
         /// </summary>
         /// <param name="input">输入数据</param>
-        public CommandResolved(byte[] input)
+        /// <param name="type">MODBUS通信协议的类型</param>
+        public CommandResolved(string input, ModbusType type = ModbusType.RTU)
         {
-            ResolveCommand(input);
+            ResolveCommand(input, type);
         }
 
         /// <summary>
         /// 解析MODBUS返回信息
         /// </summary>
         /// <param name="hex">返回的16进制字符串</param>
-        public void ResolveCommand(string hex)
+        /// <param name="type">MODBUS通信协议的类型</param>
+        public void ResolveCommand(string hex, ModbusType type = ModbusType.RTU)
         {
-            ResolveCommand(HexHelper.HexString2Bytes(hex));
+            ResolveCommand(HexHelper.HexString2Bytes(hex), type);
         }
 
         /// <summary>
         /// 解析MODBUS返回信息
         /// </summary>
         /// <param name="array">返回的byte数组</param>
-        public void ResolveCommand(byte[] array)
+        /// <param name="type">MODBUS通信协议的类型</param>
+        public void ResolveCommand(byte[] array, ModbusType type = ModbusType.RTU)
         {
             FunctionCode = FunctionCode.None;
             ErrorCode = ErrorCode.None;
             CheckPassed = false;
+            int minLen = 0;
+            if (type == ModbusType.RTU)
+                minLen = 7;
+            else if (type == ModbusType.TCP)
+                //正常返回时，长度至少为11，但发生异常响应时长度为9
+                //minLen = 11;
+                minLen = 9;
 
-            if (array == null || array.Length < 5)
+            if (array == null || minLen == 0 || array.Length < minLen)
                 return;
+
+            switch (type)
+            {
+                case ModbusType.RTU:
+                    CheckPassed = HexHelper.ValidateCommandCRC16(array); //是否通过校验
+                    break;
+                case ModbusType.TCP:
+                    array = array.Skip(6).ToArray(); //调过MBAP报文头
+                    CheckPassed = true;
+                    break;
+            }
 
             MeterAddress = array[0]; //表地址
             bool no_error = array[1] <= 0x80; //是否发生错误
-            FunctionCode = (FunctionCode) (no_error ? array[1] : array[1] - 0x80); //发生错误时，第二位为0x80+功能码
+            FunctionCode = (FunctionCode)(no_error ? array[1] : array[1] - 0x80); //发生错误时，第二位为0x80+功能码
             ErrorCode = no_error ? ErrorCode.None : (ErrorCode)array[2]; //错误码
             DataContentLength = no_error ? array[2] : 0; //数据长度
-            CheckPassed = HexHelper.ValidateCommandCRC16(array); //是否通过校验
-            //假如发生错误、校验未通过或处于某种未知原因导致长度过短，则不再继续执行
-            if (ErrorCode != ErrorCode.None || !CheckPassed || array.Length == 5)
+            //CheckPassed = HexHelper.ValidateCommandCRC16(array); //是否通过校验
+            //假如发生错误、校验未通过，则不再继续执行
+            if (ErrorCode != ErrorCode.None || !CheckPassed/* || array.Length == 5*/)
                 return;
+            DataContent = array.Skip(3).Take(DataContentLength).ToArray();
 
-            DataContent = array.Skip(3).Take(array.Length - 5).ToArray();
+            //FunctionCode = FunctionCode.None;
+            //ErrorCode = ErrorCode.None;
+            //CheckPassed = false;
+
+            //if (array == null || array.Length < 5)
+            //    return;
+
+            //MeterAddress = array[0]; //表地址
+            //bool no_error = array[1] <= 0x80; //是否发生错误
+            //FunctionCode = (FunctionCode) (no_error ? array[1] : array[1] - 0x80); //发生错误时，第二位为0x80+功能码
+            //ErrorCode = no_error ? ErrorCode.None : (ErrorCode)array[2]; //错误码
+            //DataContentLength = no_error ? array[2] : 0; //数据长度
+            //CheckPassed = HexHelper.ValidateCommandCRC16(array); //是否通过校验
+            ////假如发生错误、校验未通过或处于某种未知原因导致长度过短，则不再继续执行
+            //if (ErrorCode != ErrorCode.None || !CheckPassed || array.Length == 5)
+            //    return;
+
+            //DataContent = array.Skip(3).Take(array.Length - 5).ToArray();
         }
+    }
+
+    /// <summary>
+    /// MODBUS协议的通信类型
+    /// </summary>
+    public enum ModbusType
+    {
+        /// <summary>
+        /// Modbus RTU
+        /// </summary>
+        RTU = 0,
+
+        /// <summary>
+        /// Modbus TCP
+        /// </summary>
+        TCP
     }
 
     /// <summary>

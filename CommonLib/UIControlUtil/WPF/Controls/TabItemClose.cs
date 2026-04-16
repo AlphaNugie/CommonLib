@@ -8,6 +8,9 @@ using System.Windows.Media;
 
 namespace CommonLib.UIControlUtil.WPF.Controls
 {
+    /// <summary>
+    /// TabItemClose
+    /// </summary>
     public class TabItemClose : TabItem
     {
         static TabItemClose()
@@ -29,6 +32,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(IsCanCloseProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="IsCanClose"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty IsCanCloseProperty =
             DependencyProperty.Register("IsCanClose", typeof(bool), typeof(TabItemClose), new PropertyMetadata(true, OnPropertyChanged));
 
@@ -41,6 +47,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(CloseIconProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="CloseIcon"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty CloseIconProperty =
             DependencyProperty.Register("CloseIcon", typeof(ImageSource), typeof(TabItemClose), new PropertyMetadata(null, OnPropertyChanged));
 
@@ -55,6 +64,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(NormalBackgroundProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="NormalBackground"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty NormalBackgroundProperty =
             DependencyProperty.Register("NormalBackground", typeof(SolidColorBrush), typeof(TabItemClose), new PropertyMetadata(null, OnPropertyChanged));
 
@@ -67,6 +79,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(OverBackgoundProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="OverBackgound"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty OverBackgoundProperty =
             DependencyProperty.Register("OverBackgound", typeof(SolidColorBrush), typeof(TabItemClose), new PropertyMetadata(null, OnPropertyChanged));
 
@@ -80,6 +95,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(SelectedBackgoundProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="SelectedBackgound"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty SelectedBackgoundProperty =
             DependencyProperty.Register("SelectedBackgound", typeof(SolidColorBrush), typeof(TabItemClose), new PropertyMetadata(null, OnPropertyChanged));
 
@@ -93,6 +111,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(NormalForegroundProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="NormalForeground"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty NormalForegroundProperty =
             DependencyProperty.Register("NormalForeground", typeof(SolidColorBrush), typeof(TabItemClose), new PropertyMetadata(null, OnPropertyChanged));
 
@@ -105,6 +126,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(OverForegroundProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="OverForeground"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty OverForegroundProperty =
             DependencyProperty.Register("OverForeground", typeof(SolidColorBrush), typeof(TabItemClose), new PropertyMetadata(null, OnPropertyChanged));
 
@@ -117,6 +141,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(SelectedForegroundProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="SelectedForeground"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty SelectedForegroundProperty =
             DependencyProperty.Register("SelectedForeground", typeof(SolidColorBrush), typeof(TabItemClose), new PropertyMetadata(null, OnPropertyChanged));
 
@@ -130,6 +157,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(CornerRadiusProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="CornerRadius"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty CornerRadiusProperty =
             DependencyProperty.Register("CornerRadius", typeof(CornerRadius), typeof(TabItemClose), new PropertyMetadata(new CornerRadius(0), OnPropertyChanged));
 
@@ -143,6 +173,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(LogoIconProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="LogoIcon"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty LogoIconProperty =
             DependencyProperty.Register("LogoIcon", typeof(ImageSource), typeof(TabItemClose), new PropertyMetadata(null, OnPropertyChanged));
 
@@ -157,6 +190,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(LogoIconWidthProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="LogoIconWidth"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty LogoIconWidthProperty =
             DependencyProperty.Register("LogoIconWidth", typeof(double), typeof(TabItemClose), new PropertyMetadata(double.Parse("0"), OnPropertyChanged));
 
@@ -164,14 +200,17 @@ namespace CommonLib.UIControlUtil.WPF.Controls
         /// <summary>
         /// 前置Logo高度
         /// </summary>
-        public double LogoIconHeigth
+        public double LogoIconHeight
         {
-            get { return (double)GetValue(LogoIconHeigthProperty); }
-            set { SetValue(LogoIconHeigthProperty, value); }
+            get { return (double)GetValue(LogoIconHeightProperty); }
+            set { SetValue(LogoIconHeightProperty, value); }
         }
 
-        public static readonly DependencyProperty LogoIconHeigthProperty =
-            DependencyProperty.Register("LogoIconHeigth", typeof(double), typeof(TabItemClose), new PropertyMetadata(double.Parse("0"), OnPropertyChanged));
+        /// <summary>
+        /// 标识 <see cref="LogoIconHeight"/> 依赖属性
+        /// </summary>
+        public static readonly DependencyProperty LogoIconHeightProperty =
+            DependencyProperty.Register("LogoIconHeight", typeof(double), typeof(TabItemClose), new PropertyMetadata(double.Parse("0"), OnPropertyChanged));
 
 
         /// <summary>
@@ -183,6 +222,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(LogoPaddingProperty, value); }
         }
 
+        /// <summary>
+        /// 标识 <see cref="LogoPadding"/> 依赖属性
+        /// </summary>
         public static readonly DependencyProperty LogoPaddingProperty =
             DependencyProperty.Register("LogoPadding", typeof(Thickness), typeof(TabItemClose), new PropertyMetadata(new Thickness(0), OnPropertyChanged));
 
@@ -194,6 +236,10 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             add { AddHandler(CloseItemEvent, value); }
             remove { RemoveHandler(CloseItemEvent, value); }
         }
+
+        /// <summary>
+        /// 标识 <see cref="CloseItem"/> 路由事件
+        /// </summary>
         public static readonly RoutedEvent CloseItemEvent =
             EventManager.RegisterRoutedEvent("CloseItem", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TabItemClose));
 
@@ -204,6 +250,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
 
         Border ItemBorder;
 
+        /// <summary>
+        /// 关闭项的右键菜单
+        /// </summary>
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();

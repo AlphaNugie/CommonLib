@@ -29,7 +29,13 @@ namespace CommonLib.Clients
         /// 进程别名
         /// 数据源字段为“machine_name”
         /// </summary>
-        public string Alias { get; set; }
+        public string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Alias
+        { get; set; }
 
         /// <summary>
         /// 是否自动启动（假如进程关闭或停止响应则重新启动）
@@ -37,12 +43,22 @@ namespace CommonLib.Clients
         /// </summary>
         public bool AutoStart { get; set; }
 
-        private string _filePath;
+        private string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            _filePath;
         /// <summary>
         /// 进程文件所在路径，假如为空则文件完整路径名称仅显示文件名称
         /// 数据源字段为“proc_path”
         /// </summary>
-        public string FilePath
+        public string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            FilePath
         {
             get { return _filePath; }
             set
@@ -52,19 +68,37 @@ namespace CommonLib.Clients
             }
         }
 
-        private string _fileName;
+        private string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            _fileName;
         /// <summary>
         /// 进程文件名称（包括后缀）
         /// 数据源字段为“proc_name”
         /// </summary>
-        public string FileName
+        public string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            FileName
         {
             get { return _fileName; }
             set
             {
                 _fileName = value;
+                if (string.IsNullOrWhiteSpace(_fileName))
+                    return;
                 int index = _fileName.LastIndexOf('.');
-                FileNameNoExt = index >= 0 ? _fileName.Substring(0, index) : _fileName;
+                FileNameNoExt = index >= 0 ?
+#if NET45
+                    _fileName.Substring(0, index)
+#elif NET9_0_OR_GREATER
+                    _fileName[..index]
+#endif
+                    : _fileName;
                 UpdateProcessFullName(_filePath, _fileName);
             }
         }
@@ -72,12 +106,24 @@ namespace CommonLib.Clients
         /// <summary>
         /// 不带类型后缀的文件名
         /// </summary>
-        public string FileNameNoExt { get; private set; }
+        public string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            FileNameNoExt
+        { get; private set; }
 
         /// <summary>
         /// 进程文件完整名称（带路径、文件名以及后缀）
         /// </summary>
-        public string FullName { get; private set; }
+        public string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            FullName
+        { get; private set; }
 
         /// <summary>
         /// 找出所有模块名称或完整路径与给定的进程文件完整名称相符的进程列表
@@ -86,20 +132,37 @@ namespace CommonLib.Clients
         {
             get
             {
-                return Process.GetProcessesByName(FileNameNoExt).Where(process =>
+                return
+#if NET9_0_OR_GREATER
+                    [..
+#endif
+                    Process.GetProcessesByName(FileNameNoExt).Where(process =>
                 {
                     bool result = false;
-                    try { result = process.MainModule.FileName.Equals(FullName) || process.MainModule.ModuleName.Equals(FullName); }
-                    catch (Exception) { }
+                    if (process.MainModule != null)
+                    {
+                        try { result = process.MainModule.FileName.Equals(FullName) || process.MainModule.ModuleName.Equals(FullName); }
+                        catch (Exception) { }
+                    }
                     return result;
-                }).ToList();
+                })
+#if NET45
+                .ToList();
+#elif NET9_0_OR_GREATER
+                ];
+#endif
             }
         }
 
         /// <summary>
         /// 进程列表中的第一个对象，假如不存在任何进程则为空
         /// </summary>
-        public Process Process
+        public Process
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Process
         {
             get
             {
@@ -124,7 +187,13 @@ namespace CommonLib.Clients
         /// <summary>
         /// 用于读取应用程序错误输出的流
         /// </summary>
-        public StreamReader StandardErrorReader { get; set; }
+        public StreamReader
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            StandardErrorReader
+        { get; set; }
         #endregion
 
         #region 构造器
@@ -132,7 +201,12 @@ namespace CommonLib.Clients
         /// 根据数据行对象进程初始化
         /// </summary>
         /// <param name="dataRow">数据行对象</param>
-        public CustomProcessInfo(DataRow dataRow = null) : base()
+        public CustomProcessInfo(DataRow
+            //.net 9框架下使传入对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            dataRow = null) : base()
         {
             if (dataRow == null)
                 return;
@@ -179,14 +253,19 @@ namespace CommonLib.Clients
                 goto END;
             try
             {
+#if NET45
                 FileInfo fileInfo = new FileInfo(fullName);
+#elif NET9_0_OR_GREATER
+                FileInfo fileInfo = new(fullName);
+#endif
                 FilePath = fileInfo.DirectoryName;
                 FileName = fileInfo.Name;
             }
             catch (Exception) { }
         END:
-            //UpdateProcessFullName(path, name);
-            UpdateProcessFullName(FilePath, FileName);
+            ////UpdateProcessFullName(path, name);
+            //UpdateProcessFullName(FilePath, FileName);
+            UpdateProcessFullName(_filePath, _fileName);
         }
 
         /// <summary>
@@ -194,7 +273,11 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="path">进程文件所在路径</param>
         /// <param name="name">进程文件名称</param>
+#if NET45
         public void UpdateProcessFullName(string path, string name)
+#elif NET9_0_OR_GREATER
+        public void UpdateProcessFullName(string? path, string? name)
+#endif
         {
             path = string.IsNullOrWhiteSpace(path) ? string.Empty : path;
             name = string.IsNullOrWhiteSpace(name) ? string.Empty : name;
@@ -251,7 +334,12 @@ namespace CommonLib.Clients
         /// <param name="arguments">启动该进程时传递的命令行参数</param>
         /// <param name="killOthers">启动时是否关闭进程的其它实例</param>
         /// <returns>假如启动成功，则返回true，否则返回false</returns>
-        public bool Startup(string arguments, bool killOthers = false)
+        public bool Startup(string
+            //.net 9框架下使参数可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            arguments, bool killOthers = false)
         {
             bool result = false;
             //if (!string.IsNullOrWhiteSpace(FullName))
@@ -284,7 +372,7 @@ namespace CommonLib.Clients
 
         private void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            var data = e.Data;
+            //var data = e.Data;
         }
 
         /// <summary>

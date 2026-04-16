@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\CommonLib.XML</DocumentationFile>
@@ -89,6 +89,7 @@
     <Compile Include="Clients\Object\PlyDotObject.cs" />
     <Compile Include="Clients\Object\PlyFileClient.cs" />
     <Compile Include="Clients\SampleAnalyzer.cs" />
+    <Compile Include="Clients\ShortUuidGenerator.cs" />
     <Compile Include="Clients\Tasks\BlankTask.cs" />
     <Compile Include="Clients\Tasks\Task.cs" />
     <Compile Include="Clients\ValueDiffStorage.cs" />
@@ -97,47 +98,57 @@
     <Compile Include="DataUtil\BaseModel.cs" />
     <Compile Include="DataUtil\BatisLike.cs" />
     <Compile Include="DataUtil\DataProvider.cs" />
+    <Compile Include="DataUtil\OracleColumnMapping.cs" />
     <Compile Include="DataUtil\Record.cs" />
     <Compile Include="DataUtil\SqlProvider.cs" />
     <Compile Include="Enums\DatabaseTypes.cs" />
-    <Compile Include="Enums\IntFlag.cs" />
+    <Compile Include="Enums\DbSqlType.cs" />
+    <Compile Include="Enums\Endianness.cs" />
     <Compile Include="Enums\ServiceState.cs" />
     <Compile Include="Enums\ShapeEnum.cs" />
     <Compile Include="Enums\ValueTrend.cs" />
+    <Compile Include="Enums\ConnType.cs" />
+    <Compile Include="Enums\HotKeys.cs" />
+    <Compile Include="Enums\RoutineStatus.cs" />
+    <Compile Include="Enums\WindowMessage.cs" />
     <Compile Include="Events\NoneReceivedEventArgs.cs" />
     <Compile Include="Events\ServiceStateEventArgs.cs" />
     <Compile Include="Events\ValueChangedEventArgs.cs" />
     <Compile Include="Events\ValueTrendTickerEventArgs.cs" />
-    <Compile Include="Extensions\EnumExtension.cs" />
     <Compile Include="Events\DataReceivedEventArgs.cs" />
     <Compile Include="Events\DataSendEventArgs.cs" />
     <Compile Include="Events\EventHandlers.cs" />
     <Compile Include="Events\IdChangedEventArgs.cs" />
     <Compile Include="Events\RoutineStatusChangedEventArgs.cs" />
+    <Compile Include="Extensions\EnumExtension.cs" />
     <Compile Include="Extensions\Property\PropertyMapperExtension.cs" />
     <Compile Include="Extensions\Reflection\ReflectionExtension.cs" />
+    <Compile Include="Extensions\ExtensionClass.cs" />
+    <Compile Include="Extensions\MathExtension.cs" />
+    <Compile Include="Function\Conditions\CheckConditionsTask.cs" />
+    <Compile Include="Function\Conditions\ConditionSet.cs" />
+    <Compile Include="Function\Fitting\CircleFitting.cs" />
+    <Compile Include="Function\Fitting\CircleFittingExample.cs" />
     <Compile Include="Function\MathUtils\Circle.cs" />
     <Compile Include="Function\MathUtils\CircleCalculator.cs" />
+    <Compile Include="Function\MathUtils\Spatial\GridCube.cs" />
     <Compile Include="Function\MathUtils\Point3D.cs" />
     <Compile Include="Function\MathUtil.cs" />
+    <Compile Include="Function\MathUtils\Spatial\SpaceGrid.cs" />
+    <Compile Include="Function\MathUtils\Spatial\SpaceIndex.cs" />
+    <Compile Include="Function\Fitting\SpaceOrienting.cs" />
     <Compile Include="Function\MathUtils\Vector3D.cs" />
     <Compile Include="Function\ReflectionUtil.cs" />
     <Compile Include="Function\BaseFunctions.cs" />
     <Compile Include="Clients\ConnClient.cs" />
     <Compile Include="Clients\DerivedTcpClient.cs" />
-    <Compile Include="Enums\ConnType.cs" />
-    <Compile Include="Enums\HotKeys.cs" />
-    <Compile Include="Enums\RoutineStatus.cs" />
-    <Compile Include="Enums\WindowMessage.cs" />
     <Compile Include="Clients\EncryptionClient.cs" />
     <Compile Include="Function\Converter.cs" />
     <Compile Include="Function\ExitWindowsUtil.cs" />
     <Compile Include="Function\Fitting\CurveFitting.cs" />
-    <Compile Include="Extensions\ExtensionClass.cs" />
     <Compile Include="Helpers\HexHelper.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\IniFileHelper.cs" />
-    <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Helpers\MD5Helper.cs" />
     <Compile Include="Helpers\Modbus\ModbusHelper.cs" />
     <Compile Include="Function\OperateIniFile.cs" />
@@ -203,12 +214,13 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="compiled\" />
+    <Folder Include="compiled\AnyCpu\" />
     <Folder Include="UIControlUtil\WPF\Styles\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug $(SolutionDir)CommonLib\compiled\</PostBuildEvent>
+    <PostBuildEvent>xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug $(SolutionDir)CommonLib\compiled\
+xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug D:\DLL\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

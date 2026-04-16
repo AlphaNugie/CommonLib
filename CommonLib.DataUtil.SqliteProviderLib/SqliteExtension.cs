@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonLib.Function;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -52,10 +53,36 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public static bool TableExists(this SqliteProvider provider, string tableName, out DataTable table)
         {
+            return TableExists(provider, tableName, out table, out _);
+        }
+
+        /// <summary>
+        /// 根据给定的表名判断此表是否存在
+        /// </summary>
+        /// <param name="provider">SQLite基础操作类对象，为空时返回false</param>
+        /// <param name="tableName">表名，为空时返回false</param>
+        /// <param name="table">假如此表存在，输出表内容</param>
+        /// <param name="count">假如此表存在，输出行数</param>
+        /// <returns></returns>
+        public static bool TableExists(this SqliteProvider provider, string tableName, out DataTable table, out int count)
+        {
             table = null;
+            count = -1;
             if (provider == null || string.IsNullOrWhiteSpace(tableName))
                 return false;
-            string sql = "select * from " + tableName;
+            //先尝试查询行数
+            string sql = "select count(*) c from " + tableName;
+            try
+            {
+                table = provider.Query(sql);
+                count = table.Rows[0].Convert("c", -1);
+                //return true;
+            }
+            catch (Exception) { return false; }
+            //假如行数大于1000，则不再查询表内容，直接返回true，防止查询过慢
+            if (count > 1000)
+                return true;
+            sql = "select * from " + tableName;
             try
             {
                 table = provider.Query(sql);
@@ -75,7 +102,23 @@ namespace CommonLib.DataUtil
         /// <returns>所有操作完成之后返回表最终是否存在的判断结果</returns>
         public static bool CheckForTable(this SqliteProvider provider, string tableName, IEnumerable<SqliteColumnMapping> columnsMustHave, out DataTable table, out string errorMessage)
         {
+            return CheckForTable(provider, tableName, columnsMustHave, out table, out errorMessage, out _);
+        }
+
+        /// <summary>
+        /// 根据给定的表名检查数据表是否存在，假如存在返回true，假如不存在则用给定列进行新增表操作，最终返回操作结果
+        /// </summary>
+        /// <param name="provider">SQLite基础操作类对象，为空时返回false</param>
+        /// <param name="tableName">表名，为空时返回false</param>
+        /// <param name="columnsMustHave">假如表不存在，新增时必须拥有的列，假如未指定将不会进行新增表操作（表不存在且新增列为空时返回false）</param>
+        /// <param name="table">假如表已存在，或未存在但新增成功，则返回表内容</param>
+        /// <param name="errorMessage">返回的信息，产生错误时返回错误信息，表存在但新增成功时返回提示信息，其余情况（例如表本身已存在）则不返回任何消息</param>
+        /// <param name="count">假如此表存在，输出行数</param>
+        /// <returns>所有操作完成之后返回表最终是否存在的判断结果</returns>
+        public static bool CheckForTable(this SqliteProvider provider, string tableName, IEnumerable<SqliteColumnMapping> columnsMustHave, out DataTable table, out string errorMessage, out int count)
+        {
             table = null;
+            count = -1;
             errorMessage = string.Empty;
             //if (string.IsNullOrWhiteSpace(tableName) || tableName == null || tableName.Count() == 0)
             //    return true;
@@ -88,7 +131,7 @@ namespace CommonLib.DataUtil
                 return false;
             }
             //假如表存在，返回true
-            if (provider.TableExists(tableName, out table))
+            if (provider.TableExists(tableName, out table, out count))
                 return true;
             if (columnsMustHave == null || columnsMustHave.Count() == 0)
             {
@@ -100,6 +143,7 @@ namespace CommonLib.DataUtil
             provider.ExecuteSql(sqlString);
             bool result = provider.TableExists(tableName, out table);
             errorMessage = result ? string.Format("已添加表{0}及其{1}个字段", tableName, columnsMustHave.Count()) : string.Format("表{0}添加失败", tableName);
+            count = 0;
             return result;
         }
 
@@ -124,9 +168,16 @@ namespace CommonLib.DataUtil
             }
 
             //尝试新建表，假如尝试失败，或者原本表不存在但是新建成功，则退出，否则继续添加字段
-            bool tableExists = provider.CheckForTable(tableName, columnsMustHave, out DataTable table, out message);
+            bool tableExists = provider.CheckForTable(tableName, columnsMustHave, out DataTable table, out message, out int count);
             if (!tableExists || !string.IsNullOrWhiteSpace(message))
                 return tableExists;
+            bool result = false;
+            if (count > 1000)
+            {
+                //message = "表已存在，且行数大于1000，不再检查字段";
+                result = true;
+                goto END;
+            }
             //全部转为小写以进行比对
             List<string> currCols = table.Columns.Cast<DataColumn>().Select(column => column.ColumnName.ToLower()).ToList(), fields = new List<string>(), sqls = new List<string>();
             foreach (var column in columnsMustHave)
@@ -136,11 +187,12 @@ namespace CommonLib.DataUtil
                 fields.Add(column.ColumnName);
                 sqls.Add(string.Format("alter table {0} add column {1};", tableName, column.Structure));
             }
-            bool result = sqls.Count == 0 || provider.ExecuteSqlTrans(sqls);
+            /*bool */result = sqls.Count == 0 || provider.ExecuteSqlTrans(sqls);
             if (result)
                 message = sqls.Count > 0 ? string.Format("已添加字段{0}", string.Join(", ", fields.ToArray()).TrimEnd(',', ' ').ToUpper()) : string.Empty;
             else
                 message = "至少有一个字段添加失败";
+            END:
             return result;
         }
 

@@ -4,7 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+#if DA
 namespace OpcLibrary.Core
+#elif UA
+namespace OpcLibrary.Ua.Core
+#endif
 {
     /// <summary>
     /// OPC连接、读取或写入的基础参数
@@ -30,23 +34,64 @@ namespace OpcLibrary.Core
 
         #region OPC
         /// <summary>
-        /// 是否使用OPC
+        /// OPC功能是否启用
         /// </summary>
         public static bool OpcEnabled { get; set; }
 
         /// <summary>
+        /// OPC架构类型，默认为 <see cref="OpcConstructureType.OpcDa"/>
+        /// </summary>
+        public static OpcConstructureType OpcConstructureType { get; set; } = OpcConstructureType.OpcDa;
+
+        /// <summary>
         /// OPC SERVER IP地址
+        /// <para/>对于UA，将成为服务地址“opc.tcp://[OpcServerIp]:[OpcServerPort][/[OpcServerName]]”的一部分
         /// </summary>
         public static string OpcServerIp { get; set; }
 
         /// <summary>
         /// OPC SERVER 名称
+        /// <para/>对于DA为服务名称；对于UA，假如不为空，将在URL最后添加“/[OpcServerName]”
         /// </summary>
         public static string OpcServerName { get; set; }
 
+#if UA
         /// <summary>
-        /// 是否写入PLC
+        /// OPC UA 服务的完整名称，形式为“opc.tcp://[OpcServerIp]:[OpcServerPort][/[OpcServerName]]”
         /// </summary>
+        public static string OpcServerUrl
+        {
+            get
+            {
+                return OpcUtilHelper.GetOpcServerUrl(OpcServerIp, OpcServerPort, OpcServerName);
+                //return string.Format("opc.tcp://{0}:{1}{2}",
+                //    OpcServerIp,
+                //    OpcServerPort,
+                //    string.IsNullOrWhiteSpace(OpcServerName) ? string.Empty : ("/" + OpcServerName));
+            }
+        }
+
+        /// <summary>
+        /// OPC SERVER 端口
+        /// <para/>仅对UA有效，将成为服务地址“opc.tcp://[OpcServerIp]:[OpcServerPort][/[OpcServerName]]”的一部分
+        /// <para/>KEPServerV6默认端口号为49320
+        /// </summary>
+        public static int OpcServerPort { get; set; }
+
+        /// <summary>
+        /// 用户名（仅对UA有效）
+        /// </summary>
+        public static string UserName { get; set; }
+
+        /// <summary>
+        /// 密码（仅对UA有效）
+        /// </summary>
+        public static string Password { get; set; }
+#endif
+
+                /// <summary>
+                /// 是否写入PLC
+                /// </summary>
         public static bool Write2Plc { get; set; }
 
         /// <summary>
@@ -72,7 +117,7 @@ namespace OpcLibrary.Core
                 _schemaFile = value;
             }
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// 写入日志同时在控制台输出
@@ -83,5 +128,21 @@ namespace OpcLibrary.Core
             Log.WriteLogsToFile(info);
             Console.WriteLine(info);
         }
+    }
+
+    /// <summary>
+    /// OPC架构类型
+    /// </summary>
+    public enum OpcConstructureType
+    {
+        /// <summary>
+        /// OPC DA架构
+        /// </summary>
+        OpcDa = 0,
+
+        /// <summary>
+        /// OPC UA架构
+        /// </summary>
+        OpcUa
     }
 }

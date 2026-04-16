@@ -51,7 +51,7 @@ namespace CommonLib.Clients
         /// <summary>
         /// 最新的错误信息
         /// </summary>
-        public string LastErrorMessage { get; set; }
+        public string LastErrorMessage { get; set; } = string.Empty;
         #endregion
 
         ///// <summary>
@@ -81,18 +81,36 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="samples">待滤波的样本</param>
         /// <returns></returns>
-        public List<double> GetFilteredSamples(IEnumerable<double> samples)
+        public List<double> GetFilteredSamples(IEnumerable<double>
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            samples)
         {
+            //if (samples == null)
+            //    LastErrorMessage = "样本点为空";
+            ////样本数若小于领域大小，退出
+            //else if (samples.Count() < Neighbours)
+            //    LastErrorMessage = "样本数小于邻域大小";
             if (samples == null)
-                LastErrorMessage = "样本点为空";
+#if NET45
+                samples = new List<double>();
+#elif NET9_0_OR_GREATER
+                samples = [];
+#endif
             //样本数若小于领域大小，退出
-            else if (samples.Count() < Neighbours)
+            if (samples.Count() < Neighbours)
                 LastErrorMessage = "样本数小于邻域大小";
 
             if (!string.IsNullOrWhiteSpace(LastErrorMessage))
                 throw new ArgumentException(LastErrorMessage, nameof(samples));
             
+#if NET45
             List<double> result = new List<double>(); //储存结果的List
+#elif NET9_0_OR_GREATER
+            List<double> result = []; //储存结果的List
+#endif
             var count = samples.Count();
             double element, element_new = 0;
 
@@ -127,10 +145,19 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public List<double> GetNeighbourSamples(IEnumerable<double> samples, int index)
         {
-            if (samples == null || samples.Count() < Neighbours)
-                LastErrorMessage = "样本点为空";
+            //if (samples == null)
+            //    LastErrorMessage = "样本点为空";
+            ////样本数若小于领域大小，退出
+            //else if (samples.Count() < Neighbours)
+            //    LastErrorMessage = "样本数小于邻域大小";
+            if (samples == null)
+#if NET45
+                samples = new List<double>();
+#elif NET9_0_OR_GREATER
+                samples = [];
+#endif
             //样本数若小于领域大小，退出
-            else if (samples.Count() < Neighbours)
+            if (samples.Count() < Neighbours)
                 LastErrorMessage = "样本数小于邻域大小";
             else if (/*index < 0 || */index >= samples.Count())
                 LastErrorMessage = "索引大小超出范围";
@@ -139,7 +166,11 @@ namespace CommonLib.Clients
                 throw new ArgumentException(LastErrorMessage);
 
             var count = samples.Count();
+#if NET45
             List<double> array = new List<double>();
+#elif NET9_0_OR_GREATER
+            List<double> array = [];
+#endif
             for (var i = index - Wing; i <= index + (DoubleWinged ? Wing : 0); i++)
             {
                 //当邻域范围超出左侧或右侧时，改变索引值（向右或向左找）
@@ -157,11 +188,19 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public double GetMedianNumber(IEnumerable<double> samples)
         {
-            if (samples == null || samples.Count() == 0)
+            //if (samples == null || samples.Count() == 0)
+            //    LastErrorMessage = "样本中没有任何元素";
+            if (samples == null)
+#if NET45
+                samples = new List<double>();
+#elif NET9_0_OR_GREATER
+                samples = [];
+#endif
+            if (!samples.Any())
                 LastErrorMessage = "样本中没有任何元素";
 
             if (!string.IsNullOrWhiteSpace(LastErrorMessage))
-                throw new ArgumentException(LastErrorMessage, "samples");
+                throw new ArgumentException(LastErrorMessage, nameof(samples));
 
             samples = samples.OrderBy(sample => sample);
             int count = samples.Count();
@@ -199,17 +238,34 @@ namespace CommonLib.Clients
         /// <param name="samples">样本</param>
         /// <param name="ratios">计算结束后返回的每个样本根据高斯分布得出的系数</param>
         /// <returns></returns>
-        public double GetGaussianValue(IEnumerable<double> samples, out List<double> ratios)
+        public double GetGaussianValue(IEnumerable<double> samples, out List<double>
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            ratios)
         {
             ratios = null;
-            if (samples == null || samples.Count() == 0)
+            //if (samples == null || samples.Count() == 0)
+            //    LastErrorMessage = "样本中没有任何元素";
+            if (samples == null)
+#if NET45
+                samples = new List<double>();
+#elif NET9_0_OR_GREATER
+                samples = [];
+#endif
+            if (!samples.Any())
                 LastErrorMessage = "样本中没有任何元素";
 
             if (!string.IsNullOrWhiteSpace(LastErrorMessage))
-                throw new ArgumentException(LastErrorMessage, "samples");
+                throw new ArgumentException(LastErrorMessage, nameof(samples));
 
             double center = (samples.Count() - 1) / (DoubleWinged ? 2 : 1), ratio_sum = 0, value_sum = 0;
+#if NET45
             ratios = new List<double>();
+#elif NET9_0_OR_GREATER
+            ratios = [];
+#endif
             for (int i = 0; i < samples.Count(); i++)
             {
                 double ratio = GausCalc.Calc(i - center); //高斯分布在某坐标的值（center处的值为最高点）
@@ -227,28 +283,18 @@ namespace CommonLib.Clients
         /// <param name="samples">键值对样本，Key为X坐标（位置），Value为Y坐标（该位置上的值）</param>
         /// <param name="ratios">计算结束后返回的每个样本根据高斯分布得出的系数</param>
         /// <returns></returns>
-        public double GetGaussianValue(Dictionary<double, double> samples, out List<double> ratios)
+        public double GetGaussianValue(Dictionary<double, double> samples, out List<double>
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            ratios)
         {
             ratios = null;
             if (samples == null) throw new ArgumentNullException(nameof(samples), "提供的样本为null");
-            if (samples.Count() == 0) throw new ArgumentException("样本中没有任何元素", nameof(samples));
-            //if (samples == null || samples.Count() == 0)
-            //    LastErrorMessage = "样本中没有任何元素";
-            //if (!string.IsNullOrWhiteSpace(LastErrorMessage))
-            //    throw new ArgumentException(LastErrorMessage, "samples");
+            if (samples.Count == 0) throw new ArgumentException("样本中没有任何元素", nameof(samples));
 
             return GetGaussianValue(samples.Cast<KeyValuePair<double, double>>(), out ratios);
-
-            //double /*center = (samples.Count() - 1) / (DoubleWinged ? 2 : 1), */ratio_sum = 0, value_sum = 0;
-            //ratios = new List<double>();
-            //foreach (var pair in samples)
-            //{
-            //    double ratio = GausCalc.Calc(pair.Key);
-            //    ratio_sum += ratio;
-            //    value_sum += ratio * pair.Value;
-            //    ratios.Add(ratio);
-            //}
-            //return value_sum / ratio_sum;
         }
 
         /// <summary>
@@ -257,18 +303,23 @@ namespace CommonLib.Clients
         /// <param name="samples">键值对样本，Key为X坐标（位置），Value为Y坐标（该位置上的值）</param>
         /// <param name="ratios">计算结束后返回的每个样本根据高斯分布得出的系数</param>
         /// <returns></returns>
-        public double GetGaussianValue(IEnumerable<KeyValuePair<double, double>> samples, out List<double> ratios)
+        public double GetGaussianValue(IEnumerable<KeyValuePair<double, double>> samples, out List<double>
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            ratios)
         {
             ratios = null;
             if (samples == null) throw new ArgumentNullException(nameof(samples), "提供的样本为null");
-            if (samples.Count() == 0) throw new ArgumentException("样本中没有任何元素", nameof(samples));
-            //if (samples == null || samples.Count() == 0)
-            //    LastErrorMessage = "样本中没有任何元素";
-            //if (!string.IsNullOrWhiteSpace(LastErrorMessage))
-            //    throw new ArgumentException(LastErrorMessage, "samples");
+            if (!samples.Any()) throw new ArgumentException("样本中没有任何元素", nameof(samples));
 
             double ratio_sum = 0, value_sum = 0;
+#if NET45
             ratios = new List<double>();
+#elif NET9_0_OR_GREATER
+            ratios = [];
+#endif
             foreach (var pair in samples)
             {
                 double ratio = GausCalc.Calc(pair.Key);

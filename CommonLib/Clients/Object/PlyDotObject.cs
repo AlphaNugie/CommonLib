@@ -14,7 +14,8 @@ namespace CommonLib.Clients.Object
     {
         private Color color;
         private byte red = 0, green = 0, blue = 0;
-        private string custominfo = string.Empty;
+        ////private string custominfo = string.Empty;
+        //private List<object> custominfo = new List<object>();
 
         /// <summary>
         /// X轴坐标，毫米
@@ -34,11 +35,11 @@ namespace CommonLib.Clients.Object
         /// <summary>
         /// 定制化信息
         /// </summary>
-        public string CustomedInfo
-        {
-            get { return custominfo; }
-            set { custominfo = value == null ? string.Empty : value.Trim(); }
-        }
+#if NET45
+        public List<object> CustomProperties { get; set; } = new List<object>();
+#elif NET9_0_OR_GREATER
+        public List<object> CustomProperties { get; set; } = [];
+#endif
 
         /// <summary>
         /// RGB颜色

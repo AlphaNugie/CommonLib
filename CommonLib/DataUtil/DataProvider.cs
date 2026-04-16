@@ -158,7 +158,11 @@ namespace CommonLib.DataUtil
             if (sqlStrings == null || sqlStrings.Count() == 0)
                 return null;
 
-            using (var connection = (Connection)Activator.CreateInstance(typeof(Connection), connStr))
+            // 明确要求参数类型为 string
+            var ctor = typeof(Connection).GetConstructor(new[] { typeof(string) });
+            var connection1 = (Connection)ctor.Invoke(new object[] { connStr });
+            //using (var connection = (Connection)Activator.CreateInstance(typeof(Connection), connStr))
+            using (var connection = (Connection)ctor.Invoke(new object[] { connStr }))
             {
                 using (var adapter = (Adapter)Activator.CreateInstance(typeof(Adapter), string.Empty, connection))
                 {

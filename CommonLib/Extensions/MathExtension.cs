@@ -1,5 +1,4 @@
 ﻿using CommonLib.Function;
-using CommonLib.Function.MathUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +6,10 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.SessionState;
+#if NET45
+using CommonLib.Function.MathUtils;
+#elif NET9_0_OR_GREATER
+#endif
 
 namespace CommonLib.Extensions
 {
@@ -17,6 +19,9 @@ namespace CommonLib.Extensions
     public static class MathExtension
     {
         #region 常用数学公式/参数计算
+
+        //TODO 将net45的代码移植到net 9
+#if NET45
         /// <summary>
         /// 在给出的点对象集合中，以3个点为一组，每组确定一个二维或三维空间中圆的圆心XYZ坐标（二维空间中Z为0）和半径长度 <para/>如此按顺序执行若干次（等于点数量除以3并向下取整），计算圆心XYZ坐标（二维空间中Z为0）和半径长度的平均值并返回圆形对象
         /// </summary>
@@ -230,6 +235,9 @@ namespace CommonLib.Extensions
         //}
         #endregion
 
+#elif NET9_0_OR_GREATER
+#endif
+
         #region 正态分布
         /// <summary>
         /// 计算正态分布函数的公式，计算时使用给定的平均值μ(mu)与标准差σ(sigma)，输入x坐标，输出正太分布曲线在这个位置的y坐标值
@@ -278,14 +286,15 @@ namespace CommonLib.Extensions
         /// <param name="average">平均值</param>
         /// <returns>返回计算的方差，假如样本集不包含任何元素，则默认返回0</returns>
         /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="OverflowException"></exception>
         ///// <exception cref="InvalidOperationException"></exception>
         ///// <exception cref="ArgumentException"></exception>
         public static double Variance(this IEnumerable<double> numbers, double average)
         {
-            //if (numbers == null)
-            //    throw new ArgumentNullException(nameof(numbers), "样本集的对象为空引用");
+            if (numbers == null)
+                throw new ArgumentNullException(nameof(numbers), "样本集的对象为空引用");
             //假如样本集不包含任何元素，则默认方差为0
-            if (numbers.Count() == 0)
+            if (!numbers.Any())
                 return 0;
 
             //↓↓↓下面2种计算方式完全一样，只是第2种写法更简洁
@@ -300,14 +309,15 @@ namespace CommonLib.Extensions
         /// <param name="numbers">样本</param>
         /// <returns>返回计算的方差，假如样本集不包含任何元素，则默认返回0</returns>
         /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="OverflowException"></exception>
         ///// <exception cref="InvalidOperationException"></exception>
         ///// <exception cref="ArgumentException"></exception>
         public static double Variance(this IEnumerable<double> numbers)
         {
-            //if (numbers == null)
-            //    throw new ArgumentNullException(nameof(numbers), "样本集的对象为空引用");
+            if (numbers == null)
+                throw new ArgumentNullException(nameof(numbers), "样本集的对象为空引用");
             //假如样本集不包含任何元素，则默认方差为0
-            if (numbers.Count() == 0)
+            if (!numbers.Any())
                 return 0;
 
             return Variance(numbers, numbers.Average());
@@ -320,15 +330,15 @@ namespace CommonLib.Extensions
         /// <param name="selector">应用于每个元素的转换函数</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="OverflowException"></exception>
         public static double Variance<TSource>(this IEnumerable<TSource> sources, Func<TSource, double> selector)
         {
             //if (sources == null || sources.Count() == 0)
             //    throw new ArgumentException("参数不包含任何元素!");
+            if (sources == null)
+                throw new ArgumentNullException(nameof(sources), "样本集的对象为空引用");
 
             IEnumerable<double> numbers = sources.Select(selector); //首先将参与计算的值从样本中投影出来
-            //double average = numbers.Average(); //计算平均值
-            //double result = numbers.Average(number => Math.Pow(number - average, 2)); //计算方差，等效于Select(number => ...).Average()
-            //return result;
             return numbers.Variance();
         }
 
@@ -338,13 +348,11 @@ namespace CommonLib.Extensions
         /// <param name="numbers">样本</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="OverflowException"></exception>
         ///// <exception cref="InvalidOperationException"></exception>
         ///// <exception cref="ArgumentException"></exception>
         public static double Standard(this IEnumerable<double> numbers)
         {
-            //if (numbers == null || numbers.Count() == 0)
-            //    throw new ArgumentException("参数不包含任何元素!");
-
             return Math.Sqrt(numbers.Variance());
         }
 
@@ -355,12 +363,58 @@ namespace CommonLib.Extensions
         /// <param name="selector">应用于每个元素的转换函数</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="OverflowException"></exception>
         public static double Standard<TSource>(this IEnumerable<TSource> sources, Func<TSource, double> selector)
         {
-            //if (sources == null || sources.Count() == 0)
-            //    throw new ArgumentException("参数不包含任何元素!");
-
             return Math.Sqrt(Variance(sources, selector));
+        }
+        #endregion
+
+        #region 波动率（计算相邻两值的差，用所有这些差值做标准差）
+        /// <summary>
+        /// 计算波动率，将输入的数值序列在每两个相邻数值之间作差并形成一个新的序列，计算这个新序列的标准差并作为波动率
+        /// </summary>
+        /// <param name="numbers">样本</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="OverflowException"></exception>
+        ///// <exception cref="InvalidOperationException"></exception>
+        ///// <exception cref="ArgumentException"></exception>
+        public static double Volatility(this IEnumerable<double> numbers)
+        {
+            if (numbers == null)
+                throw new ArgumentNullException(nameof(numbers), "样本集的对象为空引用");
+            int length;
+            //假如样本集的数量不足2，则默认波动率为0
+            if ((length = numbers.Count()) < 2)
+                return 0;
+#if NET45
+            List<double> newList = new List<double>();
+#elif NET9_0_OR_GREATER
+            List<double> newList = [];
+#endif
+            for (int i = 1; i < length; i++)
+                newList.Add(numbers.ElementAt(i) - numbers.ElementAt(i - 1));
+            //return newList.Variance();
+            return newList.Standard();
+        }
+
+        /// <summary>
+        /// 根据样本计算波动率，计算波动率的值可以通过给定的转换函数从样本元素中投影出来
+        /// <para/>将投影出来的值序列在每两个相邻数值之间作差并形成一个新的序列，计算这个新序列的标准差并作为波动率
+        /// </summary>
+        /// <param name="sources">样本，样本中的每个元素可以通过提供的转换函数投影到最终计标准差的数值上</param>
+        /// <param name="selector">应用于每个元素的转换函数</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="OverflowException"></exception>
+        public static double Volatility<TSource>(this IEnumerable<TSource> sources, Func<TSource, double> selector)
+        {
+            if (sources == null)
+                throw new ArgumentNullException(nameof(sources), "样本集的对象为空引用");
+
+            IEnumerable<double> numbers = sources.Select(selector); //首先将参与计算的值从样本中投影出来
+            return numbers.Volatility();
         }
         #endregion
         #endregion
@@ -517,6 +571,24 @@ namespace CommonLib.Extensions
         }
 
         /// <summary>
+        /// 判断一个双精度浮点数是否落在给定的若干个区间范围中的任意一个（包括等于），假如区间范围为空（不存在任何有效的区间范围），则返回默认值
+        /// </summary>
+        /// <param name="input">待判断的数字</param>
+        /// <param name="range">单个区间范围</param>
+        /// <param name="def">当区间范围为空时返回的默认值</param>
+        /// <returns>假如在数值之间，返回true，否则返回false</returns>
+        public static bool Between(this double input, IEnumerable<double> range, bool def = false)
+        {
+            return input.Between(
+#if NET45
+                new IEnumerable<double>[] { range },
+#elif NET9_0_OR_GREATER
+                [range],
+#endif
+                def);
+        }
+
+        /// <summary>
         /// 判断一个双精度浮点数是否在两个数值之间（或等于）
         /// </summary>
         /// <param name="input">待判断的数字</param>
@@ -565,6 +637,9 @@ namespace CommonLib.Extensions
         }
         #endregion
 
+
+        //TODO 将net45的代码移植到net 9
+#if NET45
         /// <summary>
         /// 在给定的一些点的集合中，计算各点间的平均距离，判断依据是距其它点的平均距离，点的坐标以double数组的形式给出，同时需给定采样的比例（或数量）
         /// </summary>
@@ -644,6 +719,8 @@ namespace CommonLib.Extensions
         {
             return MathUtil.GetAngleByCoordinates(x1, y1, xa, ya);
         }
+#elif NET9_0_OR_GREATER
+#endif
 
         /// <summary>
         /// （使用Swap）对两个值类型的值进行交换
@@ -651,7 +728,7 @@ namespace CommonLib.Extensions
         /// <typeparam name="T">要交换的值的类型</typeparam>
         /// <param name="t1">值1</param>
         /// <param name="t2">值2</param>
-        [Obsolete]
+        [Obsolete("建议使用Swap方法")]
         public static void Exchange<T>(ref T t1, ref T t2) where T : struct
         {
             //谨慎使用元组交换（部署后依赖可能会出问题）
@@ -684,7 +761,11 @@ namespace CommonLib.Extensions
             int places = 0;
             try
             {
-                string[] parts = value.ToString().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+#if NET45
+                string[] parts = value.ToString()?.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+#elif NET9_0_OR_GREATER
+                string[]? parts = value.ToString()?.Split(['.'], StringSplitOptions.RemoveEmptyEntries);
+#endif
                 places = parts == null || parts.Length < 2 ? 0 : parts[1].Length;
             }
             catch (Exception) { }
@@ -726,7 +807,7 @@ namespace CommonLib.Extensions
             if (set == null)
                 goto END;
             set = set.Where(d => d != 0);
-            try { if (set.Count() > 0) min = set.Min(); }
+            try { if (set.Any()) min = set.Min(); }
             catch (Exception) { }
             END:
             return min;
@@ -751,7 +832,7 @@ namespace CommonLib.Extensions
             if (set == null)
                 goto END;
             set = set.Where(d => d != 0);
-            try { if (set.Count() > 0) max = set.Max(); }
+            try { if (set.Any()) max = set.Max(); }
             catch (Exception) { }
             END:
             return max;

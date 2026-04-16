@@ -22,5 +22,10 @@ namespace CommonLibExample.Forms
         {
             ExampleTaskTest.Run();
         }
+
+        private void Button_DelayTest_Click(object sender, EventArgs e)
+        {
+            new FormDelayTest().Show();
+        }
     }
 }

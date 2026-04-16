@@ -74,6 +74,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\ProtoInfoType.cs" />
     <Compile Include="ProtobufNetWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -104,6 +105,7 @@
     <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug $(SolutionDir)CommonLib\compiled\</PostBuildEvent>
+    <PostBuildEvent>xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug $(SolutionDir)CommonLib\compiled\
+xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug D:\DLL\</PostBuildEvent>
   </PropertyGroup>
 </Project>

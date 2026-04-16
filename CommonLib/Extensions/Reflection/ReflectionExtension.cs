@@ -20,12 +20,21 @@ namespace CommonLib.Extensions.Reflection
         /// <param name="obj">待克隆对象</param>
         /// <returns></returns>
         /// <exception cref="MissingMethodException">克隆对象的目标类型缺少无参构造器</exception>
+#if NET45
         public static T Clone<T>(this T obj)
         {
             Type type = typeof(T);
             T newObj;
             //初始化一个目标类型的对象
             try { newObj = (T)Activator.CreateInstance(type); }
+#elif NET9_0_OR_GREATER
+        public static T? Clone<T>(this T obj)
+        {
+            Type type = typeof(T);
+            T? newObj;
+            //初始化一个目标类型的对象
+            try { newObj = (T?)Activator.CreateInstance(type); }
+#endif
             catch (MissingMethodException e) { throw new MissingMethodException(string.Format($"待克隆的目标类型{type.Name}缺少默认的无参构造器"), e); }
             var props = type.GetProperties();
             foreach (var prop in props)
@@ -39,13 +48,26 @@ namespace CommonLib.Extensions.Reflection
         }
 
         /// <summary>
-        /// 获取类型的默认值，假如类型对象不为空且为值类型则构造一个实例，否则返回null
+        /// 获取类型的默认值，假如类型对象不为空则尝试构造一个实例，假如成功返回此实例，否则返回null
         /// </summary>
         /// <param name="type">给定的类型实体</param>
         /// <returns></returns>
+#if NET45
         public static object CreateDefValue(this Type type)
         {
-            return type != null && type.IsValueType ? Activator.CreateInstance(type) : null;
+            ////调用Activator.CreateInstance方法时需要判断是否为值类型，否则假如引用类型没有默认构造器将会抛出异常
+            //return type != null && type.IsValueType ? Activator.CreateInstance(type) : null;
+            object result = null;
+#elif NET9_0_OR_GREATER
+        public static object? CreateDefValue(this Type type)
+        {
+            ////调用Activator.CreateInstance方法时需要判断是否为值类型，否则假如引用类型没有默认构造器将会抛出异常
+            //return type != null && type.IsValueType ? Activator.CreateInstance(type) : null;
+            object? result = null;
+#endif
+            if (type != null)
+                try { result = Activator.CreateInstance(type); } catch { }
+            return result;
         }
 
         /// <summary>
@@ -57,17 +79,41 @@ namespace CommonLib.Extensions.Reflection
         /// <param name="typeNameIncl">查找时限定类名的一部分，假如为空则不限定</param>
         /// <param name="baseType">查找类时限定的从中继承的类（仅检查类型名称及命名空间是否相同），假如为空则不限定</param>
         /// <returns></returns>
-        public static Type[] GetTypesInNamespace(this Assembly assembly, string nameSpace, bool subSpaceIncl = false, string typeNameIncl = null, Type baseType = null)
+        public static Type[] GetTypesInNamespace(this Assembly assembly, string nameSpace, bool subSpaceIncl = false,
+#if NET45
+string typeNameIncl = null, Type baseType = null)
+#elif NET9_0_OR_GREATER
+string? typeNameIncl = null, Type? baseType = null)
+#endif
         {
+            //临时方法，这样能够在需要执行的时候再计算
+            //检查命名空间是否符合要求
+            bool isNamespaceQual(Type type)
+            {
+                return !string.IsNullOrWhiteSpace(type.Namespace) &&
+                       (subSpaceIncl ? type.Namespace.StartsWith(nameSpace, StringComparison.Ordinal) : type.Namespace.Equals(nameSpace, StringComparison.Ordinal));
+            }
+            //检查类名是否符合要求
+            bool isTypeNameQual(Type type)
+            {
+                return string.IsNullOrWhiteSpace(typeNameIncl) || type.Name.Contains(typeNameIncl);
+            }
+            //检查是否继承自指定基类（仅检查基类类型名称及命名空间是否相同，假如基类为null则不限定）
+            bool isBaseTypeQual(Type type)
+            {
+                return baseType == null || (type.BaseType != null && type.BaseType.Name.Equals(baseType.Name) && !string.IsNullOrWhiteSpace(type.BaseType.Namespace) && type.BaseType.Namespace.Equals(baseType.Namespace));
+            }
             return assembly.GetTypes().Where(type =>
             {
-                bool
-                //命名空间是否符合要求
-                nameSpaceQual = !string.IsNullOrWhiteSpace(type.Namespace) && (subSpaceIncl ? type.Namespace.StartsWith(nameSpace, StringComparison.Ordinal) : type.Namespace.Equals(nameSpace, StringComparison.Ordinal)),
-                //类名是否符合要求
-                typeNameQual = string.IsNullOrWhiteSpace(typeNameIncl) || type.Name.Contains(typeNameIncl),
-                baseTypeQual = baseType == null || (type.BaseType.Name.Equals(baseType.Name) && type.BaseType.Namespace.Equals(baseType.Namespace));
-                return nameSpaceQual && typeNameQual && baseTypeQual;
+                //bool
+                ////命名空间是否符合要求
+                //nameSpaceQual = !string.IsNullOrWhiteSpace(type.Namespace) && (subSpaceIncl ? type.Namespace.StartsWith(nameSpace, StringComparison.Ordinal) : type.Namespace.Equals(nameSpace, StringComparison.Ordinal)),
+                ////类名是否符合要求
+                //typeNameQual = string.IsNullOrWhiteSpace(typeNameIncl) || type.Name.Contains(typeNameIncl),
+                ////是否继承自指定基类（仅检查基类类型名称及命名空间是否相同，假如基类为null则不限定）
+                //baseTypeQual = baseType == null || (type.BaseType != null && type.BaseType.Name.Equals(baseType.Name) && type.BaseType.Namespace.Equals(baseType.Namespace));
+                //return nameSpaceQual && typeNameQual && baseTypeQual;
+                return isNamespaceQual(type) && isTypeNameQual(type) && isBaseTypeQual(type);
             }).ToArray();
         }
     }

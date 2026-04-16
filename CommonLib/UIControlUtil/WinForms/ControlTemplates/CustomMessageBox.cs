@@ -11,10 +11,16 @@ using System.Windows.Forms;
 
 namespace CommonLib.UIControlUtil.ControlTemplates
 {
+    /// <summary>
+    /// CustomMessageBox is a custom message box which can be used to display message to user.
+    /// </summary>
     public partial class CustomMessageBox : Form
     {
         private const int WIDTH = 75, HEIGHT = 25; //按钮默认宽度、高度
 
+        /// <summary>
+        /// Constructor of CustomMessageBox class.
+        /// </summary>
         public CustomMessageBox()
         {
             InitializeComponent();
@@ -388,6 +394,14 @@ namespace CommonLib.UIControlUtil.ControlTemplates
             //frmMessage.ShowDialog();
         }
 
+        /// <summary>
+        /// Show method is overloaded which is used to display message
+        /// and this is static method so that we don't need to create 
+        /// object of this class to call this method.
+        /// </summary>
+        /// <param name="messageText"></param>
+        /// <param name="messageTitle"></param>
+        /// <returns></returns>
         public static DialogResult Show(string messageText, string messageTitle)
         {
             return Show(messageText, messageTitle, CustomMessageBoxButtons.OK, CustomMessageBoxIcon.Information);
@@ -399,11 +413,28 @@ namespace CommonLib.UIControlUtil.ControlTemplates
             //frmMessage.ShowDialog();
         }
 
+        /// <summary>
+        /// Show method is overloaded which is used to display message
+        /// </summary>
+        /// <param name="messageText"></param>
+        /// <param name="messageTitle"></param>
+        /// <param name="messageButton"></param>
+        /// <param name="messageIcon"></param>
+        /// <returns></returns>
         public static DialogResult Show(string messageText, string messageTitle, CustomMessageBoxButtons messageButton, CustomMessageBoxIcon messageIcon)
         {
             return Show(messageText, messageTitle, messageButton, messageIcon, null);
         }
 
+        /// <summary>
+        /// Show method is overloaded which is used to display message
+        /// </summary>
+        /// <param name="messageText"></param>
+        /// <param name="messageTitle"></param>
+        /// <param name="messageButton"></param>
+        /// <param name="messageIcon"></param>
+        /// <param name="font"></param>
+        /// <returns></returns>
         public static DialogResult Show(string messageText, string messageTitle, CustomMessageBoxButtons messageButton, CustomMessageBoxIcon messageIcon, Font font)
         {
             CustomMessageBox frmMessage = new CustomMessageBox { Text = messageTitle };
@@ -428,19 +459,55 @@ namespace CommonLib.UIControlUtil.ControlTemplates
     }
 
     #region constant defiend in form of enumration which is used in showMessage class.
+    /// <summary>
+    /// This enum is used to define type of message box icon.
+    /// </summary>
     public enum CustomMessageBoxIcon
     {
+        /// <summary>
+        /// Error icon is used to display error message.
+        /// </summary>
         Error,
+
+        /// <summary>
+        /// Information icon is used to display information message.
+        /// </summary>
         Warning,
+
+        /// <summary>
+        /// Information icon is used to display information message.
+        /// </summary>
         Information,
+
+        /// <summary>
+        /// Question icon is used to display question message.
+        /// </summary>
         Question,
     }
 
+    /// <summary>
+    /// 指定若干常数，用以定义 <see cref="CustomMessageBox"/> 上将显示哪些按钮
+    /// </summary>
     public enum CustomMessageBoxButtons
     {
+        /// <summary>
+        /// 消息框包含“确定”按钮
+        /// </summary>
         OK,
+
+        /// <summary>
+        /// 消息框包含“是”和“否”按钮
+        /// </summary>
         YesNo,
+
+        /// <summary>
+        /// 消息框包含“是”、“否”和“取消”按钮
+        /// </summary>
         YesNoCancel,
+
+        /// <summary>
+        /// 消息框包含“确定”和“取消”按钮
+        /// </summary>
         OKCancel
     }
 

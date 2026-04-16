@@ -444,6 +444,55 @@ namespace CommonLib.Function
         }
         #endregion
 
+        #region 计算三角形面积
+        /// <summary>
+        /// 计算三角形面积：通过给定的两边长度和这两边的夹角（以角度提供）计算
+        /// </summary>
+        /// <param name="side1">边1长度</param>
+        /// <param name="side2">边2长度</param>
+        /// <param name="inclAngle">两边的夹角（角度）</param>
+        /// <returns></returns>
+        public static double GetTriangleArea(double side1, double side2, double inclAngle)
+        {
+            return 0.5 * side1 * side2 * Math.Sin(inclAngle * Math.PI / 180);
+        }
+        #endregion
+
+        #region 角度与弧度互相转换
+        /// <summary>
+        /// 将弧度值转换为角度值
+        /// </summary>
+        /// <param name="rad"></param>
+        /// <returns></returns>
+        public static double ToDegree(this double rad)
+        {
+            return rad * 180 / Math.PI;
+        }
+        
+        /// <summary>
+        /// 将角度值转换为弧度值
+        /// </summary>
+        /// <param name="angle"></param>
+        /// <returns></returns>
+        public static double ToRad(this double angle)
+        {
+            return angle * Math.PI / 180;
+        }
+        #endregion
+
+        /// <summary>
+        /// 水平平面内的某角度随此平面做俯仰运动后在水平面上投影的角度大小
+        /// <para/>参考公式为λ=arctan(tanθ/cosφ)，λ为运动后的投影角度，θ为初始角度、φ为俯仰角度
+        /// <para/>参见D:\GPS\文档\坐标系与计算\平面内某角度随俯仰角度的变化.txt
+        /// </summary>
+        /// <param name="angle">输入的初始角度值，单位为角度（°）</param>
+        /// <param name="pitchAngle">俯仰角度值，单位为角度（°）</param>
+        /// <returns>返回计算后的水平面投影角度，单位为角度（°）</returns>
+        public static double AngleReshapedByPitchAngle(this double angle, double pitchAngle)
+        {
+            return Math.Atan(Math.Tan(angle.ToRad()) / Math.Cos(pitchAngle.ToRad())).ToDegree();
+        }
+
         /// <summary>
         /// 使输入的方位角保持在合理的范围之内（-180°到180°之间，包含-180°，不包含180°），假如超过180°则减360°，小于-180°则加360°，循环计算直到进入范围为止
         /// </summary>

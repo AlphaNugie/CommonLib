@@ -16,16 +16,19 @@ namespace CommonLib.Clients.Tasks
         /// </summary>
         public BlankTask() : base() { }
 
+        /// <inheritdoc/>
         protected override void Init()
         {
             //throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         protected override void LoopContent()
         {
             //throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         protected override Task GetNewInstance()
         {
             throw new NotImplementedException();

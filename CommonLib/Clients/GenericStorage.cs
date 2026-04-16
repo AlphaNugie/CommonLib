@@ -17,6 +17,10 @@ namespace CommonLib.Clients
         /// </summary>
         public const int DEFAULT_MAX_CAPACITY = 10;
 
+        /// <summary>
+        /// 当前指令索引，为-1时代表未在队列中
+        /// 与队列索引相反，新加入指令索引靠前（最新指令索引为0），相当于从队列尾部查找
+        /// </summary>
         protected int _index = -1;
 
         #region 属性
@@ -49,7 +53,13 @@ namespace CommonLib.Clients
         /// <summary>
         /// 当前实体，未在队列中时为空
         /// </summary>
-        public T CurrentContent { get; set; }
+        public T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            CurrentContent
+        { get; set; } = default;
 
         /// <summary>
         /// 最大容量
@@ -77,8 +87,15 @@ namespace CommonLib.Clients
         /// 压入新实体
         /// </summary>
         /// <param name="instance">待压入指令</param>
-        public void Push(T instance)
+        public void Push(T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            instance)
         {
+            if (instance == null)
+                return;
             Queue.Enqueue(instance);
             if (Queue.Count > MaxCapacity)
                 Queue.Dequeue();
@@ -107,7 +124,12 @@ namespace CommonLib.Clients
         /// 返回当前实体
         /// </summary>
         /// <returns></returns>
-        public T Current()
+        public T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Current()
         {
             return CurrentContent;
         }
@@ -116,7 +138,12 @@ namespace CommonLib.Clients
         /// 转到上一条实体并返回，假如已是末尾则无变化
         /// </summary>
         /// <returns></returns>
-        public T Previous()
+        public T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Previous()
         {
             Index++;
             return Current();
@@ -126,7 +153,12 @@ namespace CommonLib.Clients
         /// 转到下一条实体并返回，假如已在第一条实体则跳出队列
         /// </summary>
         /// <returns></returns>
-        public T Next()
+        public T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Next()
         {
             Index--;
             return Current();
@@ -136,7 +168,12 @@ namespace CommonLib.Clients
         /// 转到队列中最靠前（最晚加入的）实体并返回，假如已在第一条实体则跳出队列
         /// </summary>
         /// <returns></returns>
-        public T First()
+        public T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            First()
         {
             Index = 0;
             return Current();
@@ -146,7 +183,12 @@ namespace CommonLib.Clients
         /// 转到队列中最靠前（最早加入的）实体并返回，假如已在第一条实体则跳出队列
         /// </summary>
         /// <returns></returns>
-        public T Last()
+        public T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Last()
         {
             Index = Count - 1;
             return Current();
@@ -157,7 +199,12 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="index">Queue内部索引</param>
         /// <returns></returns>
-        public T ElementAt(int index)
+        public T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            ElementAt(int index)
         {
             return Queue == null ? default : Queue.ElementAtOrDefault(index);
         }

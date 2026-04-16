@@ -14,7 +14,11 @@ namespace CommonLib.Helpers
         /// <summary>
         /// 时间戳计算初始时间节点
         /// </summary>
-        public static DateTime TimeStampZero = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+#if NET45
+        public static readonly DateTime TimeStampZero = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+#elif NET9_0_OR_GREATER
+        public static readonly DateTime TimeStampZero = new(1970, 1, 1, 0, 0, 0, 0);
+#endif
 
         /// <summary>
         /// 获取当前UTC时间的时间戳（精度毫秒）
@@ -75,6 +79,20 @@ namespace CommonLib.Helpers
             milli = ulong.TryParse(timeStamp, out milli) ? milli : 0;
             return TimeStampZero.AddMilliseconds(milli);
         }
+
+#if NET9_0_OR_GREATER
+        /// <summary>
+        /// 根据时间戳（微秒）获取当前时间
+        /// </summary>
+        /// <param name="timeStamp"></param>
+        /// <returns></returns>
+        public static DateTime GetUtcTimeByTimeStampMicrosec(string timeStamp)
+        {
+            ulong milli;
+            milli = ulong.TryParse(timeStamp, out milli) ? milli : 0;
+            return TimeStampZero.AddMicroseconds(milli);
+        }
+#endif
 
         /// <summary>
         /// 根据时间戳（秒）获取当前时间

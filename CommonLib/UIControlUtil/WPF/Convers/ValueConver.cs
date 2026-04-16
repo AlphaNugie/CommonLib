@@ -11,9 +11,19 @@ using System.Windows.Media;
 
 namespace CommonLib.UIControlUtil.WPF.Convers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class IndentConverter : IValueConverter
     {
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             double colunwidth = 10;
@@ -30,6 +40,15 @@ namespace CommonLib.UIControlUtil.WPF.Convers
             return new Thickness(left, 0, 0, 0);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
@@ -37,8 +56,19 @@ namespace CommonLib.UIControlUtil.WPF.Convers
 
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class BoolToVisible : IValueConverter
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if ((bool)value)
@@ -47,14 +77,34 @@ namespace CommonLib.UIControlUtil.WPF.Convers
                 return Visibility.Collapsed;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class VisibleToReverse : IValueConverter
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if ((Visibility)value == Visibility.Visible)
@@ -63,15 +113,34 @@ namespace CommonLib.UIControlUtil.WPF.Convers
                 return Visibility.Visible;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
     }
 
-
+    /// <summary>
+    /// 
+    /// </summary>
     public class DateConvertToColor : IValueConverter
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object Convert(object values, Type targetType, object parameter, CultureInfo culture)
         {
             var calendarDayButton = (CalendarDayButton)values;
@@ -82,6 +151,15 @@ namespace CommonLib.UIControlUtil.WPF.Convers
                 return new SolidColorBrush(Color.FromArgb(255, 51, 51, 51));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

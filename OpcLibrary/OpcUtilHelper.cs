@@ -258,7 +258,7 @@ namespace OpcLibrary
                 UpdateServerInfo(); //刷新OPC服务信息
                 SetGroupsProperty(IsGroupsActive, GroupsDeadband); //设置组集合属性
                 CreateDefaultGroup(out message); //创建默认OPC组
-                //TODO 根据对象自身具有的OPC组信息List创建OPC组，假如连接前未在ListGroupInfo属性中设置OPC组信息，则在连接后用CreateGroups方法创建OPC组
+                //根据对象自身具有的OPC组信息List创建OPC组，假如连接前未在ListGroupInfo属性中设置OPC组信息，则在连接后用CreateGroups方法创建OPC组
                 CreateGroups(ListGroupInfo, out message);
                 //try { if (Thread_Reconn != null) Thread_Reconn.Abort(); }
                 //catch (Exception e) { }
@@ -409,7 +409,7 @@ namespace OpcLibrary
                     #region 新添加组方法
                     groupInfo.SetOpcGroup(OpcServer.OPCGroups, name); //重新添加OPC组
                     groupInfo.SetGroupProperty(GroupUpdateRate, IsGroupActive, IsGroupSubscribed);
-                    //TODO 假如OPC组信息中已设置OPC项信息，则根据这些OPC项信息添加OPC项，否则创建组之后调用SetItems方法
+                    //假如OPC组信息中已设置OPC项信息，则根据这些OPC项信息添加OPC项，否则创建组之后调用SetItems方法
                     groupInfo.SetItems(itemInfos, out message);
                     if (!ListGroupInfo.Contains(groupInfo))
                         ListGroupInfo.Add(groupInfo);

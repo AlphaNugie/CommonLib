@@ -1,0 +1,80 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\CommonLib\Helpers\DateTimeHelper.cs"> 
+      <!-- 指定文件在项目中的虚拟路径（可选） -->
+      <Link>Helpers\DateTimeHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonLib\Clients\CRC32.cs"> <Link>Clients\CRC32.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\CustomBitConverter.cs"> <Link>Clients\CustomBitConverter.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\ColorSmoother.cs"> <Link>Clients\ColorSmoother.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\CommandStorage.cs"> <Link>Clients\CommandStorage.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\CustomProcessInfo.cs"> <Link>Clients\CustomProcessInfo.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\DerivedHttpClient.cs"> <Link>Clients\DerivedHttpClient.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\DerivedHttpListener.cs"> <Link>Clients\DerivedHttpListener.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\DerivedTcpListener.cs"> <Link>Clients\DerivedTcpListener.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\DataFilerClient.cs"> <Link>Clients\DataFilerClient.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\DerivedUdpClient.cs"> <Link>Clients\DerivedUdpClient.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\GaussianCalculator.cs"> <Link>Clients\GaussianCalculator.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\GenericStorage.cs"> <Link>Clients\GenericStorage.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\GlitchFilter.cs"> <Link>Clients\GlitchFilter.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\KalmanFilter.cs"> <Link>Clients\KalmanFilter.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\Object\PlyDotObject.cs"> <Link>Clients\Object\PlyDotObject.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\Object\PlyFileClient.cs"> <Link>Clients\Object\PlyFileClient.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\SampleAnalyzer.cs"> <Link>Clients\SampleAnalyzer.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\ShortUuidGenerator.cs"> <Link>Clients\ShortUuidGenerator.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\Tasks\BlankTask.cs"> <Link>Clients\Tasks\BlankTask.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\Tasks\Task.cs"> <Link>Clients\Tasks\Task.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\ValueDiffStorage.cs"> <Link>Clients\ValueDiffStorage.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\EncryptionClient.cs"> <Link>Clients\EncryptionClient.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Helpers\FileSystemHelper.cs"> <Link>Helpers\FileSystemHelper.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\TimerEventRaiser.cs"> <Link>Clients\TimerEventRaiser.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Enums\DatabaseTypes.cs"> <Link>Enums\DatabaseTypes.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Enums\DbSqlType.cs"> <Link>Enums\DbSqlType.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Enums\Endianness.cs"> <Link>Enums\Endianness.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Enums\IntFlag.cs"> <Link>Enums\IntFlag.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Enums\ServiceState.cs"> <Link>Enums\ServiceState.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Enums\ShapeEnum.cs"> <Link>Enums\ShapeEnum.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Enums\ValueTrend.cs"> <Link>Enums\ValueTrend.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Enums\ConnType.cs"> <Link>Enums\ConnType.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Enums\HotKeys.cs"> <Link>Enums\HotKeys.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Enums\RoutineStatus.cs"> <Link>Enums\RoutineStatus.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Enums\WindowMessage.cs"> <Link>Enums\WindowMessage.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Events\NoneReceivedEventArgs.cs"> <Link>Events\NoneReceivedEventArgs.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Events\ServiceStateEventArgs.cs"> <Link>Events\ServiceStateEventArgs.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Events\ValueChangedEventArgs.cs"> <Link>Events\ValueChangedEventArgs.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Events\ValueTrendTickerEventArgs.cs"> <Link>Events\ValueTrendTickerEventArgs.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Events\DataReceivedEventArgs.cs"> <Link>Events\DataReceivedEventArgs.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Events\DataSendEventArgs.cs"> <Link>Events\DataSendEventArgs.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Events\EventHandlers.cs"> <Link>Events\EventHandlers.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Events\IdChangedEventArgs.cs"> <Link>Events\IdChangedEventArgs.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Events\RoutineStatusChangedEventArgs.cs"> <Link>Events\RoutineStatusChangedEventArgs.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Helpers\HexHelper.cs"> <Link>Helpers\HexHelper.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Extensions\EnumExtension.cs"> <Link>Extensions\EnumExtension.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Extensions\Property\PropertyMapperExtension.cs"> <Link>Extensions\Property\PropertyMapperExtension.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Extensions\Reflection\ReflectionExtension.cs"> <Link>Extensions\Reflection\ReflectionExtension.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Extensions\ExtensionClass.cs"> <Link>Extensions\ExtensionClass.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Extensions\MathExtension.cs"> <Link>Extensions\MathExtension.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\Converter.cs"> <Link>Function\Converter.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\RegexMatcher.cs"> <Link>Function\RegexMatcher.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WinForms\WindowUtil.cs"> <Link>UIControlUtil\WinForms\WindowUtil.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\ReflectionUtil.cs"> <Link>Function\ReflectionUtil.cs</Link> </Compile>
+    <!-- <Compile Include="..\CommonLib\"> <Link></Link> </Compile>
+    <Compile Include="..\CommonLib\"> <Link></Link> </Compile>
+    <Compile Include="..\CommonLib\"> <Link></Link> </Compile>
+    <Compile Include="..\CommonLib\"> <Link></Link> </Compile> -->
+    <!-- <Compile Include="..\CommonLib\"> <Link></Link> </Compile> -->
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\Debug\net9.0\" />
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug\net9.0 $(SolutionDir)CommonLib\compiled\&#xD;&#xA;xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug\net9.0 D:\DLL\" />
+  </Target>
+
+</Project>

@@ -89,7 +89,7 @@ namespace CommonLib.DataUtil
         /// <param name="primaryKey">是否主键</param>
         /// <param name="primaryKeyConflictClause">主键冲突的操作</param>
         /// <param name="autoIncrement">作为主键是否自增</param>
-        public SqliteColumnMapping(string columnName, SqliteSqlType sqlType, int? size = null, bool notNull = false, ConflictClause notNullConflictClause = ConflictClause.FAIL, double? defaultValue = null, bool unique = false, ConflictClause uniqueConflictClause = ConflictClause.FAIL, bool primaryKey = false, ConflictClause primaryKeyConflictClause = ConflictClause.FAIL, bool autoIncrement = false)
+        public SqliteColumnMapping(string columnName, SqliteSqlType sqlType, int? size = null, bool notNull = false, ConflictClause notNullConflictClause = ConflictClause.FAIL, object/*double?*/ defaultValue = null, bool unique = false, ConflictClause uniqueConflictClause = ConflictClause.FAIL, bool primaryKey = false, ConflictClause primaryKeyConflictClause = ConflictClause.FAIL, bool autoIncrement = false)
         {
             if (string.IsNullOrWhiteSpace(columnName))
                 throw new ArgumentNullException("字段名称不可为空", nameof(columnName));
@@ -168,9 +168,7 @@ namespace CommonLib.DataUtil
                 if (UniqueConflictClause != ConflictClause.NONE)
                     uniqueClause += string.Format("ON CONFLICT {0} ", UniqueConflictClause);
             }
-            //string notNullClause = NotNull && NotNullConflictClause != ConflictClause.NONE ? string.Format("NOT NULL ON CONFLICT {0} ", NotNullConflictClause) : string.Empty;
-            //string uniqueClause = Unique && UniqueConflictClause != ConflictClause.NONE ? string.Format("UNIQUE ON CONFLICT {0} ", UniqueConflictClause) : string.Empty;
-            //string defClause = DefaultValue != null ? string.Format("DEFAULT {0}", DefaultValue.Value) : string.Empty;
+            //假如是DATETIME类型，则DefaultValue值可设为(DATETIME ('now', 'localtime')))
             string defClause = DefaultValue != null ? string.Format(SqlType == SqliteSqlType.VARCHAR || SqlType == SqliteSqlType.VARCHAR2 ? "DEFAULT '{0}'" : "DEFAULT {0}", DefaultValue) : string.Empty;
             return string.Format("{0} {1} {2}{3}{4}{5}", columnName, sqlType, primaryKeyClause, notNullClause, uniqueClause, defClause);
         }

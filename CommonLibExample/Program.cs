@@ -3,7 +3,10 @@ using CommonLib.Clients.Tasks;
 using CommonLib.DataUtil;
 using CommonLib.Extensions;
 using CommonLib.Extensions.Property;
+using CommonLib.Extensions.Reflection;
 using CommonLib.Function;
+using CommonLib.Function.MathUtils;
+using CommonLib.Function.MathUtils.Spatial;
 using CommonLib.Helpers;
 using CommonLib.UIControlUtil;
 using CommonLib.UIControlUtil.ControlTemplates;
@@ -13,7 +16,7 @@ using CommonLibExample.PropertyMapper.Model;
 using CommonLibExample.SystemTask;
 using CommonLibExample.Tasks;
 using MathWorks.MATLAB.NET.Arrays;
-using MatlabFunctions;
+//using MatlabFunctions;
 using OpcLibrary.Core;
 using OpcLibrary.DataUtil;
 //using MatlabFunctionsNative;
@@ -5923,6 +5926,92 @@ namespace CommonLibExample
             ////PropertyMapperExample.CopyFromMethodTest();
             //return;
             #endregion
+
+            var diff2 = new ValueDiffStorage<string>();
+            diff2.CurrentValue = "";
+            diff2.SetValue("123");
+
+            var diff = new ValueDiffStorage<int>();
+            diff.ValueChangedEvent += new CommonLib.Events.ValueChangedEventHandler<int>(
+                (sender, e) =>
+                {
+                    Console.WriteLine(e);
+                });
+            diff.CurrentValue = 1;
+
+            //string testcrc = "01 03 04 0F 00 02 F5 38";
+            //bool valid = HexHelper.ValidateCommandCRC16(testcrc);
+            //return;
+
+            ////ValueDiffStorage<double> storage = new ValueDiffStorage<double> { ValueChangedThreshold = 5 };
+            ////ValueDiffStorage<double> storage = new ValueDiffStorage<double> { ValueChangedThreshold = -1 };
+            //ValueDiffStorage<byte> storage = new ValueDiffStorage<byte> { ValueChangedThreshold = 1 };
+            //storage.SetValue(0);
+            ////storage.SetValue(0.001);
+            //storage.SetValue(1);
+            //storage.SetValue(2);
+            //storage.SetValue(3);
+            //storage.SetValue(4);
+            //storage.SetValue(5);
+            ////storage.SetValue(5.1);
+
+            //ValueDiffStorage<double> storage = new ValueDiffStorage<double> { ValueChangedThreshold = 5 };
+            //for (int i = 0; i <= 100; i++)
+            //{
+            //    storage.SetValue((double)i / 5);
+            //}
+            //return;
+
+            //var s = typeof(LogClient).CreateDefValue();
+            //return;
+
+            //var points = new List<Point3D>() {
+            //    new Point3D(-3, -3, -3),
+            //    new Point3D(5, 6, 2),
+            //    new Point3D(-1, -2, -5),
+            //    new Point3D(99, 5, 2),
+            //    new Point3D(3, 4, -9),
+            //    new Point3D(-3, 5, -3),
+            //    new Point3D(5, -6, 12),
+            //    new Point3D(99, 5, 322),
+            //    new Point3D(3, 4, 29),
+            //    new Point3D(-1, 112, 15),
+            //    new Point3D(99, 5, 22),
+            //    new Point3D(-3, 5, -333),
+            //};
+            //SpaceGrid grid = new SpaceGrid(points);
+            //var list = grid.GetAllAveragePoints(true);
+            //return;
+
+            //var list = new List<SpaceIndex>() {
+            //    new SpaceIndex(-3, -3, -3),
+            //    new SpaceIndex(5, 6, 2),
+            //    new SpaceIndex(-1, -2, -5),
+            //    new SpaceIndex(99, 5, 2),
+            //    new SpaceIndex(3, 4, -9),
+            //    new SpaceIndex(-3, 5, -3),
+            //    new SpaceIndex(5, -6, 12),
+            //    new SpaceIndex(99, 5, 322),
+            //    new SpaceIndex(3, 4, 29),
+            //    new SpaceIndex(-1, 112, 15),
+            //    new SpaceIndex(99, 5, 22),
+            //    new SpaceIndex(-3, 5, -333),
+            //};
+            //list.Sort();
+            //return;
+
+            //string chn = new int[] { -35, 35, -35, 79, 69, 84 }.NumberArrayToChn_8bit();
+            //chn = "法提赫";
+            //byte[] bytes = Encoding.GetEncoding("GB2312").GetBytes(chn);
+            //string bytesstr = string.Join(", ", bytes);
+            //return;
+
+            ////转换unicode编码字符串
+            //string unicodeString = @"\u91d1\u8272\u5730\u5e73\u7ebf";
+            //unicodeString = @"\u5174\u9686";
+            //unicodeString = @"\u53cc\u5b50\u5ea7\u32";
+            //string output = unicodeString.GetUnicodeEncodedString();
+            //return;
 
             //var list = MathUtil.GetNumberPairsByString("doesn't make any sense", ';');
             //double input = 5;

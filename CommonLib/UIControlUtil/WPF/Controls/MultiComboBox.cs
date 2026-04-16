@@ -8,6 +8,9 @@ using System.Windows.Controls;
 
 namespace CommonLib.UIControlUtil.WPF.Controls
 {
+    /// <summary>
+    /// 多选ComboBox
+    /// </summary>
     public class MultiComboBox : ComboBox
     {
         static MultiComboBox()
@@ -32,6 +35,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             set { SetValue(ChekedItemsProperty, value); }
         }
 
+        /// <summary>
+        /// 选中项列表依赖属性
+        /// </summary>
         public static readonly DependencyProperty ChekedItemsProperty =
             DependencyProperty.Register("ChekedItems", typeof(ObservableCollection<MultiCbxBaseData>), typeof(MultiComboBox), new PropertyMetadata(new ObservableCollection<MultiCbxBaseData>(), OnPropertyChanged));
 
@@ -47,14 +53,17 @@ namespace CommonLib.UIControlUtil.WPF.Controls
         /// </summary>
         private ListBox _ListBoxH;
 
+        /// <summary>
+        /// 重写OnApplyTemplate方法
+        /// </summary>
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
             _ListBoxV = Template.FindName("PART_ListBox", this) as ListBox;
             _ListBoxH = Template.FindName("PART_ListBoxChk", this) as ListBox;
             _ListBoxH.ItemsSource = ChekedItems;
-            _ListBoxV.SelectionChanged += _ListBoxV_SelectionChanged;
-            _ListBoxH.SelectionChanged += _ListBoxH_SelectionChanged;
+            _ListBoxV.SelectionChanged += ListBoxV_SelectionChanged;
+            _ListBoxH.SelectionChanged += ListBoxH_SelectionChanged;
 
             if (ItemsSource != null)
             {
@@ -69,7 +78,7 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             }
         }
 
-        private void _ListBoxH_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ListBoxH_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             foreach (var item in e.RemovedItems)
             {
@@ -86,7 +95,7 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             }
         }
 
-        void _ListBoxV_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        void ListBoxV_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             foreach (var item in e.AddedItems)
             {
@@ -106,6 +115,9 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             }
         }
 
+        /// <summary>
+        /// 多选ComboBox数据基类
+        /// </summary>
         public class MultiCbxBaseData
         {
             private int _id;

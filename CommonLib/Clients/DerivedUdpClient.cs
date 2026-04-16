@@ -8,10 +8,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using CommonLib.Events;
 using CommonLib.Extensions;
+#if NET45
 using CommonLib.Function;
+#elif NET9_0_OR_GREATER
+using CommonLib.Helpers;
+#endif
 
 namespace CommonLib.Clients
 {
@@ -24,27 +27,52 @@ namespace CommonLib.Clients
         /// <summary>
         /// UDP连接事件
         /// </summary>
-        public event ConnectedEventHandler Connected;
+        public event ConnectedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Connected;
 
         /// <summary>
         /// UDP断开事件
         /// </summary>
-        public event DisconnectedEventHandler Disconnected;
+        public event DisconnectedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Disconnected;
 
         /// <summary>
         /// UDP重连成功次数改变事件
         /// </summary>
-        public event ReconnTimerChangedEventHandler ReconnTimerChanged;
+        public event ReconnTimerChangedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            ReconnTimerChanged;
 
         /// <summary>
         /// 数据接收事件
         /// </summary>
-        public event Events.DataReceivedEventHandler DataReceived;
+        public event Events.DataReceivedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            DataReceived;
 
         /// <summary>
         /// 持续一段时间未接收到任何数据的事件
         /// </summary>
-        public event NoneReceivedEventHandler OnNoneReceived;
+        public event NoneReceivedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            OnNoneReceived;
         #endregion
 
         #region 私有成员变量
@@ -54,19 +82,29 @@ namespace CommonLib.Clients
         //private bool logging = false;
         private bool autoReceive = true;
         //private IPEndPoint remote_endpoint, local_endpoint;
+#if NET45
         private readonly TimerEventRaiser raiser = new TimerEventRaiser(1000);
+#elif NET9_0_OR_GREATER
+        private readonly TimerEventRaiser raiser = new(1000);
+#endif
         #endregion
 
         #region 成员属性
         /// <summary>
         /// UdpClient对象
         /// </summary>
-        public UdpClient BaseClient { get; private set; } = null;
+        public UdpClient
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            BaseClient
+        { get; private set; }
 
         /// <summary>
         /// 与之建立UDP连接的主机IP地址
         /// </summary>
-        public string ServerIp { get; set; }
+        public string ServerIp { get; set; } = "127.0.0.1";
 
         /// <summary>
         /// 建立UDP连接的端口
@@ -76,11 +114,13 @@ namespace CommonLib.Clients
         /// <summary>
         /// 远程IP终结点，未连接则为空
         /// </summary>
-        public IPEndPoint RemoteEndPoint { get; set; }
-        //{
-        //    get { return remote_endpoint; }
-        //    set { remote_endpoint = value; }
-        //}
+        public IPEndPoint
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            RemoteEndPoint
+        { get; set; }
 
         /// <summary>
         /// 指定的本地IP
@@ -95,11 +135,13 @@ namespace CommonLib.Clients
         /// <summary>
         /// 本地IP终结点，未初始化则为空
         /// </summary>
-        public IPEndPoint LocalEndPoint { get; set; }
-        //{
-        //    get { return local_endpoint; }
-        //    set { local_endpoint = value; }
-        //}
+        public IPEndPoint
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            LocalEndPoint
+        { get; set; }
 
         /// <summary>
         /// 重新连接时是否保持同一个端口
@@ -185,12 +227,18 @@ namespace CommonLib.Clients
         /// <summary>
         /// 监听UDP服务端，并在连接断开后试着重新连接
         /// </summary>
-        private Thread Thread_Reconnect { get; set; }
+        private Thread
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Thread_Reconnect
+        { get; set; }
 
         /// <summary>
         /// 控制UDP重连线程的AutoResetEvent，初始状态为非终止
         /// </summary>
-        private AutoResetEvent Auto_UdpReconnect { get; set; }
+        private AutoResetEvent Auto_UdpReconnect { get; set; } = new AutoResetEvent(true);
         #endregion
 
         /// <summary>
@@ -198,7 +246,7 @@ namespace CommonLib.Clients
         /// </summary>
         public void SetName()
         {
-            //try { Name = BaseClient.Client.GetName(out remote_endpoint, out local_endpoint); }
+            if (BaseClient == null) return;
             try { Name = BaseClient.Client.GetName(); }
             catch (Exception) { Name = string.Empty; }
         }
@@ -211,7 +259,7 @@ namespace CommonLib.Clients
         /// <param name="local_port">本地端口号</param>
         /// <param name="auto_receive">是否自动接收</param>
         /// <param name="hold_port">重新连接时是否维持相同本地端口</param>
-        public DerivedUdpClient(string local_ip, int local_port, bool auto_receive, bool hold_port)
+        public DerivedUdpClient(string local_ip = "", int local_port = 0, bool auto_receive = true, bool hold_port = true)
         {
             LocalIp = local_ip;
             LocalPort = local_port;
@@ -235,7 +283,7 @@ namespace CommonLib.Clients
             SetName();
             try
             {
-                if (AutoReceive)
+                if (AutoReceive && BaseClient!= null)
                     BaseClient.BeginReceive(new AsyncCallback(ReceiveCallBack), this);
             }
             catch (Exception) { }
@@ -249,30 +297,31 @@ namespace CommonLib.Clients
             raiser.Stop();
         }
 
-        /// <summary>
-        /// 构造器，以指定本地IP和端口号初始化一个未连接DerivedTcpClient对象，本地端口固定，默认接收数据
-        /// </summary>
-        /// <param name="local_ip">本地IP</param>
-        /// <param name="local_port">本地端口号</param>
-        public DerivedUdpClient(string local_ip, int local_port) : this(local_ip, local_port, true, true) { }
+        ///// <summary>
+        ///// 构造器，以指定本地IP和端口号初始化一个未连接DerivedTcpClient对象，本地端口固定，默认接收数据
+        ///// </summary>
+        ///// <param name="local_ip">本地IP</param>
+        ///// <param name="local_port">本地端口号</param>
+        //public DerivedUdpClient(string local_ip, int local_port) : this(local_ip, local_port, true, true) { }
 
         /// <summary>
         /// 构造器，初始化一个未连接DerivedTcpClient对象，决定本地端口和是否接收数据
         /// </summary>
         /// <param name="autoReceive">是否自动接收</param>
         /// <param name="holdPort">重新连接时是否维持相同本地端口</param>
-        public DerivedUdpClient(bool autoReceive, bool holdPort) : this(null, 0, autoReceive, holdPort) { }
+        //public DerivedUdpClient(bool autoReceive, bool holdPort = true) : this(null, 0, autoReceive, holdPort) { }
+        public DerivedUdpClient(bool autoReceive, bool holdPort = true) : this("", 0, autoReceive, holdPort) { }
 
-        /// <summary>
-        /// 构造器，初始化一个未连接DerivedTcpClient对象，不维持本地端口
-        /// </summary>
-        /// <param name="autoReceive">是否自动接收</param>
-        public DerivedUdpClient(bool autoReceive) : this(autoReceive, false) { }
+        ///// <summary>
+        ///// 构造器，初始化一个未连接DerivedTcpClient对象，不维持本地端口
+        ///// </summary>
+        ///// <param name="autoReceive">是否自动接收</param>
+        //public DerivedUdpClient(bool autoReceive) : this(autoReceive, false) { }
 
-        /// <summary>
-        /// 默认构造器，初始化一个未连接DerivedTcpClient对象，不维持本地端口
-        /// </summary>
-        public DerivedUdpClient() : this(true, false) { }
+        ///// <summary>
+        ///// 默认构造器，初始化一个未连接DerivedTcpClient对象，不维持本地端口
+        ///// </summary>
+        //public DerivedUdpClient() : this(true, false) { }
         #endregion
 
         /// <summary>
@@ -339,6 +388,8 @@ namespace CommonLib.Clients
                 if (BaseClient == null)
                     //BaseClient = !string.IsNullOrWhiteSpace(LocalIp) && LocalPort > 0 ? new UdpClient(new IPEndPoint(IPAddress.Parse(LocalIp), LocalPort)) : new UdpClient();
                     InitBaseClient();
+                if (BaseClient == null)
+                    throw new NullReferenceException("UdpClient对象为空");
                 BaseClient.Connect(ServerIp, ServerPort);
                 RemoteEndPoint = !string.IsNullOrWhiteSpace(ServerIp) && ServerPort > 0 ? new IPEndPoint(IPAddress.Parse(ServerIp), ServerPort) : null;
                 SetName(); //修改连接名称
@@ -353,7 +404,7 @@ namespace CommonLib.Clients
             catch (Exception e)
             {
                 LastErrorMessage = string.Format("无法建立UDP连接，IP{0}，端口号{1}：{2}", ServerIp, ServerPort, e.Message);
-                FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
+                //FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
                 Close();
                 result = 0;
                 //throw; //假如不需要抛出异常，注释此行
@@ -367,7 +418,7 @@ namespace CommonLib.Clients
                 Connected?.BeginInvoke(Name, (new EventArgs()), null, null);
                 if (Thread_Reconnect == null)
                 {
-                    Auto_UdpReconnect = new AutoResetEvent(true);
+                    //Auto_UdpReconnect = new AutoResetEvent(true);
                     Thread_Reconnect = new Thread(new ThreadStart(TcpAutoReconnect)) { IsBackground = true };
                     //Thread_TcpReconnect.IsBackground = true;
                     Thread_Reconnect.Start();
@@ -375,7 +426,12 @@ namespace CommonLib.Clients
                 else
                     Auto_UdpReconnect.Set();
                 //if (AutoReceive)
-                try { BaseClient.BeginReceive(new AsyncCallback(ReceiveCallBack), this); }
+                try
+                {
+                    if (BaseClient == null)
+                        throw new NullReferenceException("UdpClient对象为空");
+                    BaseClient.BeginReceive(new AsyncCallback(ReceiveCallBack), this);
+                }
                 catch (Exception) { }
             }
             return result;
@@ -399,11 +455,14 @@ namespace CommonLib.Clients
                 {
                     string temp = string.Format("UDP主机地址：{0}，端口号：{1}", ServerIp, ServerPort); //UDP连接的主机地址与端口
                     LastErrorMessage = "UDP连接意外断开，正在尝试重连。" + temp;
-                    FileClient.WriteFailureInfo(LastErrorMessage);
+                    //FileClient.WriteFailureInfo(LastErrorMessage);
                     try
                     {
+                        if (BaseClient == null)
+                            throw new NullReferenceException("UdpClient对象为空");
                         BaseClient.Close();
-                        BaseClient = HoldLocalPort ? new UdpClient(LocalEndPoint) : new UdpClient();
+                        //BaseClient = HoldLocalPort ? new UdpClient(LocalEndPoint) : new UdpClient();
+                        BaseClient = HoldLocalPort && LocalEndPoint != null ? new UdpClient(LocalEndPoint) : new UdpClient();
                         BaseClient.Connect(ServerIp, ServerPort);
                         SetName();
 
@@ -417,15 +476,14 @@ namespace CommonLib.Clients
                             BaseClient.BeginReceive(new AsyncCallback(ReceiveCallBack), this);
                         //NetStream.BeginRead(Buffer, 0, Buffer.Length, new AsyncCallback(TcpCallBack), this);
                         //IsSocketConnected();
-                        FileClient.WriteFailureInfo("UDP重新连接成功。" + temp);
+                        //FileClient.WriteFailureInfo("UDP重新连接成功。" + temp);
                     }
                     //假如出现异常，将错误信息写入日志并进入下一次循环
                     catch (Exception e)
                     {
                         LastErrorMessage = string.Format("UDP重新连接失败：{0}。", e.Message) + temp;
-                        FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
+                        //FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
                         continue;
-                        //TODO: 是否抛出异常？
                         //throw; //假如不需要抛出异常，注释此句
                     }
                 }
@@ -461,7 +519,8 @@ namespace CommonLib.Clients
                     //NetStream.Dispose();
                     BaseClient.Close();
                     IsStartListening = false;
-                    ServerIp = null;
+                    //ServerIp = null;
+                    ServerIp = "127.0.0.1";
                     ServerPort = 0;
                     IsConnected = false;
                     //IsConnected_Socket = false;
@@ -475,7 +534,7 @@ namespace CommonLib.Clients
             catch (Exception e)
             {
                 LastErrorMessage = string.Format("关闭UDP连接{0}失败：{1}", Name, e.Message);
-                FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
+                //FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
                 result = 0;
                 throw; //假如不需要抛出异常，注释此行
             }
@@ -506,16 +565,22 @@ namespace CommonLib.Clients
         /// <param name="ar"></param>
         private void ReceiveCallBack(IAsyncResult ar)
         {
+            if (ar.AsyncState == null)
+                throw new InvalidOperationException("AsyncState is null.");
             DerivedUdpClient client = (DerivedUdpClient)ar.AsyncState;
 
             try
             {
                 if (BaseClient == null)
                     return;
-                //byte[] recdata = BaseClient.EndReceive(ar, ref remote_endpoint);
-                IPEndPoint point = null;
+
+                IPEndPoint
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            point = null;
                 byte[] recdata = BaseClient.EndReceive(ar, ref point);
-                //RemoteEndPoint = point;
 
                 if (recdata.Length > 0)
                 {
@@ -527,9 +592,9 @@ namespace CommonLib.Clients
                         BaseClient.BeginReceive(new AsyncCallback(ReceiveCallBack), client);
                 }
             }
-            catch (Exception ex)
+            catch (Exception/* ex*/)
             {
-                FileClient.WriteExceptionInfo(ex, string.Format("从TcpServer获取数据的过程中出错：IP地址{0}，端口{1}", ServerIp, ServerPort), true);
+                //FileClient.WriteExceptionInfo(ex, string.Format("从TcpServer获取数据的过程中出错：IP地址{0}，端口{1}", ServerIp, ServerPort), true);
             }
         }
 
@@ -545,10 +610,18 @@ namespace CommonLib.Clients
                 return;
             try
             {
-                //byte[] data = BaseClient.Receive(ref remote_endpoint);
-                IPEndPoint point = null;
+                IPEndPoint
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            point = null;
                 byte[] data = BaseClient.Receive(ref point);
+#if NET45
                 Events.DataReceivedEventArgs args = new Events.DataReceivedEventArgs(data);
+#elif NET9_0_OR_GREATER
+                Events.DataReceivedEventArgs args = new(data);
+#endif
                 asc = args.ReceivedInfo_String;
                 hex = args.ReceivedInfo_HexString;
             }
@@ -562,7 +635,11 @@ namespace CommonLib.Clients
         {
             if (Thread_Reconnect != null)
             {
+#if NET45
                 Thread_Reconnect.Abort();
+#elif NET9_0_OR_GREATER
+                Thread_Reconnect.Join();
+#endif
                 Thread_Reconnect = null;
             }
             Auto_UdpReconnect?.Dispose();
@@ -602,7 +679,12 @@ namespace CommonLib.Clients
         /// <param name="endPoint">远程IP终结点</param>
         /// <param name="errorMessage">返回的错误信息，假如未报错则为空</param>
         /// <returns>返回发送结果</returns>
-        public bool SendData(object data_origin, IPEndPoint endPoint, out string errorMessage)
+        public bool SendData(object data_origin, IPEndPoint
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            endPoint, out string errorMessage)
         {
             errorMessage = string.Empty;
             //if (!IsConnected || !IsSocketConnected())
@@ -621,14 +703,19 @@ namespace CommonLib.Clients
             else
             {
                 errorMessage = string.Format("数据格式不正确（{0}），无法向UDP服务端{1}发送数据", typeName, Name);
-                FileClient.WriteFailureInfo(errorMessage);
+                //FileClient.WriteFailureInfo(errorMessage);
                 return false;
             }
-            try { BaseClient.Send(data, data.Length, endPoint); }
+            try
+            {
+                if (BaseClient == null)
+                    throw new NullReferenceException("UdpClient对象为空");
+                BaseClient.Send(data, data.Length, endPoint);
+            }
             catch (Exception ex)
             {
                 errorMessage = string.Format("向UDP服务端{0}发送数据失败 {1}", Name, ex.Message);
-                FileClient.WriteExceptionInfo(ex, errorMessage, false);
+                //FileClient.WriteExceptionInfo(ex, errorMessage, false);
                 return false;
             }
             return true;
@@ -662,22 +749,25 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="content">字符串</param>
         /// <param name="endPoint">远程IP终结点</param>
-        public void SendString(string content, IPEndPoint endPoint)
+        public void SendString(string content, IPEndPoint
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            endPoint)
         {
-            ////假如未连接，退出方法
-            //if (/*!IsConnected || */!IsSocketConnected() || string.IsNullOrEmpty(content))
-            //    return;
-
             try
             {
                 //转换为byte类型数组并发送指令
                 byte[] bytes = Encoding.ASCII.GetBytes(content);//将字符串转换为byte数组
+                if (BaseClient == null)
+                    throw new NullReferenceException("UdpClient对象为空");
                 BaseClient.Send(bytes, bytes.Length, endPoint);
             }
             catch (Exception e)
             {
                 LastErrorMessage = "字符串发送失败：" + e.Message;
-                FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
+                //FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
                 throw; //如果不需要抛出异常，注释此行
             }
         }

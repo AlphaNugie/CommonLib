@@ -1,5 +1,9 @@
 ﻿using CommonLib.Enums;
+#if NET45
 using CommonLib.Function;
+#elif NET9_0_OR_GREATER
+using CommonLib.Clients;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,17 +21,29 @@ namespace CommonLib.Clients.Tasks
     /// </summary>
     public abstract class Task : IDisposable
     {
-        private readonly AutoResetEvent _auto = new AutoResetEvent(false);
+        private const int SOLID_TIMEOUT = 30000; //固定的失去响应超时时间（毫秒），与任务循环执行间隔（毫秒）的固定倍数比较，较大者作为最后的超时时间
         private bool _ended = false;
         private bool _paused = true;
-        private List<string> _taskLogsBuffer = new List<string>(); //日志存放缓冲区，每次循环可以直接向里添加（Add）而不必清除（Clear）
+        /// <summary>
+        /// 错误消息
+        /// </summary>
         protected string _errorMessage = string.Empty;
+
+#if NET45
+        private readonly AutoResetEvent _auto = new AutoResetEvent(false);
+        private List<string> _taskLogsBuffer = new List<string>(); //日志存放缓冲区，每次循环可以直接向里添加（Add）而不必清除（Clear）
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private readonly ValueDiffStorage<bool> _valDiffRstrtWhlFrzn = new ValueDiffStorage<bool>();
-        //超时事件的重复触发时间间隔设为较大数值，否则多于1次执行重启方法会报错（StateChangedAfterRestart多于1次订阅）
-        //private readonly TimerEventRaiser _eventRaiser = new TimerEventRaiser(1000) { RaiseInterval = _solidTimeout * 3 };
         private readonly TimerEventRaiser _eventRaiser = new TimerEventRaiser(1000) { RaiseInterval = uint.MaxValue };
-        private const int _solidTimeout = 30000; //固定的失去响应超时时间（毫秒），与任务循环执行间隔（毫秒）的固定倍数比较，较大者作为最后的超时时间
+#elif NET9_0_OR_GREATER
+        private readonly AutoResetEvent _auto = new(false);
+        private List<string> _taskLogsBuffer = []; //日志存放缓冲区，每次循环可以直接向里添加（Add）而不必清除（Clear）
+        private readonly Stopwatch _stopwatch = new();
+        private readonly ValueDiffStorage<bool> _valDiffRstrtWhlFrzn = new();
+        private readonly TimerEventRaiser _eventRaiser = new(1000) { RaiseInterval = uint.MaxValue };
+        ////向Loop方法提供停止Token的信号源
+        //private CancellationTokenSource? _cancellationTokenSource;
+#endif
 
         #region 事件
         /// <summary>
@@ -47,24 +63,46 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 任务每经过一次循环就触发一次的事件
         /// </summary>
-        public event TaskContentLoopedEventHandler ContentLooped;
+        public event
+            TaskContentLoopedEventHandler
+            //.net 9框架下使事件可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            ContentLooped;
 
         /// <summary>
         /// 任务状态改变后触发的事件（例如已启动或已停止）
         /// </summary>
-        public event TaskStateChangedEventHandler StateChanged;
+        public event
+            TaskStateChangedEventHandler
+            //.net 9框架下使事件可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            StateChanged;
 
         /// <summary>
         /// 任务状态改变后触发的事件（例如已启动或已停止）（仅用于重启任务）
         /// </summary>
-        private event TaskStateChangedEventHandler StateChangedAfterRestart;
-        #endregion
+        private event
+            TaskStateChangedEventHandler
+            //.net 9框架下使事件可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            StateChangedAfterRestart;
+#endregion
 
         #region 属性
         /// <summary>
         /// 任务循环线程
         /// </summary>
+#if NET45
         protected Thread ThreadLoop { get; private set; }
+#elif NET9_0_OR_GREATER
+        protected Thread? ThreadLoop { get; private set; }
+#endif
 
         /// <summary>
         /// 任务的当前状态
@@ -83,7 +121,11 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 任务日志
         /// </summary>
-        protected List<string> TaskLogs { get; private set; }
+#if NET45
+        protected List<string> TaskLogs { get; private set; } = new List<string>();
+#elif NET9_0_OR_GREATER
+        protected List<string> TaskLogs { get; private set; } = [];
+#endif
 
         /// <summary>
         /// 是否打印任务日志
@@ -100,7 +142,7 @@ namespace CommonLib.Clients.Tasks
             set
             {
                 _interval = value;
-                _eventRaiser.RaiseThreshold = (ulong)Math.Max(_interval * 2.5, _solidTimeout);
+                _eventRaiser.RaiseThreshold = (ulong)Math.Max(_interval * 2.5, SOLID_TIMEOUT);
             }
         }
 
@@ -198,8 +240,16 @@ namespace CommonLib.Clients.Tasks
             RestartWhileFrozen = restartWhileFrozen;
             AllowPrintTaskLog = true;
             Pause();
-            //Init();
+
             ThreadLoop = new Thread(new ThreadStart(Loop)) { IsBackground = true };
+//#if NET45
+//            ThreadLoop = new Thread(new ThreadStart(Loop)) { IsBackground = true };
+//#elif NET9_0_OR_GREATER
+//            _cancellationTokenSource = new CancellationTokenSource();
+//            var token = _cancellationTokenSource.Token;
+//            ThreadLoop = new Thread(() => Loop(token)) { IsBackground = true };
+//#endif
+
             ThreadLoop.Start();
         }
 
@@ -227,6 +277,10 @@ namespace CommonLib.Clients.Tasks
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// 释放资源
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing)
@@ -234,8 +288,14 @@ namespace CommonLib.Clients.Tasks
             //此时循环应当是结束了，以防万一终止一下线程
             if (ThreadLoop != null)
             {
+#if NET45
                 ThreadLoop.Abort();
                 ThreadLoop = null;
+#elif NET9_0_OR_GREATER
+                //等待线程停止
+                ThreadLoop.Join();
+                ThreadLoop = null;
+#endif
             }
             //释放WaitHandle的资源
             _auto.Close();
@@ -282,6 +342,9 @@ namespace CommonLib.Clients.Tasks
                 _auto.Set();
         }
 
+        /// <summary>
+        /// 仅运行一次，然后停止
+        /// </summary>
         public void RunOnceNStop()
         {
             RunOnlyOnce = true;
@@ -316,7 +379,12 @@ namespace CommonLib.Clients.Tasks
             //强制终止一下线程
             if (ThreadLoop != null)
             {
+#if NET45
                 ThreadLoop.Abort();
+#elif NET9_0_OR_GREATER
+                //等待线程停止，.net 5和.net Core 不能强制线程停止
+                ThreadLoop.Join();
+#endif
                 ThreadLoop = null;
             }
             TriggerEventsAfterBeingStopped(restarting);
@@ -430,13 +498,22 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 循环体
         /// </summary>
-        //public void Loop()
         private void Loop()
+//#if NET45
+//        private void Loop()
+//#elif NET9_0_OR_GREATER
+//        private void Loop(CancellationToken token)
+//#endif
         {
             ////结束条件：结束标志为true，或任务只运行1次且已经运行1次
             //while (!(_ended || (RunOnlyOnce && LoopCounter++ > 0)))
             //结束条件：结束标志为true，或任务已经运行1次且只需运行1次（LoopCounter自增在前，防止表达式断路后计数器不自增）
             while (!(_ended || (LoopCounter++ > 0 && RunOnlyOnce)))
+//#if NET45
+//            while (!(_ended || (LoopCounter++ > 0 && RunOnlyOnce)))
+//#elif NET9_0_OR_GREATER
+//                while (!(token.IsCancellationRequested || (LoopCounter++ > 0 && RunOnlyOnce)))
+//#endif
             {
                 Thread.Sleep(Interval);
                 //_eventRaiser.Click();
@@ -455,7 +532,12 @@ namespace CommonLib.Clients.Tasks
                     TriggerStateChangedEvent(ServiceState.Started);
                 //清空日志缓冲区
                 if (_taskLogsBuffer == null)
-                    _taskLogsBuffer = new List<string>();
+                    _taskLogsBuffer =
+#if NET45
+                        new List<string>();
+#elif NET9_0_OR_GREATER
+                        [];
+#endif
                 else
                     _taskLogsBuffer.Clear();
                 //执行循环并捕捉异常
@@ -509,7 +591,7 @@ namespace CommonLib.Clients.Tasks
         /// <param name="trim">是否过滤空字符串与前后空格</param>
         public void AddLogs(IEnumerable<string> logs, bool trim)
         {
-            if (logs == null || logs.Count() == 0)
+            if (logs == null || !logs.Any())
                 return;
 
             _taskLogsBuffer.AddRange(!trim ? logs : logs.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim())); //去除空字符串、前后空格
@@ -520,7 +602,12 @@ namespace CommonLib.Clients.Tasks
         /// </summary>
         public void FlushLogs()
         {
-            TaskLogs = _taskLogsBuffer.ToList();
+            TaskLogs = 
+#if NET45
+            _taskLogsBuffer.ToList();
+#elif NET9_0_OR_GREATER
+            [.. _taskLogsBuffer];
+#endif
         }
 
         /// <summary>
@@ -543,7 +630,12 @@ namespace CommonLib.Clients.Tasks
         /// <returns>以字符串数字形式返回，假如没有日志将返回空数组</returns>
         public string[] GetTaskLogs()
         {
-            return TaskLogs == null || TaskLogs.Count == 0 ? new string[0] : TaskLogs.ToArray();
+            return TaskLogs == null || TaskLogs.Count == 0 ?
+#if NET45
+                new string[0] : TaskLogs.ToArray();
+#elif NET9_0_OR_GREATER
+                [] : [.. TaskLogs];
+#endif
         }
 
         /// <summary>
@@ -560,6 +652,8 @@ namespace CommonLib.Clients.Tasks
         #endregion
     }
 
+    #region .net framework 4.5 版本
+#if NET45
     /// <summary>
     /// 任务每次循环触发事件的事件参数类
     /// </summary>
@@ -631,4 +725,69 @@ namespace CommonLib.Clients.Tasks
         /// <param name="state">任务状态（已启动或已停止）</param>
         public TaskStateChangedEventArgs(ServiceState state) : this(0, state, 0) { }
     }
+#endif
+    #endregion
+
+    #region .net 9 版本
+#if NET9_0_OR_GREATER
+    /// <summary>
+    /// 任务每次循环触发事件的事件参数类
+    /// </summary>
+    /// <remarks>
+    /// 构造器
+    /// </remarks>
+    /// <param name="counter">任务循环次数</param>
+    /// <param name="errorMessage">错误信息</param>
+    public class TaskContentLoopedEventArgs(ulong counter, string errorMessage) : EventArgs
+    {
+        /// <summary>
+        /// 任务循环次数
+        /// </summary>
+        public ulong LoopCounter { get; set; } = counter;
+
+        /// <summary>
+        /// 错误信息
+        /// </summary>
+        public string ErrorMessage { get; set; } = errorMessage;
+
+        /// <summary>
+        /// 默认构造器
+        /// </summary>
+        public TaskContentLoopedEventArgs() : this(0, string.Empty) { }
+    }
+
+    /// <summary>
+    /// 任务状态改变事件（已启动或已停止）的事件参数类
+    /// </summary>
+    /// <remarks>
+    /// 构造器
+    /// </remarks>
+    /// <param name="counter">任务循环次数</param>
+    /// <param name="state">任务状态（已启动或已停止）</param>
+    /// <param name="reCounter">任务重启次数</param>
+    public class TaskStateChangedEventArgs(ulong counter, ServiceState state, ulong reCounter) : EventArgs
+    {
+        /// <summary>
+        /// 任务循环次数
+        /// </summary>
+        public ulong LoopCounter { get; set; } = counter;
+
+        /// <summary>
+        /// 任务状态（已启动或已停止）
+        /// </summary>
+        public ServiceState State { get; set; } = state;
+
+        /// <summary>
+        /// 任务重启次数
+        /// </summary>
+        public ulong RestartCounter { get; set; } = reCounter;
+
+        /// <summary>
+        /// 构造器
+        /// </summary>
+        /// <param name="state">任务状态（已启动或已停止）</param>
+        public TaskStateChangedEventArgs(ServiceState state) : this(0, state, 0) { }
+    }
+#endif
+    #endregion
 }

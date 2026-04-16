@@ -111,7 +111,13 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenu_Hide;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenu_NotifyExit;
+        /// <summary>
+        /// 通知区域图标组件对象
+        /// </summary>
         protected System.Windows.Forms.NotifyIcon notifyIcon_Main;
+        /// <summary>
+        /// 快捷菜单组件对象
+        /// </summary>
         protected System.Windows.Forms.ContextMenuStrip contextMenuStrip_Main;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenu_Restart;
     }

@@ -130,19 +130,60 @@ namespace CommonLib.Helpers
         }
         #endregion
 
+        /// <summary>
+        /// 在资源管理器中打开指定的文件
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="ignoreIfNotExist">假如文件不存在，是否忽略并直接显示所在路径</param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="FileNotFoundException"></exception>
+        public static void OpenInExplorer(string filePath, bool ignoreIfNotExist = true)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                throw new ArgumentException("给定的文件名称为空引用、空字符串或空白字符串", nameof(filePath));
+            var fileInfo = new FileInfo(filePath);
+            //假如文件存在，直接在资源管理器中打开并选中
+            if (fileInfo.Exists)
+                Process.Start("Explorer.exe", "/select," + filePath);
+            //假如不存在则进行一些额外判断
+            else
+            {
+                //假如不忽略文件不存在的问题，则抛出异常
+                if (!ignoreIfNotExist)
+                    throw new FileNotFoundException("给定的文件不存在", filePath);
+                //假如文件所在的目录存在则在资源管理器中打开，否则抛出异常
+                var dir = fileInfo.DirectoryName;
+                if (!Directory.Exists(dir))
+                    throw new DirectoryNotFoundException($"给定的路径{dir}不存在");
+                Process.Start("Explorer.exe", dir);
+            }
+        }
+
         #region 文件名操作
         /// <summary>
         /// 检查给定的路径（或给定的文件所在的路径）是否存在，不存在则创建
         /// </summary>
         /// <param name="path">路径名称，或包含路径的完整文件名称</param>
         /// <param name="isFilePath">是否为文件路径，假如为false则一律按照路径操作</param>
+#if NET45
         public static void CheckForDirectory(string path, bool isFilePath = false)
+#elif NET9_0_OR_GREATER
+        public static void CheckForDirectory(string? path, bool isFilePath = false)
+#endif
         {
             if (isFilePath)
             {
+                if (path == null)
+                    throw new ArgumentNullException(nameof(path), "文件路径不能为null");
+#if NET45
                 FileInfo fileInfo = new FileInfo(path);
-                path = fileInfo.DirectoryName;
+#elif NET9_0_OR_GREATER
+                FileInfo fileInfo = new(path);
+#endif
+                path = fileInfo.DirectoryName ?? string.Empty;
             }
+            if (path == null)
+                throw new ArgumentNullException(nameof(path), "路径不能为null");
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
         }
@@ -175,13 +216,20 @@ namespace CommonLib.Helpers
             if (string.IsNullOrWhiteSpace(fileName))
                 return string.Empty;
 
-            //string date = DateTime.Now.ToString("yyyyMMdd");
             string date = DateTime.Now.ToString(format);
+#if NET45
             string[] parts = fileName.Split('.').Where(p => !string.IsNullOrWhiteSpace(p)).ToArray();
+#elif NET9_0_OR_GREATER
+            string[] parts = [.. fileName.Split('.').Where(p => !string.IsNullOrWhiteSpace(p))];
+#endif
             if (parts.Length == 1)
                 parts[0] += " " + date;
             else
+#if NET45
                 parts[parts.Length - 2] += " " + date;
+#elif NET9_0_OR_GREATER
+                parts[^2] += " " + date;
+#endif
             return string.Join(".", parts);
         }
 
@@ -197,7 +245,11 @@ namespace CommonLib.Helpers
             if (string.IsNullOrWhiteSpace(filePath))
                 filePath = string.Empty;
 
+#if NET45
             return filePath.Trim(new char[] { DirSeparatorChar });
+#elif NET9_0_OR_GREATER
+            return filePath.Trim([DirSeparatorChar]);
+#endif
         }
 
         /// <summary>
@@ -208,7 +260,8 @@ namespace CommonLib.Helpers
         /// <param name="fileNameDate">带日期的文件名称</param>
         /// <param name="filePath">包含文件名称的完整路径</param>
         /// <param name="filePathDate">包含带日期的文件名称的完整路径</param>
-        public static void UpdateFilePath(ref string path, string fileName, out string fileNameDate, out string filePath, out string filePathDate)
+        /// <param name="dateFormatInFileName">将文件名内的日期时间格式化的格式字符串，默认为yyyyMMdd</param>
+        public static void UpdateFilePath(ref string path, string fileName, out string fileNameDate, out string filePath, out string filePathDate, string dateFormatInFileName = "yyyyMMdd")
         {
             fileNameDate = filePath = filePathDate = string.Empty;
             if (string.IsNullOrWhiteSpace(fileName))
@@ -221,7 +274,7 @@ namespace CommonLib.Helpers
             //if (!path.Contains(VolumeSeparator))
             //    //path = StartupPath + TrimFilePath(path) + DirSeparator;
             //    path = StartupPath + path;
-            fileNameDate = AddDateToFileName(fileName); //带日期的文件名称
+            fileNameDate = AddDateToFileName(fileName, dateFormatInFileName); //带日期的文件名称
             //filePath = TrimFilePath(path) + DirSeparator + fileName; //包含文件名的路径
             //filePathDate = TrimFilePath(path) + DirSeparator + fileNameDate; //带日期的路径
             filePath = path + fileName; //包含文件名的路径

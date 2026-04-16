@@ -7,7 +7,11 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+#if NET45
 using static CommonLib.Function.TimerEventRaiser;
+#elif NET9_0_OR_GREATER
+using static CommonLib.Clients.TimerEventRaiser;
+#endif
 
 namespace CommonLib.Clients
 {
@@ -20,25 +24,49 @@ namespace CommonLib.Clients
         /// <summary>
         /// 数据接收事件
         /// </summary>
-        public event DataReceivedEventHandler DataReceived;
+        public event DataReceivedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            DataReceived;
 
         /// <summary>
         /// 服务状态改变事件
         /// </summary>
-        public event ServiceStateEventHandler ServiceStateChanged;
+        public event ServiceStateEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            ServiceStateChanged;
         #endregion
+
         #region 私有成员变量
+#if NET45
         private readonly TimerEventRaiser _raiser = new TimerEventRaiser(1000);
+#elif NET9_0_OR_GREATER
+        private readonly TimerEventRaiser _raiser = new(1000);
+#endif
         private readonly Encoding _encoding = Encoding.Default; //使用的编码方式
         #endregion
 
+        /// <summary>
+        /// 操作成功的响应消息
+        /// </summary>
         public const string RESPONSE_OK = "OK";
 
         #region 属性
         /// <summary>
         /// HttpListener对象
         /// </summary>
-        public HttpListener BaseListener { get; private set; }
+        public HttpListener
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            BaseListener
+        { get; private set; }
 
         /// <summary>
         /// HTTP监听的地址
@@ -58,12 +86,24 @@ namespace CommonLib.Clients
         /// <summary>
         /// HTTP监听服务的名称
         /// </summary>
-        public string Name { get; private set; }
+        public string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Name
+        { get; private set; }
 
         /// <summary>
         /// 有新请求时生成的全局唯一标识符
         /// </summary>
-        public string GUID { get; private set; }
+        public string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            GUID
+        { get; private set; }
 
         /// <summary>
         /// 定制化返回的POST响应消息
@@ -104,7 +144,11 @@ namespace CommonLib.Clients
         /// <param name="port">假如端口号不大于0，以默认端口号启动</param>
         /// <param name="suffix">地址后缀</param>
         /// <param name="encoding">数据流与字符串之间的解码、编码方式</param>
+#if NET45
         public DerivedHttpListener(string ip, int port, string suffix, Encoding encoding)
+#elif NET9_0_OR_GREATER
+        public DerivedHttpListener(string? ip, int port, string? suffix, Encoding encoding)
+#endif
         {
             if (!string.IsNullOrWhiteSpace(ip))
                 IpAddress = ip;
@@ -226,7 +270,16 @@ namespace CommonLib.Clients
             //var returnByteArr = Encoding.UTF8.GetBytes(returnObj); //设置客户端返回信息的编码
             var returnByteArr = _encoding.GetBytes(returnObj); //设置客户端返回信息的编码
             //把处理信息返回到客户端
-            try { using (var stream = response.OutputStream) { stream.Write(returnByteArr, 0, returnByteArr.Length); } }
+            try
+            {
+#if NET45
+                using (var stream = response.OutputStream)
+                { stream.Write(returnByteArr, 0, returnByteArr.Length); }
+#elif NET9_0_OR_GREATER
+                using var stream = response.OutputStream;
+                stream.Write(returnByteArr, 0, returnByteArr.Length);
+#endif
+            }
             catch (Exception ex) { LastErrorMessage = $"网络蹦了：{ex}"; }
         }
 
@@ -255,7 +308,16 @@ namespace CommonLib.Clients
                 //处理byte序列的长度
                 if (byteList.Count > len)
                     byteList.RemoveRange(len, byteList.Count - len);
-                DataReceived?.BeginInvoke(this, new DataReceivedEventArgs(byteList.ToArray(), _encoding), null, null);
+                DataReceived?.BeginInvoke(
+                    this,
+                    new DataReceivedEventArgs(
+#if NET45
+                        byteList.ToArray(),
+#elif NET9_0_OR_GREATER
+                        [.. byteList],
+#endif
+                        _encoding),
+                    null, null);
                 _raiser.Click();
                 //data = Encoding.UTF8.GetString(byteList.ToArray(), 0, len);
             }

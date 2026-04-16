@@ -4,7 +4,11 @@ using System.Data;
 using System.Text;
 using CommonLib.Function;
 
+#if DA
 namespace OpcLibrary.Model
+#elif UA
+namespace OpcLibrary.Ua.Model
+#endif
 {
     /// <summary>
     /// OPC项对象

@@ -67,7 +67,7 @@ namespace CommonLib.Clients
             set
             {
                 path = value;
-                UpdateFilePath(path, FileName);
+                UpdateFilePath(path, FileName, DateTimeFormatInFileName);
             }
         }
 
@@ -80,14 +80,19 @@ namespace CommonLib.Clients
             set
             {
                 fileName = value;
-                UpdateFilePath(Path, fileName);
+                UpdateFilePath(Path, fileName, DateTimeFormatInFileName);
             }
         }
 
         /// <summary>
-        /// 文件名
+        /// 文件名内日期时间格式化的格式字符串，默认为“yyyyMMdd”
         /// </summary>
-        public string FileName_WithDate { get; set; }
+        public string DateTimeFormatInFileName { get; set; } = "yyyyMMdd";
+
+        /// <summary>
+        /// 带日期时间的文件名
+        /// </summary>
+        public string FileName_WithDate { get; private set; }
 
         /// <summary>
         /// 文件完整路径（包含文件名）
@@ -103,14 +108,14 @@ namespace CommonLib.Clients
         }
 
         /// <summary>
-        /// 文件完整路径（包含文件名）
+        /// 文件完整路径（包含文件名，文件名内包含日期时间）
         /// </summary>
-        public string FilePath_WithDate { get; set; }
+        public string FilePath_WithDate { get; private set; }
 
         /// <summary>
         /// 文件扩展名
         /// </summary>
-        public string Extension { get; set; }
+        public string Extension { get; private set; }
 
         /// <summary>
         /// 每次写入是否对上一次覆盖
@@ -120,7 +125,7 @@ namespace CommonLib.Clients
         /// <summary>
         /// 上一个错误信息
         /// </summary>
-        public string LastErrorMessage { get; set; }
+        public string LastErrorMessage { get; private set; }
         #endregion
 
         /// <summary>
@@ -163,7 +168,8 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="path"></param>
         /// <param name="fileName">文件名称</param>
-        private void UpdateFilePath(string path, string fileName)
+        /// <param name="dateFormatInFileName">将文件名内的日期时间格式化的格式字符串，默认为yyyyMMdd</param>
+        private void UpdateFilePath(string path, string fileName, string dateFormatInFileName = "yyyyMMdd")
         {
             ////假如路径中不包含卷分隔符，添加根目录
             //if (!path.Contains(FileSystemHelper.VolumeSeparator))
@@ -172,7 +178,7 @@ namespace CommonLib.Clients
             //FileName_WithDate = FileSystemHelper.AddDateToFileName(fileName); //带日期的文件名称
             //FilePath = FileSystemHelper.TrimFilePath(path) + FileSystemHelper.DirSeparator + fileName; //包含文件名的路径
             //FilePath_WithDate = FileSystemHelper.TrimFilePath(path) + FileSystemHelper.DirSeparator + FileName_WithDate; //带日期的路径
-            FileSystemHelper.UpdateFilePath(ref path, fileName, out string fileNameDate, out string filePath, out string filePathDate);
+            FileSystemHelper.UpdateFilePath(ref path, fileName, out string fileNameDate, out string filePath, out string filePathDate, dateFormatInFileName);
             this.path = path;
             FileName_WithDate = fileNameDate; //带日期的文件名称
             FilePath = filePath; //包含文件名的路径
@@ -196,7 +202,7 @@ namespace CommonLib.Clients
                 //if (!Directory.Exists(Path))
                 //    Directory.CreateDirectory(Path);
 
-                UpdateFilePath(path, FileName);
+                UpdateFilePath(path, FileName, DateTimeFormatInFileName);
                 string filePath = fileNameWithDate ? FilePath_WithDate : FilePath;
                 //假如文件存在，添加文本，否则创建文件并写入(编码方式为UTF-8)
                 if (File.Exists(filePath) && !Overriding)

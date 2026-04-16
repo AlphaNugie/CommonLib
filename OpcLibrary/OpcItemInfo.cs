@@ -201,7 +201,7 @@ namespace OpcLibrary
                     Property.SetValue(_upperLevelEntity, value);
             }
             //假如提供了方括号索引，则去寻找对应位置的元素
-            //TODO 在泛型List、数组或集合之中，SetPropertyValue方法目前仅支持向数组中的元素赋值
+            //在泛型List、数组或集合之中，SetPropertyValue方法目前仅支持向数组中的元素赋值
             else
                 ReflectionUtil.SetValueMethod.Invoke(_midLevelEntity, new object[] { value, _indices[0] });
         }

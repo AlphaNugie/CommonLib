@@ -113,6 +113,12 @@
     <Compile Include="Forms\FormControls.Designer.cs">
       <DependentUpon>FormControls.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FormDelayTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormDelayTest.Designer.cs">
+      <DependentUpon>FormDelayTest.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FormNormalDistribution.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -225,6 +231,9 @@
     <Compile Include="Test\AppCrashTest.cs" />
     <EmbeddedResource Include="Forms\FormControls.resx">
       <DependentUpon>FormControls.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormDelayTest.resx">
+      <DependentUpon>FormDelayTest.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormNormalDistribution.resx">
       <DependentUpon>FormNormalDistribution.cs</DependentUpon>

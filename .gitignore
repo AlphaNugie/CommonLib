@@ -339,3 +339,5 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /CommonLib/compiled
+/OpcLibraryAnyCpu.zip
+/OpcLibrary.SiemensPlcNet452/Class1.cs

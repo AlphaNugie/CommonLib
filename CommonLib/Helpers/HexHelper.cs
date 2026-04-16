@@ -6,7 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+#if NET45
 namespace CommonLib.Function
+#elif NET9_0_OR_GREATER
+namespace CommonLib.Helpers
+#endif
 {
     /// <summary>
     /// 16进制操作相关操作类
@@ -15,7 +19,7 @@ namespace CommonLib.Function
     {
         #region 数值转16进制中文编码再转为中文字符串
         /// <summary>
-        /// 将一组8位整型数值（无论有无符号）转16进制中文编码再转为中文字符串
+        /// 将一组8位整型数值（无论有无符号）转16进制中文编码再转为中文字符串，使用GB2312编码
         /// </summary>
         /// <param name="numbers">输入的8位整型数列（无论有无符号），每2个数值代表一个汉字</param>
         /// <param name="offsetBelowZero">为数列中负数元素提供的校正值，假如数值小于0（一般因为值的源类型为8位有符号整型，值域取[-128,127]），则加上此校正值（默认为256）以变为8位无符号整型，方便转为16进制</param>
@@ -23,8 +27,27 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static string NumberArrayToChn_8bit(this IEnumerable<int> numbers, int offsetBelowZero = 256, int offset = 0)
         {
+            return NumberArrayToChn_8bit(numbers, null, offsetBelowZero, offset);
+        }
+
+        /// <summary>
+        /// 将一组8位整型数值（无论有无符号）转16进制中文编码再转为中文字符串，使用给定的编码方式
+        /// </summary>
+        /// <param name="numbers">输入的8位整型数列（无论有无符号），每2个数值代表一个汉字</param>
+        /// <param name="encoding">编码方式，假如为空引用则使用GB2312</param>
+        /// <param name="offsetBelowZero">为数列中负数元素提供的校正值，假如数值小于0（一般因为值的源类型为8位有符号整型，值域取[-128,127]），则加上此校正值（默认为256）以变为8位无符号整型，方便转为16进制</param>
+        /// <param name="offset">为数列中每个元素提供的校正值，在为负数元素校正之后操作</param>
+        /// <returns></returns>
+        public static string NumberArrayToChn_8bit(
+#if NET45
+            this IEnumerable<int> numbers, Encoding encoding,
+#elif NET9_0_OR_GREATER
+            this IEnumerable<int>? numbers, Encoding? encoding,
+#endif
+            int offsetBelowZero = 256, int offset = 0)
+        {
             string result = string.Empty;
-            if (numbers == null || numbers.Count() == 0)
+            if (numbers == null || !numbers.Any())
                 goto END;
             //调整为8位无符号整型的值区间（加上负数校正值后再加整体校正值），存储校正后的值，加上索引以在出问题时定位来源
             var array = numbers.Select(n => (n < 0 ? n + offsetBelowZero : n) + offset).Select((value, index) => new { value, index });
@@ -37,7 +60,14 @@ namespace CommonLib.Function
             }
             //只获取不为0的字节，以去除结尾\0符号
             byte[] bytes = array.Where(p => p.value != 0).Select(p => (byte)p.value).ToArray();
-            result = Encoding.GetEncoding("GB2312").GetString(bytes);
+            //假如未指定编码方式则默认使用GB2312
+#if NET45
+            encoding = encoding ?? Encoding.GetEncoding("GB2312");
+#elif NET9_0_OR_GREATER
+            encoding ??= Encoding.GetEncoding("GB2312");
+#endif
+            //result = Encoding.GetEncoding("GB2312").GetString(bytes);
+            result = encoding.GetString(bytes);
             #region 替换方法：URL解码
             ////转为URL形式的编码（排除0，中文字符编码中2个字节均不为0）
             //string encoded = string.Join(string.Empty, array.Where(p => p.value != 0).Select(p => '%' + p.value.ToString("X2")).ToArray());
@@ -73,7 +103,7 @@ namespace CommonLib.Function
                 //假如偏移量不为0，计算偏移后的16进制BCD码
                 if (shift != 0)
                     part = (Convert.ToInt32(part, 16) + shift).ToString("X2");
-                builder.Append(part).Append(" ");
+                builder.Append(part).Append(' ');
             }
 
             return builder.ToString().Trim();
@@ -87,7 +117,7 @@ namespace CommonLib.Function
         /// <returns>返回电表编码的16进制倒写形式</returns>
         public static string GetReverseHexString(string hexString, int minimum)
         {
-            return HexHelper.GetReverseHexString(hexString, minimum, 0);
+            return GetReverseHexString(hexString, minimum, 0);
         }
 
         /// <summary>
@@ -98,7 +128,7 @@ namespace CommonLib.Function
         /// <returns>返回电表编码的16进制倒写形式</returns>
         public static string GetReverseHexString_Shift(string hexString, int shift)
         {
-            return HexHelper.GetReverseHexString(hexString, 0, shift);
+            return GetReverseHexString(hexString, 0, shift);
         }
         #endregion
 
@@ -110,9 +140,13 @@ namespace CommonLib.Function
         /// <returns>返回字符串</returns>
         public static string ByteArray2HexString(IEnumerable<byte> bytes)
         {
+#if NET45
             StringBuilder builder = new StringBuilder();
+#elif NET9_0_OR_GREATER
+            StringBuilder builder = new();
+#endif
             foreach (byte b in bytes)
-                builder.Append(" ").Append(b.ToString("X2")); //每次都输出两位大写16进制数
+                builder.Append(' ').Append(b.ToString("X2")); //每次都输出两位大写16进制数
             return builder.ToString().Trim();
         }
 
@@ -137,6 +171,18 @@ namespace CommonLib.Function
         }
         #endregion
 
+        #region byte转2进制
+        /// <summary>
+        /// 将byte数组转换为2进制字符串
+        /// </summary>
+        /// <param name="bytes">假如为空则返回空字符串</param>
+        /// <returns></returns>
+        public static string ByteArray2BinaryString(IEnumerable<byte> bytes)
+        {
+            return bytes == null ? string.Empty : string.Join("", bytes.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
+        }
+        #endregion
+
         #region 16进制转byte
         /// <summary>
         /// 将16进制格式字符串数组转换为byte数组
@@ -145,8 +191,12 @@ namespace CommonLib.Function
         /// <returns>返回byte数组</returns>
         public static byte[] HexStringArray2Bytes(IEnumerable<string> hexStrings)
         {
-            if (hexStrings == null || hexStrings.Count() == 0)
+            if (hexStrings == null || !hexStrings.Any())
+#if NET45
                 return null;
+#elif NET9_0_OR_GREATER
+                return [];
+#endif
 
             return hexStrings.Select(p => string.IsNullOrWhiteSpace(p) ? (byte)0 : Convert.ToByte(p, 16)).ToArray();
         }
@@ -159,9 +209,19 @@ namespace CommonLib.Function
         public static byte[] HexString2Bytes(string hexString)
         {
             if (string.IsNullOrWhiteSpace(hexString))
+#if NET45
                 return null;
+#elif NET9_0_OR_GREATER
+                return [];
+#endif
 
-            return HexStringArray2Bytes(hexString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+            return HexStringArray2Bytes(
+#if NET45
+                hexString.Split(new char[] { ' ' },
+#elif NET9_0_OR_GREATER
+                hexString.Split([' '],
+#endif
+                StringSplitOptions.RemoveEmptyEntries));
         }
 
         /// <summary>
@@ -172,7 +232,11 @@ namespace CommonLib.Function
         public static byte[] HexString2Bytes_NoSpaces(string hexString)
         {
             if (string.IsNullOrWhiteSpace(hexString))
+#if NET45
                 return null;
+#elif NET9_0_OR_GREATER
+                return [];
+#endif
 
             hexString = hexString.Replace(" ", string.Empty);
             //假如16进制字符串长度为奇数位，在前侧补0，保证长度为偶数
@@ -199,11 +263,26 @@ namespace CommonLib.Function
         public static string HexString2BinaryString(string hexString)
         {
             var bytes = HexString2Bytes_NoSpaces(hexString);
-            return bytes == null ? string.Empty : string.Join("", bytes.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
+            //return bytes == null ? string.Empty : string.Join("", bytes.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
+            return ByteArray2BinaryString(bytes);
         }
         #endregion
 
         #region 16进制转浮点数
+        /// <summary>
+        /// 将长度为4的字节序列转换为32位的单精度浮点数（计算过程遵循IEEE754标准）
+        /// </summary>
+        /// <param name="bytes">长度为4的字节序列</param>
+        /// <returns></returns>
+        public static float ByteArray2Single(IEnumerable<byte> bytes)
+        {
+            if (bytes == null || !bytes.Any() || bytes.Count() < 4)
+                return float.NaN;
+
+            var hexString = ByteArray2HexString(bytes);
+            return HexString2Single(hexString);
+        }
+
         /// <summary>
         /// 将16进制字符串转换为32位的单精度浮点数（16进制字符串可不包含空格，计算过程遵循IEEE754标准）
         /// </summary>
@@ -214,10 +293,25 @@ namespace CommonLib.Function
             if (string.IsNullOrWhiteSpace(hexString))
                 return 0;
 
-            string binary = HexString2BinaryString(hexString); //转为2进制字符串
-            binary = binary.PadLeft(hexString.Length * 4, '0').PadRight(32, '0'); //首先向左补实际有效比特位的长度，再向右补0
-            int sign = Convert.ToInt32(binary.Substring(0, 1), 2), indexes = Convert.ToInt32(binary.Substring(1, 8), 2) - 127; //符号位（0为正，1为负），以及阶码
-            string fraction = binary.Substring(9).TrimEnd('0'); //代表值部分的尾数
+            var bytes = HexString2Bytes_NoSpaces(hexString);
+            //转为2进制字符串
+            //string binary = HexString2BinaryString(hexString);
+            string binary = ByteArray2BinaryString(bytes);
+            //首先向左补实际有效比特位的长度，再向右补0
+            //binary = binary.PadLeft(hexString.Length * 4, '0').PadRight(32, '0');
+            binary = binary.PadLeft(bytes.Length * 8, '0').PadRight(32, '0');
+            //符号位（0为正，1为负），以及阶码
+#if NET45
+            int sign = Convert.ToInt32(binary.Substring(0, 1), 2), indexes = Convert.ToInt32(binary.Substring(1, 8), 2) - 127;
+#elif NET9_0_OR_GREATER
+            int sign = Convert.ToInt32(binary[..1], 2), indexes = Convert.ToInt32(binary[1..9], 2) - 127;
+#endif
+            //代表值部分的尾数
+#if NET45
+            string fraction = binary.Substring(9).TrimEnd('0');
+#elif NET9_0_OR_GREATER
+            string fraction = binary[9..].TrimEnd('0');
+#endif
             bool equalsZero = indexes == -127 && fraction.Equals(string.Empty); //假如阶码与尾数全为0，则代表值为0
             double fraction_value = equalsZero ? 0 : Convert.ToInt32("1" + fraction, 2) * Math.Pow(2, indexes - fraction.Length) * Math.Pow(-1, sign);
             return (float)fraction_value;
@@ -283,11 +377,15 @@ namespace CommonLib.Function
         /// CRC16校验码生成
         /// </summary>
         /// <param name="data">待计算校验码的byte数组</param>
-        /// <returns>返回字节数组</returns>
+        /// <returns>返回长度为2的字节数组</returns>
         public static byte[] GetCRC16(IEnumerable<byte> data)
         {
-            if (data == null || data.Count() == 0)
+            if (data == null || !data.Any())
+#if NET45
                 return new byte[0];
+#elif NET9_0_OR_GREATER
+                return [];
+#endif
             byte[] outdata = new byte[2];
             #region CRC16码表
             byte[] auchCRCHi = {
@@ -312,7 +410,7 @@ namespace CommonLib.Function
             outdata[1] = crcLow;
             //outdata[0] = crcLow;
             //outdata[1] = crcHi;
-            return (outdata);
+            return outdata;
         }
 
         /// <summary>
@@ -332,7 +430,7 @@ namespace CommonLib.Function
         /// CRC16校验码生成
         /// </summary>
         /// <param name="hexString">待计算校验码的16进制字符串</param>
-        /// <returns>返回字节数组</returns>
+        /// <returns>返回长度为2的字节数组</returns>
         public static byte[] GetCRC16(string hexString)
         {
             return GetCRC16(HexString2Bytes(hexString));
@@ -426,7 +524,13 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static bool IsGnssCRC32Verified(string message)
         {
-            string[] temps = message.Split(new char[] { '#', '*' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] temps = message.Split(
+#if NET45
+                new char[] { '#', '*' },
+#elif NET9_0_OR_GREATER
+                ['#', '*'],
+#endif
+                StringSplitOptions.RemoveEmptyEntries);
             //待检验的校验和（16进制）
             string to_be_checked = temps[1].ToUpper(), crc = CalculateBlockCRC32(temps[0]).ToString("X2");
             return to_be_checked.Equals(crc);
@@ -456,7 +560,13 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static bool IsGnssChecksumVerified(string message)
         {
-            string[] temps = message.Split(new char[] { '$', '*' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] temps = message.Split(
+#if NET45
+                new char[] { '$', '*' },
+#elif NET9_0_OR_GREATER
+                ['$', '*'],
+#endif
+                StringSplitOptions.RemoveEmptyEntries);
             //待检验的校验和（16进制）
             int to_be_checked = Convert.ToInt32(temps[1], 16), checksum = GetStringChecksum(temps[0]);
             return to_be_checked == checksum;
@@ -497,12 +607,20 @@ namespace CommonLib.Function
         /// <returns></returns>
         public static bool IsStringSumVerified(string input, char bridge)
         {
+#if NET45
             input = input ?? string.Empty;
+#elif NET9_0_OR_GREATER
+            input ??= string.Empty;
+#endif
             //假如没有分隔符则返回false
             int index = input.LastIndexOf(bridge);
             if (index <= 0 || index >= input.Length - 1)
                 return false;
+#if NET45
             string first = input.Substring(0, index + 1), last = input.Substring(index + 1, input.Length - index - 1);
+#elif NET9_0_OR_GREATER
+            string first = input[..(index + 1)], last = input[(index + 1)..];
+#endif
             int sum = GetStringSum(first);
             return sum.ToString().Equals(last);
         }

@@ -168,7 +168,6 @@ namespace CommonLib.Clients
                 }
                 catch (Exception) { LastErrorMessage = TcpClient.LastErrorMessage; throw; }
             }
-            //TODO 编写其它连接方式的连接方法
             else
             {
                 //try
@@ -215,7 +214,6 @@ namespace CommonLib.Clients
                 }
                 catch (Exception) { LastErrorMessage = TcpClient.LastErrorMessage; throw; }
             }
-            //TODO 编写其它连接方式的断开方法
             else
             {
                 //try
@@ -239,7 +237,6 @@ namespace CommonLib.Clients
         /// <param name="connType"></param>
         public void SendCommand(string command, ConnTypes connType)
         {
-            //TODO 完善其它连接方式的发送方法
             try
             {
                 if (connType == ConnTypes.TCP)
@@ -273,7 +270,6 @@ namespace CommonLib.Clients
         /// <returns>返回接收的信息字符串</returns>
         public string ReceiveInfo(ConnTypes connType)
         {
-            //TODO 完善其它连接方式的接收方法
             string info = string.Empty;
             try
             {

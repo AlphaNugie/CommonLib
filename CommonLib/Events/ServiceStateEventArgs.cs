@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace CommonLib.Events
 {
+#if NET45
     /// <summary>
     /// 服务状态变化事件参数
     /// </summary>
@@ -33,4 +34,26 @@ namespace CommonLib.Events
             State = state;
         }
     }
+#elif NET9_0_OR_GREATER
+    /// <summary>
+    /// 服务状态变化事件参数
+    /// </summary>
+    /// <remarks>
+    /// 以给定的状态信息以及状态对象初始化
+    /// </remarks>
+    /// <param name="stateInfo"></param>
+    /// <param name="state"></param>
+    public class ServiceStateEventArgs(string stateInfo, ServiceState state) : EventArgs
+    {
+        /// <summary>
+        /// 服务状态消息
+        /// </summary>
+        public string StateInfo { get; set; } = stateInfo;
+
+        /// <summary>
+        /// 服务状态
+        /// </summary>
+        public ServiceState State { get; set; } = state;
+    }
+#endif
 }

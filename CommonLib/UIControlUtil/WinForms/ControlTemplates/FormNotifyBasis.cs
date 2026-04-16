@@ -25,6 +25,14 @@ namespace CommonLib.UIControlUtil.ControlTemplates
         private Size _prevSize;
         private bool _resizing; //是否在调整尺寸，假如为true则暂时不响应Resized事件
 
+        /// <summary>
+        /// 是否正在尝试退出
+        /// </summary>
+        protected bool _trying2Exit;
+
+        /// <summary>
+        /// 初始化一个新的带有通知区域图标与隐藏功能的窗体
+        /// </summary>
         public FormNotifyBasis()
         {
             InitializeComponent();
@@ -40,8 +48,9 @@ namespace CommonLib.UIControlUtil.ControlTemplates
         /// <param name="e"></param>
         protected void Form_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //窗体关闭原因为单击"关闭"按钮或Alt+F4  
-            if (e.CloseReason == CloseReason.UserClosing)
+            //窗体关闭原因为单击"关闭"按钮或Alt+F4，而且并未尝试退出
+            //if (e.CloseReason == CloseReason.UserClosing && !_trying2Exit)
+            if (ValidateCloseReason(e.CloseReason))
             {
                 e.Cancel = true; //取消关闭操作 表现为不关闭窗体
                 HideWindow();
@@ -64,6 +73,16 @@ namespace CommonLib.UIControlUtil.ControlTemplates
         //}
 
         #region 功能
+        /// <summary>
+        /// 验证关闭原因，当原因为 <see cref="CloseReason.UserClosing"/> 且未尝试退出时返回true，否则返回false
+        /// </summary>
+        /// <param name="reason"></param>
+        /// <returns>返回true表示不关闭、仅隐藏，false表示直接关闭</returns>
+        public bool ValidateCloseReason(CloseReason reason)
+        {
+            return reason == CloseReason.UserClosing && !_trying2Exit;
+        }
+
         /// <summary>
         /// 隐藏窗口
         /// </summary>
@@ -103,9 +122,11 @@ namespace CommonLib.UIControlUtil.ControlTemplates
                 return;
 
             notifyIcon_Main.Visible = false;
+            _trying2Exit = true;
             Close();
             if (restart)
-                Process.Start(Process.GetCurrentProcess().MainModule.FileName);
+                //尝试延迟2秒启动
+                Process.Start(Process.GetCurrentProcess().MainModule.FileName, "--startup-delay 2000");
             Environment.Exit(0);
         }
 

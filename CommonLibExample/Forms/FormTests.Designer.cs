@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.button_TimerEventRaiser = new System.Windows.Forms.Button();
+            this.button_DelayTest = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button_TimerEventRaiser
@@ -42,11 +43,23 @@
             this.button_TimerEventRaiser.UseVisualStyleBackColor = true;
             this.button_TimerEventRaiser.Click += new System.EventHandler(this.Button_TimerEventRaiser_Click);
             // 
+            // button_DelayTest
+            // 
+            this.button_DelayTest.Font = new System.Drawing.Font("等线", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_DelayTest.Location = new System.Drawing.Point(207, 12);
+            this.button_DelayTest.Name = "button_DelayTest";
+            this.button_DelayTest.Size = new System.Drawing.Size(170, 40);
+            this.button_DelayTest.TabIndex = 1;
+            this.button_DelayTest.Text = "延迟操作测试";
+            this.button_DelayTest.UseVisualStyleBackColor = true;
+            this.button_DelayTest.Click += new System.EventHandler(this.Button_DelayTest_Click);
+            // 
             // FormTests
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(933, 488);
+            this.Controls.Add(this.button_DelayTest);
             this.Controls.Add(this.button_TimerEventRaiser);
             this.Font = new System.Drawing.Font("等线", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -59,5 +72,6 @@
         #endregion
 
         private System.Windows.Forms.Button button_TimerEventRaiser;
+        private System.Windows.Forms.Button button_DelayTest;
     }
 }

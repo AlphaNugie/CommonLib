@@ -412,53 +412,8 @@ namespace CommonLib.Clients
                     //Auto_TcpReconnect.WaitOne(); //会造成“已关闭Safe Handle”错误，原因未知，暂时停用
                     continue;
                 //假如属性提示已连接但实际上连接已断开，尝试重连
-                //else if (IsConnected && !IsSocketConnected())
                 else if (IsConnected && !IsConnected_Socket)
-                {
-                    ////调用连接断开事件委托
-                    //if (Disconnected != null)
-                    //    Disconnected.BeginInvoke(Name, new EventArgs(), null, null);
-
                     Reconnect();
-                    #region 原重连部分
-                    //string temp = string.Format("TCP主机地址：{0}，端口号：{1}", ServerIp, ServerPort); //TCP连接的主机地址与端口
-                    //LastErrorMessage = "TCP连接意外断开，正在尝试重连。" + temp;
-                    //FileClient.WriteFailureInfo(LastErrorMessage);
-                    //try
-                    //{
-                    //    //将这部分注释掉，防止出现访问被释放的资源异常
-                    //    //NetStream.Close();
-                    //    //NetStream.Dispose();
-                    //    //Client.Close();
-                    //    //BaseClient = new TcpClient(ServerIp, ServerPort);
-                    //    BaseClient.Close();
-                    //    BaseClient = HoldLocalPort ? new TcpClient(LocalEndPoint) : new TcpClient();
-                    //    BaseClient.Connect(ServerIp, ServerPort);
-                    //    SetName();
-
-                    //    //重连次数+1，同时调用事件委托
-                    //    ReconnTimer++;
-                    //    if (ReconnTimerChanged != null)
-                    //        ReconnTimerChanged.BeginInvoke(Name, ReconnTimer, null, null);
-                    //    if (Connected != null)
-                    //        Connected.BeginInvoke(Name, new EventArgs(), null, null);
-
-                    //    NetStream = BaseClient.GetStream();
-                    //    if (AutoReceive)
-                    //        NetStream.BeginRead(Buffer, 0, Buffer.Length, new AsyncCallback(TcpCallBack), this);
-                    //    IsSocketConnected();
-                    //    FileClient.WriteFailureInfo("TCP重新连接成功。" + temp);
-                    //}
-                    ////假如出现异常，将错误信息写入日志并进入下一次循环
-                    //catch (Exception e)
-                    //{
-                    //    LastErrorMessage = string.Format("TCP重新连接失败：{0}。", e.Message) + temp;
-                    //    FileClient.WriteExceptionInfo(e, LastErrorMessage, false);
-                    //    //TODO: 是否抛出异常？
-                    //    //throw; //假如不需要抛出异常，注释此句
-                    //}
-                    #endregion
-                }
             }
         }
 

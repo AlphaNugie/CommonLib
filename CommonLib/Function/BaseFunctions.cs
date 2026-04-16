@@ -208,11 +208,12 @@ namespace CommonLib.Function
         /// <summary>
         /// 将当前时间添加到信息中
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="obj">在其中添加时间的信息</param>
+        /// <param name="format">将时间格式化的字符串，默认为"yyyy-MM-dd HH:mm:ss"</param>
         /// <returns></returns>
-        public static string AddTimeToMessage(object obj)
+        public static string AddTimeToMessage(object obj, string format = "yyyy-MM-dd HH:mm:ss")
         {
-            return string.Format("{0} ==> {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), (string)obj);
+            return string.Format("{0} ==> {1}", DateTime.Now.ToString(format), (string)obj);
         }
 
         /// <summary>

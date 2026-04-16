@@ -9,18 +9,30 @@ namespace CommonLib.Clients
     /// <summary>
     /// 按位转换为对应泛型（整型）值的实体类
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class CustomBitConverter<T> where T : IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
+    /// <typeparam name="T">代表整型的范类型</typeparam>
+    // 约束T必须是非引用类型（struct）
+    public class CustomBitConverter<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
     {
         private readonly Type _baseType;
-        private /*readonly */bool[] _bits; //比特位（布尔量）的数组，从低位开始排列
-        private /*readonly */int[] _bitNums; //比特位（数值0/1）的数组，从低位开始排列
+        //比特位（布尔量）的数组，从低位开始排列
+        //比特位（数值0/1）的数组，从低位开始排列
+#if NET45
+        private bool[] _bits;
+        private int[] _bitNums;
+#elif NET9_0_OR_GREATER
+        private bool[]? _bits;
+        private int[]? _bitNums;
+#endif
 
         /// <summary>
         /// 比特位（布尔）的数组，从低位开始排列，赋值时会修改对应的比特位（数值）数组的元素
         /// </summary>
-        //public bool[] Bits { get { return _bits; } }
-        public bool[] Bits
+        public bool[]
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Bits
         {
             get { return _bits; }
             set
@@ -33,7 +45,13 @@ namespace CommonLib.Clients
         /// <summary>
         /// 比特位（数值0/1）的数组，从低位开始排列
         /// </summary>
-        public int[] BitNums { get { return _bitNums; } }
+        public int[]
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            BitNums
+        { get { return _bitNums; } }
 
         /// <summary>
         /// 比特序列对应的2进制字符串
@@ -99,6 +117,11 @@ namespace CommonLib.Clients
             Bits = bits;
         }
 
+        /// <summary>
+        /// 用给定的整型值来设置每一位比特位的值
+        /// </summary>
+        /// <param name="value"></param>
+        /// <exception cref="ArgumentException"></exception>
         public void SetValue(T value)
         {
             if (_bits == null || _bits.Length == 0)
@@ -122,13 +145,8 @@ namespace CommonLib.Clients
             else if (_baseType == typeof(ulong))
                 binary = Convert.ToString(BitConverter.ToInt64(BitConverter.GetBytes((ulong)(object)value), 0), 2).PadLeft(_bits.Length, '0');
             else
-                throw new ArgumentException("所对应泛型并非整型", nameof(T));
-            //字符串最后一位对应比特序列首位，因此对应时需要反向
-            //for (int i = 0; i < _bits.Length; i++)
-            //{
-            //    _bits[i] = binary[_bits.Length - 1 - i] == '1';
-            //    _bitNums[i] = _bits[i] ? 1 : 0;
-            //}
+                //throw new ArgumentException("所对应泛型并非整型", nameof(T));
+                throw new ArgumentException($"所对应泛型{typeof(T).Name}不属于整型");
             for (int i = 0; i < _bits.Length; i++)
                 SetBit(binary[_bits.Length - 1 - i] == '1', i);
             //不建议重新初始化对象，对象引用会改变
@@ -153,7 +171,7 @@ namespace CommonLib.Clients
         public void SetBit(bool value, int index)
         {
             //假如要写入的位不存在，直接退出
-            if (index < 0 || index >= _bits.Length)
+            if (_bits == null || _bitNums == null || index < 0 || index >= _bits.Length)
                 return;
             _bits[index] = value;
             _bitNums[index] = value ? 1 : 0;
@@ -205,7 +223,8 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public string GetBinary()
         {
-            return _bits == null || _bits.Length == 0 ? null : GetBinary(0, _bits.Length);
+            //return _bits == null || _bits.Length == 0 ? null : GetBinary(0, _bits.Length);
+            return _bits == null || _bits.Length == 0 ? string.Empty : GetBinary(0, _bits.Length);
         }
 
         /// <summary>
@@ -216,7 +235,8 @@ namespace CommonLib.Clients
         /// <returns></returns>
         public string GetBinary(int index, int length)
         {
-            if (_bits == null || _bits.Length == 0) return null;
+            //if (_bits == null || _bits.Length == 0) return null;
+            if (_bits == null || _bitNums == null || _bits.Length == 0) return string.Empty;
             index = index < 0 ? 0 : index;
             length = length + index > _bits.Length ? _bits.Length - index : length;
             //return string.Join(string.Empty, _bits.Reverse().Select(bit => bit ? 1 : 0).ToArray());
@@ -250,6 +270,7 @@ namespace CommonLib.Clients
         /// <param name="value">重置的比特位的值</param>
         public void Reset(bool value)
         {
+            if (_bits == null || _bits.Length == 0) return;
             for (int i = 0; i < _bits.Length; i++)
                 //_bits[i] = value;
                 SetBit(value, i);

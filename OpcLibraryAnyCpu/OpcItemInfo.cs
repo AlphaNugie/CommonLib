@@ -3,11 +3,18 @@ using CommonLib.Extensions.Property;
 using CommonLib.Extensions.Reflection;
 using CommonLib.Function;
 using System;
+#if UA
+using Opc.Ua;
+#endif
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
+#if DA
 namespace OpcLibrary
+#elif UA
+namespace OpcLibrary.Ua
+#endif
 {
     /// <summary>
     /// OPC项信息实体类，每个OPC项信息实体对应单独的OPC项ID、服务端句柄、客户端句柄以及值（供读取或写入）
@@ -20,6 +27,7 @@ namespace OpcLibrary
         //private object _lowerLevelEntity; //直接与对应属性相关联的当前层实体
         private object _currentEntity; //直接与对应属性相关联的当前层实体，实际使用中就是最终对应的值或实体
         private int[] _indices = null; //方括号索引
+        //private readonly GroupType _groupType = GroupType.READ;
 
         #region 属性
         /// <summary>
@@ -27,6 +35,12 @@ namespace OpcLibrary
         /// </summary>
         public string ItemId { get; set; }
 
+        ///// <summary>
+        ///// 组的类型，读或写，仅在决定从数据源读值或向数据源写值时起作用（目前仅对UA起作用）
+        ///// </summary>
+        //public GroupType GroupType { get{ return _groupType; } }
+
+#if DA
         /// <summary>
         /// OPC服务端句柄
         /// </summary>
@@ -36,11 +50,20 @@ namespace OpcLibrary
         /// OPC客户端句柄
         /// </summary>
         public int ClientHandle { get; set; }
+#endif
 
         /// <summary>
         /// 读取或待写入的值
         /// </summary>
         public string Value { get; set; }
+
+#if UA
+        /// <summary>
+        /// 待写入OPC UA的值，已转换为标签对应的系统类型
+        /// <para/>目前仅对UA起作用
+        /// </summary>
+        public object ValueConverted2SystemType { get { return GetValueConverted2SystemType(); } }
+#endif
 
         /// <summary>
         /// 值的系数（默认为0，此时不起作用）
@@ -56,11 +79,6 @@ namespace OpcLibrary
         /// 数据源字段名称
         /// </summary>
         public string FieldName { get; set; }
-
-        ///// <summary>
-        ///// 对应属性在枚举数中的索引
-        ///// </summary>
-        //public List<int> Indexes { get; private set; }
 
         private PropertyInfo _prop = null;
         /// <summary>
@@ -80,49 +98,96 @@ namespace OpcLibrary
         /// 转换类型的静态泛型方法（类型参数为字段类型），假如属性为空则为空
         /// </summary>
         internal MethodInfo ConvertTypeMethod { get; set; }
+
+#if UA
+        /// <summary>
+        /// OPC UA 标签的Variant类型值
+        /// </summary>
+        public Variant WrappedValue { get; internal set; }
+
+        /// <summary>
+        /// 从OPC UA初次读取值时获取到的类型信息，其中<see cref="Opc.Ua.TypeInfo.BuiltInType"/> 和 <see cref="Opc.Ua.TypeInfo.ValueRank"/> 很关键，可以用来转换为系统类型
+        /// <para/>假如没有读到或读过对应标签，则将为null
+        /// </summary>
+        //internal Opc.Ua.TypeInfo TypeInfo { get; set; }
+        public Opc.Ua.TypeInfo TypeInfo { get { return WrappedValue.TypeInfo; } }
+
+        /// <summary>
+        /// 系统类型，假如 <see cref="TypeInfo"/> 为空则返回null
+        /// </summary>
+        public Type SystemType { get { return GetSystemType(); } }
+#endif
+
         #endregion
 
-        /// <summary>
-        /// 构造器
-        /// </summary>
-        /// <param name="itemId">OPC项ID</param>
-        /// <param name="clientHandle">客户端句柄</param>
-        public OpcItemInfo(string itemId, int clientHandle) : this(itemId, clientHandle, null, 0) { }
+        #region 构造器
+        //        /// <summary>
+        //        /// 构造器
+        //        /// </summary>
+        //        /// <param name="itemId">OPC项ID</param>
+        //        /// <param name="clientHandle">客户端句柄</param>
+        //#if DA
+        //        public OpcItemInfo(string itemId, int clientHandle) : this(itemId, clientHandle, null, 0) { }
+        //#elif UA
+        //        public OpcItemInfo(string itemId) : this(itemId, null, 0, 0) { }
+        //#endif
+
+        //        /// <summary>
+        //        /// 构造器
+        //        /// </summary>
+        //        /// <param name="itemId">OPC项ID</param>
+        //        /// <param name="clientHandle">客户端句柄</param>
+        //        /// <param name="fieldName">数据源中字段名称</param>
+        //#if DA
+        //        public OpcItemInfo(string itemId, int clientHandle, string fieldName) : this(itemId, clientHandle, fieldName, 0) { }
+        //#elif UA
+        //        public OpcItemInfo(string itemId, string fieldName) : this(itemId, fieldName, 0, 0) { }
+        //#endif
+
+        //        /// <summary>
+        //        /// 构造器
+        //        /// </summary>
+        //        /// <param name="itemId">OPC项ID</param>
+        //        /// <param name="clientHandle">客户端句柄</param>
+        //        /// <param name="fieldName">数据源中字段名称</param>
+        //        /// <param name="coeff">值的系数，默认为0，此时不起作用</param>
+        //#if DA
+        //        public OpcItemInfo(string itemId, int clientHandle, string fieldName, double coeff) : this(itemId, clientHandle, fieldName, coeff, 0) { }
+        //#elif UA
+        //        public OpcItemInfo(string itemId, string fieldName, double coeff) : this(itemId, fieldName, coeff, 0) { }
+        //#endif
 
         /// <summary>
         /// 构造器
         /// </summary>
-        /// <param name="itemId">OPC项ID</param>
-        /// <param name="clientHandle">客户端句柄</param>
-        /// <param name="fieldName">数据源中字段名称</param>
-        public OpcItemInfo(string itemId, int clientHandle, string fieldName) : this(itemId, clientHandle, fieldName, 0) { }
-
-        /// <summary>
-        /// 构造器
-        /// </summary>
-        /// <param name="itemId">OPC项ID</param>
-        /// <param name="clientHandle">客户端句柄</param>
-        /// <param name="fieldName">数据源中字段名称</param>
-        /// <param name="coeff">值的系数，默认为0，此时不起作用</param>
-        public OpcItemInfo(string itemId, int clientHandle, string fieldName, double coeff) : this(itemId, clientHandle, fieldName, coeff, 0) { }
-
-        /// <summary>
-        /// 构造器
-        /// </summary>
-        /// <param name="itemId">OPC项ID</param>
+        /// <param name="itemId">OPC项ID，在UA下，itemId将被补充为完整的节点路径，如ns=2;s=ItemName</param>
         /// <param name="clientHandle">客户端句柄</param>
         /// <param name="fieldName">数据源中字段名称</param>
         /// <param name="coeff">值的系数，默认为0，此时不起作用</param>
         /// <param name="offset">值的偏移量，默认为0，系数为0时不起作用</param>
-        public OpcItemInfo(string itemId, int clientHandle, string fieldName, double coeff, double offset)
+        ///// <param name="groupType">组的类型，读或写，仅在决定从数据源读值或向数据源写值时起作用（目前仅对UA起作用）</param>
+#if DA
+        public OpcItemInfo(string itemId, int clientHandle, /*GroupType groupType = GroupType.READ, */string fieldName = null, double coeff = 0, double offset = 0)
+#elif UA
+        public OpcItemInfo(string itemId, /*GroupType groupType = GroupType.READ, */string fieldName = null, double coeff = 0, double offset = 0)
+#endif
         {
+#if UA
+            //在UA下，将ItemId补充为完整的节点路径，如ns=2;s=ItemName
+            ItemId = itemId.StartsWith("ns=") ? itemId : "ns=2;s=" + itemId;
+#elif DA
             ItemId = itemId;
             ClientHandle = clientHandle;
+            //DA下Value属性默认为空字符串
+            //UA下Value属性默认为null
             Value = string.Empty;
+#endif
+            //_groupType = groupType;
             FieldName = fieldName;
             Coeff = coeff;
             Offset = offset;
         }
+        #endregion
 
         /// <summary>
         /// 在给定的数据源中根据现有的参数获取数据源的目标属性，同时得出该属性的所属实体
@@ -170,9 +235,20 @@ namespace OpcLibrary
         /// <returns></returns>
         public object GetPropertyValue()
         {
-            //假如值的系数不为0，则试图乘以这个系数并加上偏移量
-            object[] values = Coeff == 0 ? new object[] { Value } : new object[] { double.Parse(Value) * Coeff + Offset };
-            return ConvertTypeMethod?.Invoke(null, values);
+            ////假如值的系数不为0，则试图乘以这个系数并加上偏移量
+            //object[] values = Coeff == 0 ? new object[] { Value } : new object[] { double.Parse(Value) * Coeff + Offset };
+            //return ConvertTypeMethod?.Invoke(null, values);
+
+            //先进行一次转换，防止在乘以系数转换为double时出现异常
+            object[] values = new object[] { Value };
+            object converted = ConvertTypeMethod?.Invoke(null, values);
+            //假如转换后的值不为空且系数不为0，则乘以系数并加上偏移量
+            if (converted != null && Coeff != 0)
+            {
+                values = new object[] { double.Parse(converted.ToString()) * Coeff + Offset };
+                converted = ConvertTypeMethod?.Invoke(null, values);
+            }
+            return converted;
         }
 
         /// <summary>
@@ -185,9 +261,6 @@ namespace OpcLibrary
             //假如属性为空或属性所属实体为空，退出方法
             if (Property == null || _upperLevelEntity == null)
                 return;
-            ////假如没有提供任何方括号索引
-            //if (_indexes == null || _indexes.Length == 0)
-            //    Property.SetValue(_upperLevelEntity, GetPropertyValue());
             //是否没有提供任何方括号索引
             bool noIndices = _indices == null || _indices.Length == 0;
             //获取属性要赋的值，赋值之前先检查是否为方括号索引所指向的实体（没有索引将不进行特殊操作）
@@ -206,6 +279,32 @@ namespace OpcLibrary
                 ReflectionUtil.SetValueMethod.Invoke(_midLevelEntity, new object[] { value, _indices[0] });
         }
 
+#if UA
+        /// <summary>
+        /// 根据 <see cref="TypeInfo"/> 获取系统类型，假如 <see cref="TypeInfo"/> 为空则返回null
+        /// </summary>
+        /// <returns></returns>
+        public Type GetSystemType()
+        {
+            if (TypeInfo == null) return null;
+            return Opc.Ua.TypeInfo.GetSystemType(TypeInfo.BuiltInType, TypeInfo.ValueRank);
+        }
+
+        /// <summary>
+        /// 获取经过转换方法转换后的值，并转换为系统类型（方便通过UA写入），假如转换方法为空或值为空则返回空
+        /// </summary>
+        /// <returns></returns>
+        public object GetValueConverted2SystemType()
+        {
+            if (SystemType == null || Value == null) return null;
+            //先根据系统类型获取转换方法
+            MethodInfo method = Converter.ConvertTypeMethod.MakeGenericMethod(SystemType);
+            object[] values = new object[] { Value };
+            object converted = method?.Invoke(null, values);
+            return converted;
+        }
+#endif
+
         /// <summary>
         /// 假如属性或给定的数据源不为空，则从数据源向Item赋值
         /// </summary>
@@ -217,70 +316,106 @@ namespace OpcLibrary
             if (dataSource == null)
                 return;
             InitTargetProperty(dataSource);
-            //if (Property != null && _upperLevelEntity != null)
-            //{
-            //    object value = Property.GetValue(_upperLevelEntity);
-            //    //假如值的系数不为0，则试图乘以这个系数
-            //    if (Coeff != 0)
-            //        value = double.Parse(value.ToString()) * Coeff;
-            //    Value = value.ToString();
-            //    //Value = Property.GetValue(_upperLevelEntity).ToString();
-            //}
 
-            ////假如属性为空或属性所属实体为空，退出方法
-            //if (Property == null || _upperLevelEntity == null)
-            //    return;
-            //object value;
             //默认值为空，假如属性为空或属性所属实体为空，跳到最后赋值部分
-            object value = null;
+            object targetValue = null;
             //目标属性类型
-            Type type = null;
+            Type targetPropertyType = null;
+
+            //假如目标属性不存在或不可读
             if (Property == null || !Property.CanRead || _upperLevelEntity == null)
-                //goto SET_VALUE;
                 goto NULL_HANDLING;
-            ////假如没有提供方括号索引，则直接获取值，否则根据索引获取元素值
-            //if (_indices == null || _indices.Length == 0)
-            //{
-            //    value = Property.GetValue(_upperLevelEntity);
-            //    type = Property.PropertyType;
-            //}
-            //else
-            //{
-            //    UpdateCurrentEntityByIndexes(out type);
-            //    value = _currentEntity;
-            //}
+
             //假如没有提供方括号索引，则直接获取值，否则根据索引获取元素值
             if (_indices != null && _indices.Length > 0)
             {
-                UpdateCurrentEntityByIndexes(out type);
-                value = _currentEntity;
+                targetValue = _currentEntity;
+                UpdateCurrentEntityByIndexes(out targetPropertyType);
             }
             else
             {
-                value = Property.GetValue(_upperLevelEntity);
-                type = Property.PropertyType;
+                targetValue = Property.GetValue(_upperLevelEntity);
+                targetPropertyType = Property.PropertyType;
             }
             NULL_HANDLING:
             //对应属性值为null时的操作（值为null或者未找到属性）
-            if (value == null)
+            if (targetValue == null)
             {
-                //直接跳到最后赋值部分，值为null将不会写入
+                //直接跳到最后赋值部分，Value将被赋值为null、且不会写入
                 if (nullValueHandling == NullValueHandling.Skip)
                     goto SET_VALUE;
-                //无视空值，假如为值类型将初始化为新实例（引用类型依然为null）
+                //无视空值，假如为值类型将初始化为新实例（引用类型将使用默认构造器初始化）
                 else if (nullValueHandling == NullValueHandling.Ignore)
-                    value = type.CreateDefValue();
+                    targetValue = targetPropertyType.CreateDefValue();
             }
 
-            //假如值的系数不为0，则试图乘以这个系数
+            //假如值的系数不为0，则试图乘以这个系数并加上偏移量
             if (Coeff != 0)
             {
                 //舍入的小数点位数：将值与系数的小数点位数相加，相加的和与偏移量的小数点位数取较大值
-                int places = Math.Max(value.GetDecimalPlaces() + Coeff.GetDecimalPlaces(), Offset.GetDecimalPlaces());
-                value = Math.Round(double.Parse(value.ToString()) * Coeff + Offset, places);
+                int places = Math.Max(targetValue.GetDecimalPlaces() + Coeff.GetDecimalPlaces(), Offset.GetDecimalPlaces());
+                //舍入位数不得小于0或大于15
+                //places = places > 15 ? 15 : places;
+                targetValue = Math.Round(double.Parse(targetValue.ToString()) * Coeff + Offset, Math.Min(places, 15));
             }
             SET_VALUE:
-            Value = value?.ToString();
+            Value = targetValue?.ToString();
         }
+
+        //public void SetItemValue(object dataSource, NullValueHandling nullValueHandling = NullValueHandling.Skip)
+        ///// <summary>
+        ///// 假如属性或给定的数据源不为空，则从数据源向Item赋值
+        ///// </summary>
+        ///// <param name="dataSource"></param>
+        ///// <param name="nullValueHandling">当获取到的标签值为空时的处理方法</param>
+        //public void SetItemValue(object dataSource, NullValueHandling nullValueHandling = NullValueHandling.Skip)
+        //{
+        //    //假如数据源对象为空，则跳过赋值操作
+        //    if (dataSource == null)
+        //        return;
+        //    InitTargetProperty(dataSource);
+
+        //    //默认值为空，假如属性为空或属性所属实体为空，跳到最后赋值部分
+        //    object value = null;
+        //    //目标属性类型
+        //    Type type = null;
+        //    if (Property == null || !Property.CanRead || _upperLevelEntity == null)
+        //        //goto SET_VALUE;
+        //        goto NULL_HANDLING;
+        //    //假如没有提供方括号索引，则直接获取值，否则根据索引获取元素值
+        //    if (_indices != null && _indices.Length > 0)
+        //    {
+        //        value = _currentEntity;
+        //        UpdateCurrentEntityByIndexes(out type);
+        //    }
+        //    else
+        //    {
+        //        value = Property.GetValue(_upperLevelEntity);
+        //        type = Property.PropertyType;
+        //    }
+        //    NULL_HANDLING:
+        //    //对应属性值为null时的操作（值为null或者未找到属性）
+        //    if (value == null)
+        //    {
+        //        //直接跳到最后赋值部分，值为null将不会写入
+        //        if (nullValueHandling == NullValueHandling.Skip)
+        //            goto SET_VALUE;
+        //        //无视空值，假如为值类型将初始化为新实例（引用类型依然为null）
+        //        else if (nullValueHandling == NullValueHandling.Ignore)
+        //            value = type.CreateDefValue();
+        //    }
+
+        //    //假如值的系数不为0，则试图乘以这个系数并加上偏移量
+        //    if (Coeff != 0)
+        //    {
+        //        //舍入的小数点位数：将值与系数的小数点位数相加，相加的和与偏移量的小数点位数取较大值
+        //        int places = Math.Max(value.GetDecimalPlaces() + Coeff.GetDecimalPlaces(), Offset.GetDecimalPlaces());
+        //        //舍入位数不得小于0或大于15
+        //        //places = places > 15 ? 15 : places;
+        //        value = Math.Round(double.Parse(value.ToString()) * Coeff + Offset, Math.Min(places, 15));
+        //    }
+        //    SET_VALUE:
+        //    Value = value?.ToString();
+        //}
     }
 }

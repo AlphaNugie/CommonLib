@@ -1,14 +1,23 @@
 ﻿using CommonLib.DataUtil;
+#if DA
 using OPCAutomation;
 using OpcLibrary.Core;
 using OpcLibrary.Model;
+#elif UA
+using OpcLibrary.Ua.Core;
+using OpcLibrary.Ua.Model;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 
+#if DA
 namespace OpcLibrary.DataUtil
+#elif UA
+namespace OpcLibrary.Ua.DataUtil
+#endif
 {
     /// <summary>
     /// OPC项的数据库服务类
@@ -125,11 +134,11 @@ select i.*, 0 changed from t_plc_opcitem i
         }
 
         /// <summary>
-        /// 根据多个ID删除
+        /// 根据多个ID删除OPC项记录
         /// </summary>
         /// <param name="ids">多个ID的列表</param>
         /// <returns></returns>
-        public int DeleteOpcItemByIds(IEnumerable<int> ids)
+        public int DeleteOpcItemsByIds(IEnumerable<int> ids)
         {
             string sql = string.Format("delete from t_plc_opcitem where record_id in ({0})", string.Join(", ", ids.ToArray()));
             return Provider.ExecuteSql(sql);

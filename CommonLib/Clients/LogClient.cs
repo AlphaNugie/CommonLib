@@ -64,12 +64,17 @@ namespace CommonLib.Clients
         /// <summary>
         /// 是否在文件名中添加时间
         /// </summary>
-        public bool AddDate { get; set; }
+        public bool AddDate { get; set; } = true;
 
         /// <summary>
         /// 记录是否添加时间
         /// </summary>
         public bool LogWithTime { get; set; } = true;
+
+        /// <summary>
+        /// 每条记录内将时间格式化的格式字符串，默认为"yyyy-MM-dd HH:mm:ss"
+        /// </summary>
+        public string DateTimeFormatInContent { get; set; } = "yyyy-MM-dd HH:mm:ss";
         #endregion
 
         ///// <summary>
@@ -165,10 +170,10 @@ namespace CommonLib.Clients
                 foreach (var line in lines)
                 {
                     string prefix = level == 0 ? string.Empty : new string(' ', level * 4); //根据每一行的级别添加空格
-                    list.Add((LogWithTime ? Functions.AddTimeToMessage(prefix) : prefix) + line);
+                    list.Add((LogWithTime ? Functions.AddTimeToMessage(prefix, DateTimeFormatInContent) : prefix) + line);
                 }
 
-                WriteLinesToFile(list);
+                WriteLinesToFile(list, AddDate);
             }
             catch (IOException) { }
         }

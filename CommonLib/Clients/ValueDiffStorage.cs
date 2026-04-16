@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Web;
+//using System.Web.UI.Design.WebControls;
 
 namespace CommonLib.Clients
 {
@@ -20,12 +21,22 @@ namespace CommonLib.Clients
         /// <summary>
         /// 变化趋势改变事件
         /// </summary>
-        public event ValueTrendChangedEventHandler<T> ValueTrendChanged;
+        public event ValueTrendChangedEventHandler<T>
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            ValueTrendChanged;
 
         /// <summary>
         /// 值改变事件
         /// </summary>
-        public event ValueChangedEventHandler<T> ValueChangedEvent;
+        public event ValueChangedEventHandler<T>
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            ValueChangedEvent;
         #endregion
 
         #region 属性
@@ -40,26 +51,76 @@ namespace CommonLib.Clients
         public uint DiffTickerThreshold { get; set; }
 
         /// <summary>
+        /// 量化变化量差异度的阈值，当差异度超过这个值时 <see cref="ValueChanged"/> 属性为true，同时 <see cref="ValueChangedEvent"/> 事件被触发
+        /// <para/>假如泛型 T 不支持直接的数值转换或减法运算符，则忽略此阈值、直接将当前值与上一个值比较
+        /// <para/>假如泛型 T 为数值类型，则此阈值默认值为0，此时只要当前值与上一个值不同，<see cref="ValueChanged"/> 属性就将为true
+        /// <para/>假如泛型 T 为数值类型且阈值设置为负数，这种情况下不论新值与旧值的比较结果如何，<see cref="ValueChanged"/> 属性都将为true
+        /// </summary>
+        public T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            ValueChangedThreshold
+        { get; set; }
+
+        /// <summary>
         /// 上一个值
         /// </summary>
-        public T PrevValue { get; private set; } = default;
+        public T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            PrevValue
+        { get; private set; } = default;
 
-        private T _currValue = default, _prevValueSecAgo = default, _currValueSecLater = default; //当前值
+        private T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            _currValue = default, _prevValueSecAgo = default, _currValueSecLater = default; //当前值
         private DateTime /*_prevTime = DateTime.Now, */_currTime = DateTime.Now;
         /// <summary>
         /// 当前值，改变后将历史值存入FormerValue字段
         /// </summary>
-        public T CurrentValue
+        public T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+             CurrentValue
         {
             get { return _currValue; }
             set
             {
-                ValueChanged = !value.Equals(_currValue);
-                //更新值
-                PrevValue = _currValue;
-                _currValue = value;
+                //ValueChanged = !value.Equals(_currValue);
+                ////更新值
+                //PrevValue = _currValue;
+                //_currValue = value;
+                //if (ValueChanged)
+                //    ValueChangedEvent?.BeginInvoke(this, new ValueChangedEventArgs<T>(PrevValue, _currValue), null, null);
+
+                //尝试计算差值并与给定的差异量化阈值
+                bool success = CompareValues(value, _currValue, ValueChangedThreshold,
+                    out T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            diff,
+                    out int compareResult);
+                //判断 <see cref="ValueChanged"/> 属性是否为true，假如上面的比较成功，则使用上面的比较结果，否则仅判断新值与旧值是否不同
+                //ValueChanged = success ? compareResult > 0 : !value.Equals(_currValue);
+                ValueChanged = success ? compareResult > 0 : value != null && !value.Equals(_currValue);
                 if (ValueChanged)
+                {
+                    //更新值
+                    PrevValue = _currValue;
+                    _currValue = value;
                     ValueChangedEvent?.BeginInvoke(this, new ValueChangedEventArgs<T>(PrevValue, _currValue), null, null);
+                }
                 //判断变化趋势时，每两次比较之间的间隔不可小于1秒，否则不进行下一步
                 var now = DateTime.Now;
                 var seconds = (now - _currTime).TotalSeconds;
@@ -75,14 +136,16 @@ namespace CommonLib.Clients
                 //尝试比较数值的变化度，假如泛型为非数值类型将报错、并继续向下尝试用CompareTo方法计算变化度，否则直接跳到末尾计算速度部分
                 try
                 {
-                    scale = (double)(object)_currValueSecLater - (double)(object)_prevValueSecAgo;
+                    //scale = (double)(object)_currValueSecLater - (double)(object)_prevValueSecAgo;
+                    scale = Convert.ToDouble(_currValueSecLater) - Convert.ToDouble(_prevValueSecAgo);
                     goto END;
                 }
                 catch (Exception) { }
                 ////备用的趋势比较方式，可能泛型不支持比较方法，因此需捕捉可能出现的异常
                 //try { CurrentTrend = _currValue.CompareTo(PrevValue); } catch (Exception) { }
                 //备用的数值变化度计算方式，使用CompareTo方法
-                scale = _currValueSecLater.CompareTo(_prevValueSecAgo);
+                //scale = _currValueSecLater.CompareTo(_prevValueSecAgo);
+                scale = _currValueSecLater == null ? 0 : _currValueSecLater.CompareTo(_prevValueSecAgo);
             END:
                 //var seconds = (_currTime - _prevTime).TotalSeconds;
                 CurrentSpeed = scale / seconds;
@@ -160,6 +223,7 @@ namespace CommonLib.Clients
         }
         #endregion
 
+        #region 构造器
         /// <summary>
         /// 使用默认的参数初始化，差异计数器阈值为4，速度阈值为0
         /// </summary>
@@ -170,11 +234,20 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="diffTickerThreshold"></param>
         /// <param name="speedThreshold"></param>
-        public ValueDiffStorage(uint diffTickerThreshold, double speedThreshold = 0)
+        /// <param name="valueChangedThreshold">量化变化量差异度的阈值，当差异度超过这个值时 <see cref="ValueChanged"/> 属性为true，同时 <see cref="ValueChangedEvent"/> 事件被触发</param>
+        public ValueDiffStorage(uint diffTickerThreshold, double speedThreshold = 0,
+            T
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            valueChangedThreshold = default)
         {
             DiffTickerThreshold = diffTickerThreshold;
             SpeedThreshold = speedThreshold;
+            ValueChangedThreshold = valueChangedThreshold;
         }
+        #endregion
 
         /// <summary>
         /// 设置当前值
@@ -183,6 +256,58 @@ namespace CommonLib.Clients
         public void SetValue(T value)
         {
             CurrentValue = value;
+        }
+
+        /// <summary>
+        /// 比较两个值，并返回变化量的绝对值和比较结果
+        /// <para/>假如 T 不能转换为 double 或者 T 不能从 double 转换回来，则使用 CompareTo 方法
+        /// <para/>这里的逻辑假设你需要自己实现从 a 和 b 计算变化量的绝对值的逻辑
+        /// <para/>因为 IComparable 只提供了比较方法，并没有直接提供数值计算方法
+        /// </summary>
+        /// <param name="a">变量a</param>
+        /// <param name="b">变量b</param>
+        /// <param name="diffThres">变化量的阈值，将变化量（变量a与b之差）的绝对值与此阈值进行比较</param>
+        /// <param name="diffT">（通过参数输出）变化量（变量a与b之差）的绝对值</param>
+        /// <param name="comparisonResult">（通过参数输出）变化量（的绝对值）与阈值的比较结果，大于0表示变化量大于阈值，小于0表示变化量小于阈值，等于0表示变化量等于阈值</param>
+        /// <returns>返回一个布尔值，表示进行的比较过程是否成功，假如为false通常代表 T 类型不支持直接的数值转换或减法运算符，需要自定义变化量计算逻辑</returns>
+#if NET45
+        public bool CompareValues(T a, T b, T diffThres, out T diffT, out int comparisonResult)
+#elif NET9_0_OR_GREATER
+        public bool CompareValues(T? a, T? b, T? diffThres, out T? diffT, out int comparisonResult)
+#endif
+        {
+            bool success = false;
+            diffT = default;
+            comparisonResult = 0;
+            try
+            {
+                // 计算 a 和 b 之间变化量的绝对值
+                double diff = Math.Abs(Convert.ToDouble(a) - Convert.ToDouble(b));
+
+                // 将 diff 转换回 T 类型以与 变化阈值 进行比较
+                // 这里假设 T 有一个构造函数接受 double 类型
+                diffT = (T)Convert.ChangeType(diff, typeof(T));
+
+                // 比较 变化量 和 变化阈值
+                comparisonResult = diffT.CompareTo(diffThres);
+
+                //if (comparisonResult > 0)
+                //    Console.WriteLine("变化量的绝对值大于 阈值");
+                //else if (comparisonResult < 0)
+                //    Console.WriteLine("变化量的绝对值小于 阈值");
+                //else
+                //    Console.WriteLine("变化量的绝对值等于 阈值");
+                success = true;
+            }
+            //catch (InvalidCastException)
+            catch (Exception)
+            {
+                // 如果 T 不能转换为 double 或者 T 不能从 double 转换回来，则使用 CompareTo 方法
+                // 这里的逻辑假设你需要自己实现从 a 和 b 计算变化量的绝对值的逻辑
+                // 因为 IComparable 只提供了比较方法，并没有直接提供数值计算方法
+                Console.WriteLine("T 类型不支持直接的数值转换或减法运算符，需要自定义变化量计算逻辑");
+            }
+            return success;
         }
     }
 }

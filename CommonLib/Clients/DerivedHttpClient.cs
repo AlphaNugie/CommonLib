@@ -9,13 +9,14 @@ using System.Net.Http.Headers;
 
 namespace CommonLib.Clients
 {
+#if NET45
     /// <summary>
     /// HTTP发送客户端
     /// </summary>
     public class DerivedHttpClient
     {
-        private/* static*/ readonly HttpClient client = new HttpClient();
-        
+        private readonly HttpClient client = new HttpClient();
+
         /// <summary>
         /// 执行任务时的等待时间（毫秒，超过此时间报Timeout异常）
         /// </summary>
@@ -34,6 +35,28 @@ namespace CommonLib.Clients
         {
             Timeout = timeout;
         }
+#elif NET9_0_OR_GREATER
+    /// <summary>
+    /// HTTP发送客户端
+    /// </summary>
+    /// <remarks>
+    /// 用给定的等待时间（毫秒）初始化
+    /// </remarks>
+    /// <param name="timeout">执行任务时的等待时间（毫秒，超过此时间报Timeout异常）</param>
+    public class DerivedHttpClient(int timeout)
+    {
+        private readonly HttpClient client = new();
+
+        /// <summary>
+        /// 执行任务时的等待时间（毫秒，超过此时间报Timeout异常）
+        /// </summary>
+        public int Timeout { get; set; } = timeout;
+
+        /// <summary>
+        /// 默认构造器
+        /// </summary>
+        public DerivedHttpClient() : this(5000) { }
+#endif
 
         /// <summary>
         /// 验证授权
@@ -53,14 +76,16 @@ namespace CommonLib.Clients
         {
             url = FixUrl(url);
             Task<HttpResponseMessage> GetTask = client.GetAsync(url);
-            try
-            {
-                return RunTask(GetTask);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            return RunTask(GetTask);
+            //try
+            //{
+            //    return RunTask(GetTask);
+            //}
+            //catch (Exception e)
+            //{
+            //    //会导致修改堆栈信息
+            //    throw e;
+            //}
         }
 
         /// <summary>
@@ -74,8 +99,13 @@ namespace CommonLib.Clients
         {
             url = FixUrl(url);
             byte[] byteArray = Encoding.UTF8.GetBytes(content);
+#if NET45
             MemoryStream memory = new MemoryStream(byteArray);
             StreamContent contentStream = new StreamContent(memory);
+#elif NET9_0_OR_GREATER
+            MemoryStream memory = new(byteArray);
+            StreamContent contentStream = new(memory);
+#endif
             //contentStream.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
             string type = string.Empty;
             switch (contentType)
@@ -95,14 +125,16 @@ namespace CommonLib.Clients
             }
             contentStream.Headers.Add("Content-Type", type);
             Task<HttpResponseMessage> PostTask = client.PostAsync(url, contentStream);
-            try
-            {
-                return RunTask(PostTask);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            return RunTask(PostTask);
+            //try
+            //{
+            //    return RunTask(PostTask);
+            //}
+            //catch (Exception e)
+            //{
+            //    //会更改堆栈信息
+            //    throw e;
+            //}
         }
 
         /// <summary>
@@ -144,14 +176,16 @@ namespace CommonLib.Clients
         {
             url = FixUrl(url);
             Task<HttpResponseMessage> PostTask = client.PostAsync(url, new FormUrlEncodedContent(content));
-            try
-            {
-                return RunTask(PostTask);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            return RunTask(PostTask);
+            //try
+            //{
+            //    return RunTask(PostTask);
+            //}
+            //catch (Exception e)
+            //{
+            //    //会更改堆栈信息
+            //    throw e;
+            //}
         }
 
         /// <summary>
@@ -163,14 +197,16 @@ namespace CommonLib.Clients
         {
             url = FixUrl(url);
             Task<HttpResponseMessage> PutTask = client.PutAsync(url, null);
-            try
-            {
-                return RunTask(PutTask);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            return RunTask(PutTask);
+            //try
+            //{
+            //    return RunTask(PutTask);
+            //}
+            //catch (Exception e)
+            //{
+            //    //会更改堆栈信息
+            //    throw e;
+            //}
         }
 
         /// <summary>
@@ -183,14 +219,16 @@ namespace CommonLib.Clients
         {
             url = FixUrl(url);
             Task<HttpResponseMessage> PutTask = client.PutAsync(url, new FormUrlEncodedContent(content));
-            try
-            {
-                return RunTask(PutTask);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            return RunTask(PutTask);
+            //try
+            //{
+            //    return RunTask(PutTask);
+            //}
+            //catch (Exception e)
+            //{
+            //    //会更改堆栈信息
+            //    throw e;
+            //}
         }
 
         /// <summary>
@@ -202,14 +240,16 @@ namespace CommonLib.Clients
         {
             url = FixUrl(url);
             Task<HttpResponseMessage> DeleteTask = client.DeleteAsync(url);
-            try
-            {
-                return RunTask(DeleteTask);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            return RunTask(DeleteTask);
+            //try
+            //{
+            //    return RunTask(DeleteTask);
+            //}
+            //catch (Exception e)
+            //{
+            //    //会更改堆栈信息
+            //    throw e;
+            //}
         }
 
         /// <summary>
@@ -243,17 +283,9 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        private/* static*/ string FixUrl(string url)
+        private static string FixUrl(string url)
         {
             return !url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? "http://" + url : url;
-            //if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            //{
-            //    return "http://" + url;
-            //}
-            //else
-            //{
-            //    return url;
-            //}
         }
     }
 

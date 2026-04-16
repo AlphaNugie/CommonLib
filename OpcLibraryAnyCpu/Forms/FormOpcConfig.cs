@@ -6,14 +6,14 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+#if DA
 using OPCAutomation;
+#endif
 using CommonLib.DataUtil;
 using CommonLib.Function;
 using CommonLib.UIControlUtil;
 using CommonLib.Extensions;
 using System.IO;
-using OpcLibrary;
-using OpcLibrary.Core;
 using OpcLibrary.DataUtil;
 using OpcLibrary.Model;
 //using ScanOutputDemo.DataUtil;
@@ -26,7 +26,7 @@ namespace OpcLibrary.Controls.Forms
     public partial class FormOpcConfig : Form
     {
         private readonly DataService_OpcItem _dataService = new DataService_OpcItem(); //数据库服务类
-        private readonly OpcUtilHelper _opcHelper = new OpcUtilHelper(1000, true);
+        private readonly OpcUtilHelper _opcHelper = new OpcUtilHelper(/*1000, */true);
         private readonly BindingList<OpcItem> _binding = new BindingList<OpcItem>();
 
         #region 事件
@@ -70,15 +70,19 @@ namespace OpcLibrary.Controls.Forms
         {
             InitializeComponent();
             InitControls();
+            //DataSourceRefresh();
+        }
+
+        private void FormOpcConfig_Load(object sender, EventArgs e)
+        {
             DataSourceRefresh();
         }
 
-        private void FormOpcServerTest_Load(object sender, EventArgs e) { }
-
         private void InitControls()
         {
-            OpcServerIp = OpcConst.OpcServerIp;
-            OpcServerName = OpcConst.OpcServerName;
+            //OpcServerIp = OpcConst.OpcServerIp;
+            OpcServerIp = "127.0.0.1";
+            //OpcServerName = OpcConst.OpcServerName;
             dataGridView_Main.AutoGenerateColumns = false;
             dataGridView_Main.SetDoubleBuffered(true);
             dataGridView_Main.DataSource = _binding;
@@ -91,6 +95,14 @@ namespace OpcLibrary.Controls.Forms
         /// </summary>
         private void DataSourceRefresh()
         {
+            //检测Provider是否正常初始化，未正常初始化则浏览选择db文件
+            try { var connStr = _dataService.Provider.ConnStr; }
+            catch (NullReferenceException)
+            {
+                button_BrowseFile.PerformClick();
+                return;
+            }
+
             CheckForTableColumns();
             DataTable table;
             try { table = _dataService.GetAllOpcItemsOrderbyId(); }
@@ -103,8 +115,6 @@ namespace OpcLibrary.Controls.Forms
 
             _binding.Clear();
             table.Rows.Cast<DataRow>().ToList().ForEach(row => _binding.Add(new OpcItem(row)));
-            //dataGridView_Main.DataSource = table;
-            //dataGridView_Main.DataSource = table;
         }
 
         /// <summary>
@@ -150,10 +160,6 @@ namespace OpcLibrary.Controls.Forms
             }
             //触发OPC连接成功事件
             OpcServerConnected?.BeginInvoke(this, new OpcServerConnectedEventArgs(ip, server), null, null);
-            ////连接成功后保存到配置文件
-            //BaseConst.IniHelper.WriteData("OPC", "ServerIp", ip);
-            //BaseConst.IniHelper.WriteData("OPC", "ServerName", server);
-            /*string */
             message = string.Format("位于{0}的OPC服务{1}连接成功", ip, server);
             MessageBox.Show(message, "提示");
         }
@@ -205,9 +211,6 @@ namespace OpcLibrary.Controls.Forms
         /// <param name="e"></param>
         private void Button_Add_Click(object sender, EventArgs e)
         {
-            ////按数据库字段的顺序排列，最后一列为remark
-            //object[] values = new object[] { 0, string.Empty, 1, string.Empty, 0, 0, 0, 0 };
-            //((DataTable)dataGridView_Main.DataSource).Rows.Add(values);
             OpcItem item = new OpcItem() { ItemId = string.Empty, OpcGroupId = 1, FieldName = string.Empty };
             _binding.Add(item);
             if (dataGridView_Main.Rows.Count == 0)
@@ -225,26 +228,7 @@ namespace OpcLibrary.Controls.Forms
             if (dataGridView_Main.Rows.Count == 0)
                 return;
 
-            //List<OpcItem> list = new List<OpcItem>();
-            //foreach (DataGridViewRow row in dataGridView_Main.Rows)
-            //{
-            //    //object obj = row.Cells["Column_RecordId"].Value;
-            //    //obj = row.Cells["Column_Changed"].Value;
-            //    //找到新增或修改行
-            //    if (row.Cells["Column_RecordId"].Value.ToString().Equals("0") || row.Cells["Column_Changed"].Value.ToString().Equals("1"))
-            //    {
-            //        //OpcItem item = row.Convert2Object<OpcItem>(row, false); //不抛出异常
-            //        OpcItem item = row.Convert2Object<OpcItem>(false); //不抛出异常
-            //        if (item.OpcGroupId > 0) list.Add(item);
-            //        else
-            //        {
-            //            MessageBox.Show("所属OPC组不得为空", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //            return;
-            //        }
-            //    }
-            //}
             List<OpcItem> list = _binding.Where(item => (item.RecordId == 0 || item.Changed) && item.OpcGroupId > 0).ToList(); //只要新增或修改行
-
             bool result;
             try { result = _dataService.SaveOpcItems(list); }
             catch (Exception ex)
@@ -289,7 +273,7 @@ namespace OpcLibrary.Controls.Forms
                     list.Add(id);
             });
             int result = 0;
-            try { result = _dataService.DeleteOpcItemByIds(list); }
+            try { result = _dataService.DeleteOpcItemsByIds(list); }
             catch (Exception ex)
             {
                 MessageBox.Show("删除记录时出现问题 " + ex.Message);
@@ -322,12 +306,6 @@ namespace OpcLibrary.Controls.Forms
                 MessageBox.Show(string.Format("导入文件{0}的操作失败：{1}", fileName, ex.Message));
                 return;
             }
-            //items.ForEach(item =>
-            //{
-            //    //按数据库字段的顺序排列
-            //    object[] values = new object[] { 0, item.ItemId, item.OpcGroupId, item.FieldName, item.Enabled ? 1 : 0, item.Coeff, item.Offset, 0 };
-            //    ((DataTable)dataGridView_Main.DataSource).Rows.Add(values);
-            //});
 
             //读取与写入的标签分开查询
             List<OpcItem> itemsToRead = _binding.Where(item => item.OpcGroupId == 1).ToList(), itemsToWrite = _binding.Where(item => item.OpcGroupId > 1).ToList();
@@ -397,11 +375,13 @@ namespace OpcLibrary.Controls.Forms
             bool writing = columnnName.Equals("Column_WriteValue");
 
             #region 添加Item
+#if DA
             if (_opcHelper.ServerState != OPCServerState.OPCRunning)
             {
                 MessageBox.Show("OPC服务未连接", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+#endif
             string itemId = dataGridView_Main.Rows[e.RowIndex].Cells["Column_ItemId"].Value.ToString();
             if (!_opcHelper.SetItem(itemId, 1, out string message))
             {

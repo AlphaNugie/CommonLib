@@ -8,6 +8,9 @@ using System.Windows.Forms;
 
 namespace CommonLib.UIControlUtil
 {
+    /// <summary>
+    /// TabControl控件工具类
+    /// </summary>
     public static class TabControlUtil
     {
         /// <summary>
@@ -20,7 +23,13 @@ namespace CommonLib.UIControlUtil
             tabControl.ShowForm(form, DockStyle.Fill);
         }
 
+        /// <summary>
+        /// 在TabControl页集合中加载窗体对象的方法的委托
+        /// </summary>
+        /// <param name="form"></param>
+        /// <param name="dock"></param>
         public delegate void ShowFormHandler(Form form, DockStyle? dock);
+
         /// <summary>
         /// 在TabControl页集合中加载窗体对象，指定停靠方式，假如已存在名称(Name)相同的TabPage则放弃操作
         /// </summary>

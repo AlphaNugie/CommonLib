@@ -1,12 +1,20 @@
 ﻿using CommonLib.DataUtil;
+#if DA
 using OpcLibrary.Core;
+#elif UA
+using OpcLibrary.Ua.Core;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 
+#if DA
 namespace OpcLibrary.DataUtil
+#elif UA
+namespace OpcLibrary.Ua.DataUtil
+#endif
 {
     /// <summary>
     /// OPC组的数据库服务类
@@ -41,7 +49,7 @@ namespace OpcLibrary.DataUtil
         {
             if (!base.CheckForTableColumns(out message))
                 return false;
-            var groupNames = _provider.Query("select * from " + TableName).Rows.Cast<DataRow>().Select(row => row["group_name"].ToString()).ToList();
+            var groupNames = Provider.Query("select * from " + TableName).Rows.Cast<DataRow>().Select(row => row["group_name"].ToString()).ToList();
             var sqls = new List<string>();
             if (!groupNames.Contains("OPC_GROUP_READ"))
                 sqls.Add(string.Format("insert into {0} (group_name, group_type) values ('OPC_GROUP_READ', 1)", TableName));
@@ -54,9 +62,9 @@ namespace OpcLibrary.DataUtil
             //    string.Format("insert into {0} (group_name, group_type) values ('OPC_GROUP_READ', 1)", TableName),
             //    string.Format("insert into {0} (group_name, group_type) values ('OPC_GROUP_WRITE', 2)", TableName),
             //};
-            bool result = _provider.ExecuteSqlTrans(sqls);
+            bool result = Provider.ExecuteSqlTrans(sqls);
             if (!result)
-                message = _provider.ErrorMessage;
+                message = Provider.ErrorMessage;
             return result;
         }
     }

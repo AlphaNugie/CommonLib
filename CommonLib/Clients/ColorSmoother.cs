@@ -10,7 +10,7 @@ namespace CommonLib.Clients
 {
     /// <summary>
     /// 颜色渐变器，具有6个节点，分别是红（RGB 255 0 0），黄（RGB 255 255 0），绿（RGB 0 255 0），青（RGB 0 255 255），蓝（RGB 0 0 255），紫（RGB 255 0 255）
-    /// R G B三个通道值随着“距离”变化轮流周期性振动的过程，每两个相邻节点之间的分段长度为256（当实数落在[0,256)区间内时向下取整），6个节点存在5个分段，总距离为256x5=1280
+    /// <para/>R G B三个通道值随着“距离”变化轮流周期性振动的过程，每两个相邻节点之间的分段长度为256（当实数落在[0,256)区间内时向下取整），6个节点存在5个分段，总距离为256x5=1280
     /// </summary>
     public class ColorSmoother
     {
@@ -18,11 +18,13 @@ namespace CommonLib.Clients
 
         /// <summary>
         /// 最低数值，对应紫色，RGB(255, 0, 255)
+        /// <para/>小于最低数据值时，返回透明
         /// </summary>
         public double Bottom { get; private set; }
 
         /// <summary>
-        /// 最高数值，对应红色，
+        /// 最高数值，对应红色，RGB(255, 0, 0)
+        /// <para/>大于最高数据值时，返回透明
         /// </summary>
         public double Top { get; private set; }
 
@@ -42,6 +44,7 @@ namespace CommonLib.Clients
 
         /// <summary>
         /// 当前颜色
+        /// <para/>数值不在最大最小范围内时，返回透明
         /// </summary>
         public Color Color { get; private set; }
 
@@ -76,6 +79,7 @@ namespace CommonLib.Clients
 
         /// <summary>
         /// 根据给定值获取对应颜色
+        /// <para/>数值不在最大最小范围内时，返回透明
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -119,7 +123,7 @@ namespace CommonLib.Clients
         /// <param name="basic">基础步数</param>
         /// <param name="step">在基础步数之后再继续振动的步数</param>
         /// <returns></returns>
-        private int GetBounced(int basic, int step)
+        private static int GetBounced(int basic, int step)
         {
             if (step <= 0)
                 return 0;

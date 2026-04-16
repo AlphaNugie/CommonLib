@@ -69,6 +69,7 @@
             this.button_DatabaseTest.Name = "button_DatabaseTest";
             this.button_DatabaseTest.Size = new System.Drawing.Size(170, 40);
             this.button_DatabaseTest.TabIndex = 1;
+            this.button_DatabaseTest.Tag = "数据库测试";
             this.button_DatabaseTest.Text = "数据库";
             this.button_DatabaseTest.UseVisualStyleBackColor = true;
             this.button_DatabaseTest.Click += new System.EventHandler(this.Button_DatabaseTest_Click);

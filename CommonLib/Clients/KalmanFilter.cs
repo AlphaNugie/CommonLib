@@ -40,12 +40,12 @@ namespace CommonLib.Clients
         /// <summary>
         /// 估计值相关
         /// </summary>
-        public ValueSet Values { get; private set; }
+        public ValueSet Values { get; private set; } = new ValueSet();
 
         /// <summary>
         /// 估计协方差相关
         /// </summary>
-        public ValueSet Covars { get; private set; }
+        public ValueSet Covars { get; private set; } = new ValueSet();
 
         /// <summary>
         /// 当前时刻观测值

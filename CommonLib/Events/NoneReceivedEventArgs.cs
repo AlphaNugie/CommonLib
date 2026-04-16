@@ -20,7 +20,13 @@ namespace CommonLib.Events
         /// <summary>
         /// 发送所接收数据的套接字
         /// </summary>
-        public Socket Socket { get; set; }
+        public Socket
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            Socket
+        { get; set; }
 
         /// <summary>
         /// 默认构造器

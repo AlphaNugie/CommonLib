@@ -15,7 +15,13 @@ namespace CommonLib.Function
         /// <summary>
         /// System.Core程序集
         /// </summary>
-        public static Assembly SystemCoreAssembly { get; } = GetSystemCoreAssembly();
+        public static Assembly
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            SystemCoreAssembly
+        { get; } = GetSystemCoreAssembly();
 
         /// <summary>
         /// System.Linq.Enumerable的类型对象
@@ -30,18 +36,33 @@ namespace CommonLib.Function
         /// <summary>
         /// System.Linq.Enumerable.ElementAt[T]的静态方法对象
         /// </summary>
-        public static MethodInfo ElementAtMethod { get; } = EnumerableType.GetMethod("ElementAt");
+        public static MethodInfo
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            ElementAtMethod
+        { get; } = EnumerableType.GetMethod("ElementAt");
 
         /// <summary>
         /// System.Array.SetValue的实体方法对象
         /// </summary>
+#if NET45
         public static MethodInfo SetValueMethod { get; } = ArrayType.GetMethod("SetValue", new Type[] { typeof(object), typeof(int) });
+#elif NET9_0_OR_GREATER
+        public static MethodInfo? SetValueMethod { get; } = ArrayType.GetMethod("SetValue", [typeof(object), typeof(int)]);
+#endif
 
         /// <summary>
         /// 获取System.Core程序集
         /// </summary>
         /// <returns></returns>
-        public static Assembly GetSystemCoreAssembly()
+        public static Assembly
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            GetSystemCoreAssembly()
         {
             return Assembly.GetAssembly(new List<int>().ToLookup(i => i).GetType()); //从System.Core程序集中的System.Linq.Lookup类获取程序集
         }
@@ -51,9 +72,15 @@ namespace CommonLib.Function
         /// </summary>
         /// <param name="entityType">从中提取基本类型参数的泛类型</param>
         /// <returns></returns>
+#if NET45
         public static Type GetGenericType(this Type entityType)
         {
             Type genericType = null;
+#elif NET9_0_OR_GREATER
+        public static Type? GetGenericType(this Type entityType)
+        {
+            Type? genericType = null;
+#endif
             //var assemply = Assembly.GetExecutingAssembly();
             //assemply = Assembly.Load("IntercommConsole.OpcOnly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
             //assemply = Assembly.GetEntryAssembly();
@@ -64,13 +91,15 @@ namespace CommonLib.Function
             if (genericTypes != null && genericTypes.Length > 0)
                 genericType = genericTypes[0];
             //假如是数组
-            else if (entityType.FullName.EndsWith("[]"))
+            //else if (entityType.FullName.EndsWith("[]"))
+            else if (entityType.FullName?.EndsWith("[]") == true)
             {
                 string fullName = entityType.FullName.TrimEnd('[', ']');
                 genericType = Type.GetType(fullName);
                 //假如找不到数组基类型，则在入口可执行程序所在的程序集中查找
                 if (genericType == null)
-                    genericType = Assembly.GetEntryAssembly().GetType(fullName);
+                    //genericType = Assembly.GetEntryAssembly().GetType(fullName);
+                    genericType = Assembly.GetEntryAssembly()?.GetType(fullName);
             }
             END:
             return genericType;

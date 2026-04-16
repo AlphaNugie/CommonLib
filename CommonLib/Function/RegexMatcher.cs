@@ -15,6 +15,25 @@ namespace CommonLib.Function
     {
         #region 常用正则表达式
         /// <summary>
+        /// 匹配任意实数的正则表达式
+        /// <para/>-? 表示可选的负号。
+        /// <para/>\d+ 表示至少一个数字，表示整数部分。
+        /// <para/>(\.\d+)? 是一个可选的组，表示小数点后至少一个数字，表示小数部分。
+        /// <para/>([eE][-+]?\d+)? 是一个可选的组，表示科学记数法的指数部分，[eE] 表示可选的 'e' 或 'E'，[-+]? 表示可选的正负号，\d+ 表示至少一个数字，表示指数。
+        /// </summary>
+        public const string RegexPattern_RealNumber = @"-?\d+(\.\d+)?([eE][-+]?\d+)?";
+
+        /// <summary>
+        /// 表示以Unicode编码形式表达的字符的正则表达式（正确形式，转义符\u后面跟随4位16进制数）
+        /// </summary>
+        public const string RegexPattern_UnicodeString = @"(\\u[0-9a-fA-F]{4})+";
+
+        /// <summary>
+        /// 表示以Unicode编码形式表达的字符的正则表达式（适应性更强的形式，转义符\u后面仅跟随2到4位16进制数）
+        /// </summary>
+        public const string RegexPattern_UnicodeString_VariableDigits = @"(\\u[0-9a-fA-F]{2,4})+";
+
+        /// <summary>
         /// 表示0-65535的正整数的正则表达式
         /// </summary>
         public const string RegexPattern_65535 = @"0|[1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5]";
@@ -124,10 +143,16 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的Match对象</returns>
+#if NET45
         public static Match FindFirstMatch_Detail(string input, string pattern)
         {
             IEnumerable<Match> results = FindMatches_Detail(input, pattern);
-            if (results == null || results.Count() == 0)
+#elif NET9_0_OR_GREATER
+        public static Match? FindFirstMatch_Detail(string input, string pattern)
+        {
+            IEnumerable<Match>? results = FindMatches_Detail(input, pattern);
+#endif
+            if (results == null || !results.Any())
                 return null;
 
             return results.First();
@@ -139,10 +164,16 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的字符串数组</returns>
+#if NET45
         public static Match FindLastMatch_Detail(string input, string pattern)
         {
             IEnumerable<Match> results = FindMatches_Detail(input, pattern);
-            if (results == null || results.Count() == 0)
+#elif NET9_0_OR_GREATER
+        public static Match? FindLastMatch_Detail(string input, string pattern)
+        {
+            IEnumerable<Match>? results = FindMatches_Detail(input, pattern);
+#endif
+            if (results == null || !results.Any())
                 return null;
 
             return results.Last();
@@ -154,9 +185,15 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的字符串数组</returns>
+#if NET45
         public static string FindFirstMatch(string input, string pattern)
         {
             Match match = FindFirstMatch_Detail(input, pattern);
+#elif NET9_0_OR_GREATER
+        public static string? FindFirstMatch(string input, string pattern)
+        {
+            Match? match = FindFirstMatch_Detail(input, pattern);
+#endif
             return match?.Value;
         }
 
@@ -166,9 +203,15 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的字符串数组</returns>
+#if NET45
         public static string FindLastMatch(string input, string pattern)
         {
             Match match = FindLastMatch_Detail(input, pattern);
+#elif NET9_0_OR_GREATER
+        public static string? FindLastMatch(string input, string pattern)
+        {
+            Match? match = FindLastMatch_Detail(input, pattern);
+#endif
             return match?.Value;
         }
 
@@ -178,9 +221,15 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的Match数组</returns>
+#if NET45
         public static IEnumerable<Match> FindMatches_Detail(string input, string pattern)
         {
             IEnumerable<Match> infos;
+#elif NET9_0_OR_GREATER
+        public static IEnumerable<Match>? FindMatches_Detail(string input, string pattern)
+        {
+            IEnumerable<Match>? infos;
+#endif
             MatchCollection collection;
 
             try
@@ -190,9 +239,15 @@ namespace CommonLib.Function
                 else
                     infos = (collection = Regex.Matches(input, pattern)).Cast<Match>();
             }
+#if NET45
             catch (Exception e)
             {
                 FileClient.WriteExceptionInfo(e, string.Format("通过正则表达式从字符串获取匹配字符串时出错，输入字符串：{0}，匹配格式：{1}", input, pattern), true);
+#elif NET9_0_OR_GREATER
+            catch (Exception)
+            {
+                //TODO 补充日志记录，或打印错误消息
+#endif
                 throw;
             }
 
@@ -205,10 +260,17 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的字符串数组</returns>
+#if NET45
         public static string[] FindMatches(string input, string pattern)
         {
             IEnumerable<Match> matches = FindMatches_Detail(input, pattern);
             string[] infos = matches?.Select(match => match.Value).ToArray();
+#elif NET9_0_OR_GREATER
+        public static string[]? FindMatches(string input, string pattern)
+        {
+            IEnumerable<Match>? matches = FindMatches_Detail(input, pattern);
+            string[]? infos = matches?.Select(match => match.Value).ToArray();
+#endif
 
             return infos;
         }

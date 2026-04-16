@@ -62,6 +62,7 @@ namespace CommonLib.Clients
         /// <returns>返回字符串的MD5哈希值</returns>
         public static string StringToMD5Hah(string inputString)
         {
+#if NET45
             using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
             {
                 byte[] encryptedBytes = md5.ComputeHash(Encoding.ASCII.GetBytes(inputString));
@@ -70,6 +71,13 @@ namespace CommonLib.Clients
                     stringBuilder.AppendFormat("{0:X2}", encryptedBytes[i]);
                 return stringBuilder.ToString();
             }
+#elif NET9_0_OR_GREATER
+            byte[] encryptedBytes = MD5.HashData(Encoding.ASCII.GetBytes(inputString));
+            StringBuilder stringBuilder = new();
+            for (int i = 0; i < encryptedBytes.Length; i++)
+                stringBuilder.AppendFormat("{0:X2}", encryptedBytes[i]);
+            return stringBuilder.ToString();
+#endif
         }
 
         /// <summary>
@@ -124,6 +132,7 @@ namespace CommonLib.Clients
         {
             try
             {
+#if NET45
                 byte[] byKey = Encoding.UTF8.GetBytes(encryptKey.Substring(0, 32));
                 byte[] byIV = Encoding.UTF8.GetBytes(encryptIV.Substring(0, 16));
                 byte[] inputByteArray = Encoding.UTF8.GetBytes(encryptString);
@@ -142,6 +151,22 @@ namespace CommonLib.Clients
                         return Convert.ToBase64String(mStream.ToArray());
                     }
                 }
+#elif NET9_0_OR_GREATER
+                byte[] byKey = Encoding.UTF8.GetBytes(encryptKey[..32]);
+                byte[] byIV = Encoding.UTF8.GetBytes(encryptIV[..16]);
+                byte[] inputByteArray = Encoding.UTF8.GetBytes(encryptString);
+                using Aes aesAlg = Aes.Create();
+                aesAlg.Key = byKey;
+                aesAlg.IV = byIV;
+                // Create a decrytor to perform the stream transform.
+                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+                MemoryStream mStream = new();
+                using CryptoStream cStream = new(mStream, encryptor, CryptoStreamMode.Write);
+                cStream.Write(inputByteArray, 0, inputByteArray.Length);
+                cStream.FlushFinalBlock();
+                string s = Convert.ToBase64String(mStream.ToArray());
+                return Convert.ToBase64String(mStream.ToArray());
+#endif
             }
             catch
             {
@@ -160,6 +185,7 @@ namespace CommonLib.Clients
         {
             try
             {
+#if NET45
                 byte[] byKey = Encoding.UTF8.GetBytes(decryptKey.Substring(0, 32));
                 byte[] byIV = Encoding.UTF8.GetBytes(decryptIV.Substring(0, 16));
                 byte[] inputByteArray = Convert.FromBase64String(decryptString);
@@ -177,6 +203,21 @@ namespace CommonLib.Clients
                         return decryptedText;
                     }
                 }
+#elif NET9_0_OR_GREATER
+                byte[] byKey = Encoding.UTF8.GetBytes(decryptKey[..32]);
+                byte[] byIV = Encoding.UTF8.GetBytes(decryptIV[..16]);
+                byte[] inputByteArray = Convert.FromBase64String(decryptString);
+                using Aes aesAlg = Aes.Create();
+                aesAlg.Key = byKey;
+                aesAlg.IV = byIV;
+                // Create a decrytor to perform the stream transform.
+                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+                MemoryStream mStream = new(inputByteArray);
+                CryptoStream cStream = new(mStream, decryptor, CryptoStreamMode.Read);
+                using StreamReader sReader = new(cStream);
+                string decryptedText = sReader.ReadToEnd();
+                return decryptedText;
+#endif
             }
             catch
             {
@@ -195,9 +236,15 @@ namespace CommonLib.Clients
         {
             try
             {
+#if NET45
                 byte[] byKey = Encoding.UTF8.GetBytes(encryptKey.Substring(0, 8));
                 byte[] byIV = Encoding.UTF8.GetBytes(encryptIV.Substring(0, 8));
+#elif NET9_0_OR_GREATER
+                byte[] byKey = Encoding.UTF8.GetBytes(encryptKey[..8]);
+                byte[] byIV = Encoding.UTF8.GetBytes(encryptIV[..8]);
+#endif
                 byte[] inputByteArray = Encoding.UTF8.GetBytes(encryptString);
+#if NET45
                 using (DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider())
                 {
                     MemoryStream mStream = new MemoryStream();
@@ -208,6 +255,14 @@ namespace CommonLib.Clients
                         return Convert.ToBase64String(mStream.ToArray());
                     }
                 }
+#elif NET9_0_OR_GREATER
+                using DES cryptoProvider = DES.Create();
+                MemoryStream mStream = new();
+                using CryptoStream cStream = new(mStream, cryptoProvider.CreateEncryptor(byKey, byIV), CryptoStreamMode.Write);
+                cStream.Write(inputByteArray, 0, inputByteArray.Length);
+                cStream.FlushFinalBlock();
+                return Convert.ToBase64String(mStream.ToArray());
+#endif
             }
             catch
             {
@@ -226,9 +281,15 @@ namespace CommonLib.Clients
         {
             try
             {
+#if NET45
                 byte[] byKey = Encoding.UTF8.GetBytes(decryptKey.Substring(0, 8));
                 byte[] byIV = Encoding.UTF8.GetBytes(decryptIV.Substring(0, 8));
+#elif NET9_0_OR_GREATER
+                byte[] byKey = Encoding.UTF8.GetBytes(decryptKey[..8]);
+                byte[] byIV = Encoding.UTF8.GetBytes(decryptIV[..8]);
+#endif
                 byte[] inputByteArray = Convert.FromBase64String(decryptString);
+#if NET45
                 using (DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider())
                 {
                     MemoryStream mStream = new MemoryStream();
@@ -239,6 +300,14 @@ namespace CommonLib.Clients
                         return Encoding.UTF8.GetString(mStream.ToArray());
                     }
                 }
+#elif NET9_0_OR_GREATER
+                using DES cryptoProvider = DES.Create();
+                MemoryStream mStream = new();
+                using CryptoStream cStream = new(mStream, cryptoProvider.CreateDecryptor(byKey, byIV), CryptoStreamMode.Write);
+                cStream.Write(inputByteArray, 0, inputByteArray.Length);
+                cStream.FlushFinalBlock();
+                return Encoding.UTF8.GetString(mStream.ToArray());
+#endif
             }
             catch
             {

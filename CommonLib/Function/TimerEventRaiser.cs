@@ -6,12 +6,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 
+#if NET45
 namespace CommonLib.Function
+#elif NET9_0_OR_GREATER
+namespace CommonLib.Clients
+#endif
 {
     /// <summary>
     /// 计时事件触发器
     /// </summary>
+#if NET45
     public class TimerEventRaiser
+#elif NET9_0_OR_GREATER
+    public class TimerEventRaiser : IDisposable
+#endif
     {
         #region 事件
         /// <summary>
@@ -31,17 +39,29 @@ namespace CommonLib.Function
         /// <summary>
         /// 计时器达到计时阈值
         /// </summary>
+#if NET45
         public event ThresholdReachedEventHandler ThresholdReached;
+#elif NET9_0_OR_GREATER
+        public event ThresholdReachedEventHandler? ThresholdReached;
+#endif
 
         /// <summary>
         /// 点击
         /// </summary>
+#if NET45
         public event ClickedEventHandler Clicked;
+#elif NET9_0_OR_GREATER
+        public event ClickedEventHandler? Clicked;
+#endif
         #endregion
 
         #region 私有成员
         private const uint DEFAULT_INTERVAL = 1000, DEFAULT_RAISE_THRESHOLD = 5000;
+#if NET45
         private readonly Timer _timer = new Timer();
+#elif NET9_0_OR_GREATER
+        private readonly System.Timers.Timer _timer = new();
+#endif
         private uint _interval = DEFAULT_INTERVAL, /*_raisedTimes, */_raiseInterval = DEFAULT_RAISE_THRESHOLD;
         private ulong /*_counter, */_raiseThreshold = DEFAULT_RAISE_THRESHOLD;
         #endregion
@@ -132,6 +152,10 @@ namespace CommonLib.Function
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// 释放当前实例所使用的所有资源
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing)
@@ -204,20 +228,20 @@ namespace CommonLib.Function
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+#if NET45
         public void TimerElapsed(object sender, ElapsedEventArgs e)
+#elif NET9_0_OR_GREATER
+        public void TimerElapsed(object? sender, ElapsedEventArgs e)
+#endif
         {
-            //_counter += _interval;
-            //if (_counter >= RaiseThreshold)
-            //    Raise();
             Counter += _interval;
             if (Counter >= RaiseThreshold)
                 Raise();
-            ////假如不重置，计时器将一直累加，每次判断的阈值都加上触发的次数x触发间隔，已达到每两次触发之间至少有一个触发间隔的时间长度的效果
-            //if (_counter >= _raiseThreshold + _raisedTimes * _raiseInterval)
-            //    Raise();
         }
     }
 
+    #region .net framework 4.5 版本
+#if NET45
     /// <summary>
     /// 计时器达到阈值后触发事件的事件参数类
     /// </summary>
@@ -274,4 +298,56 @@ namespace CommonLib.Function
         /// </summary>
         public ClickedEventArgs() : this(string.Empty) { }
     }
+#endif
+    #endregion
+
+    #region .net 9 版本
+#if NET9_0_OR_GREATER
+    /// <summary>
+    /// 计时器达到阈值后触发事件的事件参数类
+    /// </summary>
+    /// <remarks>
+    /// 构造器
+    /// </remarks>
+    /// <param name="counter">触发时的计时器大小</param>
+    /// <param name="raised_times">触发次数</param>
+    public class ThresholdReachedEventArgs(ulong counter, uint raised_times) : EventArgs
+    {
+        /// <summary>
+        /// 触发时的计时器大小
+        /// </summary>
+        public ulong Counter { get; set; } = counter;
+
+        /// <summary>
+        /// 触发的次数
+        /// </summary>
+        public uint RaisedTimes { get; set; } = raised_times;
+
+        /// <summary>
+        /// 默认构造器
+        /// </summary>
+        public ThresholdReachedEventArgs() : this(0, 0) { }
+    }
+
+    /// <summary>
+    /// 点击事件参数类
+    /// </summary>
+    /// <remarks>
+    /// 构造器
+    /// </remarks>
+    /// <param name="message">点击信息</param>
+    public class ClickedEventArgs(string message)
+    {
+        /// <summary>
+        /// 点击信息
+        /// </summary>
+        public string ClickMessage { get; set; } = message;
+
+        /// <summary>
+        /// 构造器
+        /// </summary>
+        public ClickedEventArgs() : this(string.Empty) { }
+    }
+#endif
+    #endregion
 }

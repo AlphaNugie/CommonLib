@@ -18,14 +18,22 @@ namespace CommonLib.DataUtil
         /// <summary>
         /// SQLite基础操作类的对象
         /// </summary>
-        protected SqliteProvider _provider;
-        //private string _tableName;
+        //protected SqliteProvider _provider;
+        private SqliteProvider _provider;
 
         #region 属性
         /// <summary>
         /// SQLite数据库操作对象
         /// </summary>
-        public SqliteProvider Provider { get => _provider; }
+        //public SqliteProvider Provider { get => _provider; }
+        public SqliteProvider Provider
+        {
+            get
+            {
+                if (_provider == null) throw new NullReferenceException("SQLite数据库操作对象(SqliteProvider)未正确初始化，请尝试执行SetFilePath方法：一般地，这代表需要浏览并选择任意一个db文件");
+                return _provider;
+            }
+        }
 
         /// <summary>
         /// 对应表名称
@@ -67,8 +75,10 @@ namespace CommonLib.DataUtil
         /// <exception cref="ArgumentException">未指定Sqlite文件完整路径</exception>
         public void SetFilePath(string filePath)
         {
+            //if (string.IsNullOrWhiteSpace(filePath))
+            //    throw new ArgumentException(nameof(filePath), "未指定Sqlite文件完整路径");
             if (string.IsNullOrWhiteSpace(filePath))
-                throw new ArgumentException(nameof(filePath), "未指定Sqlite文件完整路径");
+                return;
             if (_provider == null)
                 _provider = new SqliteProvider(filePath);
             else
@@ -83,8 +93,10 @@ namespace CommonLib.DataUtil
         /// <exception cref="ArgumentNullException">未指定Sqlite文件名称</exception>
         public void SetFilePath(string path, string name)
         {
+            //if (string.IsNullOrWhiteSpace(name))
+            //    throw new ArgumentNullException(nameof(name), "未指定Sqlite文件名称");
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name), "未指定Sqlite文件名称");
+                return;
             if (_provider == null)
                 _provider = new SqliteProvider(path, name);
             else
@@ -98,7 +110,7 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public List<SqliteColumnMapping> GetAllColumnMappings(out string message)
         {
-            return _provider.GetColumnMappings(TableName, null, out message);
+            return Provider.GetColumnMappings(TableName, null, out message);
             //return GetColumnMappings(null, out message);
         }
 
@@ -110,7 +122,7 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public List<SqliteColumnMapping> GetColumnMappings(IEnumerable<string> columnNames, out string message)
         {
-            return _provider.GetColumnMappings(TableName, columnNames, out message);
+            return Provider.GetColumnMappings(TableName, columnNames, out message);
         }
 
         /// <summary>
@@ -120,7 +132,7 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public DataTable GetAllRecords(string orderby)
         {
-            return _provider.GetAllRecords(TableName, orderby);
+            return Provider.GetAllRecords(TableName, orderby);
             //string sql = string.Format("select t.*, 0 changed from {0} t {1}", TableName, string.IsNullOrWhiteSpace(orderby) ? string.Empty : "order by t." + orderby);
             //return Provider.Query(sql);
         }
@@ -131,7 +143,7 @@ namespace CommonLib.DataUtil
         /// </summary>
         public virtual bool CheckForTableColumns()
         {
-            return _provider.CheckForTableColumns(TableName, ColumnsMustHave, out _);
+            return Provider.CheckForTableColumns(TableName, ColumnsMustHave, out _);
             //return CheckForTableColumns(out _);
         }
 
@@ -140,7 +152,7 @@ namespace CommonLib.DataUtil
         /// </summary>
         public virtual bool CheckForTableColumns(out string message)
         {
-            return _provider.CheckForTableColumns(TableName, ColumnsMustHave, out message);
+            return Provider.CheckForTableColumns(TableName, ColumnsMustHave, out message);
         }
 
         /// <summary>
@@ -149,7 +161,7 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public bool TableExists(out DataTable table)
         {
-            return _provider.TableExists(TableName, out table);
+            return Provider.TableExists(TableName, out table);
         }
 
         /// <summary>
@@ -159,7 +171,7 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public bool CheckForTable(out DataTable table)
         {
-            return _provider.CheckForTable(TableName, ColumnsMustHave, out table, out _);
+            return Provider.CheckForTable(TableName, ColumnsMustHave, out table, out _);
             //return CheckForTable(out table, out _);
         }
 
@@ -171,7 +183,7 @@ namespace CommonLib.DataUtil
         /// <returns></returns>
         public bool CheckForTable(out DataTable table, out string message)
         {
-            return _provider.CheckForTable(TableName, ColumnsMustHave, out table, out message);
+            return Provider.CheckForTable(TableName, ColumnsMustHave, out table, out message);
         }
 
         /// <summary>

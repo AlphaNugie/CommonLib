@@ -81,6 +81,11 @@ namespace CommonLib.Function
         private const int EWX_FORCEIFHUNG = 0x00000010;
         #endregion
 
+        /// <summary>
+        /// 执行系统操作
+        /// </summary>
+        /// <param name="flg"></param>
+        /// <exception cref="Exception"></exception>
         public static void DoExitWin(int flg)
         {
             #region 给予当前进程操作权限

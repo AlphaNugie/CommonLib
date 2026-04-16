@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace CommonLib.Events
 {
+#if NET45
     /// <summary>
     /// 值变化趋势累积然后改变的事件的参数
     /// </summary>
@@ -54,4 +55,44 @@ namespace CommonLib.Events
             PrevTrend = prevTrend;
         }
     }
+#elif NET9_0_OR_GREATER
+    /// <summary>
+    /// 值变化趋势累积然后改变的事件的参数
+    /// </summary>
+    /// <remarks>
+    /// 用给定的值初始化
+    /// </remarks>
+    /// <param name="prevValue">之前的值</param>
+    /// <param name="currValue">当前值</param>
+    /// <param name="currSpeed">值变化速度</param>
+    /// <param name="currTrend">当前变化趋势</param>
+    /// <param name="prevTrend">之前变化趋势</param>
+    public class ValueTrendChangedEventArgs<T>(T? prevValue, T? currValue, double currSpeed, ValueTrend currTrend, ValueTrend prevTrend) : EventArgs where T : IComparable
+    {
+        /// <summary>
+        /// 上一个值
+        /// </summary>
+        public T? PrevValue { get; set; } = prevValue;
+
+        /// <summary>
+        /// 当前值
+        /// </summary>
+        public T? CurrentValue { get; set; } = currValue;
+
+        /// <summary>
+        /// 当前速度值（值的变化速度，只有当泛型为数值类型或为可比较类型时有效，单位为xxx每秒）
+        /// </summary>
+        public double CurrentSpeed { get; set; } = currSpeed;
+
+        /// <summary>
+        /// 当前趋势
+        /// </summary>
+        public ValueTrend CurrentTrend { get; set; } = currTrend;
+
+        /// <summary>
+        /// 之前的趋势
+        /// </summary>
+        public ValueTrend PrevTrend { get; set; } = prevTrend;
+    }
+#endif
 }

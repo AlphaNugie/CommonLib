@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if NET45
 using CommonLib.Function;
+#elif NET9_0_OR_GREATER
+using CommonLib.Helpers;
+#endif
 
 namespace CommonLib.Events
 {
@@ -15,17 +19,22 @@ namespace CommonLib.Events
         /// <summary>
         /// 接收到的byte数组
         /// </summary>
-        public byte[] ReceivedData { get; set; }
+        public byte[] ReceivedData { get; set; } =
+#if NET45
+            new byte[0];
+#elif NET9_0_OR_GREATER
+            [];
+#endif
 
         /// <summary>
         /// 接收数据的字符串格式
         /// </summary>
-        public string ReceivedInfo_String { get; set; }
+        public string ReceivedInfo_String { get; set; } = string.Empty;
 
         /// <summary>
         /// 接收数据的16进制字符串格式
         /// </summary>
-        public string ReceivedInfo_HexString { get; set; }
+        public string ReceivedInfo_HexString { get; set; } = string.Empty;
 
         /// <summary>
         /// 默认构造器

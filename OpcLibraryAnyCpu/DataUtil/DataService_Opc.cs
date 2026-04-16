@@ -1,12 +1,19 @@
 ﻿using CommonLib.DataUtil;
+#if DA
 using OpcLibrary.Core;
-using OpcLibrary.Model;
+#elif UA
+using OpcLibrary.Ua.Core;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
+#if DA
 namespace OpcLibrary.DataUtil
+#elif UA
+namespace OpcLibrary.Ua.DataUtil
+#endif
 {
     /// <summary>
     /// OpcTask任务使用的OPC数据源服务

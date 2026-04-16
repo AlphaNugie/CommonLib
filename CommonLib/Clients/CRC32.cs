@@ -1,11 +1,14 @@
 ﻿using CommonLib.Extensions;
+#if NET45
 using CommonLib.Function;
+#elif NET9_0_OR_GREATER
+using CommonLib.Helpers;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 
 namespace CommonLib.Clients
 {
@@ -155,7 +158,11 @@ namespace CommonLib.Clients
         /// Initialize the CRC table with given CRC32 parameters.
         /// </summary>
         /// <param name="crc32Params">给定的CRC32参数实体，假如为空则重新初始化并使用默认值</param>
+#if NET45
         public CRC32(CRC32Parameters crc32Params)
+#elif NET9_0_OR_GREATER
+        public CRC32(CRC32Parameters? crc32Params)
+#endif
         {
             mParams = crc32Params ?? new CRC32Parameters();
             if (!sCRC32IsInitialized)
@@ -184,13 +191,13 @@ namespace CommonLib.Clients
             Clear();
         }
 
-        /// <summary>
-        /// 析构函数
-        /// </summary>
-        ~CRC32()
-        {
-            // has nothing to do.
-        }
+        ///// <summary>
+        ///// 析构函数
+        ///// </summary>
+        //~CRC32()
+        //{
+        //    // has nothing to do.
+        //}
         #endregion
 
         /// <summary>
@@ -264,7 +271,7 @@ namespace CommonLib.Clients
         /// <param name="value">即将进行位域调换的值</param>
         /// <param name="theBits">进行位域调换部分的位的长度</param>
         /// <returns></returns>
-        private uint Reflect(uint value, byte theBits)
+        private static uint Reflect(uint value, byte theBits)
         {
             uint reflection = 0;
 
@@ -338,7 +345,8 @@ namespace CommonLib.Clients
             // Divide the message by the polynomial, a byte at time.
             for (int i = 0; i < theLength; ++i)
             {
-                mRemainder = (mRemainder >> 8) ^ sCRCTable[(mRemainder & 0xFF) ^ theDataPtr.ElementAt(i)];
+                byte b = theDataPtr.ElementAt(i);
+                mRemainder = (mRemainder >> 8) ^ sCRCTable[(mRemainder & 0xFF) ^ b];
             }
 
             // The final mRemainder is the CRC result.

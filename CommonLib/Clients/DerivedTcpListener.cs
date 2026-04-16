@@ -18,7 +18,12 @@ namespace CommonLib.Clients
         /// <summary>
         /// 数据接收事件
         /// </summary>
-        public event DataReceivedEventHandler DataReceived;
+        public event DataReceivedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            DataReceived;
         #endregion
 
         #region 私有成员
@@ -30,29 +35,41 @@ namespace CommonLib.Clients
         /// <summary>
         /// 客户端列表
         /// </summary>
+#if NET45
         private List<TcpClient> clientList = new List<TcpClient>();
+#elif NET9_0_OR_GREATER
+        private List<TcpClient> clientList = [];
+#endif
 
-        ///// <summary>
-        ///// 客户端字典
-        ///// </summary>
-        //private Dictionary<string, TcpClient> clientDict = new Dictionary<string, TcpClient>();
         #endregion
 
         #region 属性
         /// <summary>
         /// TcpListener对象
         /// </summary>
-        public TcpListener BaseListener { get; private set; }
+        public TcpListener
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            BaseListener
+        { get; private set; }
 
         /// <summary>
         /// TcpClient用于发送与接收数据的数据流对象
         /// </summary>
-        public NetworkStream NetStream { get; private set; }
+        public NetworkStream
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+            NetStream
+        { get; private set; }
 
         /// <summary>
         /// 服务端IP地址
         /// </summary>
-        public string ServerIp { get; set; }
+        public string ServerIp { get; set; } = "127.0.0.1";
 
         /// <summary>
         /// 服务端端口号
@@ -62,12 +79,12 @@ namespace CommonLib.Clients
         /// <summary>
         /// 服务端名称
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// 最新错误信息
         /// </summary>
-        public string LastErrorMessage { get; private set; }
+        public string LastErrorMessage { get; private set; } = string.Empty;
 
         /// <summary>
         /// 接收缓冲区大小（字节数）
@@ -80,7 +97,8 @@ namespace CommonLib.Clients
                 receiveBufferSize = value;
                 if (receiveBufferSize > 0)
                 {
-                    BaseListener.Server.ReceiveBufferSize = receiveBufferSize;
+                    if (BaseListener!= null)
+                        BaseListener.Server.ReceiveBufferSize = receiveBufferSize;
                     Buffer = new byte[receiveBufferSize];
                 }
             }
@@ -89,7 +107,7 @@ namespace CommonLib.Clients
         /// <summary>
         /// 接收缓冲区
         /// </summary>
-        public byte[] Buffer { get; private set; }
+        public byte[] Buffer { get; private set; } = new byte[1024];
 
         /// <summary>
         /// 客户端列表
@@ -176,9 +194,16 @@ namespace CommonLib.Clients
             return true;
         }
 
-        public void SendData()
+        /// <summary>
+        /// 对所有客户端发送数据
+        /// </summary>
+        public void SendData(byte[] data)
         {
-
+            ClientList?.ForEach(client =>
+            {
+                NetworkStream stream = client.GetStream();
+                stream.Write(data, 0, data.Length);
+            });
         }
 
         /// <summary>
@@ -187,6 +212,8 @@ namespace CommonLib.Clients
         /// <param name="asyncResult"></param>
         private void TcpClientAcceptCallBack(IAsyncResult asyncResult)
         {
+            if (asyncResult.AsyncState == null)
+                throw new InvalidOperationException("AsyncState is null.");
             TcpListener listener = (TcpListener)asyncResult.AsyncState;
             TcpClient client = listener.EndAcceptTcpClient(asyncResult);
             ClientList.Add(client);
@@ -198,8 +225,12 @@ namespace CommonLib.Clients
             }
             catch (Exception ex)
             {
-                //LastErrorMessage = string.Format("从TCP客户端{0}异步获取数据时出错: {1}", client.ToString());
-                FileClient.WriteExceptionInfo(ex, string.Format("从Tcp客户端异步获取数据时出错：IP{0}，端口{1}", ServerIp, ServerPort), true);
+                string message = string.Format("从Tcp客户端(IP{0}，端口{1})异步获取数据时出错：{2}", ServerIp, ServerPort, ex.Message);
+#if NET45
+                FileClient.WriteExceptionInfo(ex,message, true);
+#elif NET9_0_OR_GREATER
+                LastErrorMessage = message;
+#endif
             }
         }
 
@@ -209,6 +240,9 @@ namespace CommonLib.Clients
         /// <param name="ar"></param>
         private void SocketCallBack(IAsyncResult ar)
         {
+            if (ar.AsyncState == null)
+                throw new InvalidOperationException("AsyncState is null.");
+#if NET45
             DerivedTcpClient client = (DerivedTcpClient)ar.AsyncState;
             NetworkStream ns = client.NetStream;
 
@@ -216,8 +250,6 @@ namespace CommonLib.Clients
             {
                 byte[] recdata = new byte[ns.EndRead(ar)];
                 Array.Copy(client.Buffer, recdata, recdata.Length);
-                //receivedEventArgs.ReceivedData = recdata;
-                //receivedEventArgs.ReceivedInfo = HexHelper.ByteArray2HexString
                 if (recdata.Length > 0)
                 {
                     DataReceived?.BeginInvoke(client.Name, new DataReceivedEventArgs(recdata), null, null); //异步输出数据
@@ -226,8 +258,14 @@ namespace CommonLib.Clients
             }
             catch (Exception ex)
             {
+                string message = string.Format("从Tcp服务端(IP地址{0}，端口{1})获取数据的过程中出错：{2}", ServerIp, ServerPort, ex.Message);
+//#if NET45
                 FileClient.WriteExceptionInfo(ex, string.Format("从TcpServer获取数据的过程中出错：IP地址{0}，端口{1}", ServerIp, ServerPort), true);
+//#elif NET9_0_OR_GREATER
+//                LastErrorMessage = message;
+//#endif
             }
+#endif
         }
 
         /// <summary>
@@ -235,7 +273,7 @@ namespace CommonLib.Clients
         /// </summary>
         ~DerivedTcpListener()
         {
-            BaseListener.Stop();
+            BaseListener?.Stop();
         }
     }
 }

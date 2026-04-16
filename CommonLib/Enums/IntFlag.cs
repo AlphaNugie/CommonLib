@@ -6,27 +6,39 @@ using System.Threading.Tasks;
 
 namespace CommonLib.Enums
 {
-    /// <summary>
-    /// 整型类型的标志
-    /// </summary>
-    public enum IntFlag
-    {
-        Byte = 4608,
+    ///// <summary>
+    ///// 整型类型的标志
+    ///// </summary>
+    //public enum IntFlag
+    //{
+    //    /// <summary>
+    //    /// 字节
+    //    /// </summary>
+    //    Byte = 4608,
 
-        SByte = 5120,
+    //    /// <summary>
+    //    /// 有符号字节
+    //    /// </summary>
+    //    SByte = 5120,
 
-        Int16 = 6144,
+    //    /// <summary>
+    //    /// 有符号短整型
+    //    /// </summary>
+    //    Int16 = 6144,
 
-        UInt16 = 4608,
+    //    /// <summary>
+    //    /// 无符号短整型
+    //    /// </summary>
+    //    UInt16 = 4608,
 
-        Int32 = 4096,
+    //    Int32 = 4096,
 
-        UInt32 = 4608,
+    //    UInt32 = 4608,
 
-        Int64 = 4096,
+    //    Int64 = 4096,
 
-        UInt64 = 4608
-    }
+    //    UInt64 = 4608
+    //}
 
     //public static class IntFlagExt
     //{

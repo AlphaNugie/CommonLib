@@ -14,11 +14,16 @@ namespace CommonLib.Events
         /// <summary>
         /// 发送的byte数组
         /// </summary>
-        public byte[] SentData { get; set; }
+        public byte[] SentData { get; set; } =
+#if NET45
+            new byte[0];
+#elif NET9_0_OR_GREATER
+            [];
+#endif
 
         /// <summary>
         /// 发送的字符串
         /// </summary>
-        public string SentInfo { get; set; }
+        public string SentInfo { get; set; } = string.Empty;
     }
 }

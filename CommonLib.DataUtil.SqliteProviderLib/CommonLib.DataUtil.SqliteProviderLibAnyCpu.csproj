@@ -95,6 +95,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug-AnyCpu $(SolutionDir)CommonLib\compiled\AnyCpu</PostBuildEvent>
+    <PostBuildEvent>xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug-AnyCpu $(SolutionDir)CommonLib\compiled\AnyCpu\
+xcopy /e /r /y /exclude:$(SolutionDir)CommonLib\compiled\_uncopy.txt $(ProjectDir)bin\Debug-AnyCpu D:\DLL\AnyCpu</PostBuildEvent>
   </PropertyGroup>
 </Project>

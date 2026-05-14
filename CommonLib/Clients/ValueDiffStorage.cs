@@ -95,15 +95,29 @@ namespace CommonLib.Clients
             get { return _currValue; }
             set
             {
-                //ValueChanged = !value.Equals(_currValue);
-                ////更新值
-                //PrevValue = _currValue;
-                //_currValue = value;
-                //if (ValueChanged)
-                //    ValueChangedEvent?.BeginInvoke(this, new ValueChangedEventArgs<T>(PrevValue, _currValue), null, null);
+                ////ValueChanged = !value.Equals(_currValue);
+                //////更新值
+                ////PrevValue = _currValue;
+                ////_currValue = value;
+                ////if (ValueChanged)
+                ////    ValueChangedEvent?.BeginInvoke(this, new ValueChangedEventArgs<T>(PrevValue, _currValue), null, null);
 
-                //尝试计算差值并与给定的差异量化阈值
-                bool success = CompareValues(value, _currValue, ValueChangedThreshold,
+                //                //尝试计算差值并与给定的差异量化阈值
+                //                bool success = CompareValues(value, _currValue, ValueChangedThreshold,
+                //                    out T
+                //            //.net 9框架下使返回对象可为空
+                //#if NET9_0_OR_GREATER
+                //            ?
+                //#endif
+                //            diff,
+                //                    out int compareResult);
+                //                //判断 <see cref="ValueChanged"/> 属性是否为true，假如上面的比较成功，则使用上面的比较结果，否则仅判断新值与旧值是否不同
+                //                //ValueChanged = success ? compareResult > 0 : !value.Equals(_currValue);
+                //                ValueChanged = success ? compareResult > 0 : value != null && !value.Equals(_currValue);
+
+                //尝试计算差值并与给定的差异量化阈值比较（数值类型）
+                // 假如泛型 T 不支持直接的数值转换或减法运算符，则忽略此阈值、直接将当前值与上一个值比较
+                ValueChanged = CompareValues(value, _currValue, ValueChangedThreshold,
                     out T
             //.net 9框架下使返回对象可为空
 #if NET9_0_OR_GREATER
@@ -111,9 +125,6 @@ namespace CommonLib.Clients
 #endif
             diff,
                     out int compareResult);
-                //判断 <see cref="ValueChanged"/> 属性是否为true，假如上面的比较成功，则使用上面的比较结果，否则仅判断新值与旧值是否不同
-                //ValueChanged = success ? compareResult > 0 : !value.Equals(_currValue);
-                ValueChanged = success ? compareResult > 0 : value != null && !value.Equals(_currValue);
                 if (ValueChanged)
                 {
                     //更新值
@@ -258,31 +269,86 @@ namespace CommonLib.Clients
             CurrentValue = value;
         }
 
+        //        /// <summary>
+        //        /// 比较两个值，并返回变化量的绝对值和比较结果
+        //        /// <para/>假如 T 不能转换为 double 或者 T 不能从 double 转换回来，则使用 CompareTo 方法
+        //        /// <para/>这里的逻辑假设你需要自己实现从 a 和 b 计算变化量的绝对值的逻辑
+        //        /// <para/>因为 IComparable 只提供了比较方法，并没有直接提供数值计算方法
+        //        /// </summary>
+        //        /// <param name="newValue">变量a</param>
+        //        /// <param name="currValue">变量b</param>
+        //        /// <param name="diffThres">变化量的阈值，将变化量（变量a与b之差）的绝对值与此阈值进行比较</param>
+        //        /// <param name="diffT">（通过参数输出）变化量（变量a与b之差）的绝对值</param>
+        //        /// <param name="comparisonResult">（通过参数输出）变化量（的绝对值）与阈值的比较结果，大于0表示变化量大于阈值，小于0表示变化量小于阈值，等于0表示变化量等于阈值</param>
+        //        /// <returns>返回一个布尔值，表示进行的比较过程是否成功，假如为false通常代表 T 类型不支持直接的数值转换或减法运算符，需要自定义变化量计算逻辑</returns>
+        //#if NET45
+        //        public bool CompareValues(T newValue, T currValue, T diffThres, out T diffT, out int comparisonResult)
+        //#elif NET9_0_OR_GREATER
+        //        public bool CompareValues(T? newValue, T? currValue, T? diffThres, out T? diffT, out int comparisonResult)
+        //#endif
+        //        {
+        //            bool success = false;
+        //            diffT = default;
+        //            comparisonResult = 0;
+        //            try
+        //            {
+        //                // 计算 a 和 b 之间变化量的绝对值
+        //                double diff = Math.Abs(Convert.ToDouble(newValue) - Convert.ToDouble(currValue));
+
+        //                // 将 diff 转换回 T 类型以与 变化阈值 进行比较
+        //                // 这里假设 T 有一个构造函数接受 double 类型
+        //                diffT = (T)Convert.ChangeType(diff, typeof(T));
+
+        //                // 比较 变化量 和 变化阈值
+        //                comparisonResult = diffT.CompareTo(diffThres);
+
+        //                //if (comparisonResult > 0)
+        //                //    Console.WriteLine("变化量的绝对值大于 阈值");
+        //                //else if (comparisonResult < 0)
+        //                //    Console.WriteLine("变化量的绝对值小于 阈值");
+        //                //else
+        //                //    Console.WriteLine("变化量的绝对值等于 阈值");
+        //                success = true;
+        //            }
+        //            //catch (InvalidCastException)
+        //            catch (Exception)
+        //            {
+        //                // 捕捉到类型转换异常，说明 T 不能直接转换为 double 或者 T 不能从 double 转换回来
+        //                // 
+        //                success = false;
+        //                // 如果 T 不能转换为 double 或者 T 不能从 double 转换回来，则使用 CompareTo 方法
+        //                // 这里的逻辑假设你需要自己实现从 a 和 b 计算变化量的绝对值的逻辑
+        //                // 因为 IComparable 只提供了比较方法，并没有直接提供数值计算方法
+        //                //Console.WriteLine("T 类型不支持直接的数值转换或减法运算符，需要自定义变化量计算逻辑");
+        //            }
+        //            return success;
+        //        }
+
         /// <summary>
         /// 比较两个值，并返回变化量的绝对值和比较结果
         /// <para/>假如 T 不能转换为 double 或者 T 不能从 double 转换回来，则使用 CompareTo 方法
         /// <para/>这里的逻辑假设你需要自己实现从 a 和 b 计算变化量的绝对值的逻辑
         /// <para/>因为 IComparable 只提供了比较方法，并没有直接提供数值计算方法
         /// </summary>
-        /// <param name="a">变量a</param>
-        /// <param name="b">变量b</param>
+        /// <param name="newValue">变量a</param>
+        /// <param name="currValue">变量b</param>
         /// <param name="diffThres">变化量的阈值，将变化量（变量a与b之差）的绝对值与此阈值进行比较</param>
         /// <param name="diffT">（通过参数输出）变化量（变量a与b之差）的绝对值</param>
         /// <param name="comparisonResult">（通过参数输出）变化量（的绝对值）与阈值的比较结果，大于0表示变化量大于阈值，小于0表示变化量小于阈值，等于0表示变化量等于阈值</param>
-        /// <returns>返回一个布尔值，表示进行的比较过程是否成功，假如为false通常代表 T 类型不支持直接的数值转换或减法运算符，需要自定义变化量计算逻辑</returns>
+        /// <returns>返回一个布尔值，表示值是否发生变化</returns>
 #if NET45
-        public bool CompareValues(T a, T b, T diffThres, out T diffT, out int comparisonResult)
+        public bool CompareValues(T newValue, T currValue, T diffThres, out T diffT, out int comparisonResult)
 #elif NET9_0_OR_GREATER
-        public bool CompareValues(T? a, T? b, T? diffThres, out T? diffT, out int comparisonResult)
+        public bool CompareValues(T? newValue, T? currValue, T? diffThres, out T? diffT, out int comparisonResult)
 #endif
         {
-            bool success = false;
+            bool valueChanged = false;
             diffT = default;
             comparisonResult = 0;
             try
             {
                 // 计算 a 和 b 之间变化量的绝对值
-                double diff = Math.Abs(Convert.ToDouble(a) - Convert.ToDouble(b));
+                double diff = Math.Abs(Convert.ToDouble(newValue) - Convert.ToDouble(currValue));
 
                 // 将 diff 转换回 T 类型以与 变化阈值 进行比较
                 // 这里假设 T 有一个构造函数接受 double 类型
@@ -291,23 +357,20 @@ namespace CommonLib.Clients
                 // 比较 变化量 和 变化阈值
                 comparisonResult = diffT.CompareTo(diffThres);
 
-                //if (comparisonResult > 0)
-                //    Console.WriteLine("变化量的绝对值大于 阈值");
-                //else if (comparisonResult < 0)
-                //    Console.WriteLine("变化量的绝对值小于 阈值");
-                //else
-                //    Console.WriteLine("变化量的绝对值等于 阈值");
-                success = true;
+                valueChanged = comparisonResult > 0;
             }
             //catch (InvalidCastException)
             catch (Exception)
             {
+                // 捕捉到类型转换异常，说明 T 不能直接转换为 double 或者 T 不能从 double 转换回来
+                // 此时仅比较新值与旧值是否不同来判断值是否改变
+                valueChanged = newValue != null && !newValue.Equals(_currValue);
                 // 如果 T 不能转换为 double 或者 T 不能从 double 转换回来，则使用 CompareTo 方法
                 // 这里的逻辑假设你需要自己实现从 a 和 b 计算变化量的绝对值的逻辑
                 // 因为 IComparable 只提供了比较方法，并没有直接提供数值计算方法
-                Console.WriteLine("T 类型不支持直接的数值转换或减法运算符，需要自定义变化量计算逻辑");
+                //Console.WriteLine("T 类型不支持直接的数值转换或减法运算符，需要自定义变化量计算逻辑");
             }
-            return success;
+            return valueChanged;
         }
     }
 }

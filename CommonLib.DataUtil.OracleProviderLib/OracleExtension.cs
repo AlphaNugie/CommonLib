@@ -141,11 +141,20 @@ create table {0}
                 sqls.Add(string.Format("alter table {0} add {1};", tableName, column.Structure));
                 sqls.AddRange(columnsMustHave.Where(col => !string.IsNullOrWhiteSpace(col.Comment)).Select(col => $"comment on column {tableName}.{col.ColumnName} is '{col.Comment}';"));
             }
-            bool result = sqls.Count == 0 || provider.ExecuteSqlTrans(sqls);
-            if (result)
+            bool result = false;
+            try
+            {
+                result = sqls.Count == 0 || provider.ExecuteSqlTrans(sqls);
                 message = sqls.Count > 0 ? string.Format("已添加字段{0}", string.Join(", ", fields.ToArray()).TrimEnd(',', ' ').ToUpper()) : string.Empty;
-            else
-                message = "至少有一个字段添加失败";
+            }
+            catch (Oracle.ManagedDataAccess.Client.OracleException e)
+            {
+                message = string.Format("至少有一个字段添加失败，原因：{0}", e.Message);
+            }
+            //if (result)
+            //    message = sqls.Count > 0 ? string.Format("已添加字段{0}", string.Join(", ", fields.ToArray()).TrimEnd(',', ' ').ToUpper()) : string.Empty;
+            //else
+            //    message = "至少有一个字段添加失败";
             return result;
         }
 

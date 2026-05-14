@@ -122,19 +122,33 @@ namespace CommonLib.Function
         /// <summary>
         /// 获取与给定的IPV4地址相似的地址（同网段），假如给定地址为空则不过滤
         /// </summary>
-        /// <param name="otherAddress">用于过滤地址的同网段IPV4地址，假如为空则不过滤</param>
+        /// <param name="targetIp">用于过滤地址的同网段IPV4地址，假如为空则不过滤</param>
         /// <returns></returns>
-        public static string GetIPAddressV4Alike(string otherAddress)
+        public static string GetIPAddressV4Alike(string targetIp)
         {
-            string address;
-            if ("127.0.0.1".Equals(otherAddress) || "localhost".Equals(otherAddress))
-                address = "127.0.0.1";
-            else
-            {
-                //找出与给定IPV4地址第一个数字相同的地址
-                string[] parts = otherAddress?.Split('.');
-                address = GetIPAddressV4(parts != null && parts.Length > 0 ? parts[0] : null);
-            }
+            //string address;
+            //if ("127.0.0.1".Equals(otherAddress) || "localhost".Equals(otherAddress))
+            //    address = "127.0.0.1";
+            //else
+            //{
+            //    //找出与给定IPV4地址第一个数字相同的地址
+            //    string[] parts = otherAddress?.Split('.');
+            //    address = GetIPAddressV4(parts != null && parts.Length > 0 ? parts[0] : null);
+            //}
+            //return address;
+
+            if (string.IsNullOrWhiteSpace(targetIp))
+                return string.Empty;
+            if ("127.0.0.1".Equals(targetIp) || "localhost".Equals(targetIp))
+                return "127.0.0.1";
+
+            //解析目标IP的前三段
+            string[] targetParts = targetIp.Split('.');
+            if (targetParts.Length < 3)
+                return string.Empty;
+
+            string targetPrefix = string.Format("{0}.{1}.{2}", targetParts[0], targetParts[1], targetParts[2]);
+            string address = GetIPAddressV4(targetPrefix);
             return address;
         }
 

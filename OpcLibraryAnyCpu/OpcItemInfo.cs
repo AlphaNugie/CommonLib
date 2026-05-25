@@ -82,7 +82,7 @@ namespace OpcLibrary.Ua
 
         private PropertyInfo _prop = null;
         /// <summary>
-        /// 根据数据源字段名称获取的属性，假如OpcGroupInfo.DataSource属性为空，或找到该字段，则属性为空
+        /// 根据数据源字段名称获取的属性，假如OpcGroupInfo.DataSource属性为空，或未找到该字段，则属性为空
         /// </summary>
         internal PropertyInfo Property
         {
@@ -157,18 +157,26 @@ namespace OpcLibrary.Ua
         //        public OpcItemInfo(string itemId, string fieldName, double coeff) : this(itemId, fieldName, coeff, 0) { }
         //#endif
 
+#if DA
         /// <summary>
         /// 构造器
+        /// <para/>在UA下，itemId将被补充为完整的节点路径，如ns=2;s=ItemName
         /// </summary>
-        /// <param name="itemId">OPC项ID，在UA下，itemId将被补充为完整的节点路径，如ns=2;s=ItemName</param>
+        /// <param name="itemId">OPC项ID</param>
         /// <param name="clientHandle">客户端句柄</param>
         /// <param name="fieldName">数据源中字段名称</param>
         /// <param name="coeff">值的系数，默认为0，此时不起作用</param>
         /// <param name="offset">值的偏移量，默认为0，系数为0时不起作用</param>
-        ///// <param name="groupType">组的类型，读或写，仅在决定从数据源读值或向数据源写值时起作用（目前仅对UA起作用）</param>
-#if DA
         public OpcItemInfo(string itemId, int clientHandle, /*GroupType groupType = GroupType.READ, */string fieldName = null, double coeff = 0, double offset = 0)
 #elif UA
+        /// <summary>
+        /// 构造器
+        /// <para/>在UA下，itemId将被补充为完整的节点路径，如ns=2;s=ItemName
+        /// </summary>
+        /// <param name="itemId">OPC项ID</param>
+        /// <param name="fieldName">数据源中字段名称</param>
+        /// <param name="coeff">值的系数，默认为0，此时不起作用</param>
+        /// <param name="offset">值的偏移量，默认为0，系数为0时不起作用</param>
         public OpcItemInfo(string itemId, /*GroupType groupType = GroupType.READ, */string fieldName = null, double coeff = 0, double offset = 0)
 #endif
         {
@@ -255,7 +263,7 @@ namespace OpcLibrary.Ua
         /// <summary>
         /// 假如属性或给定的数据源不为空，则为数据源设置经过转换方法转换后的数据源字段值
         /// </summary>
-        /// <param name="dataSource"></param>
+        /// <param name="dataSource">数据源实体对象</param>
         public void SetPropertyValue(object dataSource)
         {
             InitTargetProperty(dataSource);
@@ -308,9 +316,10 @@ namespace OpcLibrary.Ua
 
         /// <summary>
         /// 假如属性或给定的数据源不为空，则从数据源向Item赋值
+        /// <para/>支持属性路径（如 "DockMachines[0].WalkPos"）和集合索引访问
         /// </summary>
-        /// <param name="dataSource"></param>
-        /// <param name="nullValueHandling">当获取到的标签值为空时的处理方法</param>
+        /// <param name="dataSource">数据源实体对象</param>
+        /// <param name="nullValueHandling">当获取到的标签值为空时的处理方法（跳过/忽略）</param>
         public void SetItemValue(object dataSource, NullValueHandling nullValueHandling = NullValueHandling.Skip)
         {
             //假如数据源对象为空，则跳过赋值操作

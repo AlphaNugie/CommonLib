@@ -288,10 +288,10 @@ namespace OpcLibrary.Ua
         /// <summary>
         /// 获取OPC UA 服务的完整名称，形式为“opc.tcp://[OpcServerIp]:[OpcServerPort][/[OpcServerName]]”
         /// </summary>
-        /// <param name="ipAddress"></param>
-        /// <param name="port"></param>
-        /// <param name="serverName"></param>
-        /// <returns></returns>
+        /// <param name="ipAddress">OPC服务器IP地址</param>
+        /// <param name="port">OPC服务器端口</param>
+        /// <param name="serverName">OPC服务器名称（可选，不为空时追加为URL路径后缀）</param>
+        /// <returns>完整OPC UA服务URL</returns>
         public static string GetOpcServerUrl(string ipAddress, int port, string serverName)
         {
             return string.Format("opc.tcp://{0}:{1}{2}",
@@ -319,7 +319,7 @@ namespace OpcLibrary.Ua
         /// </summary>
         /// <param name="ipAddress">IP地址</param>
         /// <param name="message">返回信息</param>
-        /// <returns></returns>
+        /// <returns>OPC服务器名称数组，失败时返回null</returns>
         public string[] ServerEnum(string ipAddress, out string message)
         {
             Array array = null;
@@ -355,12 +355,12 @@ namespace OpcLibrary.Ua
         }
 
         /// <summary>
-        /// 连接OPC服务器，连接成功后刷新OPC服务信息并创建默认组，同时根据ListGroupInfo属性（OPC组信息List）创建OPC组
+        /// 同步连接OPC DA服务器，连接成功后刷新OPC服务信息并创建默认组，同时根据ListGroupInfo属性（OPC组信息List）创建OPC组
         /// </summary>
-        /// <param name="remoteServerIP">OPCServerIP</param>
+        /// <param name="remoteServerIP">OPCServer IP地址</param>
         /// <param name="remoteServerName">OPCServer名称</param>
         /// <param name="message">返回的错误消息</param>
-        /// <returns></returns>
+        /// <returns>是否连接成功</returns>
         public bool ConnectRemoteServer(string remoteServerIP, string remoteServerName, out string message)
         {
             message = string.Empty;
@@ -443,13 +443,12 @@ namespace OpcLibrary.Ua
         }
 
         /// <summary>
-        /// 连接OPC服务器，连接成功后刷新OPC服务信息并创建默认组，同时根据ListGroupInfo属性（OPC组信息List）创建OPC组
+        /// 异步连接OPC DA服务器（带超时），连接成功后刷新OPC服务信息并创建默认组，同时根据ListGroupInfo属性（OPC组信息List）创建OPC组
         /// </summary>
-        /// <param name="remoteServerIP">OPCServerIP</param>
+        /// <param name="remoteServerIP">OPCServer IP地址</param>
         /// <param name="remoteServerName">OPCServer名称</param>
-        /// <param name="timeoutMilliseconds">超时时间（毫秒）</param>
-        /// <returns></returns>
-        ///// <param name="message">返回的错误消息</param>
+        /// <param name="timeoutMilliseconds">超时时间（毫秒），默认5000</param>
+        /// <returns>操作结果（包含成功/失败状态与消息）</returns>
         public async Task<OpInfoSource> ConnectRemoteServerAsync(string remoteServerIP, string remoteServerName, int timeoutMilliseconds = 5000)
         {
             var faultedInfoSource = new OpInfoSource();
@@ -480,15 +479,14 @@ namespace OpcLibrary.Ua
         #region UA连接操作
 #if UA
         /// <summary>
-        /// 连接OPC服务器，连接成功后刷新OPC服务信息并创建默认组，同时根据ListGroupInfo属性（OPC组信息List）创建OPC组
+        /// 连接OPC UA服务器，连接成功后刷新OPC服务信息并创建默认组，同时根据ListGroupInfo属性（OPC组信息List）创建OPC组
         /// </summary>
-        /// <param name="remoteServerIP">OPCServerIP</param>
+        /// <param name="remoteServerIP">OPCServer IP地址</param>
         /// <param name="remoteServerPort">OPCServer端口</param>
-        /// <param name="remoteServerName">OPCServer名称</param>
-        /// <param name="userName">用户名</param>
-        /// <param name="password">密码</param>
-        /// <param name="message">返回的错误消息</param>
-        /// <returns></returns>
+        /// <param name="remoteServerName">OPCServer名称（可选，作为URL路径后缀）</param>
+        /// <param name="userName">用户名（为空则匿名连接）</param>
+        /// <param name="password">密码（为空则匿名连接）</param>
+        /// <returns>操作结果</returns>
         public async Task<OpInfoSource> ConnectRemoteServerAsync(string remoteServerIP, int remoteServerPort, string remoteServerName, string userName, string password/*, out string message*/)
         {
             OpInfoSource opInfoSource = new OpInfoSource() { Message = string.Empty };
@@ -535,10 +533,11 @@ namespace OpcLibrary.Ua
         }
 
         /// <summary>
-        /// OPC UA 服务连接状态改变事件
+        /// OPC UA 服务连接状态改变事件处理器
+        /// <para/>断连之后会接收到Disconnected开头的信息；连接上之后则会每隔几秒就收到Connected开头的信息
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">事件源</param>
+        /// <param name="e">事件参数，包含状态文本和错误信息</param>
         private void Client_OpcStatusChange(object sender, OpcUaStatusEventArgs e)
         {
             //断连之后会接收到Disconnected开头的信息
@@ -582,11 +581,8 @@ namespace OpcLibrary.Ua
         public void DisconnectRemoteServer()
         {
 #if DA
-            if (Thread_Reconn != null)
-            {
-                Thread_Reconn.Abort();
-                Thread_Reconn = null;
-            }
+            Thread_Reconn?.Abort();
+            Thread_Reconn = null;
 #endif
             if (!OpcConnected)
                 return;
@@ -786,6 +782,8 @@ namespace OpcLibrary.Ua
         }
 #endif
 
+        ///// <param name="groupType">组的类型，读或写，仅在决定从数据源读值或向数据源写值时起作用（目前仅对UA起作用）</param>
+#if DA
         /// <summary>
         /// 设置默认的OPC项，假如已添加，则移除后再重新添加（同一时刻默认标签只有一个）
         /// </summary>
@@ -793,10 +791,14 @@ namespace OpcLibrary.Ua
         /// <param name="clientHandle">标签的客户端句柄</param>
         /// <param name="message">返回的错误信息</param>
         /// <returns></returns>
-        ///// <param name="groupType">组的类型，读或写，仅在决定从数据源读值或向数据源写值时起作用（目前仅对UA起作用）</param>
-#if DA
         public bool SetItem(string itemId, int clientHandle, out string message/*, GroupType groupType = GroupType.READ*/)
 #elif UA
+        /// <summary>
+        /// 设置默认的OPC项，假如已添加，则移除后再重新添加（同一时刻默认标签只有一个）
+        /// </summary>
+        /// <param name="itemId">标签ID</param>
+        /// <param name="message">返回的错误信息</param>
+        /// <returns></returns>
         public bool SetItem(string itemId, out string message/*, GroupType groupType = GroupType.READ*/)
 #endif
         {
@@ -936,7 +938,6 @@ namespace OpcLibrary.Ua
         /// 从对应指定客户端句柄的指定OPC项读取值（先根据OPC项ID与客户端句柄添加OPC项，然后再读取）
         /// </summary>
         /// <param name="itemName">标签ID</param>
-        /// <param name="clientHandle">客户端句柄</param>
         /// <param name="value">待写入值</param>
         /// <param name="message">返回的错误信息</param>
         public bool ReadOpc(string itemName, out string value, out string message)
@@ -949,7 +950,6 @@ namespace OpcLibrary.Ua
         /// 向对应指定客户端句柄的指定OPC项写入值（先根据OPC项ID与客户端句柄添加OPC项，然后再写入）
         /// </summary>
         /// <param name="itemName">标签ID</param>
-        /// <param name="clientHandle">客户端句柄</param>
         /// <param name="value">待写入值</param>
         /// <param name="message">返回的错误信息</param>
         public bool WriteOpc(string itemName, string value, out string message)

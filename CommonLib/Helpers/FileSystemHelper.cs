@@ -165,7 +165,7 @@ namespace CommonLib.Helpers
         /// </summary>
         /// <param name="path">路径名称，或包含路径的完整文件名称</param>
         /// <param name="isFilePath">是否为文件路径，假如为false则一律按照路径操作</param>
-#if NET45
+#if NET45_OR_GREATER
         public static void CheckForDirectory(string path, bool isFilePath = false)
 #elif NET9_0_OR_GREATER
         public static void CheckForDirectory(string? path, bool isFilePath = false)
@@ -175,7 +175,7 @@ namespace CommonLib.Helpers
             {
                 if (path == null)
                     throw new ArgumentNullException(nameof(path), "文件路径不能为null");
-#if NET45
+#if NET45_OR_GREATER
                 FileInfo fileInfo = new FileInfo(path);
 #elif NET9_0_OR_GREATER
                 FileInfo fileInfo = new(path);
@@ -217,7 +217,7 @@ namespace CommonLib.Helpers
                 return string.Empty;
 
             string date = DateTime.Now.ToString(format);
-#if NET45
+#if NET45_OR_GREATER
             string[] parts = fileName.Split('.').Where(p => !string.IsNullOrWhiteSpace(p)).ToArray();
 #elif NET9_0_OR_GREATER
             string[] parts = [.. fileName.Split('.').Where(p => !string.IsNullOrWhiteSpace(p))];
@@ -225,7 +225,7 @@ namespace CommonLib.Helpers
             if (parts.Length == 1)
                 parts[0] += " " + date;
             else
-#if NET45
+#if NET45_OR_GREATER
                 parts[parts.Length - 2] += " " + date;
 #elif NET9_0_OR_GREATER
                 parts[^2] += " " + date;
@@ -245,7 +245,7 @@ namespace CommonLib.Helpers
             if (string.IsNullOrWhiteSpace(filePath))
                 filePath = string.Empty;
 
-#if NET45
+#if NET45_OR_GREATER
             return filePath.Trim(new char[] { DirSeparatorChar });
 #elif NET9_0_OR_GREATER
             return filePath.Trim([DirSeparatorChar]);

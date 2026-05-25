@@ -122,7 +122,7 @@ namespace OpcLibrary.Ua.Core
         /// <summary>
         /// 写入日志同时在控制台输出
         /// </summary>
-        /// <param name="info"></param>
+        /// <param name="info">日志信息内容</param>
         public static void WriteConsoleLog(string info)
         {
             Log.WriteLogsToFile(info);

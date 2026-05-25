@@ -37,7 +37,7 @@ end_header
         //完整的头部信息
         private string _header = string.Empty;
         // 已注册的自定义属性列表
-#if NET45
+#if NET45_OR_GREATER
         private readonly List<CustomProperty> _regCustomProperties = new List<CustomProperty>();
 #elif NET9_0_OR_GREATER
         private readonly List<CustomProperty> _regCustomProperties = [];
@@ -119,7 +119,7 @@ end_header
         /// <summary>
         /// 待保存的订点列表
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         public List<PlyDotObject> DotList { get; set; } = new List<PlyDotObject>();
 #elif NET9_0_OR_GREATER
         public List<PlyDotObject> DotList { get; set; } = [];
@@ -190,7 +190,7 @@ end_header
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-#if NET45
+#if NET45_OR_GREATER
         private static string GetPlyTypeName(Type type)
 #elif NET9_0_OR_GREATER
         private static string GetPlyTypeName(Type? type)
@@ -224,7 +224,7 @@ end_header
         /// </summary>
         /// <param name="dots">待保存字符串</param>
         /// <returns></returns>
-#if NET45
+#if NET45_OR_GREATER
         public int SaveVertexes(IEnumerable<string> dots)
 #elif NET9_0_OR_GREATER
         public int SaveVertexes(IEnumerable<string>? dots)
@@ -233,7 +233,7 @@ end_header
             if (string.IsNullOrWhiteSpace(FileName))
                 return 1;
             if (dots == null || !dots.Any())
-#if NET45
+#if NET45_OR_GREATER
             { dots = new List<string>(); }
             var list = dots == null ? new List<string>() : dots.ToList();
 #elif NET9_0_OR_GREATER
@@ -245,7 +245,7 @@ end_header
             _header = string.Format(header_format, FormatVersion, Comment, list.Count, Colored ? colored : string.Empty, /*customed*/GenerateCustomPropertyHeader());
             FileSystemHelper.CheckForDirectory(path);
             //头部信息中的vertex数量必须与下面列出的行数一致，因此每次都重新覆盖写入，否则假如对不上会报出“Unespected eof”的错误
-#if NET45
+#if NET45_OR_GREATER
             List<string> lines = new List<string>() { _header };
 #elif NET9_0_OR_GREATER
             List<string> lines = new() { _header };
@@ -272,7 +272,7 @@ end_header
         public int SaveVertexes(IEnumerable<PlyDotObject> dotlist)
         {
             //IEnumerable<string> dots = dotlist == null || dotlist.Count() == 0 ? null : dotlist.Select(dot => string.Format("{0} {1} {2} {3} {4} {5} {6}", Math.Round(dot.X), Math.Round(dot.Y), Math.Round(dot.Z), dot.Red, dot.Green, dot.Blue, dot.CustomedInfo));
-#if NET45
+#if NET45_OR_GREATER
             IEnumerable<string> dots = dotlist?.Select(dot =>
             {
                 var baseInfo = $"{Math.Round(dot.X)} {Math.Round(dot.Y)} {Math.Round(dot.Z)}";
@@ -306,7 +306,7 @@ end_header
         /// <param name="value"></param>
         /// <param name="targetType"></param>
         /// <returns></returns>
-#if NET45
+#if NET45_OR_GREATER
         private static string FormatCustomValue(object value, Type targetType)
 #elif NET9_0_OR_GREATER
         private static string? FormatCustomValue(object value, Type? targetType)
@@ -324,7 +324,7 @@ end_header
             //    _ when targetType == typeof(double) => ((double)value).ToString("F6"),
             //    _ => value.ToString()
             //};
-#if NET45
+#if NET45_OR_GREATER
             switch (Type.GetTypeCode(targetType))
             {
                 case TypeCode.Byte:
@@ -371,7 +371,7 @@ end_header
         /// <summary>
         /// 属性名称
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         public string Name { get; set; }
 #elif NET9_0_OR_GREATER
         public string? Name { get; set; }
@@ -380,7 +380,7 @@ end_header
         /// <summary>
         /// 属性数据类型
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         public Type DataType { get; set; }
 #elif NET9_0_OR_GREATER
         public Type? DataType { get; set; }

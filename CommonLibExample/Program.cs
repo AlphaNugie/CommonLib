@@ -5927,17 +5927,18 @@ namespace CommonLibExample
             //return;
             #endregion
 
-            var diff2 = new ValueDiffStorage<string>();
-            diff2.CurrentValue = "";
-            diff2.SetValue("123");
+            //var diff2 = new ValueDiffStorage<string>();
+            //diff2.CurrentValue = "";
+            //diff2.SetValue("");
+            //bool d = diff2.ValueChanged;
 
-            var diff = new ValueDiffStorage<int>();
-            diff.ValueChangedEvent += new CommonLib.Events.ValueChangedEventHandler<int>(
-                (sender, e) =>
-                {
-                    Console.WriteLine(e);
-                });
-            diff.CurrentValue = 1;
+            //var diff = new ValueDiffStorage<int>();
+            //diff.ValueChangedEvent += new CommonLib.Events.ValueChangedEventHandler<int>(
+            //    (sender, e) =>
+            //    {
+            //        Console.WriteLine(e);
+            //    });
+            //diff.CurrentValue = 1;
 
             //string testcrc = "01 03 04 0F 00 02 F5 38";
             //bool valid = HexHelper.ValidateCommandCRC16(testcrc);

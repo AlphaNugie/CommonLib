@@ -94,7 +94,7 @@ namespace CommonLib.Clients
             //else if (samples.Count() < Neighbours)
             //    LastErrorMessage = "样本数小于邻域大小";
             if (samples == null)
-#if NET45
+#if NET45_OR_GREATER
                 samples = new List<double>();
 #elif NET9_0_OR_GREATER
                 samples = [];
@@ -106,7 +106,7 @@ namespace CommonLib.Clients
             if (!string.IsNullOrWhiteSpace(LastErrorMessage))
                 throw new ArgumentException(LastErrorMessage, nameof(samples));
             
-#if NET45
+#if NET45_OR_GREATER
             List<double> result = new List<double>(); //储存结果的List
 #elif NET9_0_OR_GREATER
             List<double> result = []; //储存结果的List
@@ -151,7 +151,7 @@ namespace CommonLib.Clients
             //else if (samples.Count() < Neighbours)
             //    LastErrorMessage = "样本数小于邻域大小";
             if (samples == null)
-#if NET45
+#if NET45_OR_GREATER
                 samples = new List<double>();
 #elif NET9_0_OR_GREATER
                 samples = [];
@@ -166,7 +166,7 @@ namespace CommonLib.Clients
                 throw new ArgumentException(LastErrorMessage);
 
             var count = samples.Count();
-#if NET45
+#if NET45_OR_GREATER
             List<double> array = new List<double>();
 #elif NET9_0_OR_GREATER
             List<double> array = [];
@@ -191,7 +191,7 @@ namespace CommonLib.Clients
             //if (samples == null || samples.Count() == 0)
             //    LastErrorMessage = "样本中没有任何元素";
             if (samples == null)
-#if NET45
+#if NET45_OR_GREATER
                 samples = new List<double>();
 #elif NET9_0_OR_GREATER
                 samples = [];
@@ -249,7 +249,7 @@ namespace CommonLib.Clients
             //if (samples == null || samples.Count() == 0)
             //    LastErrorMessage = "样本中没有任何元素";
             if (samples == null)
-#if NET45
+#if NET45_OR_GREATER
                 samples = new List<double>();
 #elif NET9_0_OR_GREATER
                 samples = [];
@@ -261,7 +261,7 @@ namespace CommonLib.Clients
                 throw new ArgumentException(LastErrorMessage, nameof(samples));
 
             double center = (samples.Count() - 1) / (DoubleWinged ? 2 : 1), ratio_sum = 0, value_sum = 0;
-#if NET45
+#if NET45_OR_GREATER
             ratios = new List<double>();
 #elif NET9_0_OR_GREATER
             ratios = [];
@@ -315,7 +315,7 @@ namespace CommonLib.Clients
             if (!samples.Any()) throw new ArgumentException("样本中没有任何元素", nameof(samples));
 
             double ratio_sum = 0, value_sum = 0;
-#if NET45
+#if NET45_OR_GREATER
             ratios = new List<double>();
 #elif NET9_0_OR_GREATER
             ratios = [];

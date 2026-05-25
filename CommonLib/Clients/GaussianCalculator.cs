@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CommonLib.Clients
 {
-#if NET45
+#if NET45_OR_GREATER
     /// <summary>
     /// 一维高斯分布计算器（高斯分布亦称为正态分布，期望为0、标准差为1时为标准正态分布）
     /// </summary>

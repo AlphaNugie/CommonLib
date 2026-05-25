@@ -118,7 +118,7 @@ namespace CommonLib.Extensions
         public double? Value { get; }
     }
 
-#if NET45
+#if NET45_OR_GREATER
     /// <summary>
     /// 枚举注释的自定义属性类
     /// </summary>
@@ -166,7 +166,7 @@ namespace CommonLib.Extensions
     /// 构造器
     /// </remarks>
     /// <param name="strPrinterName">注释内容</param>
-    [AttributeUsage(AttributeTargets.Enum)]
+    [AttributeUsage(AttributeTargets.Field)]
     public sealed class EnumDescriptionAttribute(string strPrinterName) : Attribute
     {
         /// <summary>
@@ -182,7 +182,7 @@ namespace CommonLib.Extensions
     /// 构造器
     /// </remarks>
     /// <param name="alias">别名内容</param>
-    [AttributeUsage(AttributeTargets.Enum)]
+    [AttributeUsage(AttributeTargets.Field)]
     public sealed class EnumAliasAttribute(string alias) : Attribute
     {
         /// <summary>

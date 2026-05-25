@@ -36,7 +36,7 @@ namespace CommonLib.Extensions
             //return values.ToList();
 
             List<T> result =
-#if NET45
+#if NET45_OR_GREATER
                 new List<T>();
 #elif NET9_0_OR_GREATER
                 [];
@@ -44,7 +44,7 @@ namespace CommonLib.Extensions
             if (values == null) goto END;
             if (predicate != null) values = values.Where(predicate);
             result =
-#if NET45
+#if NET45_OR_GREATER
                 values.ToList();
 #elif NET9_0_OR_GREATER
                 [.. values];
@@ -89,7 +89,7 @@ namespace CommonLib.Extensions
         internal static IEnumerable<T> TakeAfterSkip<T>(this IEnumerable<T> numbers, int startIndex, int count)
         {
             //int len = numbers == null ? 0 : numbers.Count();
-#if NET45
+#if NET45_OR_GREATER
             if (numbers == null) numbers = new T[0];
 #elif NET9_0_OR_GREATER
             numbers ??= [];
@@ -111,7 +111,7 @@ namespace CommonLib.Extensions
         /// <returns></returns>
         public static IEnumerable<T> Shrink<T>(this IEnumerable<T> list, double prop, bool both_end)
         {
-#if NET45
+#if NET45_OR_GREATER
             if (list == null)
                 throw new ArgumentNullException(paramName: nameof(list));
             if (prop < 0)
@@ -148,7 +148,7 @@ namespace CommonLib.Extensions
                 return input;
             //假如存在有2位16进制数，补充为4位
             string[] parts = match.Value.Split(
-#if NET45
+#if NET45_OR_GREATER
                 new string[] { @"\u" },
 #elif NET9_0_OR_GREATER
                 [@"\u"],
@@ -210,14 +210,14 @@ namespace CommonLib.Extensions
         /// <param name="remote">远程IP终结点</param>
         /// <param name="local">本地IP终结点</param>
         /// <returns></returns>
-#if NET45
+#if NET45_OR_GREATER
         public static string GetName(this Socket socket, out IPEndPoint remote, out IPEndPoint local)
 #elif NET9_0_OR_GREATER
         public static string GetName(this Socket socket, out IPEndPoint? remote, out IPEndPoint? local)
 #endif
         {
             remote = local = null;
-#if NET45
+#if NET45_OR_GREATER
             try { remote = (IPEndPoint)socket.RemoteEndPoint; } catch (Exception) { }
             try { local = (IPEndPoint)socket.LocalEndPoint; } catch (Exception) { }
 #elif NET9_0_OR_GREATER
@@ -246,7 +246,7 @@ namespace CommonLib.Extensions
         /// <typeparam name="T">欲扩展方法的类型</typeparam>
         /// <param name="obj">泛型对象，对泛型进行扩展</param>
         /// <param name="setting">是否启用双缓存</param>
-#if NET45
+#if NET45_OR_GREATER
         public static void SetDoubleBuffered<T>(this T obj, bool setting)
         {
             Type type = obj.GetType();

@@ -62,7 +62,7 @@ namespace CommonLib.Clients
         /// <returns>返回字符串的MD5哈希值</returns>
         public static string StringToMD5Hah(string inputString)
         {
-#if NET45
+#if NET45_OR_GREATER
             using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
             {
                 byte[] encryptedBytes = md5.ComputeHash(Encoding.ASCII.GetBytes(inputString));
@@ -132,7 +132,7 @@ namespace CommonLib.Clients
         {
             try
             {
-#if NET45
+#if NET45_OR_GREATER
                 byte[] byKey = Encoding.UTF8.GetBytes(encryptKey.Substring(0, 32));
                 byte[] byIV = Encoding.UTF8.GetBytes(encryptIV.Substring(0, 16));
                 byte[] inputByteArray = Encoding.UTF8.GetBytes(encryptString);
@@ -185,7 +185,7 @@ namespace CommonLib.Clients
         {
             try
             {
-#if NET45
+#if NET45_OR_GREATER
                 byte[] byKey = Encoding.UTF8.GetBytes(decryptKey.Substring(0, 32));
                 byte[] byIV = Encoding.UTF8.GetBytes(decryptIV.Substring(0, 16));
                 byte[] inputByteArray = Convert.FromBase64String(decryptString);
@@ -236,7 +236,7 @@ namespace CommonLib.Clients
         {
             try
             {
-#if NET45
+#if NET45_OR_GREATER
                 byte[] byKey = Encoding.UTF8.GetBytes(encryptKey.Substring(0, 8));
                 byte[] byIV = Encoding.UTF8.GetBytes(encryptIV.Substring(0, 8));
 #elif NET9_0_OR_GREATER
@@ -244,7 +244,7 @@ namespace CommonLib.Clients
                 byte[] byIV = Encoding.UTF8.GetBytes(encryptIV[..8]);
 #endif
                 byte[] inputByteArray = Encoding.UTF8.GetBytes(encryptString);
-#if NET45
+#if NET45_OR_GREATER
                 using (DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider())
                 {
                     MemoryStream mStream = new MemoryStream();
@@ -281,7 +281,7 @@ namespace CommonLib.Clients
         {
             try
             {
-#if NET45
+#if NET45_OR_GREATER
                 byte[] byKey = Encoding.UTF8.GetBytes(decryptKey.Substring(0, 8));
                 byte[] byIV = Encoding.UTF8.GetBytes(decryptIV.Substring(0, 8));
 #elif NET9_0_OR_GREATER
@@ -289,7 +289,7 @@ namespace CommonLib.Clients
                 byte[] byIV = Encoding.UTF8.GetBytes(decryptIV[..8]);
 #endif
                 byte[] inputByteArray = Convert.FromBase64String(decryptString);
-#if NET45
+#if NET45_OR_GREATER
                 using (DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider())
                 {
                     MemoryStream mStream = new MemoryStream();

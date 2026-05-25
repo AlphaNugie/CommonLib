@@ -9,7 +9,7 @@ using System.Net.Http.Headers;
 
 namespace CommonLib.Clients
 {
-#if NET45
+#if NET45_OR_GREATER
     /// <summary>
     /// HTTP发送客户端
     /// </summary>
@@ -99,7 +99,7 @@ namespace CommonLib.Clients
         {
             url = FixUrl(url);
             byte[] byteArray = Encoding.UTF8.GetBytes(content);
-#if NET45
+#if NET45_OR_GREATER
             MemoryStream memory = new MemoryStream(byteArray);
             StreamContent contentStream = new StreamContent(memory);
 #elif NET9_0_OR_GREATER

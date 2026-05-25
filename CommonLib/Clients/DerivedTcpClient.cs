@@ -9,11 +9,15 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using CommonLib.Events;
 using CommonLib.Extensions;
 using CommonLib.Function;
+using CommonLib.Helpers;
+#if NET45_OR_GREATER
 using static CommonLib.Function.TimerEventRaiser;
+#elif NET9_0_OR_GREATER
+using static CommonLib.Clients.TimerEventRaiser;
+#endif
 
 namespace CommonLib.Clients
 {
@@ -26,38 +30,73 @@ namespace CommonLib.Clients
         /// <summary>
         /// Tcp连接事件
         /// </summary>
-        public event ConnectedEventHandler Connected;
+        public event ConnectedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  Connected;
 
         /// <summary>
         /// Tcp断开事件
         /// </summary>
-        public event DisconnectedEventHandler Disconnected;
+        public event DisconnectedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  Disconnected;
 
         /// <summary>
         /// TcpClient重连成功次数改变事件
         /// </summary>
-        public event ReconnTimerChangedEventHandler ReconnTimerChanged;
+        public event ReconnTimerChangedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  ReconnTimerChanged;
 
         /// <summary>
         /// 数据接收事件
         /// </summary>
-        public event Events.DataReceivedEventHandler DataReceived;
+        public event Events.DataReceivedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  DataReceived;
 
         /// <summary>
         /// 持续一段时间未接收到任何数据的事件
         /// </summary>
-        public event NoneReceivedEventHandler OnNoneReceived;
+        public event NoneReceivedEventHandler
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  OnNoneReceived;
         #endregion
 
         #region 私有成员变量
         /// <summary>
         /// TcpClient对象
         /// </summary>
-        private TcpClient baseClient = null;
+        private TcpClient
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  baseClient = null;
         private readonly bool logging = false;
         private int receiveBufferSize = 32768;
         private bool autoReceive = true;
-        private IPEndPoint remote_endpoint, local_endpoint;
+        private IPEndPoint
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  remote_endpoint, local_endpoint;
         private readonly TimerEventRaiser _noRcvrRaiser = new TimerEventRaiser(1000); //超时未接收触发器
         #endregion
 
@@ -65,7 +104,12 @@ namespace CommonLib.Clients
         /// <summary>
         /// TcpClient对象
         /// </summary>
-        public TcpClient BaseClient
+        public TcpClient
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  BaseClient
         {
             get { return baseClient; }
             private set { baseClient = value; }
@@ -74,12 +118,24 @@ namespace CommonLib.Clients
         /// <summary>
         /// TcpClient用于发送与接收数据的数据流对象
         /// </summary>
-        public NetworkStream NetStream { get; private set; }
+        public NetworkStream
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  NetStream
+        { get; private set; }
 
         /// <summary>
         /// 与之建立TCP连接的主机IP地址
         /// </summary>
-        public string ServerIp { get; set; }
+        public string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  ServerIp
+        { get; set; }
 
         /// <summary>
         /// 建立TCP连接的端口
@@ -89,7 +145,12 @@ namespace CommonLib.Clients
         /// <summary>
         /// 本地IP终结点，未初始化则为空
         /// </summary>
-        public IPEndPoint LocalEndPoint
+        public IPEndPoint
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  LocalEndPoint
         {
             get { return local_endpoint; }
             set { local_endpoint = value; }
@@ -98,7 +159,12 @@ namespace CommonLib.Clients
         /// <summary>
         /// 远程IP终结点，未连接则为空
         /// </summary>
-        public IPEndPoint RemoteEndPoint
+        public IPEndPoint
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  RemoteEndPoint
         {
             get { return remote_endpoint; }
             set { remote_endpoint = value; }
@@ -145,7 +211,7 @@ namespace CommonLib.Clients
                 if (autoReceive == prev)
                     return;
                 if (autoReceive)
-                    NetStream.BeginRead(Buffer, 0, Buffer.Length, new AsyncCallback(TcpCallBack), this);
+                    NetStream?.BeginRead(Buffer, 0, Buffer.Length, new AsyncCallback(TcpCallBack), this);
             }
         }
 
@@ -157,7 +223,13 @@ namespace CommonLib.Clients
         /// <summary>
         /// Tcp连接名称，格式：本地端口->服务端IP:端口
         /// </summary>
-        public string Name { get; private set; }
+        public string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  Name
+        { get; private set; }
 
         /// <summary>
         /// 是否已连接
@@ -202,7 +274,13 @@ namespace CommonLib.Clients
         /// <summary>
         /// 监听TCP服务端，并在连接断开后试着重新连接
         /// </summary>
-        private Thread Thread_TcpReconnect { get; set; }
+        private Thread
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  Thread_TcpReconnect
+        { get; set; }
 
         ///// <summary>
         ///// 控制TCP重连线程的AutoResetEvent，初始状态为非终止
@@ -215,7 +293,7 @@ namespace CommonLib.Clients
         /// </summary>
         public void SetName()
         {
-            try { Name = BaseClient.Client.GetName(out remote_endpoint, out local_endpoint); }
+            try { Name = BaseClient?.Client.GetName(out remote_endpoint, out local_endpoint); }
             catch (Exception) { Name = string.Empty; }
         }
 
@@ -302,7 +380,12 @@ namespace CommonLib.Clients
         /// <param name="server">TCP服务端IP</param>
         /// <param name="port">端口号</param>
         /// <returns>假如建立连接成功，返回1，否则返回0</returns>
-        public int Connect(string server, int port)
+        public int Connect(string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  server, int port)
         {
             return Connect(server, port, null, 0);
         }
@@ -315,12 +398,24 @@ namespace CommonLib.Clients
         /// <param name="localIp">本地IP</param>
         /// <param name="localPort">指定的本地端口（假如小于等于0则随机）</param>
         /// <returns>假如建立连接成功，返回1，否则返回0</returns>
-        public int Connect(string server, int port, string localIp, int localPort)
+        public int Connect(string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  server, int port, string
+            //.net 9框架下使返回对象可为空
+#if NET9_0_OR_GREATER
+            ?
+#endif
+  localIp, int localPort)
         {
             //尝试建立连接
             int result = 1;
             try
             {
+                if (string.IsNullOrWhiteSpace(server) || port <= 0)
+                    throw new ArgumentException(string.Format("TCP连接的服务器IP地址或端口号无效，IP地址：{0}，端口号：{1}", server, port));
                 ServerIp = server;
                 ServerPort = port;
                 //BaseClient = new TcpClient(ServerIp, ServerPort);

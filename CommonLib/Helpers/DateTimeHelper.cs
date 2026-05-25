@@ -14,7 +14,7 @@ namespace CommonLib.Helpers
         /// <summary>
         /// 时间戳计算初始时间节点
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         public static readonly DateTime TimeStampZero = new DateTime(1970, 1, 1, 0, 0, 0, 0);
 #elif NET9_0_OR_GREATER
         public static readonly DateTime TimeStampZero = new(1970, 1, 1, 0, 0, 0, 0);

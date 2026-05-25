@@ -7,7 +7,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Policy;
 using System.Text;
-using System.Web.UI.WebControls;
 
 namespace CommonLib.Function
 {

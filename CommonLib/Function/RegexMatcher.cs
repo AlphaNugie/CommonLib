@@ -143,7 +143,7 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的Match对象</returns>
-#if NET45
+#if NET45_OR_GREATER
         public static Match FindFirstMatch_Detail(string input, string pattern)
         {
             IEnumerable<Match> results = FindMatches_Detail(input, pattern);
@@ -164,7 +164,7 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的字符串数组</returns>
-#if NET45
+#if NET45_OR_GREATER
         public static Match FindLastMatch_Detail(string input, string pattern)
         {
             IEnumerable<Match> results = FindMatches_Detail(input, pattern);
@@ -185,7 +185,7 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的字符串数组</returns>
-#if NET45
+#if NET45_OR_GREATER
         public static string FindFirstMatch(string input, string pattern)
         {
             Match match = FindFirstMatch_Detail(input, pattern);
@@ -203,7 +203,7 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的字符串数组</returns>
-#if NET45
+#if NET45_OR_GREATER
         public static string FindLastMatch(string input, string pattern)
         {
             Match match = FindLastMatch_Detail(input, pattern);
@@ -221,7 +221,7 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的Match数组</returns>
-#if NET45
+#if NET45_OR_GREATER
         public static IEnumerable<Match> FindMatches_Detail(string input, string pattern)
         {
             IEnumerable<Match> infos;
@@ -239,7 +239,7 @@ namespace CommonLib.Function
                 else
                     infos = (collection = Regex.Matches(input, pattern)).Cast<Match>();
             }
-#if NET45
+#if NET45_OR_GREATER
             catch (Exception e)
             {
                 FileClient.WriteExceptionInfo(e, string.Format("通过正则表达式从字符串获取匹配字符串时出错，输入字符串：{0}，匹配格式：{1}", input, pattern), true);
@@ -260,7 +260,7 @@ namespace CommonLib.Function
         /// <param name="input">待查找字符串</param>
         /// <param name="pattern">匹配模式</param>
         /// <returns>返回包含匹配字符串的字符串数组</returns>
-#if NET45
+#if NET45_OR_GREATER
         public static string[] FindMatches(string input, string pattern)
         {
             IEnumerable<Match> matches = FindMatches_Detail(input, pattern);

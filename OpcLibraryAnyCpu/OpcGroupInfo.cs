@@ -74,14 +74,22 @@ namespace OpcLibrary.Ua
             }
         }
 
+        ///// <summary>
+        ///// OPC组所拥有的OPC项数量
+        ///// <para/>对于DA为 <see cref="OpcGroup"/> 下 <see cref="OPCItems"/> 对象属性的长度
+        ///// <para/>对于UA为 <see cref="ListItemInfo"/> 的长度（与DA不同，UA不会在列表头部添加空占位对象）
+        ///// </summary>
+#if DA
         /// <summary>
         /// OPC组所拥有的OPC项数量
-        /// <para/>对于DA为 <see cref="OpcGroup"/> 下 <see cref="OPCItems"/> 对象属性的长度
-        /// <para/>对于UA为 <see cref="ListItemInfo"/> 的长度（与DA不同，UA不会在列表头部添加空占位对象）
+        /// <para/> <see cref="OpcGroup"/> 下 <see cref="OPCItems"/> 对象属性的长度
         /// </summary>
-#if DA
         public int ItemCount { get { return OpcGroup == null ? 0 : OpcGroup.OPCItems.Count; } }
 #elif UA
+        /// <summary>
+        /// OPC组所拥有的OPC项数量
+        /// <para/> <see cref="ListItemInfo"/> 的长度（与DA不同，UA不会在列表头部添加空占位对象）
+        /// </summary>
         public int ItemCount { get { return ListItemInfo == null ? 0 : ListItemInfo.Count; } }
 #endif
 
@@ -188,8 +196,8 @@ namespace OpcLibrary.Ua
         /// <summary>
         /// 设置OPC组
         /// </summary>
-        /// <param name="groups"></param>
-        /// <param name="name"></param>
+        /// <param name="groups">OPCGroups集合对象</param>
+        /// <param name="name">OPC组名称</param>
         public void SetOpcGroup(OPCGroups groups, string name)
         {
             if (groups == null)
@@ -269,10 +277,9 @@ namespace OpcLibrary.Ua
         #region UA功能
 #if UA
         /// <summary>
-        /// 设置OPC组
+        /// 设置OPC UA客户端
         /// </summary>
-        /// <param name="groups"></param>
-        ///// <param name="name"></param>
+        /// <param name="client">OpcUaClient对象</param>
         public void SetOpcUaClient(OpcUaClient client/*, string name*/)
         {
             if (client == null)
@@ -486,11 +493,10 @@ namespace OpcLibrary.Ua
         #region UA读取
 #if UA
         /// <summary>
-        /// 为OPC组OPC项List内与给定服务端句柄对应的OPC项读取数据
+        /// 为OPC组的所有OPC项同步读取数据
         /// </summary>
-        /// <param name="serverHandles">给定的服务端句柄的列表，假如为null或长度为0则读取所有</param>
         /// <param name="message">返回信息</param>
-        /// <returns></returns>
+        /// <returns>是否读取成功（至少有一个标签读到值则返回true）</returns>
         public bool ReadValues(out string message)
         {
             message = string.Empty;
@@ -539,11 +545,9 @@ namespace OpcLibrary.Ua
         }
 
         /// <summary>
-        /// 为OPC组OPC项List内与给定服务端句柄对应的OPC项读取数据
+        /// 为OPC组的所有OPC项异步读取数据
         /// </summary>
-        /// <param name="serverHandles">给定的服务端句柄的列表，假如为null或长度为0则读取所有</param>
-        /// <param name="message">返回信息</param>
-        /// <returns></returns>
+        /// <returns>操作结果（包含成功/失败状态与消息）</returns>
         public async System.Threading.Tasks.Task<OpInfoSource> ReadValuesAsync()
         {
             OpInfoSource opInfoSource = new OpInfoSource() { Message = string.Empty };
@@ -574,11 +578,11 @@ namespace OpcLibrary.Ua
         }
 
         /// <summary>
-        /// //为OPC组OPC项List内与给定服务端句柄对应的OPC项读取数据
+        /// 处理从OPC UA读取到的数据值，更新List中每个OpcItemInfo的Value和WrappedValue，并回写数据源
         /// </summary>
-        /// <param name="values"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
+        /// <param name="values">从OPC UA服务读取回来的DataValue列表</param>
+        /// <param name="message">返回消息（包含未找到标签的统计）</param>
+        /// <returns>是否至少有一个标签读取成功</returns>
         private bool ProcessValues(List<DataValue> values, out string message)
         {
             message = string.Empty;
@@ -642,11 +646,10 @@ namespace OpcLibrary.Ua
         }
 
         /// <summary>
-        /// 为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据，默认使用同步写入
+        /// 为OPC组的所有OPC项同步写入数据，写入前会自动先读取一次以获取类型信息
         /// </summary>
-        /// <param name="serverHandles">给定的服务端句柄的列表，假如为null或长度为0则写入所有</param>
         /// <param name="message">返回信息</param>
-        /// <returns></returns>
+        /// <returns>是否写入成功</returns>
         public bool WriteValues(IEnumerable<int> serverHandles, out string message)
         {
             return WriteValues(serverHandles, false, out message);
@@ -666,12 +669,9 @@ namespace OpcLibrary.Ua
         }
 
         /// <summary>
-        /// 为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据，指定是否使用异步写入
+        /// 为OPC组的所有OPC项异步写入数据（暂未实现UA下的异步写入功能）
         /// </summary>
-        /// <param name="serverHandles">给定的服务端句柄的列表，假如为null或长度为0则写入所有</param>
-        /// <param name="using_async">是否使用异步写入</param>
-        /// <param name="message">返回信息</param>
-        /// <returns></returns>
+        /// <returns>操作结果</returns>
         public bool WriteValues(IEnumerable<int> serverHandles, bool using_async, out string message)
         {
             message = string.Empty;
@@ -732,11 +732,10 @@ namespace OpcLibrary.Ua
         #region uA写入
 #if UA
         /// <summary>
-        /// 为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据，默认使用同步写入
+        /// 为OPC组的所有OPC项同步写入数据，写入前会自动先读取一次以获取类型信息
         /// </summary>
-        /// <param name="serverHandles">给定的服务端句柄的列表，假如为null或长度为0则写入所有</param>
         /// <param name="message">返回信息</param>
-        /// <returns></returns>
+        /// <returns>是否写入成功</returns>
         public bool WriteValues(out string message)
         {
             message = string.Empty;
@@ -786,12 +785,9 @@ namespace OpcLibrary.Ua
         }
 
         /// <summary>
-        /// 为OPC组OPC项List内与给定服务端句柄对应的OPC项写入数据，指定是否使用异步写入
+        /// 为OPC组的所有OPC项异步写入数据（暂未实现UA下的异步写入功能）
         /// </summary>
-        /// <param name="serverHandles">给定的服务端句柄的列表，假如为null或长度为0则写入所有</param>
-        /// <param name="using_async">是否使用异步写入</param>
-        /// <param name="message">返回信息</param>
-        /// <returns></returns>
+        /// <returns>操作结果</returns>
         public async System.Threading.Tasks.Task<OpInfoSource> WriteValuesAsync()
         {
             //TODO 待实现UA下异步写入功能

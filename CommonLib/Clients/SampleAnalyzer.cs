@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CommonLib.Clients
 {
-#if NET45
+#if NET45_OR_GREATER
     /// <summary>
     /// 样本分析
     /// </summary>
@@ -60,7 +60,7 @@ namespace CommonLib.Clients
         {
             //if (list == null || !list.Any())
             //    LastErrorMessage = "样本为空";
-#if NET45
+#if NET45_OR_GREATER
             if (list == null) list = new List<double>();
 #elif NET9_0_OR_GREATER
             list ??= [];
@@ -72,7 +72,7 @@ namespace CommonLib.Clients
                 throw new ArgumentException(LastErrorMessage, nameof(list));
 
             int groupNumber = (int)Math.Ceiling((double)list.Count() / SectionLength);
-#if NET45
+#if NET45_OR_GREATER
             List<double> result = new List<double>();
 #elif NET9_0_OR_GREATER
             List<double> result = [];

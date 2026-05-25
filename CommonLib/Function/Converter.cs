@@ -48,7 +48,7 @@ namespace CommonLib.Function
         /// <exception cref="InvalidCastException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
-#if NET45
+#if NET45_OR_GREATER
         public static object Convert(Type type, object source, object def)
 #elif NET9_0_OR_GREATER
         public static object? Convert(Type type, object? source, object? def)
@@ -91,7 +91,7 @@ namespace CommonLib.Function
         /// <exception cref="InvalidCastException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
-#if NET45
+#if NET45_OR_GREATER
         public static object Convert(Type type, object source)
 #elif NET9_0_OR_GREATER
         public static object? Convert(Type type, object? source)
@@ -104,7 +104,7 @@ namespace CommonLib.Function
         /// <summary>
         /// 表示静态类型转换方法ConvertType的方法属性，此方法为泛型方法，需根据泛型类型参数生成具体的泛型方法
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         public static MethodInfo ConvertTypeMethod { get; } = typeof(Converter).GetMethod("ConvertType", new Type[] { typeof(object) });
 #elif NET9_0_OR_GREATER
         public static MethodInfo? ConvertTypeMethod { get; } = typeof(Converter).GetMethod("ConvertType", [typeof(object)]);
@@ -128,7 +128,7 @@ namespace CommonLib.Function
         {
             //return ConvertType<T>(source, default);
             return ConvertType(source,
-#if NET45
+#if NET45_OR_GREATER
                 (T)typeof(T).CreateDefValue());
 #elif NET9_0_OR_GREATER
                 (T?)typeof(T).CreateDefValue());
@@ -145,7 +145,7 @@ namespace CommonLib.Function
         /// <exception cref="InvalidCastException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
-#if NET45
+#if NET45_OR_GREATER
         public static T ConvertType<T>(this object source, T def)
 #elif NET9_0_OR_GREATER
         public static T? ConvertType<T>(this object? source, T def)
@@ -154,7 +154,7 @@ namespace CommonLib.Function
             //假如原数据为空（或数据库空值），返回类型的新实例
             Type type = typeof(T);
 
-#if NET45
+#if NET45_OR_GREATER
             object value = Convert(type, source, def);
             return (T)value;
 #elif NET9_0_OR_GREATER
@@ -186,7 +186,7 @@ namespace CommonLib.Function
         /// <exception cref="InvalidCastException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
-#if NET45
+#if NET45_OR_GREATER
         public static T Convert<T>(this DataRow row, string column)
 #elif NET9_0_OR_GREATER
         public static T? Convert<T>(this DataRow row, string column)
@@ -207,7 +207,7 @@ namespace CommonLib.Function
         /// <exception cref="InvalidCastException"></exception>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="OverflowException"></exception>
-#if NET45
+#if NET45_OR_GREATER
         public static T Convert<T>(this DataRow row, string column, T def)
 #elif NET9_0_OR_GREATER
         public static T? Convert<T>(this DataRow? row, string column, T? def)
@@ -218,7 +218,7 @@ namespace CommonLib.Function
             bool flag = /*row == null || */row.Table == null || !row.Table.Columns.Contains(column) || row[column] == DBNull.Value; //值是否为空
             if (flag) return def; // 如果值为空，直接返回默认值
 
-#if NET45
+#if NET45_OR_GREATER
             object value = flag ? null : row[column];
             return ConvertType(value, def);
 #elif NET9_0_OR_GREATER
@@ -236,7 +236,7 @@ namespace CommonLib.Function
         /// <param name="def">默认值</param>
         /// <returns></returns>
         [Obsolete("请使用Convert<T>方法")]
-#if NET45
+#if NET45_OR_GREATER
         public static T ConvertDataRow<T>(this DataRow row, string column, T def)
 #elif NET9_0_OR_GREATER
         public static T? ConvertDataRow<T>(this DataRow row, string column, T? def)
@@ -247,7 +247,7 @@ namespace CommonLib.Function
             bool flag = /*row == null || */row.Table == null || !row.Table.Columns.Contains(column) || row[column] == DBNull.Value; //值是否为空
             if (flag) return def; // 如果值为空，直接返回默认值
 
-#if NET45
+#if NET45_OR_GREATER
             object value = flag ? null : row[column];
 #elif NET9_0_OR_GREATER
             object? value = flag ? null : row[column];
@@ -263,7 +263,7 @@ namespace CommonLib.Function
         /// <param name="column">列名称</param>
         /// <returns></returns>
         [Obsolete("请使用Convert<T>方法")]
-#if NET45
+#if NET45_OR_GREATER
         public static T ConvertDataRow<T>(this DataRow row, string column)
 #elif NET9_0_OR_GREATER
         public static T? ConvertDataRow<T>(this DataRow row, string column)

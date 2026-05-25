@@ -13,7 +13,7 @@ namespace CommonLib.Extensions.Property
     /// <summary>
     /// PropertyMapper扩展类
     /// </summary>
-#if NET45
+#if NET45_OR_GREATER
     public static class PropertyMapperExtension
 #elif NET9_0_OR_GREATER
     //.net 9 框架下将此类声明为partial，以兼容正则表达式
@@ -21,7 +21,7 @@ namespace CommonLib.Extensions.Property
 #endif
     {
         #region 私有成员
-#if NET45
+#if NET45_OR_GREATER
         /// <summary>
         /// 匹配包含任意内容的一对方括号的正则表达式
         /// </summary>
@@ -67,7 +67,7 @@ namespace CommonLib.Extensions.Property
         /// <param name="lowerLevelEntity">指定属性所对应的实体，假如属性名称内带有索引，则为索引处元素的实体；假如属性名形如“Class.Student”，则对应实体就是Student，假如属性名形如“Class.Desk[0]”，则对应实体就是Desk列表的第一个元素</param>
         /// <param name="indices">假如最底层属性名称中带有枚举数的索引，则将这些索引以uint数组的形式输出出来，否则输出null</param>
         /// <returns></returns>
-#if NET45
+#if NET45_OR_GREATER
         public static PropertyInfo GetEntityProperty_InConstruction(this object entity, string propMapper, bool initProp, out object upperLevelEntity, out object lowerLevelEntity, out int[] indices)
 #elif NET9_0_OR_GREATER
         public static PropertyInfo? GetEntityProperty_InConstruction(this object? entity, string propMapper, bool initProp, out object? upperLevelEntity, out object? lowerLevelEntity, out int[]? indices)
@@ -185,7 +185,7 @@ namespace CommonLib.Extensions.Property
         /// <param name="lowerLevelEntity">指定属性所对应的实体，假如属性名称内带有索引，则为索引处元素的实体；假如属性名形如“Class.Student”，则对应实体就是Student，假如属性名形如“Class.Desk[0]”，则对应实体就是Desk列表的第一个元素</param>
         /// <param name="indices">假如最底层属性名称中带有枚举数的索引，则将这些索引以uint数组的形式输出出来，否则输出null</param>
         /// <returns></returns>
-#if NET45
+#if NET45_OR_GREATER
         public static PropertyInfo GetEntityProperty_InConstruction(this object entity, string propMapper, bool initProp, out object upperLevelEntity, out object midLevelEntity, out object lowerLevelEntity, out int[] indices)
 #elif NET9_0_OR_GREATER
         public static PropertyInfo? GetEntityProperty_InConstruction(this object? entity, string propMapper, bool initProp, out object? upperLevelEntity, out object? midLevelEntity, out object? lowerLevelEntity, out int[]? indices)
@@ -199,7 +199,7 @@ namespace CommonLib.Extensions.Property
             targetProperty = null;
             upperLevelEntity = midLevelEntity = lowerLevelEntity = entity;
             List<int> listIndexes =
-#if NET45
+#if NET45_OR_GREATER
                 new List<int>();
 #elif NET9_0_OR_GREATER
                 [];
@@ -418,7 +418,7 @@ namespace CommonLib.Extensions.Property
         /// <param name="currentEntity">从中获取索引元素的指定实体</param>
         /// <param name="indices">所有方括号索引</param>
         /// <param name="entityType">最终的元素类型</param>
-#if NET45
+#if NET45_OR_GREATER
         public static void GetEntityByBracketIndexes(ref object currentEntity, IEnumerable<int> indices, ref Type entityType)
 #elif NET9_0_OR_GREATER
         public static void GetEntityByBracketIndexes(ref object? currentEntity, IEnumerable<int> indices, ref Type? entityType)
@@ -492,7 +492,7 @@ namespace CommonLib.Extensions.Property
         /// <param name="midLevelEntity">从中获取索引元素的指定实体，输入时与currentEntity相同，方法执行完毕后保持不变</param>
         /// <param name="indices">所有方括号索引</param>
         /// <param name="entityType">最终的元素类型</param>
-#if NET45
+#if NET45_OR_GREATER
         public static void GetEntityByBracketIndexes(ref object currentEntity, out object midLevelEntity, IEnumerable<int> indices, ref Type entityType)
 #elif NET9_0_OR_GREATER
         public static void GetEntityByBracketIndexes(ref object? currentEntity, out object? midLevelEntity, IEnumerable<int> indices, ref Type? entityType)
@@ -547,7 +547,7 @@ namespace CommonLib.Extensions.Property
                 //可能目标对象的索引长度不够，导致反射调用产生异常，此种情况直接捕捉
                 try
                 {
-#if NET45
+#if NET45_OR_GREATER
                     currentEntity = genericMethod.Invoke(null, new object[] { currentEntity, index });
 #elif NET9_0_OR_GREATER
                     currentEntity = genericMethod?.Invoke(null, [currentEntity, index]);
@@ -575,7 +575,7 @@ namespace CommonLib.Extensions.Property
         /// <param name="propMapper">指定属性的名称，形如“Class.Student.Name”</param>
         /// <param name="nullValueHandling">假如读取到的属性值为空时的操作，<see cref="NullValueHandling.Skip"/>将直接忽略并输出null，<see cref="NullValueHandling.Ignore"/>将尝试初始化为对应类型的默认值</param>
         /// <param name="convertedToType">要转换到的类型，假如为null则不转换</param>
-#if NET45
+#if NET45_OR_GREATER
         public static object GetPropertyValue<Target>(this Target target, string propMapper, NullValueHandling nullValueHandling = NullValueHandling.Skip, Type convertedToType = null)
 #elif NET9_0_OR_GREATER
         public static object? GetPropertyValue<Target>(this Target target, string propMapper, NullValueHandling nullValueHandling = NullValueHandling.Skip, Type? convertedToType = null)
@@ -593,7 +593,7 @@ namespace CommonLib.Extensions.Property
         /// <param name="targetPropertyType">指定属性的类型</param>
         /// <param name="nullValueHandling">假如读取到的属性值为空时的操作，<see cref="NullValueHandling.Skip"/>将直接忽略并输出null，<see cref="NullValueHandling.Ignore"/>将尝试初始化为对应类型的默认值</param>
         /// <param name="convertedToType">要转换到的类型，假如为null则不转换</param>
-#if NET45
+#if NET45_OR_GREATER
         public static object GetPropertyValue<Target>(this Target target, string propMapper, out Type targetPropertyType, NullValueHandling nullValueHandling = NullValueHandling.Skip,
             Type convertedToType = null)
 #elif NET9_0_OR_GREATER
@@ -602,7 +602,7 @@ namespace CommonLib.Extensions.Property
 #endif
         {
             #region 获取属性
-#if NET45
+#if NET45_OR_GREATER
             PropertyInfo targetProperty = target.GetEntityProperty_InConstruction(propMapper, false, out object upperLevelTarget, out object lowerLevelTarget, out int[] indices);
 #elif NET9_0_OR_GREATER
             PropertyInfo? targetProperty = target.GetEntityProperty_InConstruction(propMapper, false, out object? upperLevelTarget, out object? lowerLevelTarget, out int[]? indices);
@@ -678,7 +678,7 @@ namespace CommonLib.Extensions.Property
         /// <typeparam name="Target">目标实体类型参数</typeparam>
         /// <param name="source">源实体</param>
         /// <param name="target">目标实体</param>
-#if NET45
+#if NET45_OR_GREATER
         public static void CopyPropertyValueTo<Target>(this object source, ref Target target)
 #elif NET9_0_OR_GREATER
         public static void CopyPropertyValueTo<Target>(this object source, ref Target? target)
@@ -690,7 +690,7 @@ namespace CommonLib.Extensions.Property
             if (source == null || sourceProperties == null || sourceProperties.Length == 0)
                 return;
             //假如目标实体为空，则初始化
-#if NET45
+#if NET45_OR_GREATER
             if (target == null)
                 target = (Target)Activator.CreateInstance(targetType);
 #elif NET9_0_OR_GREATER
@@ -716,7 +716,7 @@ namespace CommonLib.Extensions.Property
                         continue;
 
                     #region 新判断方式
-#if NET45
+#if NET45_OR_GREATER
                     PropertyInfo targetProperty = target.GetEntityProperty_InConstruction(attr.PropertyMapper, true, out object upperLevelTarget, out object midLevelTarget, out _, out int[] indices);
 #elif NET9_0_OR_GREATER
                     PropertyInfo? targetProperty = target.GetEntityProperty_InConstruction(attr.PropertyMapper, true, out object? upperLevelTarget, out object? midLevelTarget, out _, out int[]? indices);
@@ -727,7 +727,7 @@ namespace CommonLib.Extensions.Property
                     #endregion
 
                     #region 新属性赋值方法
-#if NET45
+#if NET45_OR_GREATER
                     Type targetPropertyType;
 #elif NET9_0_OR_GREATER
                     Type? targetPropertyType;
@@ -770,7 +770,7 @@ namespace CommonLib.Extensions.Property
                     //else
                     else if(indices != null && indices.Length > 0) // 添加空值检查
                     {
-#if NET45
+#if NET45_OR_GREATER
                         ReflectionUtil.SetValueMethod?.Invoke(midLevelTarget, new object[] { targetValue, indices[0] });
 #elif NET9_0_OR_GREATER
                         ReflectionUtil.SetValueMethod?.Invoke(midLevelTarget, [targetValue, indices[0]]);
@@ -787,7 +787,7 @@ namespace CommonLib.Extensions.Property
         /// <typeparam name="Target">目标实体类型参数</typeparam>
         /// <param name="source">源实体</param>
         /// <param name="target">目标实体</param>
-#if NET45
+#if NET45_OR_GREATER
         public static void CopyPropertyValueFrom<Target>(this object source, Target target)
 #elif NET9_0_OR_GREATER
         public static void CopyPropertyValueFrom<Target>(this object? source, Target target)
@@ -802,7 +802,7 @@ namespace CommonLib.Extensions.Property
             if (target == null || sourceProperties == null || sourceProperties.Length == 0)
                 return;
             //假如源实体为空，则初始化
-#if NET45
+#if NET45_OR_GREATER
             if (source == null)
                 source = Activator.CreateInstance(sourceType);
 #elif NET9_0_OR_GREATER
@@ -819,7 +819,7 @@ namespace CommonLib.Extensions.Property
 
                 Type sourcePropertyType = sourceProperty.PropertyType;
                 //object类型默认值为null
-#if NET45
+#if NET45_OR_GREATER
                 object targetValue = null;
 #elif NET9_0_OR_GREATER
                 object? targetValue = null;

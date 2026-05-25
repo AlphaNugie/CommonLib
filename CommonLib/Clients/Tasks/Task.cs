@@ -1,5 +1,5 @@
 ﻿using CommonLib.Enums;
-#if NET45
+#if NET45_OR_GREATER
 using CommonLib.Function;
 #elif NET9_0_OR_GREATER
 using CommonLib.Clients;
@@ -29,7 +29,7 @@ namespace CommonLib.Clients.Tasks
         /// </summary>
         protected string _errorMessage = string.Empty;
 
-#if NET45
+#if NET45_OR_GREATER
         private readonly AutoResetEvent _auto = new AutoResetEvent(false);
         private List<string> _taskLogsBuffer = new List<string>(); //日志存放缓冲区，每次循环可以直接向里添加（Add）而不必清除（Clear）
         private readonly Stopwatch _stopwatch = new Stopwatch();
@@ -98,7 +98,7 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 任务循环线程
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         protected Thread ThreadLoop { get; private set; }
 #elif NET9_0_OR_GREATER
         protected Thread? ThreadLoop { get; private set; }
@@ -121,7 +121,7 @@ namespace CommonLib.Clients.Tasks
         /// <summary>
         /// 任务日志
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         protected List<string> TaskLogs { get; private set; } = new List<string>();
 #elif NET9_0_OR_GREATER
         protected List<string> TaskLogs { get; private set; } = [];
@@ -242,7 +242,7 @@ namespace CommonLib.Clients.Tasks
             Pause();
 
             ThreadLoop = new Thread(new ThreadStart(Loop)) { IsBackground = true };
-//#if NET45
+//#if NET45_OR_GREATER
 //            ThreadLoop = new Thread(new ThreadStart(Loop)) { IsBackground = true };
 //#elif NET9_0_OR_GREATER
 //            _cancellationTokenSource = new CancellationTokenSource();
@@ -288,7 +288,7 @@ namespace CommonLib.Clients.Tasks
             //此时循环应当是结束了，以防万一终止一下线程
             if (ThreadLoop != null)
             {
-#if NET45
+#if NET45_OR_GREATER
                 ThreadLoop.Abort();
                 ThreadLoop = null;
 #elif NET9_0_OR_GREATER
@@ -379,7 +379,7 @@ namespace CommonLib.Clients.Tasks
             //强制终止一下线程
             if (ThreadLoop != null)
             {
-#if NET45
+#if NET45_OR_GREATER
                 ThreadLoop.Abort();
 #elif NET9_0_OR_GREATER
                 //等待线程停止，.net 5和.net Core 不能强制线程停止
@@ -499,7 +499,7 @@ namespace CommonLib.Clients.Tasks
         /// 循环体
         /// </summary>
         private void Loop()
-//#if NET45
+//#if NET45_OR_GREATER
 //        private void Loop()
 //#elif NET9_0_OR_GREATER
 //        private void Loop(CancellationToken token)
@@ -509,7 +509,7 @@ namespace CommonLib.Clients.Tasks
             //while (!(_ended || (RunOnlyOnce && LoopCounter++ > 0)))
             //结束条件：结束标志为true，或任务已经运行1次且只需运行1次（LoopCounter自增在前，防止表达式断路后计数器不自增）
             while (!(_ended || (LoopCounter++ > 0 && RunOnlyOnce)))
-//#if NET45
+//#if NET45_OR_GREATER
 //            while (!(_ended || (LoopCounter++ > 0 && RunOnlyOnce)))
 //#elif NET9_0_OR_GREATER
 //                while (!(token.IsCancellationRequested || (LoopCounter++ > 0 && RunOnlyOnce)))
@@ -533,7 +533,7 @@ namespace CommonLib.Clients.Tasks
                 //清空日志缓冲区
                 if (_taskLogsBuffer == null)
                     _taskLogsBuffer =
-#if NET45
+#if NET45_OR_GREATER
                         new List<string>();
 #elif NET9_0_OR_GREATER
                         [];
@@ -603,7 +603,7 @@ namespace CommonLib.Clients.Tasks
         public void FlushLogs()
         {
             TaskLogs = 
-#if NET45
+#if NET45_OR_GREATER
             _taskLogsBuffer.ToList();
 #elif NET9_0_OR_GREATER
             [.. _taskLogsBuffer];
@@ -631,7 +631,7 @@ namespace CommonLib.Clients.Tasks
         public string[] GetTaskLogs()
         {
             return TaskLogs == null || TaskLogs.Count == 0 ?
-#if NET45
+#if NET45_OR_GREATER
                 new string[0] : TaskLogs.ToArray();
 #elif NET9_0_OR_GREATER
                 [] : [.. TaskLogs];
@@ -653,7 +653,7 @@ namespace CommonLib.Clients.Tasks
     }
 
     #region .net framework 4.5 版本
-#if NET45
+#if NET45_OR_GREATER
     /// <summary>
     /// 任务每次循环触发事件的事件参数类
     /// </summary>

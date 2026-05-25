@@ -1,5 +1,5 @@
 ﻿using CommonLib.Extensions;
-#if NET45
+#if NET45_OR_GREATER
 using CommonLib.Function;
 #elif NET9_0_OR_GREATER
 using CommonLib.Helpers;
@@ -158,7 +158,7 @@ namespace CommonLib.Clients
         /// Initialize the CRC table with given CRC32 parameters.
         /// </summary>
         /// <param name="crc32Params">给定的CRC32参数实体，假如为空则重新初始化并使用默认值</param>
-#if NET45
+#if NET45_OR_GREATER
         public CRC32(CRC32Parameters crc32Params)
 #elif NET9_0_OR_GREATER
         public CRC32(CRC32Parameters? crc32Params)

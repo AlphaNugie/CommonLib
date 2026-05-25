@@ -16,7 +16,7 @@ namespace CommonLib.Clients
         private readonly Type _baseType;
         //比特位（布尔量）的数组，从低位开始排列
         //比特位（数值0/1）的数组，从低位开始排列
-#if NET45
+#if NET45_OR_GREATER
         private bool[] _bits;
         private int[] _bitNums;
 #elif NET9_0_OR_GREATER

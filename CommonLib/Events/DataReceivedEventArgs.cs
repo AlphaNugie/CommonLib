@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-#if NET45
+#if NET45_OR_GREATER
 using CommonLib.Function;
 #elif NET9_0_OR_GREATER
 using CommonLib.Helpers;
@@ -20,7 +20,7 @@ namespace CommonLib.Events
         /// 接收到的byte数组
         /// </summary>
         public byte[] ReceivedData { get; set; } =
-#if NET45
+#if NET45_OR_GREATER
             new byte[0];
 #elif NET9_0_OR_GREATER
             [];

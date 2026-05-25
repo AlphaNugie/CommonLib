@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CommonLib.Events
 {
-#if NET45
+#if NET45_OR_GREATER
     /// <summary>
     /// 值变化趋势累积然后改变的事件的参数
     /// </summary>

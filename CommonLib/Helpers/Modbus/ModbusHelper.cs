@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if NET45_OR_GREATER
+#elif NET9_0_OR_GREATER
+using CommonLib.Helpers;
+#endif
 
 namespace CommonLib.Function.Modbus
 {

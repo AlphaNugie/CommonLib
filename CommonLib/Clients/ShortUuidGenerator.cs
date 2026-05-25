@@ -12,7 +12,7 @@ namespace CommonLib.Clients
     public class ShortUuidGenerator
     {
         private static readonly Random random =
-#if NET45
+#if NET45_OR_GREATER
             new Random();
 #elif NET9_0_OR_GREATER
             new();

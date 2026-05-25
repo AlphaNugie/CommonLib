@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-#if NET45
+#if NET45_OR_GREATER
 namespace CommonLib.Function
 #elif NET9_0_OR_GREATER
 namespace CommonLib.Helpers
@@ -39,7 +39,7 @@ namespace CommonLib.Helpers
         /// <param name="offset">为数列中每个元素提供的校正值，在为负数元素校正之后操作</param>
         /// <returns></returns>
         public static string NumberArrayToChn_8bit(
-#if NET45
+#if NET45_OR_GREATER
             this IEnumerable<int> numbers, Encoding encoding,
 #elif NET9_0_OR_GREATER
             this IEnumerable<int>? numbers, Encoding? encoding,
@@ -61,7 +61,7 @@ namespace CommonLib.Helpers
             //只获取不为0的字节，以去除结尾\0符号
             byte[] bytes = array.Where(p => p.value != 0).Select(p => (byte)p.value).ToArray();
             //假如未指定编码方式则默认使用GB2312
-#if NET45
+#if NET45_OR_GREATER
             encoding = encoding ?? Encoding.GetEncoding("GB2312");
 #elif NET9_0_OR_GREATER
             encoding ??= Encoding.GetEncoding("GB2312");
@@ -140,7 +140,7 @@ namespace CommonLib.Helpers
         /// <returns>返回字符串</returns>
         public static string ByteArray2HexString(IEnumerable<byte> bytes)
         {
-#if NET45
+#if NET45_OR_GREATER
             StringBuilder builder = new StringBuilder();
 #elif NET9_0_OR_GREATER
             StringBuilder builder = new();
@@ -192,7 +192,7 @@ namespace CommonLib.Helpers
         public static byte[] HexStringArray2Bytes(IEnumerable<string> hexStrings)
         {
             if (hexStrings == null || !hexStrings.Any())
-#if NET45
+#if NET45_OR_GREATER
                 return null;
 #elif NET9_0_OR_GREATER
                 return [];
@@ -209,14 +209,14 @@ namespace CommonLib.Helpers
         public static byte[] HexString2Bytes(string hexString)
         {
             if (string.IsNullOrWhiteSpace(hexString))
-#if NET45
+#if NET45_OR_GREATER
                 return null;
 #elif NET9_0_OR_GREATER
                 return [];
 #endif
 
             return HexStringArray2Bytes(
-#if NET45
+#if NET45_OR_GREATER
                 hexString.Split(new char[] { ' ' },
 #elif NET9_0_OR_GREATER
                 hexString.Split([' '],
@@ -232,7 +232,7 @@ namespace CommonLib.Helpers
         public static byte[] HexString2Bytes_NoSpaces(string hexString)
         {
             if (string.IsNullOrWhiteSpace(hexString))
-#if NET45
+#if NET45_OR_GREATER
                 return null;
 #elif NET9_0_OR_GREATER
                 return [];
@@ -301,13 +301,13 @@ namespace CommonLib.Helpers
             //binary = binary.PadLeft(hexString.Length * 4, '0').PadRight(32, '0');
             binary = binary.PadLeft(bytes.Length * 8, '0').PadRight(32, '0');
             //符号位（0为正，1为负），以及阶码
-#if NET45
+#if NET45_OR_GREATER
             int sign = Convert.ToInt32(binary.Substring(0, 1), 2), indexes = Convert.ToInt32(binary.Substring(1, 8), 2) - 127;
 #elif NET9_0_OR_GREATER
             int sign = Convert.ToInt32(binary[..1], 2), indexes = Convert.ToInt32(binary[1..9], 2) - 127;
 #endif
             //代表值部分的尾数
-#if NET45
+#if NET45_OR_GREATER
             string fraction = binary.Substring(9).TrimEnd('0');
 #elif NET9_0_OR_GREATER
             string fraction = binary[9..].TrimEnd('0');
@@ -381,7 +381,7 @@ namespace CommonLib.Helpers
         public static byte[] GetCRC16(IEnumerable<byte> data)
         {
             if (data == null || !data.Any())
-#if NET45
+#if NET45_OR_GREATER
                 return new byte[0];
 #elif NET9_0_OR_GREATER
                 return [];
@@ -525,7 +525,7 @@ namespace CommonLib.Helpers
         public static bool IsGnssCRC32Verified(string message)
         {
             string[] temps = message.Split(
-#if NET45
+#if NET45_OR_GREATER
                 new char[] { '#', '*' },
 #elif NET9_0_OR_GREATER
                 ['#', '*'],
@@ -561,7 +561,7 @@ namespace CommonLib.Helpers
         public static bool IsGnssChecksumVerified(string message)
         {
             string[] temps = message.Split(
-#if NET45
+#if NET45_OR_GREATER
                 new char[] { '$', '*' },
 #elif NET9_0_OR_GREATER
                 ['$', '*'],
@@ -607,7 +607,7 @@ namespace CommonLib.Helpers
         /// <returns></returns>
         public static bool IsStringSumVerified(string input, char bridge)
         {
-#if NET45
+#if NET45_OR_GREATER
             input = input ?? string.Empty;
 #elif NET9_0_OR_GREATER
             input ??= string.Empty;
@@ -616,7 +616,7 @@ namespace CommonLib.Helpers
             int index = input.LastIndexOf(bridge);
             if (index <= 0 || index >= input.Length - 1)
                 return false;
-#if NET45
+#if NET45_OR_GREATER
             string first = input.Substring(0, index + 1), last = input.Substring(index + 1, input.Length - index - 1);
 #elif NET9_0_OR_GREATER
             string first = input[..(index + 1)], last = input[(index + 1)..];

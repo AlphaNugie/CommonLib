@@ -4,7 +4,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+#if NET45_OR_GREATER
 using System.Windows.Forms;
+#elif NET9_0_OR_GREATER
+#endif
 using CommonLib.Enums;
 
 namespace CommonLib.Function
@@ -35,6 +38,7 @@ namespace CommonLib.Function
         [DllImport("user32")]
         private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
+#if NET45_OR_GREATER
         /// <summary>
         /// 注册热键
         /// </summary>
@@ -47,6 +51,8 @@ namespace CommonLib.Function
         {
             return RegisterHotKey(winHandle, id, (uint)hotKeys, (int)key);
         }
+#elif NET9_0_OR_GREATER
+#endif
 
         /// <summary>
         /// 热键取消注册

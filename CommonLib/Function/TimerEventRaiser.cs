@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 
-#if NET45
+#if NET45_OR_GREATER
 namespace CommonLib.Function
 #elif NET9_0_OR_GREATER
 namespace CommonLib.Clients
@@ -15,7 +15,7 @@ namespace CommonLib.Clients
     /// <summary>
     /// 计时事件触发器
     /// </summary>
-#if NET45
+#if NET45_OR_GREATER
     public class TimerEventRaiser
 #elif NET9_0_OR_GREATER
     public class TimerEventRaiser : IDisposable
@@ -39,7 +39,7 @@ namespace CommonLib.Clients
         /// <summary>
         /// 计时器达到计时阈值
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         public event ThresholdReachedEventHandler ThresholdReached;
 #elif NET9_0_OR_GREATER
         public event ThresholdReachedEventHandler? ThresholdReached;
@@ -48,7 +48,7 @@ namespace CommonLib.Clients
         /// <summary>
         /// 点击
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         public event ClickedEventHandler Clicked;
 #elif NET9_0_OR_GREATER
         public event ClickedEventHandler? Clicked;
@@ -57,7 +57,7 @@ namespace CommonLib.Clients
 
         #region 私有成员
         private const uint DEFAULT_INTERVAL = 1000, DEFAULT_RAISE_THRESHOLD = 5000;
-#if NET45
+#if NET45_OR_GREATER
         private readonly Timer _timer = new Timer();
 #elif NET9_0_OR_GREATER
         private readonly System.Timers.Timer _timer = new();
@@ -228,7 +228,7 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-#if NET45
+#if NET45_OR_GREATER
         public void TimerElapsed(object sender, ElapsedEventArgs e)
 #elif NET9_0_OR_GREATER
         public void TimerElapsed(object? sender, ElapsedEventArgs e)
@@ -241,7 +241,7 @@ namespace CommonLib.Clients
     }
 
     #region .net framework 4.5 版本
-#if NET45
+#if NET45_OR_GREATER
     /// <summary>
     /// 计时器达到阈值后触发事件的事件参数类
     /// </summary>

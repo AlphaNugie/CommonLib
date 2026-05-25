@@ -1,6 +1,9 @@
 ﻿using CommonLib.Function;
 using CommonLib.Helpers;
+#if NET45_OR_GREATER
 using CommonLib.UIControlUtil.WinForms;
+#elif NET9_0_OR_GREATER
+#endif
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -93,7 +96,7 @@ namespace CommonLib.Clients
                     return;
                 int index = _fileName.LastIndexOf('.');
                 FileNameNoExt = index >= 0 ?
-#if NET45
+#if NET45_OR_GREATER
                     _fileName.Substring(0, index)
 #elif NET9_0_OR_GREATER
                     _fileName[..index]
@@ -146,7 +149,7 @@ namespace CommonLib.Clients
                     }
                     return result;
                 })
-#if NET45
+#if NET45_OR_GREATER
                 .ToList();
 #elif NET9_0_OR_GREATER
                 ];
@@ -253,7 +256,7 @@ namespace CommonLib.Clients
                 goto END;
             try
             {
-#if NET45
+#if NET45_OR_GREATER
                 FileInfo fileInfo = new FileInfo(fullName);
 #elif NET9_0_OR_GREATER
                 FileInfo fileInfo = new(fullName);
@@ -273,7 +276,7 @@ namespace CommonLib.Clients
         /// </summary>
         /// <param name="path">进程文件所在路径</param>
         /// <param name="name">进程文件名称</param>
-#if NET45
+#if NET45_OR_GREATER
         public void UpdateProcessFullName(string path, string name)
 #elif NET9_0_OR_GREATER
         public void UpdateProcessFullName(string? path, string? name)
@@ -406,6 +409,7 @@ namespace CommonLib.Clients
             });
         }
 
+#if NET45_OR_GREATER
         /// <summary>
         /// 显示或隐藏进程的窗体
         /// </summary>
@@ -417,6 +421,8 @@ namespace CommonLib.Clients
             //return process != null && process.ShowWindow(show ? 1u : 0u);
             return process != null && WindowUtil.ShowWindow(MainWindowHandle, show ? 1u : 0u);
         }
+#elif NET9_0_OR_GREATER
+#endif
         #endregion
     }
 

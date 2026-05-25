@@ -10,12 +10,20 @@ namespace CommonLib.Function.Conditions
     /// <summary>
     /// 检查各条件是否符合的任务
     /// </summary>
+#if NET45_OR_GREATER
     public abstract class CheckConditionsTask : Task
+#elif NET9_0_OR_GREATER
+    public abstract class CheckConditionsTask : Clients.Tasks.Task
+#endif
     {
         private List<ConditionSet> _conditions;
 
         /// <inheritdoc/>
+#if NET45_OR_GREATER
         protected override Task GetNewInstance()
+#elif NET9_0_OR_GREATER
+        protected override Clients.Tasks.Task GetNewInstance()
+#endif
         {
             throw new NotImplementedException();
         }

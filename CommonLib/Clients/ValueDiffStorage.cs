@@ -281,7 +281,7 @@ namespace CommonLib.Clients
         //        /// <param name="diffT">（通过参数输出）变化量（变量a与b之差）的绝对值</param>
         //        /// <param name="comparisonResult">（通过参数输出）变化量（的绝对值）与阈值的比较结果，大于0表示变化量大于阈值，小于0表示变化量小于阈值，等于0表示变化量等于阈值</param>
         //        /// <returns>返回一个布尔值，表示进行的比较过程是否成功，假如为false通常代表 T 类型不支持直接的数值转换或减法运算符，需要自定义变化量计算逻辑</returns>
-        //#if NET45
+        //#if NET45_OR_GREATER
         //        public bool CompareValues(T newValue, T currValue, T diffThres, out T diffT, out int comparisonResult)
         //#elif NET9_0_OR_GREATER
         //        public bool CompareValues(T? newValue, T? currValue, T? diffThres, out T? diffT, out int comparisonResult)
@@ -336,7 +336,7 @@ namespace CommonLib.Clients
         /// <param name="diffT">（通过参数输出）变化量（变量a与b之差）的绝对值</param>
         /// <param name="comparisonResult">（通过参数输出）变化量（的绝对值）与阈值的比较结果，大于0表示变化量大于阈值，小于0表示变化量小于阈值，等于0表示变化量等于阈值</param>
         /// <returns>返回一个布尔值，表示值是否发生变化</returns>
-#if NET45
+#if NET45_OR_GREATER
         public bool CompareValues(T newValue, T currValue, T diffThres, out T diffT, out int comparisonResult)
 #elif NET9_0_OR_GREATER
         public bool CompareValues(T? newValue, T? currValue, T? diffThres, out T? diffT, out int comparisonResult)

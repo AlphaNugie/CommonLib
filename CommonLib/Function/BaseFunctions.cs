@@ -8,19 +8,22 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Xml;
 using System.Text.RegularExpressions;
 //using Microsoft.International.Converters.PinYinConverter;
 using CommonLib.Enums;
 using Microsoft.Win32;
 using System.Net;
-using CommonLib.UIControlUtil.WPF;
 using System.Runtime.InteropServices;
 using CommonLib.Helpers;
-using System.Web.UI.WebControls;
 using System.Drawing.Design;
 using CommonLib.Extensions;
+#if NET45_OR_GREATER
+using System.Windows.Forms;
+using CommonLib.UIControlUtil.WPF;
+using System.Web.UI.WebControls;
+#elif NET9_0_OR_GREATER
+#endif
 
 namespace CommonLib.Function
 {
@@ -29,10 +32,13 @@ namespace CommonLib.Function
     /// </summary>
     public struct Base
     {
+#if NET45_OR_GREATER
         /// <summary>
         /// 全屏时的WPF窗口信息
         /// </summary>
         public static WindowStateInfo FullScreenInfo = WindowStateInfo.GetFullScreenInfo();
+#elif NET9_0_OR_GREATER
+#endif
 
         /// <summary>
         /// 特殊字符，代表正文开始

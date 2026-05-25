@@ -35,7 +35,7 @@ namespace CommonLib.Clients
         /// <summary>
         /// 客户端列表
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         private List<TcpClient> clientList = new List<TcpClient>();
 #elif NET9_0_OR_GREATER
         private List<TcpClient> clientList = [];
@@ -226,7 +226,7 @@ namespace CommonLib.Clients
             catch (Exception ex)
             {
                 string message = string.Format("从Tcp客户端(IP{0}，端口{1})异步获取数据时出错：{2}", ServerIp, ServerPort, ex.Message);
-#if NET45
+#if NET45_OR_GREATER
                 FileClient.WriteExceptionInfo(ex,message, true);
 #elif NET9_0_OR_GREATER
                 LastErrorMessage = message;
@@ -242,7 +242,7 @@ namespace CommonLib.Clients
         {
             if (ar.AsyncState == null)
                 throw new InvalidOperationException("AsyncState is null.");
-#if NET45
+#if NET45_OR_GREATER
             DerivedTcpClient client = (DerivedTcpClient)ar.AsyncState;
             NetworkStream ns = client.NetStream;
 
@@ -259,7 +259,7 @@ namespace CommonLib.Clients
             catch (Exception ex)
             {
                 string message = string.Format("从Tcp服务端(IP地址{0}，端口{1})获取数据的过程中出错：{2}", ServerIp, ServerPort, ex.Message);
-//#if NET45
+//#if NET45_OR_GREATER
                 FileClient.WriteExceptionInfo(ex, string.Format("从TcpServer获取数据的过程中出错：IP地址{0}，端口{1}", ServerIp, ServerPort), true);
 //#elif NET9_0_OR_GREATER
 //                LastErrorMessage = message;

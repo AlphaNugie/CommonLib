@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommonLib.Events;
 using CommonLib.Extensions;
-#if NET45
+#if NET45_OR_GREATER
 using CommonLib.Function;
 #elif NET9_0_OR_GREATER
 using CommonLib.Helpers;
@@ -82,7 +82,7 @@ namespace CommonLib.Clients
         //private bool logging = false;
         private bool autoReceive = true;
         //private IPEndPoint remote_endpoint, local_endpoint;
-#if NET45
+#if NET45_OR_GREATER
         private readonly TimerEventRaiser raiser = new TimerEventRaiser(1000);
 #elif NET9_0_OR_GREATER
         private readonly TimerEventRaiser raiser = new(1000);
@@ -617,7 +617,7 @@ namespace CommonLib.Clients
 #endif
             point = null;
                 byte[] data = BaseClient.Receive(ref point);
-#if NET45
+#if NET45_OR_GREATER
                 Events.DataReceivedEventArgs args = new Events.DataReceivedEventArgs(data);
 #elif NET9_0_OR_GREATER
                 Events.DataReceivedEventArgs args = new(data);
@@ -635,7 +635,7 @@ namespace CommonLib.Clients
         {
             if (Thread_Reconnect != null)
             {
-#if NET45
+#if NET45_OR_GREATER
                 Thread_Reconnect.Abort();
 #elif NET9_0_OR_GREATER
                 Thread_Reconnect.Join();

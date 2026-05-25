@@ -39,7 +39,7 @@ namespace CommonLib.Events
         /// </summary>
         /// <param name="prev">改变之前的值</param>
         /// <param name="curr">改变之后的当前值</param>
-#if NET45
+#if NET45_OR_GREATER
         public ValueChangedEventArgs(T prev, T curr)
 #elif NET9_0_OR_GREATER
         public ValueChangedEventArgs(T? prev, T? curr)

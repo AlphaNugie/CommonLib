@@ -47,7 +47,7 @@ namespace CommonLib.Function
         /// <summary>
         /// System.Array.SetValue的实体方法对象
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         public static MethodInfo SetValueMethod { get; } = ArrayType.GetMethod("SetValue", new Type[] { typeof(object), typeof(int) });
 #elif NET9_0_OR_GREATER
         public static MethodInfo? SetValueMethod { get; } = ArrayType.GetMethod("SetValue", [typeof(object), typeof(int)]);
@@ -72,7 +72,7 @@ namespace CommonLib.Function
         /// </summary>
         /// <param name="entityType">从中提取基本类型参数的泛类型</param>
         /// <returns></returns>
-#if NET45
+#if NET45_OR_GREATER
         public static Type GetGenericType(this Type entityType)
         {
             Type genericType = null;

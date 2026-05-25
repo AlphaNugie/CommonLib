@@ -35,7 +35,7 @@ namespace CommonLib.Clients.Object
         /// <summary>
         /// 定制化信息
         /// </summary>
-#if NET45
+#if NET45_OR_GREATER
         public List<object> CustomProperties { get; set; } = new List<object>();
 #elif NET9_0_OR_GREATER
         public List<object> CustomProperties { get; set; } = [];

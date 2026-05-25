@@ -7,7 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-#if NET45
+#if NET45_OR_GREATER
 using static CommonLib.Function.TimerEventRaiser;
 #elif NET9_0_OR_GREATER
 using static CommonLib.Clients.TimerEventRaiser;
@@ -43,7 +43,7 @@ namespace CommonLib.Clients
         #endregion
 
         #region 私有成员变量
-#if NET45
+#if NET45_OR_GREATER
         private readonly TimerEventRaiser _raiser = new TimerEventRaiser(1000);
 #elif NET9_0_OR_GREATER
         private readonly TimerEventRaiser _raiser = new(1000);
@@ -144,7 +144,7 @@ namespace CommonLib.Clients
         /// <param name="port">假如端口号不大于0，以默认端口号启动</param>
         /// <param name="suffix">地址后缀</param>
         /// <param name="encoding">数据流与字符串之间的解码、编码方式</param>
-#if NET45
+#if NET45_OR_GREATER
         public DerivedHttpListener(string ip, int port, string suffix, Encoding encoding)
 #elif NET9_0_OR_GREATER
         public DerivedHttpListener(string? ip, int port, string? suffix, Encoding encoding)
@@ -272,7 +272,7 @@ namespace CommonLib.Clients
             //把处理信息返回到客户端
             try
             {
-#if NET45
+#if NET45_OR_GREATER
                 using (var stream = response.OutputStream)
                 { stream.Write(returnByteArr, 0, returnByteArr.Length); }
 #elif NET9_0_OR_GREATER
@@ -311,7 +311,7 @@ namespace CommonLib.Clients
                 DataReceived?.BeginInvoke(
                     this,
                     new DataReceivedEventArgs(
-#if NET45
+#if NET45_OR_GREATER
                         byteList.ToArray(),
 #elif NET9_0_OR_GREATER
                         [.. byteList],

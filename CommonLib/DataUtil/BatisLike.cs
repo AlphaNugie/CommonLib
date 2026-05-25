@@ -55,7 +55,13 @@ namespace CommonLib.DataUtil
         /// <summary>
         /// Mapper文件的目录
         /// </summary>
-        public static string DefaultMapperPath { get; set; } = FileSystemHelper.StartupPath + FileSystemHelper.DirSeparator + ConfigurationManager.AppSettings["SqlMapperFolder"];
+        public static string DefaultMapperPath { get; set; } = FileSystemHelper.StartupPath + FileSystemHelper.DirSeparator + 
+#if NET45_OR_GREATER
+            ConfigurationManager.AppSettings["SqlMapperFolder"]
+#elif NET9_0_OR_GREATER
+            "SqlMapperFolder"
+#endif
+            ;
 
         /// <summary>
         /// Mapper文件的目录

@@ -6,8 +6,8 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-#if NET45
 using CommonLib.Function.MathUtils;
+#if NET45_OR_GREATER
 #elif NET9_0_OR_GREATER
 #endif
 
@@ -21,7 +21,6 @@ namespace CommonLib.Extensions
         #region 常用数学公式/参数计算
 
         //TODO 将net45的代码移植到net 9
-#if NET45
         /// <summary>
         /// 在给出的点对象集合中，以3个点为一组，每组确定一个二维或三维空间中圆的圆心XYZ坐标（二维空间中Z为0）和半径长度 <para/>如此按顺序执行若干次（等于点数量除以3并向下取整），计算圆心XYZ坐标（二维空间中Z为0）和半径长度的平均值并返回圆形对象
         /// </summary>
@@ -235,8 +234,6 @@ namespace CommonLib.Extensions
         //}
         #endregion
 
-#elif NET9_0_OR_GREATER
-#endif
 
         #region 正态分布
         /// <summary>
@@ -388,7 +385,7 @@ namespace CommonLib.Extensions
             //假如样本集的数量不足2，则默认波动率为0
             if ((length = numbers.Count()) < 2)
                 return 0;
-#if NET45
+#if NET45_OR_GREATER
             List<double> newList = new List<double>();
 #elif NET9_0_OR_GREATER
             List<double> newList = [];
@@ -580,7 +577,7 @@ namespace CommonLib.Extensions
         public static bool Between(this double input, IEnumerable<double> range, bool def = false)
         {
             return input.Between(
-#if NET45
+#if NET45_OR_GREATER
                 new IEnumerable<double>[] { range },
 #elif NET9_0_OR_GREATER
                 [range],
@@ -639,7 +636,6 @@ namespace CommonLib.Extensions
 
 
         //TODO 将net45的代码移植到net 9
-#if NET45
         /// <summary>
         /// 在给定的一些点的集合中，计算各点间的平均距离，判断依据是距其它点的平均距离，点的坐标以double数组的形式给出，同时需给定采样的比例（或数量）
         /// </summary>
@@ -719,8 +715,6 @@ namespace CommonLib.Extensions
         {
             return MathUtil.GetAngleByCoordinates(x1, y1, xa, ya);
         }
-#elif NET9_0_OR_GREATER
-#endif
 
         /// <summary>
         /// （使用Swap）对两个值类型的值进行交换
@@ -761,7 +755,7 @@ namespace CommonLib.Extensions
             int places = 0;
             try
             {
-#if NET45
+#if NET45_OR_GREATER
                 string[] parts = value.ToString()?.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
 #elif NET9_0_OR_GREATER
                 string[]? parts = value.ToString()?.Split(['.'], StringSplitOptions.RemoveEmptyEntries);

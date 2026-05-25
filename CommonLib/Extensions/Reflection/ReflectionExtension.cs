@@ -20,7 +20,7 @@ namespace CommonLib.Extensions.Reflection
         /// <param name="obj">待克隆对象</param>
         /// <returns></returns>
         /// <exception cref="MissingMethodException">克隆对象的目标类型缺少无参构造器</exception>
-#if NET45
+#if NET45_OR_GREATER
         public static T Clone<T>(this T obj)
         {
             Type type = typeof(T);
@@ -52,7 +52,7 @@ namespace CommonLib.Extensions.Reflection
         /// </summary>
         /// <param name="type">给定的类型实体</param>
         /// <returns></returns>
-#if NET45
+#if NET45_OR_GREATER
         public static object CreateDefValue(this Type type)
         {
             ////调用Activator.CreateInstance方法时需要判断是否为值类型，否则假如引用类型没有默认构造器将会抛出异常
@@ -80,7 +80,7 @@ namespace CommonLib.Extensions.Reflection
         /// <param name="baseType">查找类时限定的从中继承的类（仅检查类型名称及命名空间是否相同），假如为空则不限定</param>
         /// <returns></returns>
         public static Type[] GetTypesInNamespace(this Assembly assembly, string nameSpace, bool subSpaceIncl = false,
-#if NET45
+#if NET45_OR_GREATER
 string typeNameIncl = null, Type baseType = null)
 #elif NET9_0_OR_GREATER
 string? typeNameIncl = null, Type? baseType = null)

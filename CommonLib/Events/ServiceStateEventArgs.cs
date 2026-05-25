@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CommonLib.Events
 {
-#if NET45
+#if NET45_OR_GREATER
     /// <summary>
     /// 服务状态变化事件参数
     /// </summary>

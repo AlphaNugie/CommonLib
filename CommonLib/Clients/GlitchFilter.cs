@@ -243,7 +243,7 @@ namespace CommonLib.Clients
         /// <param name="longDistAvoidParams">远距值（较大值）过滤参数的实体类对象</param>
         /// <param name="averageGapParams">变化平均值过滤参数的实体类对象</param>
         /// <param name="fixedGapParams">固定差距过滤参数的实体类对象</param>
-#if NET45
+#if NET45_OR_GREATER
         public GlitchFilterParamModel(bool enabled = false, int capacity = 5, LongDistAvoidParamModel longDistAvoidParams = null, AverageGapParamModel averageGapParams = null, FixedGapParamModel fixedGapParams = null)
 #elif NET9_0_OR_GREATER
         public GlitchFilterParamModel(bool enabled = false, int capacity = 5, LongDistAvoidParamModel? longDistAvoidParams = null, AverageGapParamModel? averageGapParams = null, FixedGapParamModel? fixedGapParams = null)
@@ -258,7 +258,7 @@ namespace CommonLib.Clients
         }
     }
 
-#if NET45
+#if NET45_OR_GREATER
     /// <summary>
     /// 避免输入值（的绝对值）达到远距值（较大值）的配置参数实体类，用于设置被赋予较大值时的更新方式
     /// </summary>

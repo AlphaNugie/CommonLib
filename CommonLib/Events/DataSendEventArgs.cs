@@ -15,7 +15,7 @@ namespace CommonLib.Events
         /// 发送的byte数组
         /// </summary>
         public byte[] SentData { get; set; } =
-#if NET45
+#if NET45_OR_GREATER
             new byte[0];
 #elif NET9_0_OR_GREATER
             [];

@@ -496,10 +496,13 @@ namespace OpcLibrary.Ua
             string url = GetOpcServerUrl(remoteServerIP, remoteServerPort, remoteServerName);
             try
             {
-                OpcUaClient = new OpcUaClient()
-                {
-                    UserIdentity = string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password) ? new UserIdentity(new AnonymousIdentityToken()) : new UserIdentity(userName, password)
-                };
+                //OpcUaClient = new OpcUaClient()
+                //{
+                //    UserIdentity = string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password) ? new UserIdentity(new AnonymousIdentityToken()) : new UserIdentity(userName, password)
+                //};
+                OpcUaClient = new OpcUaClient();
+                if (!string.IsNullOrWhiteSpace(userName) && !string.IsNullOrWhiteSpace(password))
+                    OpcUaClient.UserIdentity = new UserIdentity(userName, password);
                 OpcUaClient.OpcStatusChange += new EventHandler<OpcUaStatusEventArgs>(Client_OpcStatusChange);
                 await OpcUaClient.ConnectServer(url);
             }

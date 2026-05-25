@@ -5,11 +5,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <!-- 引用 System.Resources.Extensions，支持 .resx 中的非字符串资源（图片、图标等） -->
+  <!-- ==================== .cs 源文件（Link 方式，保持与源项目目录结构一致） ==================== -->
+
+  <!-- Clients -->
   <ItemGroup>
-    <Compile Include="..\CommonLib\Helpers\DateTimeHelper.cs"> 
-      <!-- 指定文件在项目中的虚拟路径（可选） -->
-      <Link>Helpers\DateTimeHelper.cs</Link>
-    </Compile>
     <Compile Include="..\CommonLib\Clients\CRC32.cs"> <Link>Clients\CRC32.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Clients\CustomBitConverter.cs"> <Link>Clients\CustomBitConverter.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Clients\ColorSmoother.cs"> <Link>Clients\ColorSmoother.cs</Link> </Compile>
@@ -24,20 +25,36 @@
     <Compile Include="..\CommonLib\Clients\GenericStorage.cs"> <Link>Clients\GenericStorage.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Clients\GlitchFilter.cs"> <Link>Clients\GlitchFilter.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Clients\KalmanFilter.cs"> <Link>Clients\KalmanFilter.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\Clients\Object\PlyDotObject.cs"> <Link>Clients\Object\PlyDotObject.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\Clients\Object\PlyFileClient.cs"> <Link>Clients\Object\PlyFileClient.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\FileClient.cs"> <Link>Clients\FileClient.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\LogClient.cs"> <Link>Clients\LogClient.cs</Link> </Compile>
+    <!--<Compile Include="..\CommonLib\Clients\ConnClient.cs"> <Link>Clients\ConnClient.cs</Link> </Compile>-->
+    <Compile Include="..\CommonLib\Clients\DerivedTcpClient.cs"> <Link>Clients\DerivedTcpClient.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\EncryptionClient.cs"> <Link>Clients\EncryptionClient.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Clients\SampleAnalyzer.cs"> <Link>Clients\SampleAnalyzer.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Clients\ShortUuidGenerator.cs"> <Link>Clients\ShortUuidGenerator.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\ValueDiffStorage.cs"> <Link>Clients\ValueDiffStorage.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\Object\PlyDotObject.cs"> <Link>Clients\Object\PlyDotObject.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Clients\Object\PlyFileClient.cs"> <Link>Clients\Object\PlyFileClient.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Clients\Tasks\BlankTask.cs"> <Link>Clients\Tasks\BlankTask.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Clients\Tasks\Task.cs"> <Link>Clients\Tasks\Task.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\Clients\ValueDiffStorage.cs"> <Link>Clients\ValueDiffStorage.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\Clients\EncryptionClient.cs"> <Link>Clients\EncryptionClient.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\Helpers\FileSystemHelper.cs"> <Link>Helpers\FileSystemHelper.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\Function\TimerEventRaiser.cs"> <Link>Clients\TimerEventRaiser.cs</Link> </Compile>
+  </ItemGroup>
+
+  <!-- DataUtil -->
+  <ItemGroup>
+    <!--<Compile Include="..\CommonLib\DataUtil\AccessProvider.cs"> <Link>DataUtil\AccessProvider.cs</Link> </Compile>-->
+    <Compile Include="..\CommonLib\DataUtil\BaseDataServiceBatis.cs"> <Link>DataUtil\BaseDataServiceBatis.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\DataUtil\BaseModel.cs"> <Link>DataUtil\BaseModel.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\DataUtil\BatisLike.cs"> <Link>DataUtil\BatisLike.cs</Link> </Compile>
+    <!--<Compile Include="..\CommonLib\DataUtil\DataProvider.cs"> <Link>DataUtil\DataProvider.cs</Link> </Compile>-->
+    <Compile Include="..\CommonLib\DataUtil\OracleColumnMapping.cs"> <Link>DataUtil\OracleColumnMapping.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\DataUtil\Record.cs"> <Link>DataUtil\Record.cs</Link> </Compile>
+  </ItemGroup>
+
+  <!-- Enums -->
+  <ItemGroup>
     <Compile Include="..\CommonLib\Enums\DatabaseTypes.cs"> <Link>Enums\DatabaseTypes.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Enums\DbSqlType.cs"> <Link>Enums\DbSqlType.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Enums\Endianness.cs"> <Link>Enums\Endianness.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\Enums\IntFlag.cs"> <Link>Enums\IntFlag.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Enums\ServiceState.cs"> <Link>Enums\ServiceState.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Enums\ShapeEnum.cs"> <Link>Enums\ShapeEnum.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Enums\ValueTrend.cs"> <Link>Enums\ValueTrend.cs</Link> </Compile>
@@ -45,6 +62,10 @@
     <Compile Include="..\CommonLib\Enums\HotKeys.cs"> <Link>Enums\HotKeys.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Enums\RoutineStatus.cs"> <Link>Enums\RoutineStatus.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Enums\WindowMessage.cs"> <Link>Enums\WindowMessage.cs</Link> </Compile>
+  </ItemGroup>
+
+  <!-- Events -->
+  <ItemGroup>
     <Compile Include="..\CommonLib\Events\NoneReceivedEventArgs.cs"> <Link>Events\NoneReceivedEventArgs.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Events\ServiceStateEventArgs.cs"> <Link>Events\ServiceStateEventArgs.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Events\ValueChangedEventArgs.cs"> <Link>Events\ValueChangedEventArgs.cs</Link> </Compile>
@@ -54,21 +75,99 @@
     <Compile Include="..\CommonLib\Events\EventHandlers.cs"> <Link>Events\EventHandlers.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Events\IdChangedEventArgs.cs"> <Link>Events\IdChangedEventArgs.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Events\RoutineStatusChangedEventArgs.cs"> <Link>Events\RoutineStatusChangedEventArgs.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\Helpers\HexHelper.cs"> <Link>Helpers\HexHelper.cs</Link> </Compile>
+  </ItemGroup>
+
+  <!-- Extensions -->
+  <ItemGroup>
     <Compile Include="..\CommonLib\Extensions\EnumExtension.cs"> <Link>Extensions\EnumExtension.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\Extensions\Property\PropertyMapperExtension.cs"> <Link>Extensions\Property\PropertyMapperExtension.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\Extensions\Reflection\ReflectionExtension.cs"> <Link>Extensions\Reflection\ReflectionExtension.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Extensions\ExtensionClass.cs"> <Link>Extensions\ExtensionClass.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Extensions\MathExtension.cs"> <Link>Extensions\MathExtension.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Extensions\Property\PropertyMapperExtension.cs"> <Link>Extensions\Property\PropertyMapperExtension.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Extensions\Reflection\ReflectionExtension.cs"> <Link>Extensions\Reflection\ReflectionExtension.cs</Link> </Compile>
+  </ItemGroup>
+
+  <!-- Function -->
+  <ItemGroup>
+    <Compile Include="..\CommonLib\Function\BaseFunctions.cs"> <Link>Function\BaseFunctions.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Function\Converter.cs"> <Link>Function\Converter.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\Function\RegexMatcher.cs"> <Link>Function\RegexMatcher.cs</Link> </Compile>
-    <Compile Include="..\CommonLib\UIControlUtil\WinForms\WindowUtil.cs"> <Link>UIControlUtil\WinForms\WindowUtil.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\ExitWindowsUtil.cs"> <Link>Function\ExitWindowsUtil.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\FailureInfo.cs"> <Link>Function\FailureInfo.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\HotKeyRegister.cs"> <Link>Function\HotKeyRegister.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\MathUtil.cs"> <Link>Function\MathUtil.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\OperateIniFile.cs"> <Link>Function\OperateIniFile.cs</Link> </Compile>
     <Compile Include="..\CommonLib\Function\ReflectionUtil.cs"> <Link>Function\ReflectionUtil.cs</Link> </Compile>
-    <!-- <Compile Include="..\CommonLib\"> <Link></Link> </Compile>
-    <Compile Include="..\CommonLib\"> <Link></Link> </Compile>
-    <Compile Include="..\CommonLib\"> <Link></Link> </Compile>
-    <Compile Include="..\CommonLib\"> <Link></Link> </Compile> -->
-    <!-- <Compile Include="..\CommonLib\"> <Link></Link> </Compile> -->
+    <Compile Include="..\CommonLib\Function\RegexMatcher.cs"> <Link>Function\RegexMatcher.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\TimerEventRaiser.cs"> <Link>Clients\TimerEventRaiser.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\TraceRoute.cs"> <Link>Function\TraceRoute.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\Conditions\CheckConditionsTask.cs"> <Link>Function\Conditions\CheckConditionsTask.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\Conditions\ConditionSet.cs"> <Link>Function\Conditions\ConditionSet.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\Fitting\CircleFitting.cs"> <Link>Function\Fitting\CircleFitting.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\Fitting\CircleFittingExample.cs"> <Link>Function\Fitting\CircleFittingExample.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\Fitting\CurveFitting.cs"> <Link>Function\Fitting\CurveFitting.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\Fitting\SpaceOrienting.cs"> <Link>Function\Fitting\SpaceOrienting.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\MathUtils\Circle.cs"> <Link>Function\MathUtils\Circle.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\MathUtils\CircleCalculator.cs"> <Link>Function\MathUtils\CircleCalculator.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\MathUtils\Point3D.cs"> <Link>Function\MathUtils\Point3D.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\MathUtils\Vector3D.cs"> <Link>Function\MathUtils\Vector3D.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\MathUtils\Spatial\GridCube.cs"> <Link>Function\MathUtils\Spatial\GridCube.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\MathUtils\Spatial\SpaceGrid.cs"> <Link>Function\MathUtils\Spatial\SpaceGrid.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Function\MathUtils\Spatial\SpaceIndex.cs"> <Link>Function\MathUtils\Spatial\SpaceIndex.cs</Link> </Compile>
+  </ItemGroup>
+
+  <!-- Helpers -->
+  <ItemGroup>
+    <Compile Include="..\CommonLib\Helpers\DateTimeHelper.cs"> <Link>Helpers\DateTimeHelper.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Helpers\FileSystemHelper.cs"> <Link>Helpers\FileSystemHelper.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Helpers\HexHelper.cs"> <Link>Helpers\HexHelper.cs</Link> </Compile>
+    <!--<Compile Include="..\CommonLib\Helpers\ImageHelper.cs"> <Link>Helpers\ImageHelper.cs</Link> </Compile>-->
+    <Compile Include="..\CommonLib\Helpers\IniFileHelper.cs"> <Link>Helpers\IniFileHelper.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Helpers\MD5Helper.cs"> <Link>Helpers\MD5Helper.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Helpers\Modbus\ModbusHelper.cs"> <Link>Helpers\Modbus\ModbusHelper.cs</Link> </Compile>
+  </ItemGroup>
+
+  <!-- Properties（AssemblyInfo + Resources 自动生成文件） --><!--
+  <ItemGroup>
+    <Compile Include="..\CommonLib\Properties\AssemblyInfo.cs"> <Link>Properties\AssemblyInfo.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\Properties\Resources.Designer.cs"> <Link>Properties\Resources.Designer.cs</Link> </Compile>
+  </ItemGroup>-->
+
+  <!-- UIControlUtil / WinForms --><!--
+  <ItemGroup>
+    <Compile Include="..\CommonLib\UIControlUtil\WinForms\ControlUtil.cs"> <Link>UIControlUtil\WinForms\ControlUtil.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WinForms\DataGridViewUtil.cs"> <Link>UIControlUtil\WinForms\DataGridViewUtil.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WinForms\TabControlUtil.cs"> <Link>UIControlUtil\WinForms\TabControlUtil.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WinForms\TextBoxWrapper.cs"> <Link>UIControlUtil\WinForms\TextBoxWrapper.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WinForms\TreeViewUtil.cs"> <Link>UIControlUtil\WinForms\TreeViewUtil.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WinForms\WindowUtil.cs"> <Link>UIControlUtil\WinForms\WindowUtil.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WinForms\ControlTemplates\FormNotifyBasis.cs"> <Link>UIControlUtil\WinForms\ControlTemplates\FormNotifyBasis.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WinForms\ControlTemplates\FormNotifyBasis.Designer.cs"> <Link>UIControlUtil\WinForms\ControlTemplates\FormNotifyBasis.Designer.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WinForms\ControlTemplates\CustomMessageBox.cs"> <Link>UIControlUtil\WinForms\ControlTemplates\CustomMessageBox.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WinForms\ControlTemplates\CustomMessageBox.Designer.cs"> <Link>UIControlUtil\WinForms\ControlTemplates\CustomMessageBox.Designer.cs</Link> </Compile>
+  </ItemGroup>
+
+  --><!-- UIControlUtil / WPF --><!--
+  <ItemGroup>
+    <Compile Include="..\CommonLib\UIControlUtil\WPF\ControlUtil.cs"> <Link>UIControlUtil\WPF\ControlUtil.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WPF\WindowStateInfo.cs"> <Link>UIControlUtil\WPF\WindowStateInfo.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WPF\WindowUtil.cs"> <Link>UIControlUtil\WPF\WindowUtil.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WPF\Controls\ButtonEx.cs"> <Link>UIControlUtil\WPF\Controls\ButtonEx.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WPF\Controls\ImageButton.cs"> <Link>UIControlUtil\WPF\Controls\ImageButton.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WPF\Controls\MultiComboBox.cs"> <Link>UIControlUtil\WPF\Controls\MultiComboBox.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WPF\Controls\TabItemClose.cs"> <Link>UIControlUtil\WPF\Controls\TabItemClose.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\WPF\Convers\ValueConver.cs"> <Link>UIControlUtil\WPF\Convers\ValueConver.cs</Link> </Compile>
+  </ItemGroup>-->
+
+  <!-- ==================== 嵌入式资源 Resx（Link 方式） ==================== -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\CommonLib\Properties\Resources.resx">
+      <Link>Properties\Resources.resx</Link>
+    </EmbeddedResource>
+    <!--<EmbeddedResource Include="..\CommonLib\UIControlUtil\WinForms\ControlTemplates\FormNotifyBasis.resx">
+      <Link>UIControlUtil\WinForms\ControlTemplates\FormNotifyBasis.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CommonLib\UIControlUtil\WinForms\ControlTemplates\CustomMessageBox.resx">
+      <Link>UIControlUtil\WinForms\ControlTemplates\CustomMessageBox.resx</Link>
+    </EmbeddedResource>-->
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\Debug\net9.0\" />

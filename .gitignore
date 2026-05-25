@@ -341,3 +341,6 @@ healthchecksdb
 /CommonLib/compiled
 /OpcLibraryAnyCpu.zip
 /OpcLibrary.SiemensPlcNet452/Class1.cs
+/.codebuddy/.rules
+/CommonLib.Core/CommonLib.Core - 副本.csproj
+/OpcLibraryAnyCpu.UaNet100/Class1.cs

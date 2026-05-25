@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45_OR_GREATER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\CommonLib.XML</DocumentationFile>
@@ -100,7 +100,6 @@
     <Compile Include="DataUtil\DataProvider.cs" />
     <Compile Include="DataUtil\OracleColumnMapping.cs" />
     <Compile Include="DataUtil\Record.cs" />
-    <Compile Include="DataUtil\SqlProvider.cs" />
     <Compile Include="Enums\DatabaseTypes.cs" />
     <Compile Include="Enums\DbSqlType.cs" />
     <Compile Include="Enums\Endianness.cs" />
@@ -140,7 +139,6 @@
     <Compile Include="Function\MathUtils\Vector3D.cs" />
     <Compile Include="Function\ReflectionUtil.cs" />
     <Compile Include="Function\BaseFunctions.cs" />
-    <Compile Include="Clients\ConnClient.cs" />
     <Compile Include="Clients\DerivedTcpClient.cs" />
     <Compile Include="Clients\EncryptionClient.cs" />
     <Compile Include="Function\Converter.cs" />

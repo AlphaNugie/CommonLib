@@ -173,8 +173,9 @@ namespace OpcLibrary.Ua
 #endif
         {
 #if UA
-            //在UA下，将ItemId补充为完整的节点路径，如ns=2;s=ItemName
-            ItemId = itemId.StartsWith("ns=") ? itemId : "ns=2;s=" + itemId;
+            //在UA下，将ItemId补充为完整的节点路径，如ns=2;s=ItemName（假如没有ns/NS前缀）
+            //ItemId = itemId.StartsWith("ns=") ? itemId : "ns=2;s=" + itemId;
+            ItemId = itemId.ToLower().StartsWith("ns") ? itemId : "ns=2;s=" + itemId;
 #elif DA
             ItemId = itemId;
             ClientHandle = clientHandle;

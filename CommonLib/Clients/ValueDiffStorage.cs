@@ -81,9 +81,7 @@ namespace CommonLib.Clients
             ?
 #endif
             _currValue = default, _prevValueSecAgo = default, _currValueSecLater = default; //当前值
-
         private DateTime /*_prevTime = DateTime.Now, */_currTime = DateTime.Now;
-
         /// <summary>
         /// 当前值，改变后将历史值存入FormerValue字段
         /// </summary>
@@ -97,6 +95,26 @@ namespace CommonLib.Clients
             get { return _currValue; }
             set
             {
+                ////ValueChanged = !value.Equals(_currValue);
+                //////更新值
+                ////PrevValue = _currValue;
+                ////_currValue = value;
+                ////if (ValueChanged)
+                ////    ValueChangedEvent?.BeginInvoke(this, new ValueChangedEventArgs<T>(PrevValue, _currValue), null, null);
+
+                //                //尝试计算差值并与给定的差异量化阈值
+                //                bool success = CompareValues(value, _currValue, ValueChangedThreshold,
+                //                    out T
+                //            //.net 9框架下使返回对象可为空
+                //#if NET9_0_OR_GREATER
+                //            ?
+                //#endif
+                //            diff,
+                //                    out int compareResult);
+                //                //判断 <see cref="ValueChanged"/> 属性是否为true，假如上面的比较成功，则使用上面的比较结果，否则仅判断新值与旧值是否不同
+                //                //ValueChanged = success ? compareResult > 0 : !value.Equals(_currValue);
+                //                ValueChanged = success ? compareResult > 0 : value != null && !value.Equals(_currValue);
+
                 //尝试计算差值并与给定的差异量化阈值比较（数值类型）
                 // 假如泛型 T 不支持直接的数值转换或减法运算符，则忽略此阈值、直接将当前值与上一个值比较
                 ValueChanged = CompareValues(value, _currValue, ValueChangedThreshold,
@@ -105,7 +123,6 @@ namespace CommonLib.Clients
 #if NET9_0_OR_GREATER
             ?
 #endif
-
             diff,
                     out int compareResult);
                 if (ValueChanged)

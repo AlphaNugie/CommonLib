@@ -336,6 +336,137 @@ Console.WriteLine($"HEX: {hex}");
 | **空安全** | .NET 9 下事件委托和引用类型属性使用 `?` 标记可空 |
 
 ---
+
+## DerivedHttpClient — HTTP 发送客户端
+
+**文件**：`CommonLib/Clients/DerivedHttpClient.cs`
+
+**命名空间**：`CommonLib.Clients`
+
+**功能概述**：封装 `System.Net.Http.HttpClient`，提供简洁的 HTTP 同步请求方法（GET/POST/PUT/DELETE），支持 Bearer Token 认证、多种 Content-Type、超时控制。
+
+### 1. 构造器
+
+| 构造器 | 说明 |
+|------|------|
+| `DerivedHttpClient()` | 默认构造器，超时时间 5000ms |
+| `DerivedHttpClient(int timeout)` | 指定超时时间（毫秒） |
+
+> .NET 9 下使用主构造器语法：`public class DerivedHttpClient(int timeout)`
+
+### 2. 属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `Timeout` | `int` | `5000` | 执行任务时的等待时间（毫秒），超过此时间抛出 `TimeoutException` |
+
+### 3. ContentType 枚举
+
+| 值 | HTTP Content-Type 头 |
+|------|------|
+| `ContentType.FormUrlEncoded` | `application/x-www-form-urlencoded` |
+| `ContentType.Xml` | `application/xml` |
+| `ContentType.Json` | `application/json` |
+| `ContentType.FormData` | `multipart/form-data` |
+
+### 4. 核心方法
+
+#### 4.1 OAuth — Bearer Token 认证
+
+```cs
+client.OAuth("my-access-token");
+```
+
+在请求头的 `Authorization` 中设置 `Bearer {token}`。调用一次后，后续所有请求自动携带该认证信息。
+
+#### 4.2 Get — GET 请求
+
+```cs
+string response = client.Get("http://api.example.com/users");
+```
+
+URL 未包含 `http://` 时会自动补全。
+
+#### 4.3 Post — POST 请求（3 个重载）
+
+```cs
+// 方式一：字符串内容，默认 FormUrlEncoded
+string response = client.Post("http://api.example.com/data", "key1=value1&key2=value2");
+
+// 方式二：指定 Content-Type
+string response = client.Post("http://api.example.com/data", "{\"name\":\"张三\"}", ContentType.Json);
+
+// 方式三：Dictionary 自动编码为 FormUrlEncodedContent
+var data = new Dictionary<string, string> { ["key"] = "value" };
+string response = client.Post("http://api.example.com/data", data);
+```
+
+#### 4.4 Put — PUT 请求（2 个重载）
+
+```cs
+// 无内容
+string response = client.Put("http://api.example.com/status");
+
+// 带 Dictionary 内容
+var data = new Dictionary<string, string> { ["status"] = "active" };
+string response = client.Put("http://api.example.com/status", data);
+```
+
+#### 4.5 Delete — DELETE 请求
+
+```cs
+string response = client.Delete("http://api.example.com/users/1");
+```
+
+#### 4.6 FixUrl — URL 自动补全（私有静态）
+
+```cs
+// 输入 "api.example.com/data" → 返回 "http://api.example.com/data"
+// 输入 "https://api.example.com/data" → 保持不变
+```
+
+#### 4.7 RunTask — 任务执行引擎（私有）
+
+内部核心方法，所有 HTTP 方法最终都委托给它执行：
+1. 调用 `task.Wait(Timeout)` 同步等待
+2. 若超时，抛出 `TimeoutException`
+3. 若 `AggregateException`，解包 `InnerException` 并重新抛出（保留原始堆栈）
+4. 成功则返回 `response.Content.ReadAsStringAsync().Result`
+
+### 5. 使用示例
+
+```cs
+// 创建客户端（超时 10 秒）
+var client = new DerivedHttpClient(10000);
+
+// Bearer Token 认证
+client.OAuth("eyJhbGciOiJIUzI1NiIs...");
+
+// GET 请求
+string users = client.Get("https://api.example.com/users");
+Console.WriteLine(users);
+
+// POST JSON
+string result = client.Post("https://api.example.com/users",
+    "{\"name\":\"李四\",\"age\":30}", ContentType.Json);
+
+// POST 表单
+var formData = new Dictionary<string, string>
+{
+    ["username"] = "admin",
+    ["password"] = "123456"
+};
+string loginResult = client.Post("https://api.example.com/login", formData);
+
+// PUT 更新
+var updateData = new Dictionary<string, string> { ["name"] = "王五" };
+string putResult = client.Put("https://api.example.com/users/1", updateData);
+
+// DELETE 删除
+string deleteResult = client.Delete("https://api.example.com/users/1");
+```
+
+---
 # OpcLibraryAnyCpu 与 OpcLibraryAnyCpu.Ua
 
 ## 一、项目架构设计

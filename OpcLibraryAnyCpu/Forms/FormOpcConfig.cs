@@ -307,7 +307,8 @@ namespace OpcLibrary.Controls.Forms
                 return;
             }
 
-            //读取与写入的标签分开查询
+            // 读取与写入的标签分开查询
+            // 区分读取与写入两种情况，是为了避免数据源实体类字段名称相同但对应的标签名称不同的情况（或者正好相反的情况）下被误判为相等
             List<OpcItem> itemsToRead = _binding.Where(item => item.OpcGroupId == 1).ToList(), itemsToWrite = _binding.Where(item => item.OpcGroupId > 1).ToList();
             //新增的标签数量，更新的标签数量
             int added = 0, updated = 0;

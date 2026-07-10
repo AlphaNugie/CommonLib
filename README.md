@@ -14,6 +14,328 @@
 
 ---
 
+# CommonLib — 基础工具类库
+
+## DerivedUdpClient — UDP 连接客户端
+
+**文件**：`CommonLib/Clients/DerivedUdpClient.cs`
+
+**命名空间**：`CommonLib.Clients`
+
+**功能概述**：封装 `System.Net.Sockets.UdpClient`，提供 UDP 通信的完整解决方案，包括连接管理、自动重连、异步数据收发、超时检测等功能。
+
+### 1. 构造器
+
+| 构造器 | 说明 |
+|------|------|
+| `DerivedUdpClient(string local_ip = "", int local_port = 0, bool auto_receive = true, bool hold_port = true)` | 主构造器，指定本地IP、端口、是否自动接收、重连时是否保持端口 |
+| `DerivedUdpClient(bool autoReceive, bool holdPort = true)` | 简化构造器，不绑定特定本地端口 |
+
+**构造器行为**：
+- 初始化 `UdpClient` 对象（`BaseClient`）
+- 启动 `TimerEventRaiser` 定时器（每1秒触发一次）
+- 注册 `Raiser_ThresholdReached` 超时检测回调
+- 若 `AutoReceive=true`，立即调用 `BeginReceive` 开始异步接收
+
+### 2. 属性
+
+#### 2.1 连接配置属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `ServerIp` | `string` | `"127.0.0.1"` | 远程服务端 IP 地址 |
+| `ServerPort` | `int` | `0` | 远程服务端端口 |
+| `LocalIp` | `string` | `""` | 本地绑定 IP |
+| `LocalPort` | `int` | `0` | 本地绑定端口（≤0 则随机） |
+| `HoldLocalPort` | `bool` | `true` | 重连时是否保持相同本地端口 |
+
+#### 2.2 连接状态属性
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `IsConnected` | `bool` | 是否已连接（逻辑状态，连接成功后置 true） |
+| `IsConnected_Socket` | `bool` | Socket 级别的实际连接状态（通过 `IsSocketConnected()` 扩展方法检测） |
+| `IsStartListening` | `bool` | 是否已启动监听（异步接收） |
+| `Name` | `string` | 连接名称，格式：`本地端口->服务端IP:端口` |
+
+#### 2.3 网络终结点属性
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `BaseClient` | `UdpClient?` | 底层的 `System.Net.Sockets.UdpClient` 对象 |
+| `RemoteEndPoint` | `IPEndPoint?` | 远程 IP 终结点（连接成功后设置） |
+| `LocalEndPoint` | `IPEndPoint?` | 本地 IP 终结点（初始化时根据 `LocalIp`+`LocalPort` 设置） |
+
+#### 2.4 数据收发控制属性
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `AutoReceive` | `bool` | 是否自动接收数据（修改时仅做状态标记） |
+| `ReceiveRestTime` | `int` | 数据接收停顿时间（毫秒），每次接收后等待这段时间再进行下一次接收 |
+| `LastErrorMessage` | `string` | 最近一次操作产生的错误信息 |
+
+#### 2.5 超时与重连控制属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `ReconnectWhenReceiveNone` | `bool` | `false` | 持续无数据时是否自动重连 |
+| `RaiseThreshold` | `int` | `5000` | 计时阈值（毫秒），计时达到此值触发 `OnNoneReceived` 事件 |
+| `RaiseInterval` | `int` | `5000` | 触发间隔（毫秒），两次触发 `OnNoneReceived` 事件间的最短时间 |
+| `ReconnTimer` | `int` | `0` | 重连成功次数（连接成功后重置为0，每次重连成功+1） |
+
+### 3. 事件
+
+| 事件 | 委托类型 | 触发条件 |
+|------|------|------|
+| `Connected` | `ConnectedEventHandler?` | UDP 连接成功时触发 |
+| `Disconnected` | `DisconnectedEventHandler?` | UDP 连接关闭时触发 |
+| `ReconnTimerChanged` | `ReconnTimerChangedEventHandler?` | 重连成功次数变化时触发（参数：连接名称、重连次数） |
+| `DataReceived` | `DataReceivedEventHandler?` | 接收到数据时异步触发（参数：连接名称、接收数据字节数组） |
+| `OnNoneReceived` | `NoneReceivedEventHandler?` | 持续一段时间未收到数据时触发（由 `RaiseThreshold`/`RaiseInterval` 控制） |
+
+所有事件均使用 `BeginInvoke` 异步触发，不阻塞主流程。
+
+### 4. 核心方法
+
+#### 4.1 连接管理
+
+**`Connect()` / `Connect(string server, int port)` / `Connect(string server, int port, string localIp, int localPort)`**
+
+```cs
+// 使用已配置的 ServerIp/ServerPort 连接
+int result = client.Connect();
+
+// 指定远程 IP 和端口连接
+int result = client.Connect("192.168.1.100", 8000);
+
+// 指定远程 IP/端口 + 本地 IP/端口连接
+int result = client.Connect("192.168.1.100", 8000, "192.168.1.50", 9000);
+```
+
+**连接流程**：
+1. 保存服务端/本地 IP 和端口到属性
+2. 若 `BaseClient` 为 null，调用 `InitBaseClient()` 初始化
+3. 调用 `BaseClient.Connect(ServerIp, ServerPort)` 建立 UDP 连接
+4. 设置 `RemoteEndPoint`、更新 `Name`
+5. 重置 `ReconnTimer` 为 0，触发 `ReconnTimerChanged` 事件
+6. 触发 `Connected` 事件
+7. 启动后台重连线程 `Thread_Reconnect`（若尚未启动）
+8. 若 `AutoReceive=true`，调用 `BeginReceive` 开始异步接收
+
+**返回值**：成功返回 `1`，失败返回 `0`。
+
+---
+
+**`Close()`**
+
+```cs
+int result = client.Close();
+```
+
+**关闭流程**：
+1. 清空 `LastErrorMessage`
+2. 终止后台重连线程（.NET Framework 用 `Abort()`，.NET 9 用 `Join()`）
+3. 关闭并释放 `BaseClient`
+4. 重置 `IsConnected=false`、`ServerIp="127.0.0.1"`、`ServerPort=0`
+5. 触发 `Disconnected` 事件
+
+**返回值**：成功返回 `1`，失败返回 `0`。
+
+---
+
+**`Reconnect_TheWholeDeal()`**
+
+```cs
+client.Reconnect_TheWholeDeal();
+```
+
+若当前处于连接状态，则先 `Close()` 再 `Connect()`，实现完整的断开重连。失败时静默处理（try-catch 包裹）。
+
+---
+
+**`SetName()`**
+
+```cs
+client.SetName();
+```
+
+通过 `BaseClient.Client.GetName()` 扩展方法获取并设置连接名称（格式：`本地端口->服务端IP:端口`）。
+
+---
+
+#### 4.2 自动重连机制
+
+**`TcpAutoReconnect()`**（私有，后台线程）
+
+每隔 **1 秒**检测一次连接状态：
+
+```
+┌─ IsConnected == false ──→ Auto_UdpReconnect.WaitOne() 挂起等待
+│
+└─ IsConnected == true && 实际 Socket 已断开 ──→ 执行重连：
+     1. BaseClient.Close()
+     2. 重新 new UdpClient()（若 HoldLocalPort=true 则复用 LocalEndPoint）
+     3. BaseClient.Connect(ServerIp, ServerPort)
+     4. ReconnTimer++，触发 ReconnTimerChanged 事件
+     5. 触发 Connected 事件
+     6. 若 AutoReceive=true，重新 BeginReceive
+```
+
+**线程同步**：使用 `AutoResetEvent`（`Auto_UdpReconnect`）控制线程挂起/唤醒，`Connect()` 方法中通过 `Set()` 唤醒挂起中的重连线程。
+
+**线程终止**：`ThreadAbort()` 方法，.NET Framework 使用 `Abort()`，.NET 9 使用 `Join()` + 释放 `AutoResetEvent`。
+
+---
+
+#### 4.3 超时检测
+
+**`Raiser_ThresholdReached` 回调**（私有）
+
+由 `TimerEventRaiser`（1秒周期定时器）驱动：
+- 持续未收到数据达到 `RaiseThreshold` 毫秒 → 触发 `OnNoneReceived` 事件
+- 若 `ReconnectWhenReceiveNone=true` → 自动调用 `Reconnect_TheWholeDeal()`
+- 两次触发间隔至少 `RaiseInterval` 毫秒
+
+---
+
+#### 4.4 数据发送
+
+**`SendData(object data_origin, out string errorMessage)`**
+
+```cs
+// 发送到已连接的服务端
+bool ok = client.SendData(hexBytes, out string error);
+
+// 发送到指定 IPEndPoint
+bool ok = client.SendData(hexBytes, new IPEndPoint(IPAddress.Parse("192.168.1.100"), 8000), out error);
+
+// 发送到指定 IP + 端口
+bool ok = client.SendData(hexBytes, "192.168.1.100", 8000, out error);
+```
+
+**支持的 `data_origin` 类型**：
+| 类型 | 处理方式 |
+|------|------|
+| `byte[]` | 直接发送 |
+| `string` | 作为 16 进制格式字符串，通过 `HexHelper.HexString2Bytes()` 转换后发送 |
+| 其他 | 返回 false，`errorMessage` 报告格式错误 |
+
+---
+
+**`SendString(string content)`**
+
+```cs
+// 发送到已连接的服务端
+client.SendString("Hello UDP");
+
+// 发送到指定 IPEndPoint
+client.SendString("Hello UDP", new IPEndPoint(IPAddress.Parse("192.168.1.100"), 8000));
+
+// 发送到指定 IP + 端口
+client.SendString("Hello UDP", "192.168.1.100", 8000);
+```
+
+将字符串以 ASCII 编码转换为 `byte[]` 后发送。发送失败时抛出异常并记录到 `LastErrorMessage`。
+
+---
+
+#### 4.5 数据接收
+
+**`ReceiveCallBack(IAsyncResult ar)`**（私有，异步回调）
+
+```cs
+// 由 BeginReceive 触发，运行在后台线程
+```
+
+**接收流程**：
+1. 调用 `BaseClient.EndReceive(ar, ref point)` 获取数据字节数组
+2. 若数据长度 > 0：
+   - 异步触发 `DataReceived` 事件
+   - 调用 `raiser.Click()` 重置超时计时器
+   - 若 `ReceiveRestTime > 0`，等待指定毫秒
+   - 若 `AutoReceive=true`，再次调用 `BeginReceive` 继续接收
+
+---
+
+**`Read(out string asc, out string hex)`**
+
+```cs
+string ascii, hex;
+client.Read(out ascii, out hex);
+```
+
+**同步读取**当前可用数据（不阻塞），通过 `BaseClient.Receive()` 获取数据后转换为 ASCII 字符串和 16 进制字符串。
+
+---
+
+### 5. 使用示例
+
+#### 5.1 基本 UDP 客户端
+
+```cs
+// 创建 UDP 客户端，绑定本地 9000 端口
+var client = new DerivedUdpClient("192.168.1.50", 9000, auto_receive: true, hold_port: true);
+
+// 订阅事件
+client.Connected += (name, e) => Console.WriteLine($"已连接：{name}");
+client.Disconnected += (name, e) => Console.WriteLine($"已断开：{name}");
+client.DataReceived += (name, e) => Console.WriteLine($"收到数据：{e.ReceivedInfo_HexString}");
+client.OnNoneReceived += (sender, e) => Console.WriteLine($"警告：{e.Threshold}ms 内未收到数据");
+client.ReconnTimerChanged += (name, count) => Console.WriteLine($"重连次数：{count}");
+
+// 连接到服务端
+client.Connect("192.168.1.100", 8000);
+
+// 发送数据
+client.SendData("AA BB CC DD", out string error);
+client.SendString("Hello Server");
+
+// 设置超时检测
+client.RaiseThreshold = 5000;      // 5秒未收到数据触发事件
+client.ReconnectWhenReceiveNone = true; // 超时后自动重连
+
+// 关闭连接
+client.Close();
+```
+
+#### 5.2 无连接模式（仅发送，不 Connect）
+
+```cs
+var client = new DerivedUdpClient("", 0, auto_receive: false);
+
+// 直接向目标地址发送
+client.SendString("Ping", "192.168.1.100", 8000);
+client.SendData(new byte[] { 0x01, 0x02, 0x03 }, "192.168.1.100", 8000, out string error);
+```
+
+#### 5.3 同步读取可用数据
+
+```cs
+var client = new DerivedUdpClient("192.168.1.50", 9000);
+client.Connect("192.168.1.100", 8000);
+
+// 阻塞直到有数据到达
+string ascii, hex;
+client.Read(out ascii, out hex);
+Console.WriteLine($"ASCII: {ascii}");
+Console.WriteLine($"HEX: {hex}");
+```
+
+---
+
+### 6. 关键设计说明
+
+| 设计点 | 说明 |
+|------|------|
+| **双状态检测** | `IsConnected`（逻辑状态）+ `IsConnected_Socket`（Socket 实际状态），防止逻辑状态与实际状态不一致 |
+| **自动重连线程** | 后台线程每 1 秒轮询，`AutoResetEvent` 控制挂起/唤醒，避免空转消耗 CPU |
+| **异步事件** | 所有事件通过 `BeginInvoke` 异步触发，不阻塞网络 IO 线程 |
+| **超时检测** | 基于 `TimerEventRaiser` 的滑动窗口计时器，收到数据时 `Click()` 重置，超时后触发事件 |
+| **收发控制** | `ReceiveRestTime` 控制接收节奏，`AutoReceive` 控制是否持续接收 |
+| **条件编译** | .NET Framework 用 `Thread.Abort()`，.NET 9 用 `Thread.Join()`（Abort 在 .NET Core+ 中不支持） |
+| **空安全** | .NET 9 下事件委托和引用类型属性使用 `?` 标记可空 |
+
+---
 # OpcLibraryAnyCpu 与 OpcLibraryAnyCpu.Ua
 
 ## 一、项目架构设计

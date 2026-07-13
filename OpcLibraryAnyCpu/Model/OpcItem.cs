@@ -134,15 +134,19 @@ namespace OpcLibrary.Ua.Model
         {
             if (this == null || other == null) return false; //有一方为null则不相等
             if (ReferenceEquals(this, other)) return true; //判断是否为同一个OpcItem实例的引用
-            ////当opc组的ID均为1时（读取），判断标签名称、对应的数据源实体类字段名称是否相同
+
+            ////当opc组的ID均为1时（读取），仅判断对应的数据源实体类字段名称是否相同
             //if (OpcGroupId == 1 && other.OpcGroupId == 1)
-            //    return ItemId.Equals(other.ItemId) && FieldName.Equals(other.FieldName);
-            //当opc组的ID均为1时（读取），仅判断对应的数据源实体类字段名称是否相同
-            if (OpcGroupId == 1 && other.OpcGroupId == 1)
-                return /*ItemId.Equals(other.ItemId) && */FieldName.Equals(other.FieldName);
-            //当opc组的ID大于1时（写入），仅判断标签名称是否相同
-            if (OpcGroupId > 1 && other.OpcGroupId > 1)
-                return ItemId.Equals(other.ItemId);
+            //    return FieldName.Equals(other.FieldName);
+            ////当opc组的ID大于1时（写入），仅判断标签名称是否相同
+            //if (OpcGroupId > 1 && other.OpcGroupId > 1)
+            //    return ItemId.Equals(other.ItemId);
+
+            // 当opc组的ID均为1或均大于1时（读取），都判断对应的数据源实体类字段名称是否相同
+            // 区分是否为1的两种情况是为了避免在写入和读取时，数据源实体类字段名称相同但对应的标签名称不同的情况被误判为相等
+            if ((OpcGroupId == 1 && other.OpcGroupId == 1) || (OpcGroupId > 1 && other.OpcGroupId > 1))
+                return FieldName.Equals(other.FieldName);
+
             //假如以上任何一个情况都未命中，则默认返回false
             return false;
         }

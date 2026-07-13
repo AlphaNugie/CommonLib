@@ -467,6 +467,171 @@ string deleteResult = client.Delete("https://api.example.com/users/1");
 ```
 
 ---
+
+## DerivedHttpListener — HTTP 监听服务端
+
+**文件**：`CommonLib/Clients/DerivedHttpListener.cs`
+
+**命名空间**：`CommonLib.Clients`
+
+**功能概述**：封装 `System.Net.HttpListener`，提供轻量级 HTTP 服务端，支持异步请求处理、POST 数据接收、可定制响应、GET 浏览器友好消息。
+
+### 1. 构造器
+
+| 构造器 | 说明 |
+|------|------|
+| `DerivedHttpListener()` | 默认构造器，端口 8080，地址 `127.0.0.1`，后缀 `/` |
+| `DerivedHttpListener(Encoding encoding)` | 指定编解码方式 |
+| `DerivedHttpListener(string ip, int port, string suffix, Encoding encoding)` | 完整构造器，指定 IP、端口、后缀、编解码 |
+
+> .NET 9 下 `ip` 和 `suffix` 参数标记为可空（`string?`）
+
+### 2. 属性
+
+#### 2.1 监听配置
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `IpAddress` | `string` | `"127.0.0.1"` | 监听地址（实际监听使用 `+` 通配符） |
+| `Port` | `int` | `8080` | 监听端口 |
+| `Suffix` | `string` | `"/"` | URL 路径后缀 |
+| `Name` | `string?` | — | 完整监听地址（格式：`http://+:{Port}{Suffix}`） |
+| `BaseListener` | `HttpListener?` | — | 底层的 `HttpListener` 对象 |
+
+#### 2.2 响应配置
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `RESPONSE_OK` | `const string` | `"OK"` | 操作成功的默认响应消息 |
+| `ResponseDescription` | `string` | `"OK"` | 定制化返回的 POST 响应状态描述（HTTP Status Description） |
+| `WebExplorerMessage` | `string` | `""` | 浏览器 GET 访问时的返回内容 |
+
+#### 2.3 其他
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `GUID` | `string?` | — | 每次接收到请求时生成的全局唯一标识符 |
+| `LastErrorMessage` | `string` | `""` | 最近一次错误信息 |
+| `ReceiveBufferSize` | `int` | `32768` | 接收缓冲区大小（字节数） |
+
+### 3. 事件
+
+| 事件 | 委托类型 | 触发条件 |
+|------|------|------|
+| `DataReceived` | `DataReceivedEventHandler?` | 收到 POST 请求数据时触发 |
+| `ServiceStateChanged` | `ServiceStateEventHandler?` | 服务启动/停止时触发 |
+
+### 4. 核心方法
+
+#### 4.1 Start — 启动监听
+
+```cs
+int result = listener.Start();
+```
+
+**流程**：
+1. 创建 `HttpListener`，添加前缀 `http://+:{Port}{Suffix}`
+2. 调用 `BaseListener.Start()` 启动监听
+3. 调用 `BeginGetContext(Result, null)` 开始异步等待请求
+4. 启动 `TimerEventRaiser` 超时检测定时器（1 秒周期）
+5. 触发 `ServiceStateChanged` 事件（状态：`ServiceState.Started`）
+
+**返回值**：成功 `1`，失败 `0`。
+
+> 注意：监听 `http://+:{Port}/` 格式需要**管理员权限**，否则会抛异常。
+
+#### 4.2 Stop — 停止监听
+
+```cs
+int result = listener.Stop();
+```
+
+停止 `HttpListener` 和超时检测定时器，触发 `ServiceStateChanged` 事件（状态：`ServiceState.Stopped`）。`ObjectDisposedException` 单独捕获（设为 null 即可，不抛出）。
+
+#### 4.3 Result — 异步回调（私有）
+
+每个 HTTP 请求到来时自动执行：
+
+```
+请求到达
+  ├── 重新 BeginGetContext（持续监听）
+  ├── 生成 GUID
+  ├── 获取 HttpListenerContext
+  │
+  ├── 请求方法 == "POST" 且有输入流？
+  │   ├── 是 → HandleRequest() 处理请求
+  │   │        ├── 循环读取 InputStream 直到读完
+  │   │        ├── 触发 DataReceived 事件（传入字节数组 + 编码）
+  │   │        ├── 重置超时检测计时器
+  │   │        └── 返回 ResponseDescription（状态码 200）
+  │   │
+  │   └── 否 → 返回 WebExplorerMessage（浏览器访问提示）
+  │
+  └── 通过 response.OutputStream 写回客户端
+```
+
+**关键设计**：
+- **POST vs GET 区分**：POST 请求走数据处理流程，其他方法（GET 等）返回 `WebExplorerMessage`，方便浏览器测试
+- **响应编码**：使用构造器传入的 `Encoding`（默认 `Encoding.Default`）
+- **Content-Type**：固定 `text/plain;charset=UTF-8`
+
+### 5. 超时检测
+
+内部使用 `TimerEventRaiser`（1 秒周期），默认阈值 10 秒：
+- 每次收到数据时调用 `raiser.Click()` 重置计时
+- 若 10 秒内无新请求 → 触发 `Raiser_ThresholdReached` 回调（当前为空实现，供扩展）
+
+### 6. 使用示例
+
+#### 6.1 基本监听服务
+
+```cs
+// 创建监听器，端口 8080
+var listener = new DerivedHttpListener("127.0.0.1", 8080, "/api/", Encoding.UTF8);
+
+// 订阅事件
+listener.DataReceived += (sender, e) =>
+{
+    Console.WriteLine($"收到数据：{e.ReceivedInfo_String}");
+};
+
+listener.ServiceStateChanged += (sender, e) =>
+{
+    Console.WriteLine($"服务状态：{e.State} - {e.Message}");
+};
+
+// 设置 GET 浏览器访问时的返回消息
+listener.WebExplorerMessage = "<html><body><h1>API 服务运行中</h1></body></html>";
+
+// 启动
+listener.Start();
+
+Console.WriteLine($"HTTP 服务已启动：{listener.Name}");
+Console.ReadLine();
+
+// 停止
+listener.Stop();
+```
+
+#### 6.2 客户端发送 POST 请求
+
+```cs
+// 配合 DerivedHttpClient 使用
+var client = new DerivedHttpClient();
+string response = client.Post("http://127.0.0.1:8080/api/", "Hello Server");
+Console.WriteLine($"服务端响应：{response}"); // 输出：OK
+```
+
+#### 6.3 定制 POST 响应
+
+```cs
+listener.ResponseDescription = "Data received successfully";
+// 客户端 POST 后将收到 "Data received successfully" 而非默认的 "OK"
+```
+
+---
+
+---
 # OpcLibraryAnyCpu 与 OpcLibraryAnyCpu.Ua
 
 ## 一、项目架构设计

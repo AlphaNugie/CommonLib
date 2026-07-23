@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -112,10 +113,10 @@ namespace CommonLib.UIControlUtil
         }
 
         /// <summary>
-        /// 获取DataGridView的所有选中行，不受SelectionMode影响
+        /// 以DataGridViewRow的方式获取DataGridView的所有选中行，不受SelectionMode影响
         /// </summary>
         /// <param name="gridView">当前DataGridView</param>
-        /// <returns></returns>
+        /// <returns>返回 DataGridViewRow 的列表</returns>
         public static List<DataGridViewRow> GetSelectedRows(this DataGridView gridView)
         {
             List<DataGridViewRow> gridViewRows = new List<DataGridViewRow>();
@@ -127,6 +128,23 @@ namespace CommonLib.UIControlUtil
             gridViewRows.AddRange(gridView.SelectedCells.Cast<DataGridViewCell>().Where(gridViewCell => !gridViewRows.Any(row => row.Index == gridViewCell.RowIndex)).Select(gridViewCell => gridViewCell.OwningRow));
             END:
             return gridViewRows;
+        }
+
+        /// <summary>
+        /// 以DataRow的方式获取DataGridView的所有选中行，不受SelectionMode影响
+        /// </summary>
+        /// <param name="gridView">当前DataGridView</param>
+        /// <returns>返回 DataRow 的列表</returns>
+        public static List<DataRow> GetSelectedDataRows(this DataGridView gridView)
+        {
+            List<DataGridViewRow> gridViewRows = GetSelectedRows(gridView);
+            List<DataRow> dataRows = new List<DataRow>();
+            if (gridViewRows == null || gridViewRows.Count == 0)
+                goto END;
+            // 将 DataGridViewRow 转换为 DataRow
+            dataRows = gridViewRows.Select(gridViewRow => ((DataRowView)gridViewRow.DataBoundItem).Row).ToList();
+            END:
+            return dataRows;
         }
 
         /// <summary>

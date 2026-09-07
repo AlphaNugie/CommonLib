@@ -38,6 +38,119 @@ namespace CommonLib.Helpers
         /// 当前环境（平台）中的目录分隔符（字符串）
         /// </summary>
         public static string DirSeparator { get { return Path.DirectorySeparatorChar.ToString(); } }
+
+        /// <summary>
+        /// 当前用户的应用程序数据漫游目录（%APPDATA%）
+        /// </summary>
+        public static string AppDataRoamingPath { get { return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData); } }
+
+        /// <summary>
+        /// 当前用户的应用程序数据本地目录（%LOCALAPPDATA%）
+        /// </summary>
+        public static string AppDataLocalPath { get { return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData); } }
+
+        /// <summary>
+        /// 所有用户共用的应用程序数据目录（%PROGRAMDATA%）
+        /// </summary>
+        public static string AppDataCommonPath { get { return Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData); } }
+
+        /// <summary>
+        /// 默认的应用程序数据子目录名称，当无法获取产品名时使用
+        /// </summary>
+        public const string DEFAULT_APP_DIRECTORY = "AppData";
+        #endregion
+
+        #region 应用程序数据目录
+        /// <summary>
+        /// 获取入口程序集的产品名称（AssemblyProduct），获取失败时依次尝试调用程序集，均失败则返回null
+        /// </summary>
+        /// <returns>产品名称，获取失败返回null</returns>
+#if NET45_OR_GREATER
+        public static string GetProductName()
+#elif NET9_0_OR_GREATER
+        public static string? GetProductName()
+#endif
+        {
+            try
+            {
+                //优先使用入口程序集（宿主exe），服务或单元测试环境下可能为null
+                var assembly = System.Reflection.Assembly.GetEntryAssembly() ?? System.Reflection.Assembly.GetCallingAssembly();
+                var attribute = (System.Reflection.AssemblyProductAttribute)Attribute.GetCustomAttribute(
+                    assembly, typeof(System.Reflection.AssemblyProductAttribute));
+                return attribute == null ? null : attribute.Product;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 获取当前用户在Roaming（%APPDATA%）下的应用程序数据目录，目录不存在时自动创建
+        /// <para/>目录名称为产品名称（AssemblyProduct），无法获取时使用<see cref="DEFAULT_APP_DIRECTORY"/>
+        /// </summary>
+        /// <param name="subDirectory">子目录名称（或次级路径，如xx\xx），为空则不添加子目录</param>
+        /// <param name="roaming">是否使用Roaming目录（随用户配置漫游），为false时使用Local目录</param>
+        /// <returns>完整的应用程序数据目录路径</returns>
+        public static string GetAppDataDirectory(string subDirectory = null, bool roaming = true)
+        {
+            return GetAppDataDirectory(roaming, null, subDirectory);
+        }
+
+        /// <summary>
+        /// 获取应用程序数据目录，目录不存在时自动创建
+        /// </summary>
+        /// <param name="roaming">是否使用Roaming目录（随用户配置漫游），为false时使用Local目录</param>
+        /// <param name="appName">应用程序目录名称，为null或空白时使用产品名称，再无法获取时使用<see cref="DEFAULT_APP_DIRECTORY"/></param>
+        /// <param name="subDirectory">子目录名称（或次级路径，如xx\xx），为空则不添加子目录</param>
+        /// <returns>完整的应用程序数据目录路径</returns>
+        public static string GetAppDataDirectory(bool roaming, string appName, string subDirectory = null)
+        {
+            string root = roaming ? AppDataRoamingPath : AppDataLocalPath;
+            if (string.IsNullOrWhiteSpace(appName))
+                appName = GetProductName();
+            if (string.IsNullOrWhiteSpace(appName))
+                appName = DEFAULT_APP_DIRECTORY;
+
+            string dir = Path.Combine(root, TrimFilePath(appName));
+            if (!string.IsNullOrWhiteSpace(subDirectory))
+                dir = Path.Combine(dir, TrimFilePath(subDirectory));
+
+            //确保目录存在
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            return dir;
+        }
+
+        /// <summary>
+        /// 获取应用程序数据目录下的文件完整路径，所在目录不存在时自动创建
+        /// </summary>
+        /// <param name="fileName">文件名称（可包含次级路径）</param>
+        /// <param name="roaming">是否使用Roaming目录，为false时使用Local目录</param>
+        /// <param name="appName">应用程序目录名称，为null或空白时使用产品名称</param>
+        /// <returns>包含文件名的完整路径</returns>
+        public static string GetAppDataFilePath(string fileName, bool roaming = true, string appName = null)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentException("文件名称为空引用、空字符串或空白字符串", nameof(fileName));
+
+            string dir = GetAppDataDirectory(roaming, appName);
+            return Path.Combine(dir, TrimFilePath(fileName));
+        }
+
+        /// <summary>
+        /// 在资源管理器中打开应用程序数据目录（目录不存在时自动创建）
+        /// </summary>
+        /// <param name="roaming">是否使用Roaming目录，为false时使用Local目录</param>
+        /// <param name="appName">应用程序目录名称，为null或空白时使用产品名称</param>
+        /// <param name="subDirectory">子目录名称，为空则不添加子目录</param>
+        /// <returns>被打开的目录路径</returns>
+        public static string OpenAppDataDirectory(bool roaming = true, string appName = null, string subDirectory = null)
+        {
+            string dir = GetAppDataDirectory(roaming, appName, subDirectory);
+            Process.Start("Explorer.exe", dir);
+            return dir;
+        }
         #endregion
 
         #region 进程相关

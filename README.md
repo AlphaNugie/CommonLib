@@ -16,6 +16,156 @@
 
 # CommonLib — 基础工具类库
 
+## FileSystemHelper — 文件系统与应用程序数据目录
+
+**文件**：`CommonLib/Helpers/FileSystemHelper.cs`
+
+**命名空间**：`CommonLib.Helpers`
+
+**功能概述**：提供路径处理、文件/目录操作，以及**应用程序数据目录（AppData）的统一管理**。可将日志、配置、状态等文件存放到用户目录而非程序目录，避免程序目录受保护无法写入、被部署覆盖、多用户互相干扰等问题。
+
+### 1. 属性
+
+| 属性 | 说明 |
+|------|------|
+| `StartupPath` | 可执行文件的启动目录（不是当前 DLL 的目录） |
+| `DiskRoot` | 可执行文件所在盘符根目录 |
+| `VolumeSeparator` | 盘符与路径的分隔符（如 `C:\`） |
+| `DirSeparatorChar` / `DirSeparator` | 当前平台的目录分隔符（字符 / 字符串） |
+| `AppDataRoamingPath` | 当前用户 Roaming 目录（%APPDATA%） |
+| `AppDataLocalPath` | 当前用户 Local 目录（%LOCALAPPDATA%） |
+| `AppDataCommonPath` | 所有用户共用目录（%PROGRAMDATA%） |
+| `DEFAULT_APP_DIRECTORY` | 常量，默认应用目录名（`"AppData"`），无法获取产品名时使用 |
+
+### 2. AppData 目录相关方法
+
+| 方法 | 说明 |
+|------|------|
+| `GetProductName()` | 获取入口程序集的产品名（AssemblyProduct），失败返回 `null` |
+| `GetAppDataDirectory(subDirectory, roaming)` | 获取应用数据目录，不存在时**自动创建** |
+| `GetAppDataDirectory(roaming, appName, subDirectory)` | 同上，可指定应用目录名 |
+| `GetAppDataFilePath(fileName, roaming, appName)` | 获取应用数据目录下的**文件完整路径**，目录自动创建 |
+| `OpenAppDataDirectory(roaming, appName, subDirectory)` | 在资源管理器中打开应用数据目录，返回被打开的目录路径 |
+
+### 3. 调用方式
+
+#### 3.1 获取应用数据目录
+
+```csharp
+using CommonLib.Helpers;
+
+// 目录名自动取产品名（AssemblyProduct），例如 ScannerBuilder
+// 返回 C:\Users\<用户名>\AppData\Roaming\ScannerBuilder
+string dir = FileSystemHelper.GetAppDataDirectory();
+
+// 指定子目录（可多级）
+// 返回 ...\Roaming\ScannerBuilder\Logs
+string logDir = FileSystemHelper.GetAppDataDirectory("Logs");
+
+// 使用 Local 而非 Roaming
+string localDir = FileSystemHelper.GetAppDataDirectory("Cache", roaming: false);
+
+// 自定义应用目录名（不使用产品名）
+string dir2 = FileSystemHelper.GetAppDataDirectory(roaming: true, appName: "MyApp", subDirectory: "Config");
+```
+
+#### 3.2 获取文件完整路径（推荐）
+
+```csharp
+using CommonLib.Helpers;
+
+// 返回 C:\Users\<用户名>\AppData\Roaming\ScannerBuilder\PointCloudScanState.txt
+// 所在目录不存在时自动创建
+string filePath = FileSystemHelper.GetAppDataFilePath("PointCloudScanState.txt");
+
+// 带子目录
+string logPath = FileSystemHelper.GetAppDataFilePath("Logs/app.log");
+
+// 之后可直接读写，无需再判断目录是否存在
+File.WriteAllLines(filePath, lines);
+```
+
+#### 3.3 在资源管理器中打开目录
+
+```csharp
+using CommonLib.Helpers;
+
+// 打开应用数据目录（不存在时先创建），返回被打开的目录路径
+string dir = FileSystemHelper.OpenAppDataDirectory();
+
+// 打开指定子目录
+FileSystemHelper.OpenAppDataDirectory(roaming: true, appName: null, subDirectory: "Logs");
+```
+
+> 该方法不捕获异常，调用方需自行处理（例如 WinForms 中弹 MessageBox）。
+
+#### 3.4 完整示例：状态文件持久化
+
+```csharp
+using CommonLib.Helpers;
+using System.IO;
+
+public class MyStateManager
+{
+    private const string STATE_FILE_NAME = "MyState.txt";
+
+    // 状态文件路径（目录自动创建）
+    private static string StateFilePath
+        => FileSystemHelper.GetAppDataFilePath(STATE_FILE_NAME);
+
+    public static void Save(IEnumerable<string> lines)
+    {
+        // 先写临时文件再替换，避免写入中途损坏原文件
+        string temp = StateFilePath + ".tmp";
+        File.WriteAllLines(temp, lines);
+        if (File.Exists(StateFilePath))
+            File.Delete(StateFilePath);
+        File.Move(temp, StateFilePath);
+    }
+
+    public static List<string> Load()
+        => File.Exists(StateFilePath)
+            ? File.ReadAllLines(StateFilePath).ToList()
+            : new List<string>();
+
+    // 提供给菜单/按钮调用：打开状态文件所在目录
+    public static void OpenDirectory()
+    {
+        try { FileSystemHelper.OpenAppDataDirectory(); }
+        catch (Exception ex) { /* 自行处理，如 MessageBox.Show */ }
+    }
+}
+```
+
+### 4. 关键设计说明
+
+- **目录自动创建**：`GetAppDataDirectory` / `GetAppDataFilePath` 在目录不存在时自动 `Directory.CreateDirectory`，调用方无需预先判断。
+- **产品名获取链路**：优先取 `Assembly.GetEntryAssembly()`（宿主 exe）；服务、IIS、单元测试等环境下入口程序集可能为 `null`，此时回退到调用程序集；仍失败则使用 `DEFAULT_APP_DIRECTORY`。
+- **Roaming vs Local**：
+  - `roaming: true`（默认）→ `%APPDATA%`，随用户配置漫游，适合配置、状态等小文件
+  - `roaming: false` → `%LOCALAPPDATA%`，不漫游，适合缓存、大文件
+- **路径拼接安全**：内部统一使用 `Path.Combine` 与 `TrimFilePath`，自动去除首尾分隔符，避免拼接出畸形路径。
+- **不改现有行为**：本次为**纯新增**，`FileClient.DefaultLogDir`、`LogClient` 等现有类的默认路径行为（相对程序目录）保持不变。如需让它们写入 AppData，请显式传入绝对路径：
+
+  ```csharp
+  FileClient.DefaultLogDir = FileSystemHelper.GetAppDataDirectory("Logs");
+  ```
+
+  > 注意：`FileClient` 内部无条件在路径前拼接启动目录，传入绝对路径会产生畸形路径。若需统一日志位置，需先调整 `FileClient` 的路径拼接逻辑（`LogClient` 已做了绝对路径判断，可正常传绝对路径）。
+
+### 5. 其他常用方法
+
+| 方法 | 说明 |
+|------|------|
+| `OpenInExplorer(filePath, ignoreIfNotExist)` | 在资源管理器中打开并选中指定文件 |
+| `CheckForDirectory(path, isFilePath)` | 检查目录是否存在，不存在则创建 |
+| `CheckForStartupPath(path, ignoreEmptyString)` | 路径不含卷分隔符时，在前面添加启动目录 |
+| `AddDateToFileName(fileName, format)` | 在文件名中插入日期 |
+| `TrimFilePath(filePath)` | 去除路径首尾的分隔符 |
+| `UpdateFilePath(...)` | 根据路径与文件名补全完整路径 |
+
+---
+
 ## DerivedUdpClient — UDP 连接客户端
 
 **文件**：`CommonLib/Clients/DerivedUdpClient.cs`
@@ -631,7 +781,83 @@ listener.ResponseDescription = "Data received successfully";
 
 ---
 
+## SetClauseBuilder — SQL SET 子句链式构建器
+
+**文件**：`CommonLib/DataUtil/SetClauseBuilder.cs`
+
+**命名空间**：`CommonLib.DataUtil`
+
+**功能概述**：用于动态拼接 UPDATE 语句的 SET 部分，支持链式调用，减少重复的 `string.Format` 代码。
+
+### 1. 构造器
+
+| 构造器 | 说明 |
+|------|------|
+| `SetClauseBuilder()` | 无参构造，内部自动创建列表 |
+| `SetClauseBuilder(List<string> list)` | 传入外部列表（兼容已有列表的场景） |
+
+### 2. API
+
+| 方法 | 说明 | 示例输出 |
+|------|------|----------|
+| `.Add(col, val)` | 普通数值字段 | `walking = 123.456` |
+| `.AddFormatted(col, val, fmt)` | 带格式化数值字段 | `stack_height = 10.500` |
+| `.AddQuoted(col, val)` | 字符串字段（自动加单引号） | `quality = 'good'` |
+| `.AddRaw(raw)` | 原始子句，不做任何处理 | 用于复杂表达式 |
+| `.Build()` | 用 `,\n  ` 拼接所有子句并返回 | 完整 SET 子句字符串 |
+
+### 3. 使用示例
+
+#### 3.1 基本用法
+
+```cs
+// 链式构建，最终调用 Build() 输出
+var builder = new SetClauseBuilder();
+builder.Add("col1", 123)
+       .AddFormatted("col2", 3.14159, "f3")      // col2 = 3.142
+       .AddQuoted("col3", "hello")                // col3 = 'hello'
+       .AddRaw("ms0 = 100, ms1 = 200");           // 原始内容直接追加
+
+string setClause = builder.Build();
+// 结果：
+// col1 = 123,
+//   col2 = 3.142,
+//   col3 = 'hello',
+//   ms0 = 100, ms1 = 200
+```
+
+#### 3.2 结合条件判断
+
+```cs
+var builder2 = new SetClauseBuilder();
+
+// 始终更新的字段
+builder2.Add("walking_left_plc", opcSource.WalkingPositionLeft_Plc)
+        .Add("pitch_plc", opcSource.PitchAngle_Plc);
+
+// 条件更新的字段
+if (gnssInfo != null && gnssInfo.ProperlyInitialized)
+{
+    builder2.Add("t.walking", gnssInfo.WalkingPosition)
+            .Add("t.pitch", gnssInfo.PitchAngle)
+            .AddQuoted("quality", gnssInfo.PositionQuality);
+}
+
+string sql = $"update t_table set\n  {builder2.Build()},\n  t.time = sysdate where t.name = 'xxx'";
+```
+
+### 4. 关键设计说明
+
+| 设计点 | 说明 |
+|------|------|
+| **链式调用** | 所有 `Add` 方法返回 `this`，支持 `.Add().Add().Build()` 的流式写法 |
+| **类型兼容** | `Add` / `AddFormatted` 参数类型为 `object`，接受 `double`、`int`、`bool` 等任意类型 |
+| **字符串自动加引号** | `AddQuoted` 自动包裹单引号，用于字符串字段值 |
+| **原始内容透传** | `AddRaw` 不做任何处理直接追加，适用于预构建的子句或复杂表达式 |
+| **输出不含尾逗号** | `Build()` 返回拼接后的字符串，不包含末尾逗号，方便与 SQL 语句拼接 |
+
 ---
+
 # OpcLibraryAnyCpu 与 OpcLibraryAnyCpu.Ua
 
 ## 一、项目架构设计

@@ -48,6 +48,7 @@
     <!--<Compile Include="..\CommonLib\DataUtil\DataProvider.cs"> <Link>DataUtil\DataProvider.cs</Link> </Compile>-->
     <Compile Include="..\CommonLib\DataUtil\OracleColumnMapping.cs"> <Link>DataUtil\OracleColumnMapping.cs</Link> </Compile>
     <Compile Include="..\CommonLib\DataUtil\Record.cs"> <Link>DataUtil\Record.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\DataUtil\SetClauseBuilder.cs"> <Link>DataUtil\SetClauseBuilder.cs</Link> </Compile>
   </ItemGroup>
 
   <!-- Enums -->

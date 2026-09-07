@@ -100,6 +100,7 @@
     <Compile Include="DataUtil\DataProvider.cs" />
     <Compile Include="DataUtil\OracleColumnMapping.cs" />
     <Compile Include="DataUtil\Record.cs" />
+    <Compile Include="DataUtil\SetClauseBuilder.cs" />
     <Compile Include="Enums\DatabaseTypes.cs" />
     <Compile Include="Enums\DbSqlType.cs" />
     <Compile Include="Enums\Endianness.cs" />

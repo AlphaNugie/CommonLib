@@ -6,6 +6,7 @@
 |------|---------|------|
 | `CommonLib` | .NET Framework 4.5 | 基础工具类库（网络、数据、UI、扩展等） |
 | `CommonLib.Core` | .NET 9.0 | CommonLib 的 .NET 9.0 版本（以 Link 方式共享源码） |
+| `CommonLib.Core-win` | .NET 9.0-windows | WPF 控件的 .NET 9.0 版本（以 Link 方式共享 WPF 源码） |
 | `OpcLibraryAnyCpu` | .NET Framework 4.5 | OPC DA 读写辅助类库 |
 | `OpcLibraryAnyCpu.Ua` | .NET Framework 4.8 | OPC UA 读写辅助类库 |
 | `OpcLibraryAnyCpu.UaNet100` | .NET 10.0 | OPC UA 的 .NET 10.0 版本 |
@@ -1842,12 +1843,18 @@ formUa.ShowDialog();
 │  NumericParam<T>          ← 单个参数的元数据 + 读写/钳制/格式化 │
 │  NumericParamTable<T>     ← 参数集合 + 按名/Tag 查找 + 方向解析 │
 └───────────────────────────────────────────────────────────────┘
+              ↑ 引用
+┌─ WPF 控件层（有 UI 依赖）────────────────────────────────────┐
+│  NumericParamPanel        ← 自动生成控件 + 长按 + 重置 + 提交  │
+└───────────────────────────────────────────────────────────────┘
+```
 
 ### 项目分布
 
 | 文件 | 所属项目 | 目标框架 |
 |------|---------|---------|
 | `NumericParam.cs` / `NumericParamTable.cs` | `CommonLib`（纯逻辑） | net45 + net9.0 |
+| `NumericParamPanel.cs` | `CommonLib`（WPF） | net45 + net9.0-windows |
 
 ---
 
@@ -1930,3 +1937,87 @@ double dir = NumericParamTable<RobotConfig>.ParseDirection(button.Tag);
 ```
 
 ---
+
+## 二、WPF 控件层
+
+**文件位置**：`CommonLib/UIControlUtil/WPF/Controls/NumericParamPanel.cs`
+
+**命名空间**：`CommonLib.UIControlUtil.WPF.Controls`
+
+### 1. 概述
+
+`NumericParamPanel` 是一个纯代码构建的 WPF `UserControl`（无 XAML），传入参数表和宿主对象后，自动生成 N 组「标签 + 输入框 + −/+ 按钮」，支持单击步进、长按连续调整、手动输入、一键重置。
+
+### 2. 对外接口
+
+| 成员 | 类型 | 说明 |
+|------|------|------|
+| `Title` | `string` | 面板标题（显示在左侧） |
+| `Columns` | `int` | 参数网格列数（默认 4） |
+| `RepeatIntervalMs` | `int` | 长按重复间隔（毫秒，默认 50） |
+| `ValueChanged` | `event Action<string, double>` | 参数值修改后触发（参数名 + 新值） |
+| `Initialize<T>(...)` | 方法 | 传入参数表 + 宿主 + 初始值字典，生成控件 |
+| `Clear()` | 方法 | 清空所有参数（供重复 Initialize） |
+
+### 3. 使用方法
+
+```csharp
+using CommonLib.UIControlUtil.NumericParamEditor;
+using CommonLib.UIControlUtil.WPF.Controls;
+
+// 1. 构建参数表（纯逻辑）
+var table = new NumericParamTable<RobotConfig>();
+table.Add(new NumericParam<RobotConfig>("MaxSpeed", 0.1, 0, 10,  1, c => c.MaxSpeed, (c, v) => c.MaxSpeed = v));
+table.Add(new NumericParam<RobotConfig>("Accel",    0.05, 0, 5,  2, c => c.Accel,    (c, v) => c.Accel = v));
+table.Add(new NumericParam<RobotConfig>("PidKp",    0.01, 0, 100, 3, c => c.PidKp,    (c, v) => c.PidKp = v));
+
+// 2. 创建面板（可在 XAML 中声明，也可代码创建）
+var panel = new NumericParamPanel
+{
+    Title = "机器人参数",
+    Columns = 3
+};
+
+// 3. 初始化：传入参数表 + 宿主 + 初始值字典（供重置）
+var config = new RobotConfig();
+panel.Initialize(
+    table,
+    config,
+    new Dictionary<string, double>
+    {
+        ["MaxSpeed"] = 2.0,
+        ["Accel"] = 0.5,
+        ["PidKp"] = 1.2
+    });
+
+// 4. 订阅参数变化事件（可选）
+panel.ValueChanged += (name, val) =>
+{
+    Console.WriteLine($"参数 {name} 变更为 {val}");
+};
+
+// 5. 将面板添加到界面
+rootGrid.Children.Add(panel);
+```
+
+### 4. 交互行为
+
+| 交互 | 行为 |
+|------|------|
+| **单击 `+`/`-`** | 按步长增减一次 |
+| **长按 `+`/`-`** | 立即步进一次 + 以 `RepeatIntervalMs` 间隔持续增减，松开停止 |
+| **手动输入** | 失焦或回车提交，解析失败恢复原值，超出范围自动截断 |
+| **重置按钮** | 一键恢复到 `initialValues` 传入的初始值 |
+
+### 5. 泛型隔离设计
+
+`NumericParamPanel` 本身是非泛型 `UserControl`（WPF 限制），通过泛型 `Initialize<T>` 方法接收任意宿主类型 `T`。内部将 `NumericParam<T>` 的读写/钳制/格式化/步进全部包装成**非泛型闭包**存入字典，后续事件处理走非泛型路径，从而规避「控件无法泛型」的限制。
+
+### 6. 框架兼容性
+
+`NumericParamPanel` 只使用 net45 与 net9.0-windows 共有的 WPF API（`UserControl`、`DispatcherTimer`、`IReadOnlyDictionary` 等），因此**无需条件编译**。框架差异仅在项目文件层处理：
+
+| 项目 | 框架标识 | 差异 |
+|------|---------|------|
+| `CommonLib` | `TargetFrameworkVersion v4.5` | 旧式 csproj，直接 `<Compile>` 包含 |
+| `CommonLib.Core-win` | `net9.0-windows` + `UseWPF=true` | SDK 风格，`<Compile Include=... Link=...>` 共享 |

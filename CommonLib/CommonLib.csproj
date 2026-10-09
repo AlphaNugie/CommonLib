@@ -187,6 +187,7 @@
     <Compile Include="UIControlUtil\WPF\Controls\ButtonEx.cs" />
     <Compile Include="UIControlUtil\WPF\Controls\ImageButton.cs" />
     <Compile Include="UIControlUtil\WPF\Controls\MultiComboBox.cs" />
+    <Compile Include="UIControlUtil\WPF\Controls\NumericParamPanel.cs" />
     <Compile Include="UIControlUtil\WPF\Controls\TabItemClose.cs" />
     <Compile Include="UIControlUtil\WPF\ControlUtil.cs" />
     <Compile Include="UIControlUtil\WPF\Convers\ValueConver.cs" />

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <RootNamespace>CommonLib</RootNamespace>
+    <AssemblyName>CommonLib.Core-win</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- ==================== 源文件（Link 方式，与源项目 CommonLib 共享） ==================== -->
+
+  <!-- NumericParamEditor（纯逻辑，无 UI 依赖） -->
+  <ItemGroup>
+    <Compile Include="..\CommonLib\UIControlUtil\NumericParamEditor\NumericParam.cs">
+      <Link>UIControlUtil\NumericParamEditor\NumericParam.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\NumericParamEditor\NumericParamTable.cs">
+      <Link>UIControlUtil\NumericParamEditor\NumericParamTable.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <!-- WPF 控件（NumericParamPanel 及其依赖） -->
+  <ItemGroup>
+    <Compile Include="..\CommonLib\UIControlUtil\WPF\Controls\NumericParamPanel.cs">
+      <Link>UIControlUtil\WPF\Controls\NumericParamPanel.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+</Project>

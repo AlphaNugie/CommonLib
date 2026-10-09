@@ -132,6 +132,12 @@
     <Compile Include="..\CommonLib\Properties\Resources.Designer.cs"> <Link>Properties\Resources.Designer.cs</Link> </Compile>
   </ItemGroup>-->
 
+	<!-- UIControlUtil -->
+  <ItemGroup>
+    <Compile Include="..\CommonLib\UIControlUtil\NumericParamEditor\NumericParam.cs"> <Link>UIControlUtil\NumericParamEditor\NumericParam.cs</Link> </Compile>
+    <Compile Include="..\CommonLib\UIControlUtil\NumericParamEditor\NumericParamTable.cs"> <Link>UIControlUtil\NumericParamEditor\NumericParamTable.cs</Link> </Compile>
+  </ItemGroup>
+
   <!-- UIControlUtil / WinForms --><!--
   <ItemGroup>
     <Compile Include="..\CommonLib\UIControlUtil\WinForms\ControlUtil.cs"> <Link>UIControlUtil\WinForms\ControlUtil.cs</Link> </Compile>
@@ -157,6 +163,7 @@
     <Compile Include="..\CommonLib\UIControlUtil\WPF\Controls\TabItemClose.cs"> <Link>UIControlUtil\WPF\Controls\TabItemClose.cs</Link> </Compile>
     <Compile Include="..\CommonLib\UIControlUtil\WPF\Convers\ValueConver.cs"> <Link>UIControlUtil\WPF\Convers\ValueConver.cs</Link> </Compile>
   </ItemGroup>-->
+	
 
   <!-- ==================== 嵌入式资源 Resx（Link 方式） ==================== -->
   <ItemGroup>

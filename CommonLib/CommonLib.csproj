@@ -160,6 +160,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="UIControlUtil\NumericParamEditor\NumericParam.cs" />
+    <Compile Include="UIControlUtil\NumericParamEditor\NumericParamTable.cs" />
     <Compile Include="UIControlUtil\WinForms\ControlTemplates\FormNotifyBasis.cs">
       <SubType>Form</SubType>
     </Compile>

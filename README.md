@@ -858,6 +858,143 @@ string sql = $"update t_table set\n  {builder2.Build()},\n  t.time = sysdate whe
 
 ---
 
+## NumericParamEditor — 数值参数编辑器
+
+**文件位置**：`CommonLib/UIControlUtil/NumericParamEditor/`（`NumericParam.cs`、`NumericParamTable.cs`）
+
+**命名空间**：`CommonLib.UIControlUtil`
+
+**功能概述**：将「数值参数的声明式描述 + 表驱动读写逻辑」抽象为可复用的纯逻辑库，与具体业务实体和 UI 框架解耦，供 WPF、WinForms、控制台等任意宿主项目共用。
+
+### 1. 设计目标与分层架构
+
+**设计目标**：纯逻辑库不依赖任何 UI 框架（`DispatcherTimer`、`TextBox` 等 UI 元素留在各宿主项目），保证可被 .NET Framework 4.8 与 .NET 9 项目同时引用。
+
+```
+┌─ 类库：NumericParamEditor（纯逻辑，无 UI/业务依赖）────────┐
+│  NumericParam<T>          ← 单个参数的元数据 + 读写/钳制/格式化 │
+│  NumericParamTable<T>     ← 参数集合 + 按名/Tag 查找 + 方向解析 │
+└───────────────────────────────────────────────────────────────┘
+              ↑ 引用
+┌─ 各宿主项目（WPF/WinForms/控制台） ────────────────────────┐
+│  - 构建 NumericParam<TSource>[]                             │
+│  - UI 控件绑定（TextBox/Button 映射）                       │
+│  - 长按重复机制（由宿主自行实现，如 DispatcherTimer）        │
+└───────────────────────────────────────────────────────────────┘
+```
+
+### 2. 核心类
+
+#### 2.1 `NumericParam<T>` — 单个数值参数描述
+
+描述一个可编辑的数值参数，通过 getter/setter 委托读写宿主对象 `T` 上的某个 `double` 字段/属性。
+
+**属性**：
+
+| 成员 | 类型 | 说明 |
+|---|---|---|
+| `Name` | `string` | 参数名（唯一标识），也用于控件 Tag 匹配 |
+| `Step` | `double` | 单次步进量（正数） |
+| `Min` | `double` | 取值范围下限（含边界） |
+| `Max` | `double` | 取值范围上限（含边界） |
+| `DecimalPlaces` | `int` | 显示小数位数（**显式字段**，替代旧实现的 `Step==0.05` 隐式判断） |
+| `Getter` | `Func<T, double>` | 读取宿主对象上的值 |
+| `Setter` | `Action<T, double>` | 写入宿主对象 |
+
+**方法**：
+
+| 方法 | 说明 |
+|---|---|
+| `Get(T host)` | 读取当前值 |
+| `Set(T host, double value)` | 写入值 |
+| `Clamp(double value)` | 钳制到 `[Min, Max]` 区间 |
+| `StepValue(T host, double direction)` | 步进一次并返回钳制后新值（不写回） |
+| `Format(double value)` | 按 `DecimalPlaces` 格式化为文本 |
+
+**构造校验**：
+- `name` / `getter` / `setter` 为空 → 抛 `ArgumentNullException`
+- `step` 非正数 → 抛 `ArgumentOutOfRangeException`
+- `min > max` → 抛 `ArgumentOutOfRangeException`
+
+#### 2.2 `NumericParamTable<T>` — 数值参数集合
+
+一组 `NumericParam<T>` 的集合，提供查找与批量操作。
+
+**成员**：
+
+| 成员 | 说明 |
+|---|---|
+| `Count` | 参数数量 |
+| `this[int index]` | 按索引获取参数 |
+| `Add(param)` | 添加参数，重名抛 `ArgumentException` |
+| `Find(name)` | 按参数名精确查找，找不到返回 `null` |
+| `FindByTag(object tag)` | 按控件 Tag 查找（支持 `"Roll"` 或 `"Roll:1"` 两种格式） |
+| `ParseDirection(tag, positiveDirection)` | 从 Tag 解析方向（冒号后部分为 `"1"` 或正数返回 `+positiveDirection`，否则返回 `-positiveDirection`） |
+| `GetEnumerator()` | 支持 `foreach` 遍历 |
+
+> 注意：`ParseDirection` 是静态方法，签名为 `ParseDirection(object tag, double positiveDirection = 1.0)`。
+
+### 3. 使用示例
+
+#### 3.1 泛用用法（任意宿主类型）
+
+`NumericParamEditor` 与具体业务实体无关，宿主类型 `T` 可以是任意包含若干 `double` 字段/属性的类：
+
+```cs
+using CommonLib.UIControlUtil;
+
+// 1. 定义宿主对象：任意含 double 成员的类
+public class RobotConfig
+{
+    public double MaxSpeed   { get; set; } = 2.0;
+    public double Accel      { get; set; } = 0.5;
+    public double PidKp      { get; set; } = 1.2;
+    public double OffsetX    { get; set; } = 0.0;
+}
+
+// 2. 创建实例 + 元数据表
+var config = new RobotConfig();
+var table = new NumericParamTable<RobotConfig>();
+
+// 3. 声明参数（名字、步长、范围、小数位、读写委托）
+table.Add(new NumericParam<RobotConfig>("MaxSpeed", 0.1, 0,    10,  1, c => c.MaxSpeed, (c, v) => c.MaxSpeed = v));
+table.Add(new NumericParam<RobotConfig>("Accel",    0.05, 0,   5,   2, c => c.Accel,    (c, v) => c.Accel = v));
+table.Add(new NumericParam<RobotConfig>("PidKp",    0.01, 0,   100, 3, c => c.PidKp,    (c, v) => c.PidKp = v));
+table.Add(new NumericParam<RobotConfig>("OffsetX",  0.01, -10, 10,  2, c => c.OffsetX,  (c, v) => c.OffsetX = v));
+
+// 4. 纯逻辑操作（无 UI，可独立测试）
+var p = table.Find("MaxSpeed");
+double newVal = p.StepValue(config, +1);   // 步进 +0.1，自动钳制
+p.Set(config, newVal);
+
+string text = p.Format(p.Get(config));      // "2.1"
+double clamped = p.Clamp(999);              // 钳制到上限 10
+
+// 5. 与 UI 绑定（由各项目自行实现控件映射）
+//    按 Tag 查找（支持 "MaxSpeed" 或 "MaxSpeed:1"）：
+var param = table.FindByTag(button.Tag);
+double dir = NumericParamTable<RobotConfig>.ParseDirection(button.Tag);
+```
+
+#### 3.2 泛用要点
+
+| 要点 | 说明 |
+|---|---|
+| 宿主类型任意 | `T` 可以是 POCO、实体类、配置类等，仅需提供 `double` 的 getter/setter |
+| 纯逻辑可独立测试 | 建表、步进、钳制、格式化均不依赖 UI，可在单元测试或控制台直接调用 |
+| UI 绑定解耦 | 库不持有控件引用，由宿主自行维护「参数名 → 控件」映射（如 `Dictionary<string, TextBox>`） |
+| 方向解析内置 | `FindByTag` + `ParseDirection` 已封装「`名字:方向`」Tag 格式的解析，UI 层无需手写 split |
+| 多目标框架 | 可被 .NET Framework 4.8 与 .NET 9 项目同时引用，跨框架复用 |
+
+### 4. 复用价值
+
+任何「一堆 `double` 属性需要 UI 编辑」的场景均可复用该库：
+- 阈值表、标定参数、PID 参数、坐标变换参数等
+- 新增参数只需在元数据表中增删一行，无需修改任何逻辑代码
+- 确认按钮重置后恢复为用户设定值
+
+---
+
 # OpcLibraryAnyCpu 与 OpcLibraryAnyCpu.Ua
 
 ## 一、项目架构设计
@@ -1687,3 +1824,109 @@ formUa.ShowDialog();
 - 连接失败不会抛出异常，而是通过 `out message` 或 `OpInfoSource.Message` 返回错误信息
 - 资源清理在 `DisposeOpcResources()` 中使用 try-catch 包裹，确保释放过程不抛出异常
 - `OpcTryTimeoutTask` 在检测到连接超时时，可选择自动重启计算机
+
+---
+
+# NumericParamEditor — 数值参数编辑器
+
+## 概述
+
+`NumericParamEditor` 是一套「数值参数的声明式描述 + 表驱动读写」工具，将「一堆 `double` 属性需要 UI 编辑」的通用场景抽象为可复用的纯逻辑库与 WPF 控件。
+
+**设计目标**：与具体业务实体和 UI 框架解耦，供所有项目（WPF、WinForms、控制台、.NET Framework / .NET 9）共用。
+
+### 分层架构
+
+```
+┌─ 纯逻辑层（无 UI 依赖）─────────────────────────────────────┐
+│  NumericParam<T>          ← 单个参数的元数据 + 读写/钳制/格式化 │
+│  NumericParamTable<T>     ← 参数集合 + 按名/Tag 查找 + 方向解析 │
+└───────────────────────────────────────────────────────────────┘
+
+### 项目分布
+
+| 文件 | 所属项目 | 目标框架 |
+|------|---------|---------|
+| `NumericParam.cs` / `NumericParamTable.cs` | `CommonLib`（纯逻辑） | net45 + net9.0 |
+
+---
+
+## 一、纯逻辑层
+
+**文件位置**：`CommonLib/UIControlUtil/NumericParamEditor/`
+
+**命名空间**：`CommonLib.UIControlUtil.NumericParamEditor`
+
+### 1. `NumericParam<T>`
+
+描述一个可编辑的数值参数，与具体业务实体解耦：
+
+| 成员 | 类型 | 说明 |
+|------|------|------|
+| `Name` | `string` | 参数名（唯一标识），也用于控件 Tag 匹配 |
+| `Step` | `double` | 单次步进量（正数） |
+| `Min` / `Max` | `double` | 取值范围（含边界） |
+| `DecimalPlaces` | `int` | 显示小数位数（显式字段） |
+| `Getter` | `Func<T, double>` | 读取宿主对象上的值 |
+| `Setter` | `Action<T, double>` | 写入宿主对象 |
+
+**方法**：
+
+| 方法 | 说明 |
+|------|------|
+| `Get(T host)` | 读取当前值 |
+| `Set(T host, double value)` | 写入值 |
+| `Clamp(double value)` | 钳制到 `[Min, Max]` 区间 |
+| `StepValue(T host, double direction)` | 步进一次并返回钳制后新值（不写回） |
+| `Format(double value)` | 按 `DecimalPlaces` 格式化为文本 |
+
+**构造校验**：`name`/`getter`/`setter` 为空抛 `ArgumentNullException`；`step` 非正数或 `min > max` 抛 `ArgumentOutOfRangeException`。
+
+### 2. `NumericParamTable<T>`
+
+一组 `NumericParam<T>` 的集合，提供查找与批量操作：
+
+| 成员 | 说明 |
+|------|------|
+| `Add(param)` | 添加参数，重名抛异常 |
+| `Find(name)` | 按参数名精确查找 |
+| `FindByTag(object tag)` | 按控件 Tag 查找（支持 `"Roll"` 或 `"Roll:1"`） |
+| `ParseDirection(tag)` | 从 Tag 解析方向（`"1"` 返回 +1，否则 -1） |
+| `IEnumerable<NumericParam<T>>` | 支持 `foreach` 遍历 |
+
+### 3. 纯逻辑使用示例
+
+```csharp
+using CommonLib.UIControlUtil.NumericParamEditor;
+
+// 1. 定义宿主对象：任意含 double 成员的类
+public class RobotConfig
+{
+    public double MaxSpeed { get; set; } = 2.0;
+    public double Accel    { get; set; } = 0.5;
+    public double PidKp    { get; set; } = 1.2;
+}
+
+// 2. 创建实例 + 元数据表
+var config = new RobotConfig();
+var table = new NumericParamTable<RobotConfig>();
+
+// 3. 声明参数（名字、步长、范围、小数位、读写委托）
+table.Add(new NumericParam<RobotConfig>("MaxSpeed", 0.1, 0, 10,  1, c => c.MaxSpeed, (c, v) => c.MaxSpeed = v));
+table.Add(new NumericParam<RobotConfig>("Accel",    0.05, 0, 5,  2, c => c.Accel,    (c, v) => c.Accel = v));
+table.Add(new NumericParam<RobotConfig>("PidKp",    0.01, 0, 100, 3, c => c.PidKp,    (c, v) => c.PidKp = v));
+
+// 4. 纯逻辑操作（无 UI，可独立测试）
+var p = table.Find("MaxSpeed");
+double newVal = p.StepValue(config, +1);   // 步进 +0.1，自动钳制
+p.Set(config, newVal);
+
+string text = p.Format(p.Get(config));      // "2.1"
+double clamped = p.Clamp(999);              // 钳制到上限 10
+
+// 5. 与 UI 绑定（按 Tag 查找，支持 "MaxSpeed" 或 "MaxSpeed:1"）
+var param = table.FindByTag(button.Tag);
+double dir = NumericParamTable<RobotConfig>.ParseDirection(button.Tag);
+```
+
+---

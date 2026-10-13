@@ -376,6 +376,19 @@ namespace CommonLib.UIControlUtil.WPF.Controls
             }
         }
 
+        /// <summary>
+        /// 从宿主对象重新读取所有参数的当前值并回显到输入框。
+        /// 不改变初始值字典（重置按钮目标不变）。
+        /// 用于宿主值被外部直接修改（如从文件加载）后刷新界面显示。
+        /// </summary>
+        public void RefreshAll()
+        {
+            foreach (var name in _getters.Keys)
+            {
+                RefreshBox(name);
+            }
+        }
+
         private void RaiseValueChanged(string name)
         {
             if (_getters.TryGetValue(name, out var getter))
